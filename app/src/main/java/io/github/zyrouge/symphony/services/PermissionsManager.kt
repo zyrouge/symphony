@@ -5,14 +5,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.MainActivity
 
-class PermissionsManager {
-    fun init() {
-        invoke()
-    }
-
-    private fun invoke() {
+object PermissionsManager {
+    fun activate(activity: MainActivity) {
         val requiredPermissions = mutableListOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requiredPermissions.add(Manifest.permission.READ_MEDIA_AUDIO)
@@ -20,13 +16,13 @@ class PermissionsManager {
 
         val pendingPermissions = requiredPermissions.filter { permission ->
             ContextCompat.checkSelfPermission(
-                Symphony.context,
+                activity.applicationContext,
                 permission
             ) != PackageManager.PERMISSION_GRANTED
         }
         if (pendingPermissions.isEmpty()) return
         ActivityCompat.requestPermissions(
-            Symphony.activity,
+            activity,
             pendingPermissions.toTypedArray(),
             1
         )

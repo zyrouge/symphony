@@ -5,15 +5,19 @@ import androidx.compose.runtime.Composable
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import io.github.zyrouge.symphony.MainActivity
+import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.Transitions
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.SymphonyTheme
-import io.github.zyrouge.symphony.ui.view.helpers.Routes
-import io.github.zyrouge.symphony.ui.view.helpers.Transitions
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun BaseView() {
+fun BaseView(symphony: Symphony, activity: MainActivity) {
     val context = ViewContext(
+        symphony = symphony,
+        activity = activity,
         navController = rememberAnimatedNavController()
     )
 

@@ -18,31 +18,30 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
 import io.github.zyrouge.symphony.ui.view.home.SongsView
 import kotlinx.coroutines.launch
 
 enum class HomePages(
-    val label: String,
+    val label: (context: ViewContext) -> String,
     val selectedIcon: @Composable () -> ImageVector,
     val unselectedIcon: @Composable () -> ImageVector
 ) {
     Songs(
-        label = Symphony.t.songs,
+        label = { it.symphony.t.songs },
         selectedIcon = { Icons.Filled.MusicNote },
         unselectedIcon = { Icons.Outlined.MusicNote }
     ),
     Artists(
-        label = Symphony.t.artists,
+        label = { it.symphony.t.artists },
         selectedIcon = { Icons.Filled.Group },
         unselectedIcon = { Icons.Outlined.Group }
     ),
     Albums(
-        label = Symphony.t.albums,
+        label = { it.symphony.t.albums },
         selectedIcon = { Icons.Filled.Album },
         unselectedIcon = { Icons.Outlined.Album }
     );
@@ -71,7 +70,7 @@ fun HomeView(context: ViewContext) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Crossfade(targetState = currentPage.label) {
+                    Crossfade(targetState = currentPage.label(context)) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -92,14 +91,14 @@ fun HomeView(context: ViewContext) {
                                     leadingIcon = {
                                         Icon(
                                             Icons.Default.Settings,
-                                            Symphony.t.settings
+                                            context.symphony.t.settings
                                         )
                                     },
-                                    text = { Text(Symphony.t.settings) },
+                                    text = { Text(context.symphony.t.settings) },
                                     onClick = { /* Handle edit! */ }
                                 )
                             }
-                            Icon(Icons.Default.MoreVert, Symphony.t.options)
+                            Icon(Icons.Default.MoreVert, context.symphony.t.options)
                         },
                         onClick = {
                             optionsDropdownState = !optionsDropdownState
@@ -133,6 +132,7 @@ fun HomeView(context: ViewContext) {
                 NavigationBar {
                     HomePages.values().map { page ->
                         val isSelected = currentPage == page
+                        val label = page.label(context)
                         NavigationBarItem(
                             selected = isSelected,
                             alwaysShowLabel = false,
@@ -140,11 +140,11 @@ fun HomeView(context: ViewContext) {
                                 Crossfade(targetState = isSelected) {
                                     Icon(
                                         if (it) page.selectedIcon() else page.unselectedIcon(),
-                                        page.label
+                                        label
                                     )
                                 }
                             },
-                            label = { Text(page.label) },
+                            label = { Text(label) },
                             onClick = {
                                 currentPage = page
                                 coroutineScope.launch {

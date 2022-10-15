@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.helpers
+package io.github.zyrouge.symphony.ui.helpers
 
 sealed class Routes(val route: String) {
     object Home : Routes("home")

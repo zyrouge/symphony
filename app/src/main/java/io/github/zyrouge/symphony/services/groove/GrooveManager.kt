@@ -1,16 +1,9 @@
 package io.github.zyrouge.symphony.services.groove
 
-class GrooveManager {
-    lateinit var song: SongRepository
-    lateinit var album: AlbumRepository
-    lateinit var artist: ArtistRepository
+import io.github.zyrouge.symphony.Symphony
 
-    fun init() {
-        song = SongRepository()
-        song.init()
-        album = AlbumRepository()
-        album.init()
-        artist = ArtistRepository()
-        artist.init()
-    }
+class GrooveManager(private val symphony: Symphony) {
+    val song = SongRepository(symphony)
+    val album = AlbumRepository(symphony)
+    val artist = ArtistRepository(symphony)
 }

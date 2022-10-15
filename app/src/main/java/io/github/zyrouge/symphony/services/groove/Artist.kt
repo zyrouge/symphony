@@ -12,8 +12,8 @@ data class Artist(
     val numberOfAlbums: Int,
     val numberOfTracks: Int
 ) {
-    fun getArtwork(): Bitmap {
-        return Symphony.groove.artist.fetchArtistArtwork(artistName)
+    fun getArtwork(symphony: Symphony): Bitmap {
+        return symphony.groove.artist.fetchArtistArtwork(artistName)
     }
 
     companion object {

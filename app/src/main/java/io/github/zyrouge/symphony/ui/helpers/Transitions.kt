@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.helpers
+package io.github.zyrouge.symphony.ui.helpers
 
 import androidx.compose.animation.*
 import androidx.compose.ui.unit.IntOffset

@@ -1,7 +1,5 @@
 package io.github.zyrouge.symphony.utils
 
-import android.util.Log
-
 typealias EventSubscriber<T> = (T) -> Unit
 typealias EventUnsubscribeFn = () -> Unit
 
@@ -21,6 +19,5 @@ class Eventer<T> {
 
     fun dispatch(event: T) {
         subscribers.forEach { it(event) }
-        Log.i("bottom", "pushed to ${subscribers.size}")
     }
 }

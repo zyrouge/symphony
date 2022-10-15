@@ -21,7 +21,9 @@ sealed class Translations(
     val albumArtist: String,
     val composer: String,
     val nothingIsBeingPlayedRightNow: String,
-    val playedXofY: (x: Int, y: Int) -> String,
+    val playingXofY: (x: Int, y: Int) -> String,
+    val addToQueue: String,
+    val queue: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -45,7 +47,9 @@ sealed class Translations(
         albumArtist = "Album Artist",
         composer = "Composer",
         nothingIsBeingPlayedRightNow = "Nothing is being played right now",
-        playedXofY = { x, y -> "Played $x of $y" }
+        playingXofY = { x, y -> "Playing $x of $y" },
+        addToQueue = "Add to queue",
+        queue = "Queue"
     )
 
     companion object {

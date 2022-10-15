@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import kotlin.math.roundToInt
 
 @Composable

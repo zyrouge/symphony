@@ -15,29 +15,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.view.helpers.Routes
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext) {
-    var currentPlayingSong by remember { mutableStateOf(Symphony.player.currentPlayingSong) }
-    var isPlaying by remember { mutableStateOf(Symphony.player.isPlaying) }
+    var currentPlayingSong by remember { mutableStateOf(context.symphony.player.currentPlayingSong) }
+    var isPlaying by remember { mutableStateOf(context.symphony.player.isPlaying) }
 
-    val unsubscribe = remember {
-        Symphony.player.events.subscribe {
-            currentPlayingSong = Symphony.player.currentPlayingSong
-            isPlaying = Symphony.player.isPlaying
+    EventerEffect(
+        context.symphony.player.onUpdate,
+        onEvent = {
+            currentPlayingSong = context.symphony.player.currentPlayingSong
+            isPlaying = context.symphony.player.isPlaying
         }
-    }
-
-    DisposableEffect(LocalLifecycleOwner.current) {
-        onDispose { unsubscribe() }
-    }
+    )
 
     AnimatedVisibility(
         visible = currentPlayingSong != null,
@@ -64,12 +59,12 @@ fun NowPlayingBottomBar(context: ViewContext) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
+                        song.getArtwork(context.symphony)
+                            .asImageBitmap(),
+                        null,
                         modifier = Modifier
                             .size(45.dp)
-                            .clip(RoundedCornerShape(10.dp)),
-                        bitmap = song.getArtwork()
-                            .asImageBitmap(),
-                        contentDescription = null
+                            .clip(RoundedCornerShape(10.dp))
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -84,10 +79,10 @@ fun NowPlayingBottomBar(context: ViewContext) {
                     Spacer(modifier = Modifier.width(15.dp))
                     IconButton(
                         onClick = {
-                            if (Symphony.player.isPlaying) {
-                                Symphony.player.pause()
+                            if (context.symphony.player.isPlaying) {
+                                context.symphony.player.pause()
                             } else {
-                                Symphony.player.resume()
+                                context.symphony.player.resume()
                             }
                         }
                     ) {
@@ -98,9 +93,9 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         )
                     }
                     IconButton(
-                        enabled = Symphony.player.canJumpToNext(),
+                        enabled = context.symphony.player.canJumpToNext(),
                         onClick = {
-                            Symphony.player.jumpToNext()
+                            context.symphony.player.jumpToNext()
                         }
                     ) {
                         Icon(Icons.Default.SkipNext, null)

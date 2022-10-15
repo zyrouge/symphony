@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,9 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +45,7 @@ fun SongCard(context: ViewContext, song: Song, onClick: () -> Unit) {
                     modifier = Modifier
                         .size(45.dp)
                         .clip(RoundedCornerShape(10.dp)),
-                    bitmap = song.getArtwork()
+                    bitmap = song.getArtwork(context.symphony)
                         .asImageBitmap(),
                     contentDescription = null
                 )
@@ -70,10 +70,22 @@ fun SongCard(context: ViewContext, song: Song, onClick: () -> Unit) {
                     ) {
                         DropdownMenuItem(
                             leadingIcon = {
+                                Icon(Icons.Default.PlaylistAdd, null)
+                            },
+                            text = {
+                                Text(context.symphony.t.addToQueue)
+                            },
+                            onClick = {
+                                showOptionsMenu = false
+                                context.symphony.player.addToQueue(song)
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
                                 Icon(Icons.Default.Info, null)
                             },
                             text = {
-                                Text(Symphony.t.details)
+                                Text(context.symphony.t.details)
                             },
                             onClick = {
                                 showOptionsMenu = false

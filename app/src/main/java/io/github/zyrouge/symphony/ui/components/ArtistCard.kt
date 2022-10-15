@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Artist
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +33,7 @@ fun ArtistCard(context: ViewContext, artist: Artist) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp)),
-                    bitmap = artist.getArtwork()
+                    bitmap = artist.getArtwork(context.symphony)
                         .asImageBitmap(),
                     contentDescription = null
                 )

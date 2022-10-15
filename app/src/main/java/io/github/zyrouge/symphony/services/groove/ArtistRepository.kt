@@ -2,20 +2,19 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.graphics.Bitmap
 import android.provider.MediaStore
-import android.util.Log
 import io.github.zyrouge.symphony.Symphony
 import java.util.stream.Stream
 
-class ArtistRepository {
+class ArtistRepository(private val symphony: Symphony) {
     lateinit var cached: MutableMap<String, Artist>
     val onUpdate = Stream.builder<Int>()!!
 
-    fun init() {
+    init {
         fetch()
     }
 
     fun fetch(): Int {
-        var cursor = Symphony.context.contentResolver.query(
+        var cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
             null,
             null,
@@ -30,17 +29,13 @@ class ArtistRepository {
             }
         }
         cached = artists
-        Log.i("artist", "total: ${cached.size} (${cursor?.count})")
-        cached.forEach {
-            Log.i("artist", it.value.toString())
-        }
         val total = artists.size
         onUpdate.add(total)
         return total
     }
 
     fun fetchArtistArtwork(artistName: String): Bitmap {
-        val album = Symphony.groove.album.cached.values.find { it.artistName == artistName }
-        return album!!.getArtwork()
+        val album = symphony.groove.album.cached.values.find { it.artistName == artistName }
+        return album!!.getArtwork(symphony)
     }
 }

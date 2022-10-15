@@ -1,49 +1,47 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.components.EventerEffect
+import io.github.zyrouge.symphony.ui.components.SongCard
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueView(context: ViewContext) {
-    var song by remember { mutableStateOf(Symphony.player.currentPlayingSong!!) }
-    var isPlaying by remember { mutableStateOf(Symphony.player.isPlaying) }
-
-    val unsubscribe = remember {
-        Symphony.player.events.subscribe {
-            song = Symphony.player.currentPlayingSong!!
-            isPlaying = Symphony.player.isPlaying
-        }
-    }
-
-    DisposableEffect(LocalLifecycleOwner.current) {
-        onDispose { unsubscribe() }
-    }
+    var queue by remember { mutableStateOf(context.symphony.player.queue.toList()) }
+    var currentSongIndex by remember { mutableStateOf(context.symphony.player.currentSongIndex) }
 
     BackHandler {
         context.navController.popBackStack()
     }
 
+    EventerEffect(
+        context.symphony.player.onUpdate,
+        onEvent = {
+            queue = context.symphony.player.queue.toList()
+            currentSongIndex = context.symphony.player.currentSongIndex
+        }
+    )
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
-                title = {},
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(context.symphony.t.queue)
+                },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.Transparent
                 ),
@@ -68,60 +66,16 @@ fun QueueView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Image(
-                        song.getArtwork().asImageBitmap(),
-                        null,
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth()
-                    )
-//                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(modifier = Modifier.padding(12.dp)) {
-                        IconButton(
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.surface,
-                                CircleShape
-                            ),
+                LazyColumn {
+                    items(queue.size) { i ->
+                        val song = queue[i]
+                        SongCard(
+                            context,
+                            song,
                             onClick = {
-                                if (Symphony.player.isPlaying) {
-                                    Symphony.player.pause()
-                                } else {
-                                    Symphony.player.resume()
-                                }
+                                context.symphony.player.jumpTo(i)
                             }
-                        ) {
-                            Icon(
-                                if (!isPlaying) Icons.Default.PlayArrow
-                                else Icons.Default.Pause,
-                                null
-                            )
-                        }
-                        IconButton(
-                            enabled = Symphony.player.canJumpToPrevious(),
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.surface,
-                                CircleShape
-                            ),
-                            onClick = {
-                                Symphony.player.jumpToPrevious()
-                            }
-                        ) {
-                            Icon(Icons.Default.SkipPrevious, null)
-                        }
-                        IconButton(
-                            enabled = Symphony.player.canJumpToNext(),
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.surface,
-                                CircleShape
-                            ),
-                            onClick = {
-                                Symphony.player.jumpToNext()
-                            }
-                        ) {
-                            Icon(Icons.Default.SkipNext, null)
-                        }
+                        )
                     }
                 }
             }

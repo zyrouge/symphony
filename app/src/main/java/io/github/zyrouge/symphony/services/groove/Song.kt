@@ -34,8 +34,8 @@ data class Song(
     val uri: Uri
         get() = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
 
-    fun getArtwork(): Bitmap {
-        return Symphony.groove.album.fetchAlbumArtwork(albumId)
+    fun getArtwork(symphony: Symphony): Bitmap {
+        return symphony.groove.album.fetchAlbumArtwork(albumId)
     }
 
     companion object {

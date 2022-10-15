@@ -5,6 +5,7 @@ import android.util.Log
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.Eventer
+import java.util.*
 
 enum class PlayerEvent {
     StartPlaying,
@@ -17,10 +18,15 @@ enum class PlayerEvent {
 data class PlayerDuration(
     val played: Int,
     val total: Int,
-)
+) {
+    companion object {
+        val zero = PlayerDuration(0, 0)
+    }
+}
 
-class Player {
-    val events = Eventer<PlayerEvent>()
+class Player(private val symphony: Symphony) {
+    val onUpdate = Eventer<PlayerEvent>()
+    val onDurationUpdate = Eventer<PlayerDuration>()
     var queue = mutableListOf<Song>()
     var currentSongIndex = -1
 
@@ -28,6 +34,8 @@ class Player {
         get() = if (currentSongIndex != -1) queue[currentSongIndex] else null
 
     private var currentMediaPlayer: MediaPlayer? = null
+    private var durationTimer: Timer? = null
+
     val hasPlayer: Boolean
         get() = currentMediaPlayer != null
     val isPlaying: Boolean
@@ -38,26 +46,30 @@ class Player {
             total = currentMediaPlayer!!.duration
         ) else null
 
-    fun init() {
-    }
-
     fun play(index: Int) {
         if (hasPlayer) stopCurrentSong()
+        if (!hasSongAt(index)) {
+            Log.e("SymphonyPlayer", "Invalid index $index (queue size: ${queue.size})")
+            return
+        }
         val song = queue[index]
         currentSongIndex = index
-        currentMediaPlayer = MediaPlayer.create(Symphony.context, song.uri)
+        currentMediaPlayer = MediaPlayer.create(symphony.applicationContext, song.uri)
         currentMediaPlayer!!.start()
-        events.dispatch(PlayerEvent.StartPlaying)
+        onUpdate.dispatch(PlayerEvent.StartPlaying)
+        createDurationTimer()
     }
 
     fun pause() {
         currentMediaPlayer?.pause()
-        events.dispatch(PlayerEvent.PausePlaying)
+        destroyDurationTimer()
+        onUpdate.dispatch(PlayerEvent.PausePlaying)
     }
 
     fun resume() {
         currentMediaPlayer?.start()
-        events.dispatch(PlayerEvent.ResumePlaying)
+        onUpdate.dispatch(PlayerEvent.ResumePlaying)
+        createDurationTimer()
     }
 
     fun stop() {
@@ -67,27 +79,27 @@ class Player {
         currentMediaPlayer = null
         queue.clear()
         currentSongIndex = -1
-        events.dispatch(PlayerEvent.StopPlaying)
+        onUpdate.dispatch(PlayerEvent.StopPlaying)
+        destroyDurationTimer()
     }
 
     fun jumpTo(index: Int) = play(index)
     fun jumpToPrevious() = jumpTo(currentSongIndex - 1)
     fun jumpToNext() = jumpTo(currentSongIndex + 1)
 
-    fun hasSongAt(index: Int) = index > 0 && index < queue.size
+    fun hasSongAt(index: Int) = index > -1 && index < queue.size
     fun canJumpToPrevious() = hasSongAt(currentSongIndex - 1)
     fun canJumpToNext() = hasSongAt(currentSongIndex + 1)
 
     fun addToQueue(songs: List<Song>) {
-        Log.i("player", queue.addAll(songs).toString())
-        Log.i("player", "after add ${queue.size} (${songs.size})")
-        events.dispatch(PlayerEvent.SongQueued)
+        queue.addAll(songs)
+        onUpdate.dispatch(PlayerEvent.SongQueued)
         afterAddToQueue()
     }
 
     fun addToQueue(song: Song) {
         queue.add(song)
-        events.dispatch(PlayerEvent.SongQueued)
+        onUpdate.dispatch(PlayerEvent.SongQueued)
         afterAddToQueue()
     }
 
@@ -102,5 +114,19 @@ class Player {
         currentMediaPlayer?.stop()
         currentMediaPlayer?.release()
         currentMediaPlayer = null
+    }
+
+    private fun createDurationTimer() {
+        durationTimer = kotlin.concurrent.timer(period = 100L) {
+            val currentDuration = duration
+            if (currentDuration != null) {
+                onDurationUpdate.dispatch(currentDuration)
+            }
+        }
+    }
+
+    private fun destroyDurationTimer() {
+        durationTimer?.cancel()
+        durationTimer = null
     }
 }

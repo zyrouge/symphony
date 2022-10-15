@@ -17,18 +17,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.round
 
 @Composable
 fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: () -> Unit) {
-    Dialog(
-        onDismissRequest = onDismissRequest
-    ) {
+    Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
@@ -39,48 +36,48 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    Symphony.t.details,
+                    context.symphony.t.details,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 KeyValueTextComponent(
-                    Symphony.t.trackName,
+                    context.symphony.t.trackName,
                     song.title
                 )
                 KeyValueTextComponent(
-                    Symphony.t.artist,
-                    song.artistName ?: Symphony.t.unk
+                    context.symphony.t.artist,
+                    song.artistName ?: context.symphony.t.unk
                 )
                 KeyValueTextComponent(
-                    Symphony.t.albumArtist,
-                    song.albumArtist ?: Symphony.t.unk
+                    context.symphony.t.albumArtist,
+                    song.albumArtist ?: context.symphony.t.unk
                 )
                 KeyValueTextComponent(
-                    Symphony.t.composer,
-                    song.composer ?: Symphony.t.unk
+                    context.symphony.t.composer,
+                    song.composer ?: context.symphony.t.unk
                 )
                 Text("")
                 KeyValueTextComponent(
-                    Symphony.t.filename,
+                    context.symphony.t.filename,
                     song.filename
                 )
                 KeyValueTextComponent(
-                    Symphony.t.path,
+                    context.symphony.t.path,
                     song.path
                 )
                 KeyValueTextComponent(
-                    Symphony.t.size,
+                    context.symphony.t.size,
                     "${round((song.size / 1024 / 1024).toDouble())} MB"
                 )
                 KeyValueTextComponent(
-                    Symphony.t.dateAdded,
+                    context.symphony.t.dateAdded,
                     SimpleDateFormat.getInstance()
                         .format(Date(song.dateAdded))
                 )
                 KeyValueTextComponent(
-                    Symphony.t.lastModified,
+                    context.symphony.t.lastModified,
                     SimpleDateFormat.getInstance()
                         .format(Date(song.dateModified))
                 )

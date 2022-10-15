@@ -10,8 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.view.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun NothingPlaying(context: ViewContext) {
@@ -27,7 +26,7 @@ fun NothingPlaying(context: ViewContext) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                Symphony.t.nothingIsBeingPlayedRightNow,
+                context.symphony.t.nothingIsBeingPlayedRightNow,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
