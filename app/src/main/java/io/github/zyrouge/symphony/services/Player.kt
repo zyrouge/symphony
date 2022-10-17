@@ -12,13 +12,21 @@ enum class PlayerEvent {
     StopPlaying,
     PausePlaying,
     ResumePlaying,
+    Seeked,
     SongQueued,
+    SongDequeued,
+    QueueIndexChanged,
+    QueueModified,
+    SongEnded,
 }
 
 data class PlayerDuration(
     val played: Int,
     val total: Int,
 ) {
+    fun toRatio() = played.toFloat() / total.toFloat()
+    fun toPercent() = toRatio() * 100
+
     companion object {
         val zero = PlayerDuration(0, 0)
     }
@@ -55,6 +63,9 @@ class Player(private val symphony: Symphony) {
         val song = queue[index]
         currentSongIndex = index
         currentMediaPlayer = MediaPlayer.create(symphony.applicationContext, song.uri)
+        currentMediaPlayer!!.setOnCompletionListener {
+            onSongFinish()
+        }
         currentMediaPlayer!!.start()
         onUpdate.dispatch(PlayerEvent.StartPlaying)
         createDurationTimer()
@@ -74,8 +85,8 @@ class Player(private val symphony: Symphony) {
 
     fun stop() {
         if (!hasPlayer) return
-        currentMediaPlayer?.stop()
-        currentMediaPlayer?.release()
+        currentMediaPlayer!!.stop()
+        currentMediaPlayer!!.release()
         currentMediaPlayer = null
         queue.clear()
         currentSongIndex = -1
@@ -91,6 +102,12 @@ class Player(private val symphony: Symphony) {
     fun canJumpToPrevious() = hasSongAt(currentSongIndex - 1)
     fun canJumpToNext() = hasSongAt(currentSongIndex + 1)
 
+    fun seek(position: Int) {
+        if (!hasPlayer) return
+        currentMediaPlayer!!.seekTo(position)
+        onUpdate.dispatch(PlayerEvent.Seeked)
+    }
+
     fun addToQueue(songs: List<Song>) {
         queue.addAll(songs)
         onUpdate.dispatch(PlayerEvent.SongQueued)
@@ -101,6 +118,40 @@ class Player(private val symphony: Symphony) {
         queue.add(song)
         onUpdate.dispatch(PlayerEvent.SongQueued)
         afterAddToQueue()
+    }
+
+    fun addToQueue(song: Song, index: Int) {
+        queue.add(index, song)
+        onUpdate.dispatch(PlayerEvent.SongQueued)
+        afterAddToQueue()
+    }
+
+    fun removeFromQueue(index: Int) {
+        queue.removeAt(index)
+        onUpdate.dispatch(PlayerEvent.SongDequeued)
+        if (currentSongIndex == index) {
+            play(currentSongIndex)
+        } else if (index < currentSongIndex) {
+            currentSongIndex--
+            onUpdate.dispatch(PlayerEvent.QueueIndexChanged)
+        }
+    }
+
+    fun removeFromQueue(indices: List<Int>) {
+        var deflection = 0
+        var currentSongRemoved = false
+        for (i in indices) {
+            queue.removeAt(i - deflection)
+            if (i <= currentSongIndex) {
+                if (i == currentSongIndex) currentSongRemoved = true
+                deflection++
+            }
+        }
+        currentSongIndex -= deflection
+        onUpdate.dispatch(PlayerEvent.QueueModified)
+        if (currentSongRemoved) {
+            play(currentSongIndex)
+        }
     }
 
     private fun afterAddToQueue() {
@@ -119,8 +170,8 @@ class Player(private val symphony: Symphony) {
     private fun createDurationTimer() {
         durationTimer = kotlin.concurrent.timer(period = 100L) {
             val currentDuration = duration
-            if (currentDuration != null) {
-                onDurationUpdate.dispatch(currentDuration)
+            currentDuration?.let {
+                onDurationUpdate.dispatch(it)
             }
         }
     }
@@ -128,5 +179,15 @@ class Player(private val symphony: Symphony) {
     private fun destroyDurationTimer() {
         durationTimer?.cancel()
         durationTimer = null
+    }
+
+    private fun onSongFinish() {
+        onUpdate.dispatch(PlayerEvent.SongEnded)
+        val nextSongIndex = currentSongIndex + 1
+        if (hasSongAt(nextSongIndex)) {
+            play(nextSongIndex)
+        } else {
+            currentSongIndex = -1
+        }
     }
 }

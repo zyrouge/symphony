@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,7 +21,12 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SongCard(context: ViewContext, song: Song, onClick: () -> Unit) {
+fun SongCard(
+    context: ViewContext,
+    song: Song,
+    leading: @Composable () -> Unit = {},
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,6 +47,7 @@ fun SongCard(context: ViewContext, song: Song, onClick: () -> Unit) {
                 )
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                leading()
                 Image(
                     modifier = Modifier
                         .size(45.dp)
@@ -68,6 +75,21 @@ fun SongCard(context: ViewContext, song: Song, onClick: () -> Unit) {
                         expanded = showOptionsMenu,
                         onDismissRequest = { showOptionsMenu = false }
                     ) {
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.PlaylistPlay, null)
+                            },
+                            text = {
+                                Text(context.symphony.t.playNext)
+                            },
+                            onClick = {
+                                showOptionsMenu = false
+                                context.symphony.player.addToQueue(
+                                    song,
+                                    context.symphony.player.currentSongIndex + 1
+                                )
+                            }
+                        )
                         DropdownMenuItem(
                             leadingIcon = {
                                 Icon(Icons.Default.PlaylistAdd, null)

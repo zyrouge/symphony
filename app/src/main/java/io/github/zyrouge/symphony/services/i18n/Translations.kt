@@ -24,6 +24,8 @@ sealed class Translations(
     val playingXofY: (x: Int, y: Int) -> String,
     val addToQueue: String,
     val queue: String,
+    val playNext: String,
+    val nowPlaying: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -49,7 +51,9 @@ sealed class Translations(
         nothingIsBeingPlayedRightNow = "Nothing is being played right now",
         playingXofY = { x, y -> "Playing $x of $y" },
         addToQueue = "Add to queue",
-        queue = "Queue"
+        queue = "Queue",
+        playNext = "Play next",
+        nowPlaying = "Now Playing"
     )
 
     companion object {

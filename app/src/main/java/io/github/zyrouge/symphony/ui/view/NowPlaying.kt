@@ -13,14 +13,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.zyrouge.symphony.services.PlayerDuration
 import io.github.zyrouge.symphony.ui.components.EventerEffect
-import io.github.zyrouge.symphony.ui.components.NothingPlaying
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationFormatter
@@ -55,25 +57,7 @@ fun NowPlayingView(context: ViewContext) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
-                title = {},
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = Color.Transparent
-                ),
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            context.navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            Icons.Default.ExpandMore,
-                            null,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
-            )
+            NowPlayingAppBar(context)
         },
         content = { contentPadding ->
             val defaultHorizontalPadding = 20.dp
@@ -87,12 +71,16 @@ fun NowPlayingView(context: ViewContext) {
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Image(
-                        song!!.getArtwork(context.symphony).asImageBitmap(),
-                        null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
+                    Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
+                        Image(
+                            song!!.getArtwork(context.symphony).asImageBitmap(),
+                            null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                        )
+                    }
                     Spacer(modifier = Modifier.height(12.dp))
                     Column(modifier = Modifier.padding(defaultHorizontalPadding)) {
                         Text(
@@ -159,6 +147,7 @@ fun NowPlayingView(context: ViewContext) {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             val interactionSource = remember { MutableInteractionSource() }
+                            var sliderPosition by remember { mutableStateOf<Int?>(null) }
                             var duration by remember {
                                 mutableStateOf(
                                     context.symphony.player.duration ?: PlayerDuration.zero
@@ -173,13 +162,22 @@ fun NowPlayingView(context: ViewContext) {
                             )
 
                             Text(
-                                DurationFormatter.formatAsMS(duration.played),
+                                DurationFormatter.formatAsMS(sliderPosition ?: duration.played),
                                 style = MaterialTheme.typography.labelMedium
                             )
                             BoxWithConstraints(modifier = Modifier.weight(1f)) {
                                 Slider(
-                                    value = duration.played.toFloat() / duration.total.toFloat(),
-                                    onValueChange = {},
+                                    value = sliderPosition?.toFloat() ?: duration.played.toFloat(),
+                                    valueRange = 0f..duration.total.toFloat(),
+                                    onValueChange = {
+                                        sliderPosition = it.toInt()
+                                    },
+                                    onValueChangeFinished = {
+                                        sliderPosition?.let {
+                                            context.symphony.player.seek(it)
+                                            sliderPosition = null
+                                        }
+                                    },
                                     interactionSource = interactionSource,
                                     thumb = {
                                         SliderDefaults.Thumb(
@@ -228,6 +226,38 @@ fun NowPlayingView(context: ViewContext) {
                         }
                     }
                 }
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NowPlayingAppBar(context: ViewContext) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                context.symphony.t.nowPlaying,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.sp
+                )
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent
+        ),
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                    context.navController.popBackStack()
+                }
+            ) {
+                Icon(
+                    Icons.Default.ExpandMore,
+                    null,
+                    modifier = Modifier.size(32.dp)
+                )
             }
         }
     )

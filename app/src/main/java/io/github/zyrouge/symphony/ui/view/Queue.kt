@@ -1,18 +1,19 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -22,6 +23,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun QueueView(context: ViewContext) {
     var queue by remember { mutableStateOf(context.symphony.player.queue.toList()) }
     var currentSongIndex by remember { mutableStateOf(context.symphony.player.currentSongIndex) }
+    val selectedSongIndices = remember { mutableStateListOf<Int>() }
 
     BackHandler {
         context.navController.popBackStack()
@@ -40,7 +42,13 @@ fun QueueView(context: ViewContext) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(context.symphony.t.queue)
+                    Text(
+                        context.symphony.t.queue,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.sp
+                        )
+                    )
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.Transparent
@@ -57,6 +65,18 @@ fun QueueView(context: ViewContext) {
                             modifier = Modifier.size(32.dp)
                         )
                     }
+                },
+                actions = {
+                    if (selectedSongIndices.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                context.symphony.player.removeFromQueue(selectedSongIndices.toList())
+                                selectedSongIndices.clear()
+                            }
+                        ) {
+                            Icon(Icons.Default.Delete, null)
+                        }
+                    }
                 }
             )
         },
@@ -66,16 +86,39 @@ fun QueueView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                LazyColumn {
-                    items(queue.size) { i ->
-                        val song = queue[i]
-                        SongCard(
-                            context,
-                            song,
-                            onClick = {
-                                context.symphony.player.jumpTo(i)
+                if (queue.isEmpty()) {
+                    NothingPlayingBody(context)
+                } else {
+                    LazyColumn {
+                        items(queue.size) { i ->
+                            val song = queue[i]
+                            val hasFinishedPlaying = i < currentSongIndex
+                            Box(
+                                modifier = Modifier.alpha(if (hasFinishedPlaying) 0.75f else 1f)
+                            ) {
+                                SongCard(
+                                    context,
+                                    song,
+                                    leading = {
+                                        Checkbox(
+                                            checked = selectedSongIndices.contains(i),
+                                            onCheckedChange = {
+                                                if (selectedSongIndices.contains(i)) {
+                                                    selectedSongIndices.remove(i)
+                                                } else {
+                                                    selectedSongIndices.add(i)
+                                                }
+                                            },
+                                            modifier = Modifier.offset((-4).dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    },
+                                    onClick = {
+                                        context.symphony.player.jumpTo(i)
+                                    }
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }
