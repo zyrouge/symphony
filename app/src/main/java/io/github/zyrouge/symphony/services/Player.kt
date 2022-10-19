@@ -18,6 +18,7 @@ enum class PlayerEvent {
     QueueIndexChanged,
     QueueModified,
     SongEnded,
+    LoopModeChanged,
 }
 
 data class PlayerDuration(
@@ -32,10 +33,21 @@ data class PlayerDuration(
     }
 }
 
+enum class LoopMode {
+    None,
+    Queue,
+    Song;
+
+    companion object {
+        val all = values()
+    }
+}
+
 class Player(private val symphony: Symphony) {
     val onUpdate = Eventer<PlayerEvent>()
     val onDurationUpdate = Eventer<PlayerDuration>()
     var queue = mutableListOf<Song>()
+    var currentLoopMode = LoopMode.None
     var currentSongIndex = -1
 
     val currentPlayingSong: Song?
@@ -152,6 +164,16 @@ class Player(private val symphony: Symphony) {
         if (currentSongRemoved) {
             play(currentSongIndex)
         }
+    }
+
+    fun setLoopMode(loopMode: LoopMode) {
+        currentLoopMode = loopMode
+        onUpdate.dispatch(PlayerEvent.LoopModeChanged)
+    }
+
+    fun toggleLoopMode() {
+        val next = LoopMode.all.indexOf(currentLoopMode) + 1
+        setLoopMode(LoopMode.all[if (next < LoopMode.all.size) next else 0])
     }
 
     private fun afterAddToQueue() {

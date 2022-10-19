@@ -47,7 +47,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
     ) {
         val song = currentPlayingSong!!
         Column {
-            Card(
+            ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),

@@ -25,6 +25,7 @@ fun SongCard(
     context: ViewContext,
     song: Song,
     leading: @Composable () -> Unit = {},
+    highlightTitle: Boolean = false,
     onClick: () -> Unit
 ) {
     Card(
@@ -58,7 +59,13 @@ fun SongCard(
                 )
                 Spacer(modifier = Modifier.width(15.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(song.title, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        song.title,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = if (highlightTitle) MaterialTheme.colorScheme.primary
+                            else LocalTextStyle.current.color
+                        )
+                    )
                     song.artistName?.let { artistName ->
                         Text(
                             artistName,

@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -20,9 +21,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import io.github.zyrouge.symphony.services.LoopMode
 import io.github.zyrouge.symphony.services.PlayerDuration
 import io.github.zyrouge.symphony.ui.components.EventerEffect
+import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationFormatter
@@ -34,6 +36,7 @@ fun NowPlayingView(context: ViewContext) {
     var isPlaying by remember { mutableStateOf(context.symphony.player.isPlaying) }
     var currentSongIndex by remember { mutableStateOf(context.symphony.player.currentSongIndex) }
     var queueSize by remember { mutableStateOf(context.symphony.player.queue.size) }
+    var currentLoopMode by remember { mutableStateOf(context.symphony.player.currentLoopMode) }
 
     BackHandler {
         context.navController.popBackStack()
@@ -46,6 +49,7 @@ fun NowPlayingView(context: ViewContext) {
             isPlaying = context.symphony.player.isPlaying
             currentSongIndex = context.symphony.player.currentSongIndex
             queueSize = context.symphony.player.queue.size
+            currentLoopMode = context.symphony.player.currentLoopMode
         }
     )
 
@@ -97,8 +101,7 @@ fun NowPlayingView(context: ViewContext) {
                         ) {
                             IconButton(
                                 modifier = Modifier.background(
-                                    MaterialTheme.colorScheme
-                                        .contentColorFor(MaterialTheme.colorScheme.surface),
+                                    MaterialTheme.colorScheme.primary,
                                     CircleShape
                                 ),
                                 onClick = {
@@ -113,7 +116,7 @@ fun NowPlayingView(context: ViewContext) {
                                     if (!isPlaying) Icons.Default.PlayArrow
                                     else Icons.Default.Pause,
                                     null,
-                                    tint = MaterialTheme.colorScheme.surface
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                             IconButton(
@@ -197,7 +200,7 @@ fun NowPlayingView(context: ViewContext) {
             }
         },
         bottomBar = {
-            Card(
+            ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
@@ -214,9 +217,20 @@ fun NowPlayingView(context: ViewContext) {
                         Text(context.symphony.t.playingXofY(currentSongIndex + 1, queueSize))
                         Row {
                             IconButton(
-                                onClick = {}
+                                onClick = {
+                                    context.symphony.player.toggleLoopMode()
+                                }
                             ) {
-                                Icon(Icons.Default.Repeat, null)
+                                Icon(
+                                    when (currentLoopMode) {
+                                        LoopMode.Song -> Icons.Default.RepeatOne
+                                        else -> Icons.Default.Repeat
+                                    },
+                                    null,
+                                    modifier = Modifier.alpha(
+                                        if (currentLoopMode == LoopMode.None) 0.7f else 1f
+                                    )
+                                )
                             }
                             IconButton(
                                 onClick = {}
@@ -236,13 +250,9 @@ fun NowPlayingView(context: ViewContext) {
 fun NowPlayingAppBar(context: ViewContext) {
     CenterAlignedTopAppBar(
         title = {
-            Text(
-                context.symphony.t.nowPlaying,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.sp
-                )
-            )
+            TopAppBarMinimalTitle {
+                Text(context.symphony.t.nowPlaying)
+            }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent

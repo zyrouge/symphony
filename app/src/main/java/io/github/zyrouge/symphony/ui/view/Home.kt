@@ -14,11 +14,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
+import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
@@ -69,6 +71,9 @@ fun HomeView(context: ViewContext) {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                ),
                 title = {
                     Crossfade(targetState = currentPage.label(context)) {
                         Box(
@@ -76,7 +81,7 @@ fun HomeView(context: ViewContext) {
                                 .fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(it)
+                            TopAppBarMinimalTitle { Text(it) }
                         }
                     }
                 },

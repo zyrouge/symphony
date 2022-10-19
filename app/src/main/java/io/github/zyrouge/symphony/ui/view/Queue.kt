@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -11,11 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongCard
+import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,13 +42,9 @@ fun QueueView(context: ViewContext) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        context.symphony.t.queue,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.sp
-                        )
-                    )
+                    TopAppBarMinimalTitle {
+                        Text(context.symphony.t.queue)
+                    }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.Transparent
@@ -77,6 +73,13 @@ fun QueueView(context: ViewContext) {
                             Icon(Icons.Default.Delete, null)
                         }
                     }
+                    IconButton(
+                        onClick = {
+                            context.symphony.player.stop()
+                        }
+                    ) {
+                        Icon(Icons.Default.ClearAll, null)
+                    }
                 }
             )
         },
@@ -92,13 +95,14 @@ fun QueueView(context: ViewContext) {
                     LazyColumn {
                         items(queue.size) { i ->
                             val song = queue[i]
-                            val hasFinishedPlaying = i < currentSongIndex
                             Box(
-                                modifier = Modifier.alpha(if (hasFinishedPlaying) 0.75f else 1f)
+                                modifier = Modifier
+                                    .alpha(if (i < currentSongIndex) 0.7f else 1f)
                             ) {
                                 SongCard(
                                     context,
                                     song,
+                                    highlightTitle = i == currentSongIndex,
                                     leading = {
                                         Checkbox(
                                             checked = selectedSongIndices.contains(i),
