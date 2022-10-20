@@ -21,7 +21,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
 import io.github.zyrouge.symphony.ui.view.home.SongsView
@@ -99,8 +101,12 @@ fun HomeView(context: ViewContext) {
                                             context.symphony.t.settings
                                         )
                                     },
-                                    text = { Text(context.symphony.t.settings) },
-                                    onClick = { /* Handle edit! */ }
+                                    text = {
+                                        Text(context.symphony.t.settings)
+                                    },
+                                    onClick = {
+                                        context.navController.navigate(Routes.Settings)
+                                    }
                                 )
                             }
                             Icon(Icons.Default.MoreVert, context.symphony.t.options)

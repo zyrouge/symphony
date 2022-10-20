@@ -26,6 +26,12 @@ sealed class Translations(
     val queue: String,
     val playNext: String,
     val nowPlaying: String,
+    val language_: String,
+    val materialYou: String,
+    val system: String,
+    val light: String,
+    val dark: String,
+    val black: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -53,11 +59,21 @@ sealed class Translations(
         addToQueue = "Add to queue",
         queue = "Queue",
         playNext = "Play next",
-        nowPlaying = "Now Playing"
+        nowPlaying = "Now Playing",
+        language_ = "Language",
+        materialYou = "Material You",
+        system = "System",
+        light = "Light",
+        dark = "Dark",
+        black = "Black"
     )
 
     companion object {
-        val all = arrayOf(english)
+        val all = arrayOf<Translations>(english)
         val default = english
+
+        fun of(language: String) = all.find {
+            it.language == language
+        }
     }
 }

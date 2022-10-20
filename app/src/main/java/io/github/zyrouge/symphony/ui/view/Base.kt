@@ -21,7 +21,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
         navController = rememberAnimatedNavController()
     )
 
-    SymphonyTheme {
+    SymphonyTheme(context) {
         AnimatedNavHost(
             navController = context.navController,
             startDestination = Routes.Home.route
@@ -42,6 +42,13 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 exitTransition = Transitions.SlideDownExitTransition
             ) {
                 QueueView(context)
+            }
+            composable(
+                Routes.Settings.route,
+                enterTransition = Transitions.ScaleUpEnterTransition,
+                exitTransition = Transitions.ScaleDownExitTransition
+            ) {
+                SettingsView(context)
             }
         }
     }

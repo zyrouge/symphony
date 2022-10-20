@@ -29,13 +29,10 @@ fun QueueView(context: ViewContext) {
         context.navController.popBackStack()
     }
 
-    EventerEffect(
-        context.symphony.player.onUpdate,
-        onEvent = {
-            queue = context.symphony.player.queue.toList()
-            currentSongIndex = context.symphony.player.currentSongIndex
-        }
-    )
+    EventerEffect(context.symphony.player.onUpdate) {
+        queue = context.symphony.player.queue.toList()
+        currentSongIndex = context.symphony.player.currentSongIndex
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

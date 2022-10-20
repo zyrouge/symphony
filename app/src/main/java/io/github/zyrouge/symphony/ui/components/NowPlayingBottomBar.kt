@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.PlayerDuration
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,13 +29,10 @@ fun NowPlayingBottomBar(context: ViewContext) {
     var currentPlayingSong by remember { mutableStateOf(context.symphony.player.currentPlayingSong) }
     var isPlaying by remember { mutableStateOf(context.symphony.player.isPlaying) }
 
-    EventerEffect(
-        context.symphony.player.onUpdate,
-        onEvent = {
-            currentPlayingSong = context.symphony.player.currentPlayingSong
-            isPlaying = context.symphony.player.isPlaying
-        }
-    )
+    EventerEffect(context.symphony.player.onUpdate) {
+        currentPlayingSong = context.symphony.player.currentPlayingSong
+        isPlaying = context.symphony.player.isPlaying
+    }
 
     AnimatedVisibility(
         visible = currentPlayingSong != null,
@@ -53,7 +51,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                     .wrapContentHeight(),
                 shape = RectangleShape,
                 onClick = {
-                    context.navController.navigate(Routes.NowPlaying.route)
+                    context.navController.navigate(Routes.NowPlaying)
                 }
             ) {
                 Box(
@@ -118,12 +116,9 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         context.symphony.player.duration ?: PlayerDuration.zero
                     )
                 }
-                EventerEffect(
-                    context.symphony.player.onDurationUpdate,
-                    onEvent = {
-                        duration = it
-                    }
-                )
+                EventerEffect(context.symphony.player.onDurationUpdate) {
+                    duration = it
+                }
                 Box(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.primary.copy(0.3f))

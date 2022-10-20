@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services
 
 import android.media.MediaPlayer
+import android.net.Uri
 import android.util.Log
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
@@ -19,6 +20,7 @@ enum class PlayerEvent {
     QueueModified,
     SongEnded,
     LoopModeChanged,
+    QueueEnded,
 }
 
 data class PlayerDuration(
@@ -43,6 +45,29 @@ enum class LoopMode {
     }
 }
 
+class MediaPlayerManager(private val symphony: Symphony) {
+    var usable = false
+    private var player: MediaPlayer? = null
+
+    fun play(uri: Uri, onFinish: () -> Unit) {
+        player = MediaPlayer.create(symphony.applicationContext, uri)
+        player!!.setOnCompletionListener {
+            usable = false
+            onFinish()
+        }
+        usable = true
+    }
+
+    fun release() {
+        player?.let {
+            it.release()
+            usable = false
+        }
+    }
+
+    fun getPlayer() = if (usable) player else null
+}
+
 class Player(private val symphony: Symphony) {
     val onUpdate = Eventer<PlayerEvent>()
     val onDurationUpdate = Eventer<PlayerDuration>()
@@ -53,7 +78,9 @@ class Player(private val symphony: Symphony) {
     val currentPlayingSong: Song?
         get() = if (currentSongIndex != -1) queue[currentSongIndex] else null
 
-    private var currentMediaPlayer: MediaPlayer? = null
+    private var currentMediaPlayerManager = MediaPlayerManager(symphony)
+    private val currentMediaPlayer: MediaPlayer?
+        get() = currentMediaPlayerManager.getPlayer()
     private var durationTimer: Timer? = null
 
     val hasPlayer: Boolean
@@ -74,8 +101,7 @@ class Player(private val symphony: Symphony) {
         }
         val song = queue[index]
         currentSongIndex = index
-        currentMediaPlayer = MediaPlayer.create(symphony.applicationContext, song.uri)
-        currentMediaPlayer!!.setOnCompletionListener {
+        currentMediaPlayerManager.play(song.uri) {
             onSongFinish()
         }
         currentMediaPlayer!!.start()
@@ -97,13 +123,11 @@ class Player(private val symphony: Symphony) {
 
     fun stop() {
         if (!hasPlayer) return
-        currentMediaPlayer!!.stop()
-        currentMediaPlayer!!.release()
-        currentMediaPlayer = null
+        destroyDurationTimer()
+        stopCurrentSong()
         queue.clear()
         currentSongIndex = -1
         onUpdate.dispatch(PlayerEvent.StopPlaying)
-        destroyDurationTimer()
     }
 
     fun jumpTo(index: Int) = play(index)
@@ -184,13 +208,13 @@ class Player(private val symphony: Symphony) {
 
     private fun stopCurrentSong() {
         if (!hasPlayer) return
-        currentMediaPlayer?.stop()
-        currentMediaPlayer?.release()
-        currentMediaPlayer = null
+        currentMediaPlayer!!.stop()
+        currentMediaPlayerManager.release()
     }
 
     private fun createDurationTimer() {
         durationTimer = kotlin.concurrent.timer(period = 100L) {
+            if (!hasPlayer) return@timer
             val currentDuration = duration
             currentDuration?.let {
                 onDurationUpdate.dispatch(it)
@@ -205,11 +229,20 @@ class Player(private val symphony: Symphony) {
 
     private fun onSongFinish() {
         onUpdate.dispatch(PlayerEvent.SongEnded)
-        val nextSongIndex = currentSongIndex + 1
-        if (hasSongAt(nextSongIndex)) {
-            play(nextSongIndex)
-        } else {
-            currentSongIndex = -1
+        when (currentLoopMode) {
+            LoopMode.Song -> play(currentSongIndex)
+            else -> {
+                var nextSongIndex = currentSongIndex + 1
+                if (!hasSongAt(nextSongIndex) && currentLoopMode == LoopMode.Queue) {
+                    nextSongIndex = 0
+                }
+                if (hasSongAt(nextSongIndex)) {
+                    play(nextSongIndex)
+                } else {
+                    currentSongIndex = -1
+                    onUpdate.dispatch(PlayerEvent.QueueEnded)
+                }
+            }
         }
     }
 }

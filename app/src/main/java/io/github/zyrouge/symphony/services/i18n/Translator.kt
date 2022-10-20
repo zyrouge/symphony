@@ -6,6 +6,6 @@ class Translator(private val symphony: Symphony) {
     var t: Translations
 
     init {
-        t = Translations.default
+        t = symphony.settings.getLanguage()?.let { Translations.of(it) } ?: Translations.default
     }
 }
