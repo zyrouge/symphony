@@ -43,95 +43,96 @@ fun NowPlayingBottomBar(context: ViewContext) {
             IntOffset(0, it.height / 2)
         } + fadeOut()
     ) {
-        val song = currentPlayingSong!!
-        Column {
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                shape = RectangleShape,
-                onClick = {
-                    context.navController.navigate(Routes.NowPlaying)
-                }
-            ) {
-                Box(
+        currentPlayingSong?.let { song ->
+            Column {
+                ElevatedCard(
                     modifier = Modifier
-                        .padding(12.dp, 8.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    shape = RectangleShape,
+                    onClick = {
+                        context.navController.navigate(Routes.NowPlaying)
+                    }
                 ) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                song.getArtwork(context.symphony)
-                                    .asImageBitmap(),
-                                null,
-                                modifier = Modifier
-                                    .size(45.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(song.title, style = MaterialTheme.typography.bodyMedium)
-                                song.artistName?.let { artistName ->
-                                    Text(
-                                        artistName,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(15.dp))
-                            IconButton(
-                                onClick = {
-                                    if (context.symphony.player.isPlaying) {
-                                        context.symphony.player.pause()
-                                    } else {
-                                        context.symphony.player.resume()
+                    Box(
+                        modifier = Modifier
+                            .padding(12.dp, 8.dp)
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    song.getArtwork(context.symphony)
+                                        .asImageBitmap(),
+                                    null,
+                                    modifier = Modifier
+                                        .size(45.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                )
+                                Spacer(modifier = Modifier.width(15.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(song.title, style = MaterialTheme.typography.bodyMedium)
+                                    song.artistName?.let { artistName ->
+                                        Text(
+                                            artistName,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
                                     }
                                 }
-                            ) {
-                                Icon(
-                                    if (!isPlaying) Icons.Default.PlayArrow
-                                    else Icons.Default.Pause,
-                                    null
-                                )
-                            }
-                            IconButton(
-                                enabled = context.symphony.player.canJumpToNext(),
-                                onClick = {
-                                    context.symphony.player.jumpToNext()
+                                Spacer(modifier = Modifier.width(15.dp))
+                                IconButton(
+                                    onClick = {
+                                        if (context.symphony.player.isPlaying) {
+                                            context.symphony.player.pause()
+                                        } else {
+                                            context.symphony.player.resume()
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        if (!isPlaying) Icons.Default.PlayArrow
+                                        else Icons.Default.Pause,
+                                        null
+                                    )
                                 }
-                            ) {
-                                Icon(Icons.Default.SkipNext, null)
+                                IconButton(
+                                    enabled = context.symphony.player.canJumpToNext(),
+                                    onClick = {
+                                        context.symphony.player.jumpToNext()
+                                    }
+                                ) {
+                                    Icon(Icons.Default.SkipNext, null)
+                                }
                             }
                         }
                     }
                 }
-            }
-            Box(
-                modifier = Modifier
-                    .height(2.dp)
-                    .fillMaxWidth()
-            ) {
-                var duration by remember {
-                    mutableStateOf(
-                        context.symphony.player.duration ?: PlayerDuration.zero
+                Box(
+                    modifier = Modifier
+                        .height(2.dp)
+                        .fillMaxWidth()
+                ) {
+                    var duration by remember {
+                        mutableStateOf(
+                            context.symphony.player.duration ?: PlayerDuration.zero
+                        )
+                    }
+                    EventerEffect(context.symphony.player.onDurationUpdate) {
+                        duration = it
+                    }
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.primary.copy(0.3f))
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .fillMaxWidth(duration.toRatio())
+                            .fillMaxHeight()
                     )
                 }
-                EventerEffect(context.symphony.player.onDurationUpdate) {
-                    duration = it
-                }
-                Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary.copy(0.3f))
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                ) {}
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .fillMaxWidth(duration.toRatio())
-                        .fillMaxHeight()
-                ) {}
             }
         }
     }

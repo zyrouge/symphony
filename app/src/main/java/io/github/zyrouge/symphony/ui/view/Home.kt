@@ -76,6 +76,16 @@ fun HomeView(context: ViewContext) {
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
                 ),
+                navigationIcon = {
+                    IconButton(
+                        content = {
+                            Icon(Icons.Default.Search, null)
+                        },
+                        onClick = {
+                            context.navController.navigate(Routes.Search)
+                        }
+                    )
+                },
                 title = {
                     Crossfade(targetState = currentPage.label(context)) {
                         Box(
@@ -90,6 +100,7 @@ fun HomeView(context: ViewContext) {
                 actions = {
                     IconButton(
                         content = {
+                            Icon(Icons.Default.MoreVert, null)
                             DropdownMenu(
                                 expanded = optionsDropdownState,
                                 onDismissRequest = { optionsDropdownState = false },
@@ -109,7 +120,6 @@ fun HomeView(context: ViewContext) {
                                     }
                                 )
                             }
-                            Icon(Icons.Default.MoreVert, context.symphony.t.options)
                         },
                         onClick = {
                             optionsDropdownState = !optionsDropdownState

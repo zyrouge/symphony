@@ -11,18 +11,14 @@ private typealias EnterTransitionFn = (AnimatedContentScope<NavBackStackEntry>.(
 private typealias ExitTransitionFn = (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)
 
 object Transitions {
+    private fun calculateSlideTransitionOffset(size: IntSize) = IntOffset(0, size.height / 2)
     val SlideUpEnterTransition: EnterTransitionFn = {
-        slideIn {
-            calculateSlideTransitionOffset(it)
-        } + fadeIn()
+        slideIn { calculateSlideTransitionOffset(it) } + fadeIn()
     }
     val SlideDownExitTransition: ExitTransitionFn = {
-        slideOut {
-            calculateSlideTransitionOffset(it)
-        } + fadeOut()
+        slideOut { calculateSlideTransitionOffset(it) } + fadeOut()
     }
 
-    private fun calculateSlideTransitionOffset(size: IntSize) = IntOffset(0, size.height / 2)
 
     private const val ScaleTransitionInitialScale = 0.7f
     val ScaleUpEnterTransition: EnterTransitionFn = {
@@ -30,5 +26,15 @@ object Transitions {
     }
     val ScaleDownExitTransition: ExitTransitionFn = {
         scaleOut(targetScale = ScaleTransitionInitialScale) + fadeOut()
+    }
+
+    private fun calculateSlideFromRightOffset(size: IntSize) =
+        IntOffset((0.2 * size.width).toInt(), 0)
+
+    val SlideFromRightEnterTransition: EnterTransitionFn = {
+        slideIn { calculateSlideFromRightOffset(it) } + fadeIn()
+    }
+    val SlideFromRightExitTransition: ExitTransitionFn = {
+        slideOut { calculateSlideFromRightOffset(it) } + fadeOut()
     }
 }

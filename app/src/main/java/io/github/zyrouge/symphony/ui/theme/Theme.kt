@@ -4,14 +4,15 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.ThemeMode
+import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 private val PrimaryColor = ThemeColors.Emerald400
@@ -52,8 +53,8 @@ private val BlackColorScheme = darkColorScheme(
     onTertiaryContainer = Color.White,
     background = Color.Black,
     onBackground = Color.White,
-    surface = Color.Black,
-    surfaceVariant = Color.Black,
+    surface = ThemeColors.Neutral900,
+    surfaceVariant = ThemeColors.Neutral900,
     onSurface = Color.White,
     onSurfaceVariant = Color.White
 )
@@ -83,9 +84,16 @@ fun SymphonyTheme(
     context: ViewContext,
     content: @Composable () -> Unit
 ) {
-    val themeMode = context.symphony.settings.getThemeMode()
-    val useMaterialYou =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && context.symphony.settings.getUseMaterialYou()
+    var themeMode by remember { mutableStateOf(context.symphony.settings.getThemeMode()) }
+    var useMaterialYou by remember { mutableStateOf(context.symphony.settings.getUseMaterialYou()) }
+
+    EventerEffect(context.symphony.settings.onChange) {
+        when (it) {
+            SettingsKeys.themeMode -> themeMode = context.symphony.settings.getThemeMode()
+            SettingsKeys.materialYou -> useMaterialYou =
+                context.symphony.settings.getUseMaterialYou()
+        }
+    }
 
     val colorSchemeMode = when (themeMode) {
         ThemeMode.SYSTEM -> if (isSystemInDarkTheme()) ColorSchemeMode.DARK else ColorSchemeMode.LIGHT
@@ -94,7 +102,7 @@ fun SymphonyTheme(
         ThemeMode.BLACK -> ColorSchemeMode.BLACK
     }
 
-    val colorScheme = if (useMaterialYou) {
+    val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && useMaterialYou) {
         val currentContext = LocalContext.current
         when (colorSchemeMode) {
             ColorSchemeMode.LIGHT -> dynamicLightColorScheme(currentContext)
@@ -111,7 +119,7 @@ fun SymphonyTheme(
     if (!view.isInEditMode) {
         val activity = view.context as Activity
         SideEffect {
-            activity.window.statusBarColor = colorScheme.primary.toArgb()
+            activity.window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(activity.window, view)
                 .isAppearanceLightStatusBars = colorSchemeMode != ColorSchemeMode.LIGHT
         }

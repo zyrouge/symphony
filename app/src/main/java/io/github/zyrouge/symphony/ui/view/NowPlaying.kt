@@ -24,6 +24,7 @@ import io.github.zyrouge.symphony.services.LoopMode
 import io.github.zyrouge.symphony.services.PlayerDuration
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.EventerEffect
+import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -118,11 +119,8 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                         .padding(contentPadding)
                         .fillMaxSize()
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Spacer(modifier = Modifier.height(4.dp))
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Box(modifier = Modifier.weight(1f))
                         Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
                             Image(
                                 song.getArtwork(context.symphony).asImageBitmap(),
@@ -133,67 +131,94 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                     .clip(RoundedCornerShape(12.dp))
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Column(modifier = Modifier.padding(defaultHorizontalPadding)) {
-                            Text(
-                                song.title,
-                                style = MaterialTheme.typography.headlineSmall
-                                    .copy(fontWeight = FontWeight.Bold)
-                            )
-                            song.artistName?.let {
-                                Text(it)
-                            }
-                            Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                IconButton(
-                                    modifier = Modifier.background(
-                                        MaterialTheme.colorScheme.primary,
-                                        CircleShape
-                                    ),
-                                    onClick = {
-                                        if (context.symphony.player.isPlaying) {
-                                            context.symphony.player.pause()
-                                        } else {
-                                            context.symphony.player.resume()
+                        Box(modifier = Modifier.weight(1f))
+                        Column(modifier = Modifier.padding(0.dp, 12.dp)) {
+                            Row {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(defaultHorizontalPadding, 0.dp)
+                                        .weight(1f)
+                                ) {
+                                    Text(
+                                        song.title,
+                                        style = MaterialTheme.typography.headlineSmall
+                                            .copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    song.artistName?.let {
+                                        Text(it)
+                                    }
+                                    Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        IconButton(
+                                            modifier = Modifier.background(
+                                                MaterialTheme.colorScheme.primary,
+                                                CircleShape
+                                            ),
+                                            onClick = {
+                                                if (context.symphony.player.isPlaying) {
+                                                    context.symphony.player.pause()
+                                                } else {
+                                                    context.symphony.player.resume()
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                if (!isPlaying) Icons.Default.PlayArrow
+                                                else Icons.Default.Pause,
+                                                null,
+                                                tint = MaterialTheme.colorScheme.onPrimary
+                                            )
+                                        }
+                                        IconButton(
+                                            enabled = context.symphony.player.canJumpToPrevious(),
+                                            modifier = Modifier.background(
+                                                MaterialTheme.colorScheme.surface,
+                                                CircleShape
+                                            ),
+                                            onClick = {
+                                                context.symphony.player.jumpToPrevious()
+                                            }
+                                        ) {
+                                            Icon(Icons.Default.SkipPrevious, null)
+                                        }
+                                        IconButton(
+                                            enabled = context.symphony.player.canJumpToNext(),
+                                            modifier = Modifier.background(
+                                                MaterialTheme.colorScheme.surface,
+                                                CircleShape
+                                            ),
+                                            onClick = {
+                                                context.symphony.player.jumpToNext()
+                                            }
+                                        ) {
+                                            Icon(Icons.Default.SkipNext, null)
                                         }
                                     }
-                                ) {
-                                    Icon(
-                                        if (!isPlaying) Icons.Default.PlayArrow
-                                        else Icons.Default.Pause,
-                                        null,
-                                        tint = MaterialTheme.colorScheme.onPrimary
-                                    )
                                 }
-                                IconButton(
-                                    enabled = context.symphony.player.canJumpToPrevious(),
-                                    modifier = Modifier.background(
-                                        MaterialTheme.colorScheme.surface,
-                                        CircleShape
-                                    ),
-                                    onClick = {
-                                        context.symphony.player.jumpToPrevious()
+                                Column {
+                                    var showOptionsMenu by remember { mutableStateOf(false) }
+                                    IconButton(
+                                        onClick = {
+                                            showOptionsMenu = !showOptionsMenu
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.MoreVert, null)
+                                        SongDropdownMenu(
+                                            context,
+                                            song,
+                                            expanded = showOptionsMenu,
+                                            onDismissRequest = {
+                                                showOptionsMenu = false
+                                            }
+                                        )
                                     }
-                                ) {
-                                    Icon(Icons.Default.SkipPrevious, null)
-                                }
-                                IconButton(
-                                    enabled = context.symphony.player.canJumpToNext(),
-                                    modifier = Modifier.background(
-                                        MaterialTheme.colorScheme.surface,
-                                        CircleShape
-                                    ),
-                                    onClick = {
-                                        context.symphony.player.jumpToNext()
-                                    }
-                                ) {
-                                    Icon(Icons.Default.SkipNext, null)
                                 }
                             }
                             Spacer(modifier = Modifier.height(defaultHorizontalPadding))
                             Row(
+                                modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {

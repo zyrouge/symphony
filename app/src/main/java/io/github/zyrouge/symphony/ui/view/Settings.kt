@@ -19,12 +19,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
+import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsView(context: ViewContext) {
+    var settings by remember { mutableStateOf(context.symphony.settings.getSettings()) }
+
+    EventerEffect(context.symphony.settings.onChange) {
+        settings = context.symphony.settings.getSettings()
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -62,12 +69,12 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.language_)
                         },
-                        value = context.symphony.t.language,
+                        value = settings.language ?: context.symphony.t.language,
                         values = Translations.all.associate {
                             it.language to it.language
                         },
                         onChange = { value ->
-                            context.symphony.settings.setLangauge(value)
+                            context.symphony.settings.setLanguage(value)
                         }
                     )
                     MultiOptionTile(
@@ -77,7 +84,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.language_)
                         },
-                        value = context.symphony.settings.getThemeMode(),
+                        value = settings.themeMode,
                         values = mapOf(
                             ThemeMode.SYSTEM to context.symphony.t.system,
                             ThemeMode.LIGHT to context.symphony.t.light,
@@ -95,7 +102,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.materialYou)
                         },
-                        value = context.symphony.settings.getUseMaterialYou(),
+                        value = settings.useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.setUseMaterialYou(value)
                         }
@@ -199,6 +206,7 @@ private fun <T> MultiOptionTile(
                     Spacer(modifier = Modifier.height(8.dp))
                     values.map { entry ->
                         Card(
+                            colors = TileDefaults.cardColors(),
                             shape = MaterialTheme.shapes.small,
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {

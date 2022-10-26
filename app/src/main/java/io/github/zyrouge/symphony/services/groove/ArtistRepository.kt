@@ -3,39 +3,77 @@ package io.github.zyrouge.symphony.services.groove
 import android.graphics.Bitmap
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
-import java.util.stream.Stream
+import io.github.zyrouge.symphony.ui.helpers.Assets
+import io.github.zyrouge.symphony.utils.Eventer
+import io.github.zyrouge.symphony.utils.FuzzySearchOption
+import io.github.zyrouge.symphony.utils.FuzzySearcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+
+enum class ArtistSortBy {
+    ARTIST_NAME,
+    TRACKS_COUNT,
+    ALBUMS_COUNT,
+}
 
 class ArtistRepository(private val symphony: Symphony) {
-    lateinit var cached: MutableMap<String, Artist>
-    val onUpdate = Stream.builder<Int>()!!
+    private val cached = mutableMapOf<String, Artist>()
+    val onUpdate = Eventer<Int>()
 
-    init {
-        fetch()
+    private val searcher = FuzzySearcher<Artist>(
+        options = listOf(
+            FuzzySearchOption({ it.artistName })
+        )
+    )
+
+    fun fetch() {
+        runBlocking {
+            withContext(Dispatchers.Default) {
+                fetchSync()
+            }
+        }
     }
 
-    fun fetch(): Int {
-        var cursor = symphony.applicationContext.contentResolver.query(
+    private fun fetchSync(): Int {
+        cached.clear()
+        val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
             null,
             null,
             null,
             MediaStore.Audio.Artists.ARTIST + " ASC"
         );
-        var artists = mutableMapOf<String, Artist>()
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                val artist = Artist.fromCursor(cursor)
-                artists[artist.artistName] = artist
+        cursor?.let {
+            while (it.moveToNext()) {
+                val artist = Artist.fromCursor(it)
+                cached[artist.artistName] = artist
             }
         }
-        cached = artists
-        val total = artists.size
-        onUpdate.add(total)
+        cursor?.close()
+        val total = cached.size
+        onUpdate.dispatch(total)
         return total
     }
 
     fun fetchArtistArtwork(artistName: String): Bitmap {
-        val album = symphony.groove.album.cached.values.find { it.artistName == artistName }
-        return album!!.getArtwork(symphony)
+        val album = symphony.groove.album.getAlbumOfArtist(artistName)
+        return album?.getArtwork(symphony) ?: Assets.getPlaceholder(symphony.applicationContext)
+    }
+
+    fun getAll() = cached.values.toList()
+    fun getArtistFromName(artistName: String) = cached[artistName]
+
+    fun search(terms: String) = searcher.search(terms, getAll(), 30f)
+
+    companion object {
+        fun sort(artists: List<Artist>, by: ArtistSortBy, reversed: Boolean): List<Artist> {
+            val sorted = when (by) {
+                ArtistSortBy.ARTIST_NAME -> artists.sortedBy { it.artistName }
+                ArtistSortBy.TRACKS_COUNT -> artists.sortedBy { it.numberOfTracks }
+                ArtistSortBy.ALBUMS_COUNT -> artists.sortedBy { it.numberOfTracks }
+            }
+            return if (reversed) sorted.reversed() else sorted
+        }
     }
 }

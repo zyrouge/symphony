@@ -99,7 +99,8 @@ fun QueueView(context: ViewContext) {
                                 SongCard(
                                     context,
                                     song,
-                                    highlightTitle = i == currentSongIndex,
+                                    autoHighlight = false,
+                                    highlighted = i == currentSongIndex,
                                     leading = {
                                         Checkbox(
                                             checked = selectedSongIndices.contains(i),
@@ -123,6 +124,6 @@ fun QueueView(context: ViewContext) {
                     }
                 }
             }
-        },
+        }
     )
 }

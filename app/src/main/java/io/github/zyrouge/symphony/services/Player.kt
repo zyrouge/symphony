@@ -144,23 +144,20 @@ class Player(private val symphony: Symphony) {
         onUpdate.dispatch(PlayerEvent.Seeked)
     }
 
-    fun addToQueue(songs: List<Song>) {
-        queue.addAll(songs)
-        onUpdate.dispatch(PlayerEvent.SongQueued)
+    fun addToQueue(songs: List<Song>, index: Int? = null) {
+        index?.let {
+            queue.addAll(it, songs)
+            if (it <= currentSongIndex) {
+                currentSongIndex += songs.size
+                onUpdate.dispatch(PlayerEvent.QueueIndexChanged)
+            }
+        } ?: run {
+            queue.addAll(songs)
+        }
         afterAddToQueue()
     }
 
-    fun addToQueue(song: Song) {
-        queue.add(song)
-        onUpdate.dispatch(PlayerEvent.SongQueued)
-        afterAddToQueue()
-    }
-
-    fun addToQueue(song: Song, index: Int) {
-        queue.add(index, song)
-        onUpdate.dispatch(PlayerEvent.SongQueued)
-        afterAddToQueue()
-    }
+    fun addToQueue(song: Song, index: Int? = null) = addToQueue(listOf(song), index)
 
     fun removeFromQueue(index: Int) {
         queue.removeAt(index)

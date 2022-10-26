@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.DurationFormatter
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.round
@@ -61,6 +62,13 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     KeyValueTextComponent(
                         context.symphony.t.composer,
                         song.composer ?: context.symphony.t.unk
+                    )
+                    song.year?.let {
+                        KeyValueTextComponent(context.symphony.t.year, it.toString())
+                    }
+                    KeyValueTextComponent(
+                        context.symphony.t.duration,
+                        DurationFormatter.formatAsMS(song.duration)
                     )
                     KeyValueTextComponent(
                         context.symphony.t.filename,
