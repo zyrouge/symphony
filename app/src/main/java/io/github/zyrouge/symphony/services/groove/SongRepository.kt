@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.provider.MediaStore
-import android.util.Log
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
@@ -62,7 +61,6 @@ class SongRepository(private val symphony: Symphony) {
         cursor?.close()
         val total = cached.size
         onUpdate.dispatch(total)
-        Log.i("Symphony", "updated song cache (${total})")
         return total
     }
 

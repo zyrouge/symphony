@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 class ThemeColors {
     companion object {
-        val Emerald400 = Color(0xFF34D399)
+        val Cyan = Color(0xFF01AFFF)
 
         val Neutral200 = Color(0xFFE5E5E5)
         val Neutral800 = Color(0xFF262626)

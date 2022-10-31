@@ -2,7 +2,6 @@ package io.github.zyrouge.symphony.services
 
 import android.media.MediaPlayer
 import android.net.Uri
-import android.util.Log
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.Eventer
@@ -95,10 +94,7 @@ class Player(private val symphony: Symphony) {
 
     fun play(index: Int) {
         if (hasPlayer) stopCurrentSong()
-        if (!hasSongAt(index)) {
-            Log.e("SymphonyPlayer", "Invalid index $index (queue size: ${queue.size})")
-            return
-        }
+        if (!hasSongAt(index)) return
         val song = queue[index]
         currentSongIndex = index
         currentMediaPlayerManager.play(song.uri) {

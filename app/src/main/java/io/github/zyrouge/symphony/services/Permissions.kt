@@ -3,7 +3,6 @@ package io.github.zyrouge.symphony.services
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
@@ -26,7 +25,6 @@ class PermissionsManager(private val symphony: Symphony) {
 
     fun handle(activity: MainActivity) {
         val state = getState(activity)
-        Log.i("SymphonyPerms", "start state: $state")
         if (state.hasAll()) return
         activity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()

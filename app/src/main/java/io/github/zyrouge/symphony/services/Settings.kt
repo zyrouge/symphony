@@ -26,9 +26,12 @@ object SettingsKeys {
     const val themeMode = "theme_mode"
     const val language = "language"
     const val materialYou = "material_you"
-    const val lastUsedSongsSort = "last_used_song_sort"
-    const val lastUsedArtistsSort = "last_used_artists_sort"
-    const val lastUsedAlbumsSort = "last_used_albums_sort"
+    const val lastUsedSongsSortBy = "last_used_song_sort_by"
+    const val lastUsedSongsSortReverse = "last_used_song_sort_reverse"
+    const val lastUsedArtistsSortBy = "last_used_artists_sort_by"
+    const val lastUsedArtistsSortReverse = "last_used_artists_sort_reverse"
+    const val lastUsedAlbumsSortBy = "last_used_albums_sort_by"
+    const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
 }
 
 data class SettingsData(
@@ -73,34 +76,64 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.materialYou)
     }
 
-    fun getLastUsedSongsSort() =
-        getSharedPreferences().getEnum<SongSortBy>(SettingsKeys.lastUsedSongsSort, null)
+    fun getLastUsedSongsSortBy() =
+        getSharedPreferences().getEnum<SongSortBy>(SettingsKeys.lastUsedSongsSortBy, null)
 
-    fun setLastUsedSongsSort(sortBy: SongSortBy) {
+    fun setLastUsedSongsSortBy(sortBy: SongSortBy) {
         getSharedPreferences().edit {
-            putEnum(SettingsKeys.lastUsedSongsSort, sortBy)
+            putEnum(SettingsKeys.lastUsedSongsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedSongsSort)
+        onChange.dispatch(SettingsKeys.lastUsedSongsSortBy)
     }
 
-    fun getLastUsedArtistsSort() =
-        getSharedPreferences().getEnum<ArtistSortBy>(SettingsKeys.lastUsedArtistsSort, null)
+    fun getLastUsedArtistsSortBy() =
+        getSharedPreferences().getEnum<ArtistSortBy>(SettingsKeys.lastUsedArtistsSortBy, null)
 
-    fun setLastUsedArtistsSort(sortBy: ArtistSortBy) {
+    fun setLastUsedArtistsSortBy(sortBy: ArtistSortBy) {
         getSharedPreferences().edit {
-            putEnum(SettingsKeys.lastUsedArtistsSort, sortBy)
+            putEnum(SettingsKeys.lastUsedArtistsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedArtistsSort)
+        onChange.dispatch(SettingsKeys.lastUsedArtistsSortBy)
     }
 
-    fun getLastUsedAlbumsSort() =
-        getSharedPreferences().getEnum<AlbumSortBy>(SettingsKeys.lastUsedAlbumsSort, null)
+    fun getLastUsedArtistsSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedArtistsSortReverse, false)
 
-    fun setLastUsedAlbumsSort(sortBy: AlbumSortBy) {
+    fun setLastUsedArtistsSortReverse(reverse: Boolean) {
         getSharedPreferences().edit {
-            putEnum(SettingsKeys.lastUsedAlbumsSort, sortBy)
+            putBoolean(SettingsKeys.lastUsedArtistsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumsSort)
+        onChange.dispatch(SettingsKeys.lastUsedArtistsSortReverse)
+    }
+
+    fun getLastUsedSongsSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedSongsSortReverse, false)
+
+    fun setLastUsedSongsSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedSongsSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedSongsSortReverse)
+    }
+
+    fun getLastUsedAlbumsSortBy() =
+        getSharedPreferences().getEnum<AlbumSortBy>(SettingsKeys.lastUsedAlbumsSortBy, null)
+
+    fun setLastUsedAlbumsSortBy(sortBy: AlbumSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedAlbumsSortBy, sortBy)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedAlbumsSortBy)
+    }
+
+    fun getLastUsedAlbumsSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedAlbumsSortReverse, false)
+
+    fun setLastUsedAlbumsSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedAlbumsSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedAlbumsSortReverse)
     }
 
     private fun getSharedPreferences() =

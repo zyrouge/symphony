@@ -4,11 +4,13 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.provider.MediaStore.Audio.AlbumColumns
 import android.provider.MediaStore.Audio.AudioColumns
+import androidx.compose.runtime.Immutable
 import androidx.core.database.getStringOrNull
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.getColumnValue
 import io.github.zyrouge.symphony.utils.getColumnValueNullable
 
+@Immutable
 data class Album(
     val albumId: Long,
     val albumName: String,

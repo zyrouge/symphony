@@ -3,9 +3,11 @@ package io.github.zyrouge.symphony.services.groove
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.provider.MediaStore.Audio.ArtistColumns
+import androidx.compose.runtime.Immutable
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.getColumnValue
 
+@Immutable
 data class Artist(
 //    val artistId: Long,
     val artistName: String,

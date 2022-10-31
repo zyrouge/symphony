@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AudioColumns
+import androidx.compose.runtime.Immutable
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import io.github.zyrouge.symphony.Symphony
@@ -12,6 +13,7 @@ import io.github.zyrouge.symphony.utils.getColumnValue
 import io.github.zyrouge.symphony.utils.getColumnValueNullable
 import kotlin.io.path.Path
 
+@Immutable
 data class Song(
     val id: Long,
     val title: String,

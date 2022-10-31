@@ -41,6 +41,10 @@ sealed class Translations(
     val viewAlbum: String,
     val searchYourMusic: String,
     val noResultsFound: String,
+    val albumCount: String,
+    val trackCount: String,
+    val XArtists: (x: Int) -> String,
+    val XAlbums: (x: Int) -> String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -83,7 +87,11 @@ sealed class Translations(
         unknownAlbumX = { id -> "Unknown album (ID: ${id})" },
         viewAlbum = "View album",
         searchYourMusic = "Search your music",
-        noResultsFound = "No results found"
+        noResultsFound = "No results found",
+        albumCount = "Album count",
+        trackCount = "Track count",
+        XArtists = { x -> "$x artists" },
+        XAlbums = { x -> "$x albums" },
     )
 
     companion object {

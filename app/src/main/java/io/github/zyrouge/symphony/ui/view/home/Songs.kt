@@ -1,20 +1,24 @@
 package io.github.zyrouge.symphony.ui.view.home
 
-import android.util.Log
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.swap
 
 @Composable
 fun SongsView(context: ViewContext) {
-    var songs by remember {
-        mutableStateOf(context.symphony.groove.song.getAll())
+    val songs = remember {
+        mutableStateListOf<Song>().apply {
+            swap(context.symphony.groove.song.getAll())
+        }
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs = context.symphony.groove.song.getAll()
-        Log.i("Symphony", "rebuild song list ${songs.size}")
+        songs.swap(context.symphony.groove.song.getAll())
     }
 
     SongList(context, songs)

@@ -15,7 +15,7 @@ import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
-private val PrimaryColor = ThemeColors.Emerald400
+private val PrimaryColor = ThemeColors.Cyan
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryColor,

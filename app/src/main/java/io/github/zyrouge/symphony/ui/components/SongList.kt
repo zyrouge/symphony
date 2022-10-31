@@ -1,21 +1,17 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material3.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.swap
+import kotlinx.coroutines.launch
 
 @Composable
 fun SongList(
@@ -24,31 +20,51 @@ fun SongList(
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
 ) {
-    var sortBy by remember { mutableStateOf(SongSortBy.TITLE) }
-    var sortReverse by remember { mutableStateOf(false) }
-    var sortedSongs by remember {
-        mutableStateOf(SongRepository.sort(songs, sortBy, sortReverse))
+    val scope = rememberCoroutineScope()
+    var sortBy by remember {
+        mutableStateOf(
+            context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE
+        )
+    }
+    var sortReverse by remember {
+        mutableStateOf(context.symphony.settings.getLastUsedSongsSortReverse())
+    }
+    val sortedSongs = remember {
+        mutableStateListOf<Song>().apply {
+            swap(SongRepository.sort(songs, sortBy, sortReverse))
+        }
     }
 
     fun sortSongsAgain() {
-        sortedSongs = SongRepository.sort(songs, sortBy, sortReverse)
+        sortedSongs.swap(SongRepository.sort(songs, sortBy, sortReverse))
+    }
+
+    LaunchedEffect(LocalContext.current) {
+        scope.launch {
+            snapshotFlow { songs }.collect { sortSongsAgain() }
+        }
     }
 
     LazyColumn {
         leadingContent?.invoke(this)
         item {
-            SongListBar(
+            MediaSortBar(
                 context,
-                size = sortedSongs.size,
-                sortBy = sortBy,
-                sortReverse = sortReverse,
-                onSortByChange = {
-                    sortBy = it
-                    sortSongsAgain()
-                },
-                onSortReverseChange = {
+                reverse = sortReverse,
+                onReverseChange = {
                     sortReverse = it
                     sortSongsAgain()
+                    context.symphony.settings.setLastUsedSongsSortReverse(it)
+                },
+                sort = sortBy,
+                sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
+                onSortChange = {
+                    sortBy = it
+                    sortSongsAgain()
+                    context.symphony.settings.setLastUsedSongsSortBy(it)
+                },
+                label = {
+                    Text(context.symphony.t.XSongs(songs.size))
                 }
             )
         }
@@ -61,85 +77,6 @@ fun SongList(
             }
         }
         trailingContent?.invoke(this)
-    }
-}
-
-@Composable
-fun SongListBar(
-    context: ViewContext,
-    size: Int,
-    sortBy: SongSortBy,
-    sortReverse: Boolean,
-    onSortByChange: (SongSortBy) -> Unit,
-    onSortReverseChange: (Boolean) -> Unit,
-) {
-    var showDropdown by remember { mutableStateOf(false) }
-    val currentTextStyle = MaterialTheme.typography.bodySmall.run {
-        copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-    }
-
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row {
-            Box(
-                modifier = Modifier.width(60.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                IconButton(
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = currentTextStyle.color
-                    ),
-                    onClick = {
-                        onSortReverseChange(!sortReverse)
-                    }
-                ) {
-                    Icon(
-                        if (sortReverse) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        null,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
-            Box {
-                TextButton(
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = currentTextStyle.color
-                    ),
-                    onClick = {
-                        showDropdown = !showDropdown
-                    }
-                ) {
-                    Text(sortBy.label(context), style = currentTextStyle)
-                }
-                DropdownMenu(
-                    expanded = showDropdown,
-                    onDismissRequest = { showDropdown = false }
-                ) {
-                    SongSortBy.values().map {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    it.label(context),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            },
-                            onClick = {
-                                showDropdown = false
-                                onSortByChange(it)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-        Text(
-            context.symphony.t.XSongs(size),
-            modifier = Modifier.padding(16.dp, 0.dp),
-            style = currentTextStyle
-        )
     }
 }
 
