@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.utils
 
 import androidx.annotation.FloatRange
-import me.xdrop.fuzzywuzzy.FuzzySearch
 
 data class FuzzySearchOption<T>(
     val value: (T) -> String?,
@@ -14,19 +13,10 @@ data class FuzzyResultEntity<T>(
 )
 
 class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
-    fun search(
-        terms: String,
-        entities: List<T>,
-        @FloatRange(from = 0.0, to = 100.0) minimumRatio: Float = 0f
-    ): List<FuzzyResultEntity<T>> {
-        val matches = mutableListOf<FuzzyResultEntity<T>>()
-        entities.forEach {
-            val match = compare(terms, it)
-            if (match.ratio >= minimumRatio) {
-                matches.add(match)
-            }
-        }
-        return matches.sortedByDescending { it.ratio }
+    fun search(terms: String, entities: List<T>): List<FuzzyResultEntity<T>> {
+        return entities
+            .map { compare(terms, it) }
+            .sortedByDescending { it.ratio }
     }
 
     private fun compare(terms: String, entity: T): FuzzyResultEntity<T> {
@@ -34,10 +24,36 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
         var totalWeight = 0
         options.forEach { option ->
             option.value(entity)?.let { value ->
-                ratio += FuzzySearch.partialRatio(terms, value) * option.weight
+                ratio += Fuzzy.compare(terms, value) * option.weight
                 totalWeight += option.weight
             }
         }
         return FuzzyResultEntity(ratio / totalWeight, entity)
+    }
+}
+
+object Fuzzy {
+    fun compare(input: String, against: String) =
+        compareStrict(input.lowercase(), against.lowercase())
+
+    fun compareStrict(input: String, against: String): Float {
+        val inputLetters = input.split("")
+        val inputLength = inputLetters.size
+        val againstLetters = against.split("")
+        val againstLength = againstLetters.size
+        var pos = 0
+        var score = 0
+        for (i in 0 until inputLength) {
+            val x = inputLetters[i]
+            for (j in pos until againstLength) {
+                val y = againstLetters[j]
+                if (x == y) {
+                    pos = j + 1
+                    score++
+                    break
+                }
+            }
+        }
+        return score.toFloat() / againstLength
     }
 }

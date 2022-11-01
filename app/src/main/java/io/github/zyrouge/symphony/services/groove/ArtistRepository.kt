@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -64,7 +65,7 @@ class ArtistRepository(private val symphony: Symphony) {
     fun getAll() = cached.values.toList()
     fun getArtistFromName(artistName: String) = cached[artistName]
 
-    fun search(terms: String) = searcher.search(terms, getAll(), 30f)
+    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 
     companion object {
         fun sort(artists: List<Artist>, by: ArtistSortBy, reversed: Boolean): List<Artist> {

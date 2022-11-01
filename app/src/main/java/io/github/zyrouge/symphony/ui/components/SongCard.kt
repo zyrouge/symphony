@@ -29,8 +29,9 @@ fun SongCard(
     onClick: () -> Unit
 ) {
     var isCurrentPlaying by remember {
-        mutableStateOf(autoHighlight && song.id == context.symphony.player.currentPlayingSong?.id)
+        mutableStateOf(false)
     }
+    isCurrentPlaying = autoHighlight && song.id == context.symphony.player.currentPlayingSong?.id
 
     if (autoHighlight) {
         EventerEffect(context.symphony.player.onUpdate) {

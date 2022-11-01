@@ -2,16 +2,14 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PriorityHigh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +18,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,15 +31,14 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchView(context: ViewContext) {
-    val coroutineScope = rememberCoroutineScope()
-    var terms by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    var terms by rememberSaveable { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
     val songs = remember { mutableStateListOf<Song>() }
     val artists = remember { mutableStateListOf<Artist>() }
     val albums = remember { mutableStateListOf<Album>() }
@@ -48,24 +46,33 @@ fun SearchView(context: ViewContext) {
     var currentTermsRoutine: Job? = null
     fun setTerms(nTerms: String) {
         terms = nTerms
+        isSearching = true
         currentTermsRoutine?.cancel()
-        currentTermsRoutine = coroutineScope.launch {
-            delay(200L)
-            songs.clear()
-            artists.clear()
-            albums.clear()
-            if (nTerms.isNotEmpty()) {
-                songs.addAll(context.symphony.groove.song.search(terms).map { it.entity })
-                artists.addAll(context.symphony.groove.artist.search(terms).map { it.entity })
-                albums.addAll(context.symphony.groove.album.search(terms).map { it.entity })
+        currentTermsRoutine = scope.launch {
+            withContext(Dispatchers.Default) {
+                delay(250)
+                songs.clear()
+                artists.clear()
+                albums.clear()
+                if (nTerms.isNotEmpty()) {
+                    songs.addAll(context.symphony.groove.song.search(terms).map { it.entity })
+                    artists.addAll(context.symphony.groove.artist.search(terms).map { it.entity })
+                    albums.addAll(context.symphony.groove.album.search(terms).map { it.entity })
+                }
+                isSearching = false
             }
         }
     }
 
     val textFieldFocusRequester = FocusRequester()
+    val configuration = LocalConfiguration.current
     LaunchedEffect(LocalContext.current) {
         textFieldFocusRequester.requestFocus()
+        snapshotFlow { configuration.orientation }.collect {
+            setTerms(terms)
+        }
     }
+
     Scaffold(
         topBar = {
             TextField(
@@ -109,6 +116,22 @@ fun SearchView(context: ViewContext) {
             ) {
                 if (terms.isNotEmpty()) {
                     when {
+                        isSearching -> {
+                            Box(modifier = Modifier.align(Alignment.Center)) {
+                                IconTextBody(
+                                    icon = { modifier ->
+                                        Icon(
+                                            Icons.Default.Search,
+                                            null,
+                                            modifier = modifier
+                                        )
+                                    },
+                                    content = {
+                                        Text(context.symphony.t.filteringResults)
+                                    }
+                                )
+                            }
+                        }
                         songs.isEmpty() && artists.isEmpty() && albums.isEmpty() -> {
                             Box(modifier = Modifier.align(Alignment.Center)) {
                                 IconTextBody(
@@ -126,10 +149,10 @@ fun SearchView(context: ViewContext) {
                             }
                         }
                         else -> {
-                            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            LazyColumn {
                                 if (songs.isNotEmpty()) {
-                                    SideHeading(context.symphony.t.songs)
-                                    songs.map { song ->
+                                    item { SideHeading(context.symphony.t.songs) }
+                                    items(songs) { song ->
                                         SongCard(context, song) {
                                             context.symphony.player.stop()
                                             context.symphony.player.addToQueue(song)
@@ -137,8 +160,8 @@ fun SearchView(context: ViewContext) {
                                     }
                                 }
                                 if (artists.isNotEmpty()) {
-                                    SideHeading(context.symphony.t.artists)
-                                    artists.map { artist ->
+                                    item { SideHeading(context.symphony.t.artists) }
+                                    items(artists) { artist ->
                                         GenericGrooveCard(
                                             image = {
                                                 artist.getArtwork(context.symphony).asImageBitmap()
@@ -161,8 +184,8 @@ fun SearchView(context: ViewContext) {
                                     }
                                 }
                                 if (albums.isNotEmpty()) {
-                                    SideHeading(context.symphony.t.albums)
-                                    albums.map { album ->
+                                    item { SideHeading(context.symphony.t.albums) }
+                                    items(albums) { album ->
                                         GenericGrooveCard(
                                             image = {
                                                 album.getArtwork(context.symphony).asImageBitmap()

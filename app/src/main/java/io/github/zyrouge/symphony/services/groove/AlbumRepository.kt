@@ -11,6 +11,7 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -91,7 +92,7 @@ class AlbumRepository(private val symphony: Symphony) {
         it.artistName == artistName
     }
 
-    fun search(terms: String) = searcher.search(terms, getAll(), 30f)
+    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 
     companion object {
         fun sort(songs: List<Album>, by: AlbumSortBy, reversed: Boolean): List<Album> {

@@ -55,7 +55,6 @@ dependencies {
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     implementation "androidx.navigation:navigation-compose:$navigation_version"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
-    implementation 'me.xdrop:fuzzywuzzy:1.4.0'
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
