@@ -18,7 +18,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Artist
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -83,7 +82,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
                         songs = songs,
                         leadingContent = {
                             item {
-                                ArtistHero(context, artist!!, songs)
+                                ArtistHero(context, artist!!)
                             }
                         }
                     )
@@ -97,7 +96,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
 }
 
 @Composable
-private fun ArtistHero(context: ViewContext, artist: Artist, songs: List<Song>) {
+private fun ArtistHero(context: ViewContext, artist: Artist) {
     val defaultHorizontalPadding = 20.dp
     BoxWithConstraints {
         Image(
