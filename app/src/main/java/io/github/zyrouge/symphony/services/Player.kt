@@ -107,19 +107,16 @@ class Player(private val symphony: Symphony) {
 
     fun pause() {
         currentMediaPlayer?.pause()
-        destroyDurationTimer()
         onUpdate.dispatch(PlayerEvent.PausePlaying)
     }
 
     fun resume() {
         currentMediaPlayer?.start()
         onUpdate.dispatch(PlayerEvent.ResumePlaying)
-        createDurationTimer()
     }
 
     fun stop() {
         if (!hasPlayer) return
-        destroyDurationTimer()
         stopCurrentSong()
         queue.clear()
         currentSongIndex = -1
@@ -201,6 +198,7 @@ class Player(private val symphony: Symphony) {
 
     private fun stopCurrentSong() {
         if (!hasPlayer) return
+        destroyDurationTimer()
         currentMediaPlayer!!.stop()
         currentMediaPlayerManager.release()
     }

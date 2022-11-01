@@ -256,7 +256,9 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                         thumb = {
                                             SliderDefaults.Thumb(
                                                 interactionSource = interactionSource,
-                                                thumbSize = DpSize(12.dp, 12.dp)
+                                                thumbSize = DpSize(12.dp, 12.dp),
+                                                // NOTE: pad top to fix stupid layout
+                                                modifier = Modifier.padding(top = 3.dp),
                                             )
                                         }
                                     )

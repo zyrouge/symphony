@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -32,24 +33,20 @@ fun <T : Enum<T>> MediaSortBar(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row {
-            Box(
-                modifier = Modifier.width(60.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                IconButton(
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = currentTextStyle.color
-                    ),
-                    onClick = {
-                        onReverseChange(!reverse)
-                    }
-                ) {
-                    Icon(
-                        if (reverse) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        null,
-                        modifier = Modifier.size(20.dp),
-                    )
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = currentTextStyle.color
+                ),
+                onClick = {
+                    onReverseChange(!reverse)
                 }
+            ) {
+                Icon(
+                    if (reverse) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                    null,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Box {
                 TextButton(
@@ -68,15 +65,24 @@ fun <T : Enum<T>> MediaSortBar(
                 ) {
                     sorts.map {
                         DropdownMenuItem(
-                            colors = MenuDefaults.itemColors(
-                                textColor = if (it.key == sort) currentTextStyle.color.copy(alpha = 1f)
-                                else currentTextStyle.color
-                            ),
-                            text = {
-                                Text(
-                                    it.value(context),
-                                    style = MaterialTheme.typography.bodySmall
+                            contentPadding = MenuDefaults.DropdownMenuItemContentPadding.run {
+                                val horizontalPadding =
+                                    calculateLeftPadding(LayoutDirection.Ltr)
+                                PaddingValues(
+                                    start = horizontalPadding.div(2),
+                                    end = horizontalPadding.times(4),
                                 )
+                            },
+                            leadingIcon = {
+                                RadioButton(
+                                    selected = it.key == sort,
+                                    onClick = {
+                                        it.value(context)
+                                    }
+                                )
+                            },
+                            text = {
+                                Text(it.value(context))
                             },
                             onClick = {
                                 showDropdown = false

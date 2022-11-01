@@ -15,7 +15,7 @@ import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
-private val PrimaryColor = ThemeColors.Cyan
+private val PrimaryColor = ThemeColors.Purple
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryColor,
@@ -121,7 +121,7 @@ fun SymphonyTheme(
         SideEffect {
             activity.window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(activity.window, view)
-                .isAppearanceLightStatusBars = colorSchemeMode != ColorSchemeMode.LIGHT
+                .isAppearanceLightStatusBars = colorSchemeMode == ColorSchemeMode.LIGHT
         }
     }
 
