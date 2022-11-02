@@ -45,6 +45,33 @@ fun NowPlayingBottomBar(context: ViewContext) {
     ) {
         currentPlayingSong?.let { song ->
             Column {
+                Box(
+                    modifier = Modifier
+                        .height(2.dp)
+                        .fillMaxWidth()
+                ) {
+                    var duration by remember {
+                        mutableStateOf(
+                            context.symphony.player.duration ?: PlayerDuration.zero
+                        )
+                    }
+                    EventerEffect(context.symphony.player.onDurationUpdate) {
+                        duration = it
+                    }
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.primary.copy(0.3f))
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .fillMaxWidth(duration.toRatio())
+                            .fillMaxHeight()
+                    )
+                }
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -61,7 +88,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
-                                    song.getArtwork(context.symphony)
+                                    song.getArtwork(context.symphony, 100)
                                         .asImageBitmap(),
                                     null,
                                     modifier = Modifier
@@ -105,33 +132,6 @@ fun NowPlayingBottomBar(context: ViewContext) {
                             }
                         }
                     }
-                }
-                Box(
-                    modifier = Modifier
-                        .height(2.dp)
-                        .fillMaxWidth()
-                ) {
-                    var duration by remember {
-                        mutableStateOf(
-                            context.symphony.player.duration ?: PlayerDuration.zero
-                        )
-                    }
-                    EventerEffect(context.symphony.player.onDurationUpdate) {
-                        duration = it
-                    }
-                    Box(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary.copy(0.3f))
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .fillMaxWidth(duration.toRatio())
-                            .fillMaxHeight()
-                    )
                 }
             }
         }

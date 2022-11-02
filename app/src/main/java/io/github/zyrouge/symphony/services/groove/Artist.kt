@@ -9,21 +9,17 @@ import io.github.zyrouge.symphony.utils.getColumnValue
 
 @Immutable
 data class Artist(
-//    val artistId: Long,
     val artistName: String,
     val numberOfAlbums: Int,
     val numberOfTracks: Int
 ) {
-    fun getArtwork(symphony: Symphony): Bitmap {
-        return symphony.groove.artist.fetchArtistArtwork(artistName)
+    fun getArtwork(symphony: Symphony, size: Int): Bitmap {
+        return symphony.groove.artist.fetchArtistArtwork(artistName, size)
     }
 
     companion object {
         fun fromCursor(cursor: Cursor): Artist {
             return Artist(
-//                artistId = cursor.getColumnValue(AudioColumns.ARTIST_ID) {
-//                    cursor.getLong(it)
-//                },
                 artistName = cursor.getColumnValue(ArtistColumns.ARTIST) {
                     cursor.getString(it)
                 },

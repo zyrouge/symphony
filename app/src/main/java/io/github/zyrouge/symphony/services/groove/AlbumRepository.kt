@@ -49,7 +49,7 @@ class AlbumRepository(private val symphony: Symphony) {
             null,
             null,
             MediaStore.Audio.Albums.ALBUM + " ASC"
-        );
+        )
         cursor?.let {
             while (it.moveToNext()) {
                 val album = Album.fromCursor(it)
@@ -62,7 +62,7 @@ class AlbumRepository(private val symphony: Symphony) {
         return total
     }
 
-    fun fetchAlbumArtwork(albumId: Long): Bitmap {
+    fun fetchAlbumArtwork(albumId: Long, size: Int): Bitmap {
         val uri = ContentUris.withAppendedId(
             MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
             albumId
@@ -70,7 +70,7 @@ class AlbumRepository(private val symphony: Symphony) {
         val context = symphony.applicationContext
         try {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                context.contentResolver.loadThumbnail(uri, Size(500, 500), null)
+                context.contentResolver.loadThumbnail(uri, Size(size, size), null)
             } else {
                 val source =
                     ImageDecoder.createSource(context.contentResolver, uri)

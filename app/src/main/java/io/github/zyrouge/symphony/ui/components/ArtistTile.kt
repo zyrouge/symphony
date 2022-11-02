@@ -43,7 +43,7 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp)),
-                        bitmap = artist.getArtwork(context.symphony)
+                        bitmap = artist.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null
                     )

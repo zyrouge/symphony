@@ -34,7 +34,7 @@ fun AlbumGrid(context: ViewContext, albums: List<Album>) {
 
     LaunchedEffect(LocalContext.current) {
         scope.launch {
-            snapshotFlow { albums }.collect { sortAlbumsAgain() }
+            snapshotFlow { albums.toList() }.collect { sortAlbumsAgain() }
         }
     }
 
@@ -61,7 +61,7 @@ fun AlbumGrid(context: ViewContext, albums: List<Album>) {
             )
         },
         content = {
-            items(sortedAlbums) { album ->
+            items(sortedAlbums, key = { it.albumId }) { album ->
                 AlbumTile(context, album)
             }
         }

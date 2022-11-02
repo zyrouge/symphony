@@ -41,7 +41,7 @@ fun SongList(
 
     LaunchedEffect(LocalContext.current) {
         scope.launch {
-            snapshotFlow { songs }.collect { sortSongsAgain() }
+            snapshotFlow { songs.toList() }.collect { sortSongsAgain() }
         }
     }
 
@@ -68,7 +68,7 @@ fun SongList(
                 }
             )
         }
-        itemsIndexed(sortedSongs) { i, song ->
+        itemsIndexed(sortedSongs, key = { _, x -> x.id }) { i, song ->
             SongCard(context, song) {
                 context.symphony.player.stop()
                 context.symphony.player.addToQueue(

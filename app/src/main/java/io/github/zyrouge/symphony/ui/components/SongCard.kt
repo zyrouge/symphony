@@ -29,9 +29,8 @@ fun SongCard(
     onClick: () -> Unit
 ) {
     var isCurrentPlaying by remember {
-        mutableStateOf(false)
+        mutableStateOf(autoHighlight && song.id == context.symphony.player.currentPlayingSong?.id)
     }
-    isCurrentPlaying = autoHighlight && song.id == context.symphony.player.currentPlayingSong?.id
 
     if (autoHighlight) {
         EventerEffect(context.symphony.player.onUpdate) {
@@ -50,7 +49,7 @@ fun SongCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 leading()
                 Image(
-                    song.getArtwork(context.symphony).asImageBitmap(),
+                    song.getArtwork(context.symphony, 100).asImageBitmap(),
                     null,
                     modifier = Modifier
                         .size(45.dp)

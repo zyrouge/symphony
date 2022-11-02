@@ -123,7 +123,7 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                         Box(modifier = Modifier.weight(1f))
                         Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
                             Image(
-                                song.getArtwork(context.symphony).asImageBitmap(),
+                                song.getArtwork(context.symphony, 500).asImageBitmap(),
                                 null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
@@ -181,7 +181,11 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                                 context.symphony.player.jumpToPrevious()
                                             }
                                         ) {
-                                            Icon(Icons.Default.SkipPrevious, null)
+                                            Icon(
+                                                Icons.Default.SkipPrevious,
+                                                null,
+                                                tint = MaterialTheme.colorScheme.onSurface
+                                            )
                                         }
                                         IconButton(
                                             enabled = context.symphony.player.canJumpToNext(),
@@ -193,7 +197,11 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                                 context.symphony.player.jumpToNext()
                                             }
                                         ) {
-                                            Icon(Icons.Default.SkipNext, null)
+                                            Icon(
+                                                Icons.Default.SkipNext,
+                                                null,
+                                                tint = MaterialTheme.colorScheme.onSurface
+                                            )
                                         }
                                     }
                                 }

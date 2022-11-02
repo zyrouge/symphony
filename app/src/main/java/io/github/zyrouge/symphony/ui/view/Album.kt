@@ -100,7 +100,7 @@ private fun AlbumHero(context: ViewContext, album: Album) {
     val defaultHorizontalPadding = 20.dp
     BoxWithConstraints {
         Image(
-            album.getArtwork(context.symphony).asImageBitmap(),
+            album.getArtwork(context.symphony, 500).asImageBitmap(),
             null,
             contentScale = ContentScale.Crop,
             modifier = Modifier

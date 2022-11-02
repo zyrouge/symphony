@@ -40,7 +40,7 @@ fun AlbumTile(context: ViewContext, album: Album) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp)),
-                        bitmap = album.getArtwork(context.symphony)
+                        bitmap = album.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null
                     )

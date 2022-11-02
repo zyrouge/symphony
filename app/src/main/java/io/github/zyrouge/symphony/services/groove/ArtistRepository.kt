@@ -44,7 +44,7 @@ class ArtistRepository(private val symphony: Symphony) {
             null,
             null,
             MediaStore.Audio.Artists.ARTIST + " ASC"
-        );
+        )
         cursor?.let {
             while (it.moveToNext()) {
                 val artist = Artist.fromCursor(it)
@@ -57,9 +57,10 @@ class ArtistRepository(private val symphony: Symphony) {
         return total
     }
 
-    fun fetchArtistArtwork(artistName: String): Bitmap {
+    fun fetchArtistArtwork(artistName: String, size: Int): Bitmap {
         val album = symphony.groove.album.getAlbumOfArtist(artistName)
-        return album?.getArtwork(symphony) ?: Assets.getPlaceholder(symphony.applicationContext)
+        return album?.getArtwork(symphony, size)
+            ?: Assets.getPlaceholder(symphony.applicationContext)
     }
 
     fun getAll() = cached.values.toList()

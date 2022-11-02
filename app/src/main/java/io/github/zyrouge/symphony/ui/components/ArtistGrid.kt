@@ -34,7 +34,7 @@ fun ArtistGrid(context: ViewContext, artists: List<Artist>) {
 
     LaunchedEffect(LocalContext.current) {
         scope.launch {
-            snapshotFlow { artists }.collect { sortArtistsAgain() }
+            snapshotFlow { artists.toList() }.collect { sortArtistsAgain() }
         }
     }
 
@@ -61,7 +61,7 @@ fun ArtistGrid(context: ViewContext, artists: List<Artist>) {
             )
         },
         content = {
-            items(sortedArtists) { artist ->
+            items(sortedArtists, key = { it.artistName }) { artist ->
                 ArtistTile(context, artist)
             }
         }
