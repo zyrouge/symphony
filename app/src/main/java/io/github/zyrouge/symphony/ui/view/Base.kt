@@ -8,10 +8,7 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.helpers.Routes
-import io.github.zyrouge.symphony.ui.helpers.RoutesParameters
-import io.github.zyrouge.symphony.ui.helpers.Transitions
-import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.*
 import io.github.zyrouge.symphony.ui.theme.SymphonyTheme
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -60,7 +57,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 ) { backStackEntry ->
                     ArtistView(
                         context,
-                        backStackEntry.arguments?.getString(RoutesParameters.ArtistRouteArtistName)
+                        backStackEntry.getRouteArgument(RoutesParameters.ArtistRouteArtistName)
                             ?: ""
                     )
                 }
@@ -71,7 +68,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 ) { backStackEntry ->
                     AlbumView(
                         context,
-                        backStackEntry.arguments?.getString(RoutesParameters.AlbumRouteAlbumId)
+                        backStackEntry.getRouteArgument(RoutesParameters.AlbumRouteAlbumId)
                             ?.toLongOrNull() ?: -1
                     )
                 }

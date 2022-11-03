@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private var gSymphony: Symphony? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,6 +30,8 @@ class MainActivity : ComponentActivity() {
 
         val symphony: Symphony by viewModels()
         symphony.permission.handle(this)
+        gSymphony = symphony
+        symphony.ready()
         setContent {
             LaunchedEffect(LocalContext.current) {
                 if (!splashState.isReady) {
@@ -42,6 +46,11 @@ class MainActivity : ComponentActivity() {
                 activity = this
             )
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gSymphony?.pause()
     }
 }
 

@@ -92,7 +92,7 @@ class Player(private val symphony: Symphony) {
             total = currentMediaPlayer!!.duration
         ) else null
 
-    fun play(index: Int) {
+    fun play(index: Int, autoplay: Boolean = true) {
         if (hasPlayer) stopCurrentSong()
         if (!hasSongAt(index)) return
         val song = queue[index]
@@ -100,8 +100,10 @@ class Player(private val symphony: Symphony) {
         currentMediaPlayerManager.play(song.uri) {
             onSongFinish()
         }
-        currentMediaPlayer!!.start()
-        onUpdate.dispatch(PlayerEvent.StartPlaying)
+        if (autoplay) {
+            currentMediaPlayer!!.start()
+            onUpdate.dispatch(PlayerEvent.StartPlaying)
+        }
         createDurationTimer()
     }
 
@@ -137,7 +139,7 @@ class Player(private val symphony: Symphony) {
         onUpdate.dispatch(PlayerEvent.Seeked)
     }
 
-    fun addToQueue(songs: List<Song>, index: Int? = null) {
+    fun addToQueue(songs: List<Song>, index: Int? = null, autoplay: Boolean = true) {
         index?.let {
             queue.addAll(it, songs)
             if (it <= currentSongIndex) {
@@ -147,10 +149,11 @@ class Player(private val symphony: Symphony) {
         } ?: run {
             queue.addAll(songs)
         }
-        afterAddToQueue()
+        afterAddToQueue(autoplay = autoplay)
     }
 
-    fun addToQueue(song: Song, index: Int? = null) = addToQueue(listOf(song), index)
+    fun addToQueue(song: Song, index: Int? = null, autoplay: Boolean = true) =
+        addToQueue(listOf(song), index, autoplay)
 
     fun removeFromQueue(index: Int) {
         queue.removeAt(index)
@@ -190,10 +193,11 @@ class Player(private val symphony: Symphony) {
         setLoopMode(LoopMode.all[if (next < LoopMode.all.size) next else 0])
     }
 
-    private fun afterAddToQueue() {
+    private fun afterAddToQueue(autoplay: Boolean = true) {
         if (!hasPlayer) {
-            play(0)
+            play(0, autoplay = autoplay)
         }
+        onUpdate.dispatch(PlayerEvent.SongQueued)
     }
 
     private fun stopCurrentSong() {
@@ -235,5 +239,21 @@ class Player(private val symphony: Symphony) {
                 }
             }
         }
+    }
+
+    fun onSymphonyReady() {
+        symphony.settings.getPreviousSongQueue()?.let { previousSongQueue ->
+            val queue = mutableListOf<Song>()
+            previousSongQueue.forEach { songId ->
+                symphony.groove.song.getSongWithId(songId)?.let { song ->
+                    queue.add(song)
+                }
+            }
+            addToQueue(queue, autoplay = false)
+        }
+    }
+
+    fun onSymphonyPause() {
+        symphony.settings.setPreviousSongQueue(queue.map { it.id })
     }
 }

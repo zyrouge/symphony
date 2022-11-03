@@ -1,12 +1,11 @@
 package io.github.zyrouge.symphony.ui.view
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +20,9 @@ import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.helpers.AppMeta
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,7 @@ fun SettingsView(context: ViewContext) {
                     .fillMaxSize()
             ) {
                 Column {
+                    SideHeading(context.symphony.t.appearance)
                     MultiOptionTile(
                         icon = {
                             Icon(Icons.Default.Language, null)
@@ -107,6 +109,28 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setUseMaterialYou(value)
                         }
                     )
+                    Divider()
+                    SideHeading(context.symphony.t.about)
+                    LinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Favorite, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.madeByX(AppMeta.author))
+                        },
+                        url = AppMeta.githubProfileUrl
+                    )
+                    LinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Code, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.github)
+                        },
+                        url = AppMeta.githubRepositoryUrl
+                    )
                 }
             }
         }
@@ -120,6 +144,29 @@ private object TileDefaults {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun listItemColors() = ListItemDefaults.colors(containerColor = Color.Transparent)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LinkTile(
+    context: ViewContext,
+    icon: @Composable () -> Unit,
+    title: @Composable () -> Unit,
+    url: String
+) {
+    Card(
+        colors = TileDefaults.cardColors(),
+        onClick = {
+            context.activity.startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)))
+        }
+    ) {
+        ListItem(
+            colors = TileDefaults.listItemColors(),
+            leadingContent = { icon() },
+            headlineText = { title() },
+            supportingText = { Text(url) }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -234,5 +281,20 @@ private fun <T> MultiOptionTile(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SideHeading(text: String) {
+    Box(
+        modifier = Modifier
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.primary
+            )
+        )
     }
 }

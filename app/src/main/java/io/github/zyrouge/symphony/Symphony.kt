@@ -22,4 +22,12 @@ class Symphony(application: Application) : AndroidViewModel(application) {
 
     val applicationContext: Context
         get() = getApplication<Application>().applicationContext
+
+    fun ready() {
+        player.onSymphonyReady()
+    }
+
+    fun pause() {
+        player.onSymphonyPause()
+    }
 }

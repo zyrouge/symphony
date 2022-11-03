@@ -174,7 +174,7 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                         IconButton(
                                             enabled = context.symphony.player.canJumpToPrevious(),
                                             modifier = Modifier.background(
-                                                MaterialTheme.colorScheme.surface,
+                                                MaterialTheme.colorScheme.surfaceVariant,
                                                 CircleShape
                                             ),
                                             onClick = {
@@ -190,7 +190,7 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                         IconButton(
                                             enabled = context.symphony.player.canJumpToNext(),
                                             modifier = Modifier.background(
-                                                MaterialTheme.colorScheme.surface,
+                                                MaterialTheme.colorScheme.surfaceVariant,
                                                 CircleShape
                                             ),
                                             onClick = {
@@ -266,7 +266,7 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                                 interactionSource = interactionSource,
                                                 thumbSize = DpSize(12.dp, 12.dp),
                                                 // NOTE: pad top to fix stupid layout
-                                                modifier = Modifier.padding(top = 3.dp),
+                                                modifier = Modifier.padding(top = 4.dp),
                                             )
                                         }
                                     )

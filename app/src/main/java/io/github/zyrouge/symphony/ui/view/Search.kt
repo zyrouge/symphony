@@ -164,7 +164,7 @@ fun SearchView(context: ViewContext) {
                                     items(artists) { artist ->
                                         GenericGrooveCard(
                                             image = {
-                                                artist.getArtwork(context.symphony, 100)
+                                                artist.getArtwork(context.symphony, 150)
                                                     .asImageBitmap()
                                             },
                                             title = { Text(artist.artistName) },
@@ -189,7 +189,7 @@ fun SearchView(context: ViewContext) {
                                     items(albums) { album ->
                                         GenericGrooveCard(
                                             image = {
-                                                album.getArtwork(context.symphony, 100)
+                                                album.getArtwork(context.symphony, 150)
                                                     .asImageBitmap()
                                             },
                                             title = { Text(album.albumName) },

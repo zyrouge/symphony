@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.utils
 
 import androidx.annotation.FloatRange
+import kotlin.math.max
 
 data class FuzzySearchOption<T>(
     val value: (T) -> String?,
@@ -36,24 +37,26 @@ object Fuzzy {
     fun compare(input: String, against: String) =
         compareStrict(input.lowercase(), against.lowercase())
 
-    fun compareStrict(input: String, against: String): Float {
+    private fun compareStrict(input: String, against: String): Float {
         val inputLetters = input.split("")
         val inputLength = inputLetters.size
         val againstLetters = against.split("")
         val againstLength = againstLetters.size
         var pos = 0
-        var score = 0
+        var score = 0f
         for (i in 0 until inputLength) {
             val x = inputLetters[i]
+            var matched = false
             for (j in pos until againstLength) {
                 val y = againstLetters[j]
                 if (x == y) {
                     pos = j + 1
-                    score++
+                    matched = true
                     break
                 }
             }
+            score += if (matched) 1f else -0.3f
         }
-        return score.toFloat() / againstLength
+        return max(0f, score) / againstLength
     }
 }

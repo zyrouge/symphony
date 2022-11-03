@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -35,14 +37,15 @@ fun AlbumTile(context: ViewContext, album: Album) {
                 .padding(12.dp)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box {
+                BoxWithConstraints {
                     Image(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .size(maxWidth)
                             .clip(RoundedCornerShape(10.dp)),
                         bitmap = album.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
-                        contentDescription = null
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
                     )
                     Box(modifier = Modifier.align(Alignment.TopEnd)) {
                         var showOptionsMenu by remember { mutableStateOf(false) }
@@ -86,11 +89,16 @@ fun AlbumTile(context: ViewContext, album: Album) {
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(album.albumName, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    album.albumName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
                 album.artistName?.let { artistName ->
                     Text(
                         artistName,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
                     )
                 }
             }

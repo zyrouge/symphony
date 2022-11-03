@@ -32,6 +32,7 @@ object SettingsKeys {
     const val lastUsedArtistsSortReverse = "last_used_artists_sort_reverse"
     const val lastUsedAlbumsSortBy = "last_used_albums_sort_by"
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
+    const val previousSongQueue = "previous_song_queue"
 }
 
 data class SettingsData(
@@ -134,6 +135,18 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.lastUsedAlbumsSortReverse, reverse)
         }
         onChange.dispatch(SettingsKeys.lastUsedAlbumsSortReverse)
+    }
+
+    fun getPreviousSongQueue(): List<Long>? {
+        val raw = getSharedPreferences().getString(SettingsKeys.previousSongQueue, null)
+        return raw?.split(", ")?.map { it.toLong() }
+    }
+
+    fun setPreviousSongQueue(songIds: List<Long>) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.previousSongQueue, songIds.joinToString())
+        }
+        onChange.dispatch(SettingsKeys.previousSongQueue)
     }
 
     private fun getSharedPreferences() =

@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,6 +27,7 @@ fun SongCard(
     highlighted: Boolean = false,
     autoHighlight: Boolean = true,
     leading: @Composable () -> Unit = {},
+    thumbnailLabel: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
     var isCurrentPlaying by remember {
@@ -48,13 +50,37 @@ fun SongCard(
         Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 leading()
-                Image(
-                    song.getArtwork(context.symphony, 100).asImageBitmap(),
-                    null,
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(RoundedCornerShape(10.dp)),
-                )
+                Box {
+                    Image(
+                        song.getArtwork(context.symphony, 150).asImageBitmap(),
+                        null,
+                        modifier = Modifier
+                            .size(45.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                    )
+                    thumbnailLabel?.let { it ->
+                        Box(
+                            modifier = Modifier
+                                .offset(y = 8.dp)
+                                .align(Alignment.BottomCenter)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        RoundedCornerShape(4.dp)
+                                    )
+                                    .padding(3.dp, 0.dp)
+                            ) {
+                                ProvideTextStyle(
+                                    MaterialTheme.typography.labelSmall.copy(
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) { it() }
+                            }
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.width(15.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(

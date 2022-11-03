@@ -46,6 +46,10 @@ sealed class Translations(
     val XArtists: (x: Int) -> String,
     val XAlbums: (x: Int) -> String,
     val filteringResults: String,
+    val appearance: String,
+    val about: String,
+    val madeByX: (x: String) -> String,
+    val github: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -93,7 +97,11 @@ sealed class Translations(
         trackCount = "Track count",
         XArtists = { x -> "$x artists" },
         XAlbums = { x -> "$x albums" },
-        filteringResults = "Filtering results..."
+        filteringResults = "Filtering results...",
+        appearance = "Appearance",
+        about = "About",
+        madeByX = { x -> "Made by $x" },
+        github = "Github",
     )
 
     companion object {

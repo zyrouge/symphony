@@ -115,6 +115,9 @@ fun QueueView(context: ViewContext) {
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                     },
+                                    thumbnailLabel = {
+                                        Text((i + 1).toString())
+                                    },
                                     onClick = {
                                         context.symphony.player.jumpTo(i)
                                     }

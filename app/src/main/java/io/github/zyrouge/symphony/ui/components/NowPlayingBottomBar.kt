@@ -88,7 +88,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
-                                    song.getArtwork(context.symphony, 100)
+                                    song.getArtwork(context.symphony, 150)
                                         .asImageBitmap(),
                                     null,
                                     modifier = Modifier

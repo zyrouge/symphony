@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -38,14 +40,15 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
                 .padding(12.dp)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box {
+                BoxWithConstraints() {
                     Image(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .size(maxWidth)
                             .clip(RoundedCornerShape(10.dp)),
                         bitmap = artist.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
-                        contentDescription = null
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
                     )
                     Box(modifier = Modifier.align(Alignment.TopEnd)) {
                         var showOptionsMenu by remember { mutableStateOf(false) }
@@ -89,7 +92,11 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(artist.artistName, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    artist.artistName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }
