@@ -65,7 +65,11 @@ enum class HomePages(
 @Composable
 fun HomeView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    val pageState = rememberPagerState(0)
+    val pageState = rememberPagerState(
+        context.symphony.settings.getHomeLastTab()
+            ?.let { value -> HomePages.values().find { it.name == value } }
+            ?.ordinal ?: 0
+    )
     var currentPage by remember { mutableStateOf(HomePages.valueAt(pageState.currentPage)) }
     var optionsDropdownState by remember { mutableStateOf(false) }
 
@@ -171,6 +175,7 @@ fun HomeView(context: ViewContext) {
                                 coroutineScope.launch {
                                     pageState.animateScrollToPage(page.ordinal)
                                 }
+                                context.symphony.settings.setHomeLastTab(currentPage.name)
                             }
                         )
                     }

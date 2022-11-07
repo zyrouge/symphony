@@ -7,7 +7,7 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.swap
+import io.github.zyrouge.symphony.utils.swap
 
 @Composable
 fun SongsView(context: ViewContext) {

@@ -50,6 +50,10 @@ sealed class Translations(
     val about: String,
     val madeByX: (x: String) -> String,
     val github: String,
+    val play: String,
+    val previous: String,
+    val next: String,
+    val pause: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -102,6 +106,10 @@ sealed class Translations(
         about = "About",
         madeByX = { x -> "Made by $x" },
         github = "Github",
+        play = "Play",
+        previous = "Previous",
+        next = "Next",
+        pause = "Pause",
     )
 
     companion object {

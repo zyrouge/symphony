@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.AlbumSortBy
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.utils.Eventer
 
 enum class ThemeMode {
@@ -33,6 +34,7 @@ object SettingsKeys {
     const val lastUsedAlbumsSortBy = "last_used_albums_sort_by"
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
     const val previousSongQueue = "previous_song_queue"
+    const val home_last_tab = "home_last_tab"
 }
 
 data class SettingsData(
@@ -137,16 +139,24 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.lastUsedAlbumsSortReverse)
     }
 
-    fun getPreviousSongQueue(): List<Long>? {
+    fun getPreviousSongQueue(): RadioQueue.Serialized? {
         val raw = getSharedPreferences().getString(SettingsKeys.previousSongQueue, null)
-        return raw?.split(", ")?.map { it.toLong() }
+        return raw?.let { RadioQueue.Serialized.parse(it) }
     }
 
-    fun setPreviousSongQueue(songIds: List<Long>) {
+    fun setPreviousSongQueue(queue: RadioQueue.Serialized) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.previousSongQueue, songIds.joinToString())
+            putString(SettingsKeys.previousSongQueue, queue.serialize())
         }
         onChange.dispatch(SettingsKeys.previousSongQueue)
+    }
+
+    fun getHomeLastTab() = getSharedPreferences().getString(SettingsKeys.home_last_tab, null)
+    fun setHomeLastTab(value: String) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.home_last_tab, value)
+        }
+        onChange.dispatch(SettingsKeys.home_last_tab)
     }
 
     private fun getSharedPreferences() =

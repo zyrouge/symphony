@@ -8,7 +8,7 @@ import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.AlbumSortBy
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.swap
+import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable

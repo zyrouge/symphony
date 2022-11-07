@@ -40,8 +40,9 @@ fun AlbumTile(context: ViewContext, album: Album) {
                 BoxWithConstraints {
                     Image(
                         modifier = Modifier
-                            .size(maxWidth)
-                            .clip(RoundedCornerShape(10.dp)),
+                            .clip(RoundedCornerShape(10.dp)).apply {
+                                
+                            },
                         bitmap = album.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null,
@@ -78,10 +79,7 @@ fun AlbumTile(context: ViewContext, album: Album) {
                             onClick = {
                                 val songs =
                                     context.symphony.groove.song.getSongsOfAlbum(album.albumId)
-                                context.symphony.player.stop()
-                                if (songs.isNotEmpty()) {
-                                    context.symphony.player.addToQueue(songs)
-                                }
+                                context.symphony.radio.shorty.playQueue(songs)
                             }
                         ) {
                             Icon(Icons.Default.PlayArrow, null)
@@ -126,9 +124,9 @@ fun AlbumDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.player.addToQueue(
+                context.symphony.radio.queue.add(
                     context.symphony.groove.song.getSongsOfAlbum(album.albumId),
-                    context.symphony.player.currentSongIndex + 1
+                    context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
         )
@@ -141,7 +139,7 @@ fun AlbumDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.player.addToQueue(
+                context.symphony.radio.queue.add(
                     context.symphony.groove.song.getSongsOfAlbum(album.albumId)
                 )
             }

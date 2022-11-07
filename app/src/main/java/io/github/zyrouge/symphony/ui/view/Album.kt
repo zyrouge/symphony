@@ -15,11 +15,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Album
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
+import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,22 +32,20 @@ fun AlbumView(context: ViewContext, albumId: Long) {
         mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
     }
     val songs = remember {
-        mutableStateListOf(
-            *context.symphony.groove.song.getSongsOfAlbum(albumId).toTypedArray()
-        )
+        mutableStateListOf<Song>().apply {
+            swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        }
     }
     var isViable by remember { mutableStateOf(album != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
         album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songs.clear()
-        songs.addAll(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
         isViable = album != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.clear()
-        songs.addAll(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
     }
 
     Scaffold(
@@ -105,7 +107,12 @@ private fun AlbumHero(context: ViewContext, album: Album) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(maxWidth.times(0.7f))
+                .height(
+                    when (ScreenOrientation.fromConfiguration(LocalConfiguration.current)) {
+                        ScreenOrientation.PORTRAIT -> maxWidth.times(0.7f)
+                        ScreenOrientation.LANDSCAPE -> maxWidth.times(0.25f)
+                    }
+                )
         )
         Row(
             modifier = Modifier
