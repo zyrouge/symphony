@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.PlayerDuration
+import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
@@ -26,12 +26,14 @@ import io.github.zyrouge.symphony.ui.helpers.navigate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext) {
-    var currentPlayingSong by remember { mutableStateOf(context.symphony.player.currentPlayingSong) }
-    var isPlaying by remember { mutableStateOf(context.symphony.player.isPlaying) }
+    var currentPlayingSong by remember {
+        mutableStateOf(context.symphony.radio.queue.currentPlayingSong)
+    }
+    var isPlaying by remember { mutableStateOf(context.symphony.radio.isPlaying) }
 
-    EventerEffect(context.symphony.player.onUpdate) {
-        currentPlayingSong = context.symphony.player.currentPlayingSong
-        isPlaying = context.symphony.player.isPlaying
+    EventerEffect(context.symphony.radio.onUpdate) {
+        currentPlayingSong = context.symphony.radio.queue.currentPlayingSong
+        isPlaying = context.symphony.radio.isPlaying
     }
 
     AnimatedVisibility(
@@ -52,10 +54,10 @@ fun NowPlayingBottomBar(context: ViewContext) {
                 ) {
                     var duration by remember {
                         mutableStateOf(
-                            context.symphony.player.duration ?: PlayerDuration.zero
+                            context.symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
                         )
                     }
-                    EventerEffect(context.symphony.player.onDurationUpdate) {
+                    EventerEffect(context.symphony.radio.onPlaybackPositionUpdate) {
                         duration = it
                     }
                     Box(
@@ -107,13 +109,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                 }
                                 Spacer(modifier = Modifier.width(15.dp))
                                 IconButton(
-                                    onClick = {
-                                        if (context.symphony.player.isPlaying) {
-                                            context.symphony.player.pause()
-                                        } else {
-                                            context.symphony.player.resume()
-                                        }
-                                    }
+                                    onClick = { context.symphony.radio.shorty.playPause() }
                                 ) {
                                     Icon(
                                         if (!isPlaying) Icons.Default.PlayArrow
@@ -122,10 +118,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                     )
                                 }
                                 IconButton(
-                                    enabled = context.symphony.player.canJumpToNext(),
-                                    onClick = {
-                                        context.symphony.player.jumpToNext()
-                                    }
+                                    onClick = { context.symphony.radio.shorty.skip() }
                                 ) {
                                     Icon(Icons.Default.SkipNext, null)
                                 }

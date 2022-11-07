@@ -20,9 +20,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.LoopMode
-import io.github.zyrouge.symphony.services.PlayerDuration
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.radio.PlaybackPosition
+import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -36,28 +36,31 @@ private data class PlayerStateData(
     val isPlaying: Boolean,
     val currentSongIndex: Int,
     val queueSize: Int,
-    val currentLoopMode: LoopMode
+    val currentLoopMode: RadioLoopMode,
+    val currentShuffleMode: Boolean,
 )
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
-    var song by remember { mutableStateOf(context.symphony.player.currentPlayingSong) }
-    var isPlaying by remember { mutableStateOf(context.symphony.player.isPlaying) }
-    var currentSongIndex by remember { mutableStateOf(context.symphony.player.currentSongIndex) }
-    var queueSize by remember { mutableStateOf(context.symphony.player.queue.size) }
-    var currentLoopMode by remember { mutableStateOf(context.symphony.player.currentLoopMode) }
+    var song by remember { mutableStateOf(context.symphony.radio.queue.currentPlayingSong) }
+    var isPlaying by remember { mutableStateOf(context.symphony.radio.isPlaying) }
+    var currentSongIndex by remember { mutableStateOf(context.symphony.radio.queue.currentSongIndex) }
+    var queueSize by remember { mutableStateOf(context.symphony.radio.queue.originalQueue.size) }
+    var currentLoopMode by remember { mutableStateOf(context.symphony.radio.queue.currentLoopMode) }
+    var currentShuffleMode by remember { mutableStateOf(context.symphony.radio.queue.currentShuffleMode) }
     var isViable by remember { mutableStateOf(song != null) }
 
     BackHandler {
         context.navController.popBackStack()
     }
 
-    EventerEffect(context.symphony.player.onUpdate) {
-        song = context.symphony.player.currentPlayingSong
-        isPlaying = context.symphony.player.isPlaying
-        currentSongIndex = context.symphony.player.currentSongIndex
-        queueSize = context.symphony.player.queue.size
-        currentLoopMode = context.symphony.player.currentLoopMode
+    EventerEffect(context.symphony.radio.onUpdate) {
+        song = context.symphony.radio.queue.currentPlayingSong
+        isPlaying = context.symphony.radio.isPlaying
+        currentSongIndex = context.symphony.radio.queue.currentSongIndex
+        queueSize = context.symphony.radio.queue.originalQueue.size
+        currentLoopMode = context.symphony.radio.queue.currentLoopMode
+        currentShuffleMode = context.symphony.radio.queue.currentShuffleMode
         isViable = song != null
     }
 
@@ -69,7 +72,8 @@ fun NowPlayingView(context: ViewContext) {
                 isPlaying = isPlaying,
                 currentSongIndex = currentSongIndex,
                 queueSize = queueSize,
-                currentLoopMode = currentLoopMode
+                currentLoopMode = currentLoopMode,
+                currentShuffleMode = currentShuffleMode,
             )
         )
     } else NothingPlaying(context)
@@ -157,11 +161,7 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                                 CircleShape
                                             ),
                                             onClick = {
-                                                if (context.symphony.player.isPlaying) {
-                                                    context.symphony.player.pause()
-                                                } else {
-                                                    context.symphony.player.resume()
-                                                }
+                                                context.symphony.radio.shorty.playPause()
                                             }
                                         ) {
                                             Icon(
@@ -171,36 +171,36 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                                 tint = MaterialTheme.colorScheme.onPrimary
                                             )
                                         }
+//                                        val secondaryButtonEnabledColor =
+//                                            MaterialTheme.colorScheme.onSurface
+//                                        val secondaryButtonDisabledColor =
+//                                            secondaryButtonEnabledColor.copy(alpha = 0.7f)
                                         IconButton(
-                                            enabled = context.symphony.player.canJumpToPrevious(),
                                             modifier = Modifier.background(
                                                 MaterialTheme.colorScheme.surfaceVariant,
                                                 CircleShape
                                             ),
                                             onClick = {
-                                                context.symphony.player.jumpToPrevious()
+                                                context.symphony.radio.shorty.previous()
                                             }
                                         ) {
                                             Icon(
                                                 Icons.Default.SkipPrevious,
-                                                null,
-                                                tint = MaterialTheme.colorScheme.onSurface
+                                                null
                                             )
                                         }
                                         IconButton(
-                                            enabled = context.symphony.player.canJumpToNext(),
                                             modifier = Modifier.background(
                                                 MaterialTheme.colorScheme.surfaceVariant,
                                                 CircleShape
                                             ),
                                             onClick = {
-                                                context.symphony.player.jumpToNext()
+                                                context.symphony.radio.shorty.skip()
                                             }
                                         ) {
                                             Icon(
                                                 Icons.Default.SkipNext,
                                                 null,
-                                                tint = MaterialTheme.colorScheme.onSurface
                                             )
                                         }
                                     }
@@ -234,29 +234,27 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                 var sliderPosition by remember { mutableStateOf<Int?>(null) }
                                 var duration by remember {
                                     mutableStateOf(
-                                        context.symphony.player.duration ?: PlayerDuration.zero
+                                        context.symphony.radio.currentPlaybackPosition
+                                            ?: PlaybackPosition.zero
                                     )
                                 }
-
-                                EventerEffect(context.symphony.player.onDurationUpdate) {
+                                EventerEffect(context.symphony.radio.onPlaybackPositionUpdate) {
                                     duration = it
                                 }
-
                                 Text(
                                     DurationFormatter.formatAsMS(sliderPosition ?: duration.played),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 BoxWithConstraints(modifier = Modifier.weight(1f)) {
                                     Slider(
-                                        value = sliderPosition?.toFloat()
-                                            ?: duration.played.toFloat(),
+                                        value = (sliderPosition ?: duration.played).toFloat(),
                                         valueRange = 0f..duration.total.toFloat(),
                                         onValueChange = {
                                             sliderPosition = it.toInt()
                                         },
                                         onValueChangeFinished = {
                                             sliderPosition?.let {
-                                                context.symphony.player.seek(it)
+                                                context.symphony.radio.seek(it)
                                                 sliderPosition = null
                                             }
                                         },
@@ -299,23 +297,32 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                             Row {
                                 IconButton(
                                     onClick = {
-                                        context.symphony.player.toggleLoopMode()
+                                        context.symphony.radio.queue.toggleLoopMode()
                                     }
                                 ) {
                                     Icon(
                                         when (currentLoopMode) {
-                                            LoopMode.Song -> Icons.Default.RepeatOne
+                                            RadioLoopMode.Song -> Icons.Default.RepeatOne
                                             else -> Icons.Default.Repeat
                                         },
                                         null,
-                                        tint = if (currentLoopMode == LoopMode.None) LocalContentColor.current
-                                        else MaterialTheme.colorScheme.primary
+                                        tint = when (currentLoopMode) {
+                                            RadioLoopMode.None -> LocalContentColor.current
+                                            else -> MaterialTheme.colorScheme.primary
+                                        }
                                     )
                                 }
                                 IconButton(
-                                    onClick = {}
+                                    onClick = {
+                                        context.symphony.radio.queue.toggleShuffleMode()
+                                    }
                                 ) {
-                                    Icon(Icons.Default.Shuffle, null)
+                                    Icon(
+                                        Icons.Default.Shuffle,
+                                        null,
+                                        tint = if (!currentShuffleMode) LocalContentColor.current
+                                        else MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
                         }

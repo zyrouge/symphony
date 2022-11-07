@@ -2,8 +2,6 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.content.ContentUris
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Size
 import io.github.zyrouge.symphony.Symphony
@@ -62,22 +60,18 @@ class AlbumRepository(private val symphony: Symphony) {
         return total
     }
 
+    fun getAlbumArtworkUri(albumId: Long) = ContentUris.withAppendedId(
+        MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+        albumId
+    )
+
     fun fetchAlbumArtwork(albumId: Long, size: Int): Bitmap {
-        val uri = ContentUris.withAppendedId(
-            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-            albumId
-        )
+        val uri = getAlbumArtworkUri(albumId)
         val context = symphony.applicationContext
-        try {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                context.contentResolver.loadThumbnail(uri, Size(size, size), null)
-            } else {
-                val source =
-                    ImageDecoder.createSource(context.contentResolver, uri)
-                return ImageDecoder.decodeBitmap(source)
-            }
+        return try {
+            context.contentResolver.loadThumbnail(uri, Size(size, size), null)
         } catch (_: IOException) {
-            return Assets.getPlaceholder(context)
+            Assets.getPlaceholder(context)
         }
     }
 

@@ -67,6 +67,7 @@ class SongRepository(private val symphony: Symphony) {
 
     fun getAll() = cached.values.toList()
     fun getSongWithId(songId: Long) = cached[songId]
+    fun hasSongWithId(songId: Long) = getSongWithId(songId) != null
 
     fun getSongsOfArtist(artistName: String) = getAll().filter {
         it.artistName == artistName

@@ -10,7 +10,7 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.swap
+import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable
@@ -70,9 +70,8 @@ fun SongList(
         }
         itemsIndexed(sortedSongs, key = { _, x -> x.id }) { i, song ->
             SongCard(context, song) {
-                context.symphony.player.stop()
-                context.symphony.player.addToQueue(
-                    sortedSongs.subList(i, sortedSongs.size).toList()
+                context.symphony.radio.shorty.playQueue(
+                    sortedSongs.subList(i, sortedSongs.size)
                 )
             }
         }

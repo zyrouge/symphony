@@ -14,8 +14,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.PlayerEvent
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.radio.RadioEvents
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -31,13 +31,13 @@ fun SongCard(
     onClick: () -> Unit
 ) {
     var isCurrentPlaying by remember {
-        mutableStateOf(autoHighlight && song.id == context.symphony.player.currentPlayingSong?.id)
+        mutableStateOf(autoHighlight && song.id == context.symphony.radio.queue.currentPlayingSong?.id)
     }
 
     if (autoHighlight) {
-        EventerEffect(context.symphony.player.onUpdate) {
-            if (it == PlayerEvent.StartPlaying || it == PlayerEvent.StopPlaying) {
-                isCurrentPlaying = song.id == context.symphony.player.currentPlayingSong?.id
+        EventerEffect(context.symphony.radio.onUpdate) {
+            if (it == RadioEvents.StartPlaying || it == RadioEvents.StopPlaying) {
+                isCurrentPlaying = song.id == context.symphony.radio.queue.currentPlayingSong?.id
             }
         }
     }
@@ -140,9 +140,9 @@ fun SongDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.player.addToQueue(
+                context.symphony.radio.queue.add(
                     song,
-                    context.symphony.player.currentSongIndex + 1
+                    context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
         )
@@ -155,7 +155,7 @@ fun SongDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.player.addToQueue(song)
+                context.symphony.radio.queue.add(song)
             }
         )
         song.artistName?.let { artistName ->

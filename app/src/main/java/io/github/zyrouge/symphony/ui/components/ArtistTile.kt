@@ -81,10 +81,7 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
                             onClick = {
                                 val songs =
                                     context.symphony.groove.song.getSongsOfArtist(artist.artistName)
-                                context.symphony.player.stop()
-                                if (songs.isNotEmpty()) {
-                                    context.symphony.player.addToQueue(songs)
-                                }
+                                context.symphony.radio.shorty.playQueue(songs)
                             }
                         ) {
                             Icon(Icons.Default.PlayArrow, null)
@@ -122,9 +119,9 @@ fun ArtistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.player.addToQueue(
+                context.symphony.radio.queue.add(
                     context.symphony.groove.song.getSongsOfArtist(artist.artistName),
-                    context.symphony.player.currentSongIndex + 1
+                    context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
         )
@@ -137,7 +134,7 @@ fun ArtistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.player.addToQueue(
+                context.symphony.radio.queue.add(
                     context.symphony.groove.song.getSongsOfArtist(artist.artistName)
                 )
             }

@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
@@ -10,7 +11,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.ui.view.BaseView
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -32,11 +32,11 @@ class MainActivity : ComponentActivity() {
         symphony.permission.handle(this)
         gSymphony = symphony
         symphony.ready()
+        handleBackPressed()
+
         setContent {
             LaunchedEffect(LocalContext.current) {
                 if (!splashState.isReady) {
-                    // NOTE: prevents white screen by giving time to draw first frame
-                    delay(150)
                     splashState.toReady()
                 }
             }
@@ -51,6 +51,12 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         gSymphony?.pause()
+    }
+
+    private fun handleBackPressed() {
+        onBackPressedDispatcher.addCallback {
+            moveTaskToBack(true)
+        }
     }
 }
 

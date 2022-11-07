@@ -154,8 +154,7 @@ fun SearchView(context: ViewContext) {
                                     item { SideHeading(context.symphony.t.songs) }
                                     items(songs) { song ->
                                         SongCard(context, song) {
-                                            context.symphony.player.stop()
-                                            context.symphony.player.addToQueue(song)
+                                            context.symphony.radio.shorty.playQueue(song)
                                         }
                                     }
                                 }
