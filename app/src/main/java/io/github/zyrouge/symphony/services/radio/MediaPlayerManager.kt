@@ -31,20 +31,25 @@ class MediaPlayerManager(private val symphony: Symphony) {
         ) else null
 
     fun play(uri: Uri, onFinish: () -> Unit) {
-        player = MediaPlayer.create(symphony.applicationContext, uri)
-        player!!.setOnCompletionListener {
-            usable = false
-            onFinish()
+        try {
+            player = MediaPlayer.create(symphony.applicationContext, uri)
+            player!!.setOnCompletionListener {
+                usable = false
+                onFinish()
+            }
+            createDurationTimer()
+            usable = true
+        } catch (_: Exception) {
+            release()
+            throw Exception()
         }
-        createDurationTimer()
-        usable = true
     }
 
-    fun stop() {
+    fun release() {
+        usable = false
+        destroyDurationTimer()
         player?.let {
-            usable = false
             it.stop()
-            destroyDurationTimer()
             it.release()
         }
     }

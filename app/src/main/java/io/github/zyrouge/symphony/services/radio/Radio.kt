@@ -52,7 +52,13 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         val song =
             queue.getSongAt(options.index) ?: return play(options.copy(index = options.index + 1))
         queue.currentSongIndex = options.index
-        manager.play(song.uri) { onSongFinish() }
+        try {
+            manager.play(song.uri) {
+                onSongFinish()
+            }
+        } catch (_: Exception) {
+            queue.remove(queue.currentSongIndex)
+        }
         onUpdate.dispatch(RadioEvents.SongStaged)
         options.startPosition?.let { seek(it) }
         if (options.autostart) {
@@ -91,7 +97,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     private fun stopCurrentSong() {
         if (!hasPlayer) return
-        manager.stop()
+        manager.release()
         onUpdate.dispatch(RadioEvents.StopPlaying)
     }
 
