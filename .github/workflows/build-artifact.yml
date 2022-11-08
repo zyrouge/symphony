@@ -1,0 +1,32 @@
+name: Build artifacts
+
+on:
+    workflow_dispatch:
+
+env:
+    SIGNING_KEYSTORE_FILE: ./signing_key.jks
+    RELEASE_APK_FILE: ./app/build/outputs/app-release.apk
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: 🔨 Generate certificate
+              run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
+              env:
+                  SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
+
+            - name: 🔨 Build apk
+              run: ./gradlew build
+              env:
+                  SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+                  SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+                  SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+            - name: 🚀 Upload apk
+              uses: actions/upload-artifact@v3
+              with:
+                  path: ${{ env.RELEASE_APK_FILE }}
