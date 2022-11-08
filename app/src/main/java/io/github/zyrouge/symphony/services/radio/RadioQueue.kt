@@ -47,7 +47,6 @@ class RadioQueue(private val symphony: Symphony) {
         originalQueue.clear()
         currentQueue.clear()
         currentSongIndex = -1
-
         symphony.radio.onUpdate.dispatch(RadioEvents.QueueEnded)
     }
 
@@ -205,6 +204,3 @@ class RadioQueue(private val symphony: Symphony) {
         )
     }
 }
-
-
-
