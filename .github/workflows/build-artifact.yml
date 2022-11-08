@@ -17,10 +17,12 @@ jobs:
             - name: 🔨 Generate certificate
               run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
-                  SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
+                  SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }} 
 
             - name: 🔨 Build apk
-              run: ./gradlew build
+              run: |
+                  chmod +x ./gradlew
+                  ./gradlew build
               env:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
