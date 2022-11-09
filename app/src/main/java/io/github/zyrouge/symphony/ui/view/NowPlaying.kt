@@ -191,7 +191,7 @@ private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
             Image(
                 song.getArtwork(context.symphony, 500).asImageBitmap(),
                 null,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
