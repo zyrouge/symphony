@@ -37,12 +37,13 @@ fun AlbumTile(context: ViewContext, album: Album) {
                 Box {
                     Image(
                         modifier = Modifier
+                            .aspectRatio(1f)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp)),
                         bitmap = album.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null,
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Crop
                     )
                     Box(modifier = Modifier.align(Alignment.TopEnd)) {
                         var showOptionsMenu by remember { mutableStateOf(false) }

@@ -40,12 +40,13 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
                 Box {
                     Image(
                         modifier = Modifier
+                            .aspectRatio(1f)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp)),
                         bitmap = artist.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null,
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Crop
                     )
                     Box(modifier = Modifier.align(Alignment.TopEnd)) {
                         var showOptionsMenu by remember { mutableStateOf(false) }
