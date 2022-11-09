@@ -4,8 +4,8 @@ on:
     workflow_dispatch:
 
 env:
-    SIGNING_KEYSTORE_FILE: ./signing_key.jks
-    RELEASE_APK_FILE: ./app/release/app-release.apk
+    SIGNING_KEYSTORE_FILENAME: signing_key.jks
+    RELEASE_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
 
 jobs:
     build:
@@ -17,6 +17,7 @@ jobs:
             - name: 🔨 Generate certificate
               run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
+                  SIGNING_KEYSTORE_FILE: ./${{ env.SIGNING_KEYSTORE_FILENAME }}
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }} 
 
             - name: 🔨 Build apk
@@ -24,6 +25,7 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew build
               env:
+                  SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILENAME }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}

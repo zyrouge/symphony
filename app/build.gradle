@@ -20,6 +20,14 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile = file(System.getenv("SIGNING_KEYSTORE_FILE"))
+            storePassword System.getenv("SIGNING_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("SIGNING_KEY_ALIAS")
+            keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
@@ -44,14 +52,6 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
-    }
-    signingConfigs {
-        release {
-            storeFile = file(System.getenv("SIGNING_KEYSTORE_FILE"))
-            storePassword System.getenv("SIGNING_KEYSTORE_PASSWORD")
-            keyAlias System.getenv("SIGNING_KEY_ALIAS")
-            keyPassword System.getenv("SIGNING_KEY_PASSWORD")
         }
     }
 }
