@@ -45,7 +45,7 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
                         bitmap = artist.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                     Box(modifier = Modifier.align(Alignment.TopEnd)) {
                         var showOptionsMenu by remember { mutableStateOf(false) }
