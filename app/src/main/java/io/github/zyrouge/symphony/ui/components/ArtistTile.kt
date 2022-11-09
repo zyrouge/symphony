@@ -35,15 +35,12 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
             context.navController.navigate(RoutesBuilder.buildArtistRoute(artist.artistName))
         }
     ) {
-        Box(
-            modifier = Modifier
-                .padding(12.dp)
-        ) {
+        Box(modifier = Modifier.padding(12.dp)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                BoxWithConstraints {
+                Box {
                     Image(
                         modifier = Modifier
-                            .size(maxWidth)
+                            .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp)),
                         bitmap = artist.getArtwork(context.symphony, 250)
                             .asImageBitmap(),

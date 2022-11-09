@@ -32,17 +32,13 @@ fun AlbumTile(context: ViewContext, album: Album) {
             context.navController.navigate(RoutesBuilder.buildAlbumRoute(album.albumId))
         }
     ) {
-        Box(
-            modifier = Modifier
-                .padding(12.dp)
-        ) {
+        Box(modifier = Modifier.padding(12.dp)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                BoxWithConstraints {
+                Box {
                     Image(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp)).apply {
-                                
-                            },
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp)),
                         bitmap = album.getArtwork(context.symphony, 250)
                             .asImageBitmap(),
                         contentDescription = null,
