@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -21,7 +22,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
     )
 
     SymphonyTheme(context) {
-        Surface {
+        Surface(color = MaterialTheme.colorScheme.background) {
             AnimatedNavHost(
                 navController = context.navController,
                 startDestination = Routes.Home.route
