@@ -3,8 +3,10 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongRepository
@@ -46,7 +48,11 @@ fun SongList(
         }
     }
 
-    LazyColumn {
+    val lazyListState = rememberLazyListState()
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier.drawScrollBar(lazyListState)
+    ) {
         leadingContent?.invoke(this)
         item {
             MediaSortBar(
