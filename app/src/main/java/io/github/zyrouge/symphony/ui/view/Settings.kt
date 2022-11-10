@@ -110,6 +110,28 @@ fun SettingsView(context: ViewContext) {
                         }
                     )
                     Divider()
+                    SideHeading(context.symphony.t.groove)
+                    val defaultSongsFilterPattern = ".*"
+                    TextInputTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.FilterAlt, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.songsFilterPattern)
+                        },
+                        value = settings.songsFilterPattern ?: defaultSongsFilterPattern,
+                        onReset = {
+                            context.symphony.settings.setSongsFilterPattern(null)
+                        },
+                        onChange = { value ->
+                            context.symphony.settings.setSongsFilterPattern(
+                                if (value == defaultSongsFilterPattern) null
+                                else value
+                            )
+                        }
+                    )
+                    Divider()
                     SideHeading(context.symphony.t.about)
                     LinkTile(
                         context,
@@ -225,11 +247,7 @@ private fun <T> MultiOptionTile(
     }
 
     if (isOpen) {
-        Dialog(
-            onDismissRequest = {
-                isOpen = false
-            }
-        ) {
+        Dialog(onDismissRequest = { isOpen = false }) {
             Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -296,5 +314,101 @@ private fun SideHeading(text: String) {
                 color = MaterialTheme.colorScheme.primary
             )
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TextInputTile(
+    context: ViewContext,
+    icon: @Composable () -> Unit,
+    title: @Composable () -> Unit,
+    value: String,
+    onReset: (() -> Unit)? = null,
+    onChange: (String) -> Unit
+) {
+    var isOpen by remember { mutableStateOf(false) }
+
+    Card(
+        colors = TileDefaults.cardColors(),
+        onClick = { isOpen = !isOpen }
+    ) {
+        ListItem(
+            colors = TileDefaults.listItemColors(),
+            leadingContent = { icon() },
+            headlineText = { title() },
+            supportingText = { Text(value) },
+        )
+    }
+
+    if (isOpen) {
+        var input by remember { mutableStateOf<String?>(null) }
+
+        Dialog(onDismissRequest = { isOpen = false }) {
+            Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
+                Column {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .padding(20.dp, 0.dp)
+                            .fillMaxWidth()
+                    ) {
+                        ProvideTextStyle(
+                            value = MaterialTheme.typography.bodyLarge.copy(
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            title()
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Divider()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(modifier = Modifier.padding(20.dp)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                unfocusedBorderColor = DividerDefaults.color,
+                            ),
+                            value = input ?: value,
+                            onValueChange = {
+                                input = it
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp, 0.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        onReset?.let {
+                            TextButton(
+                                onClick = {
+                                    onReset()
+                                    isOpen = false
+                                }
+                            ) {
+                                Text(context.symphony.t.reset)
+                            }
+                        }
+                        TextButton(
+                            enabled = input != null && input!!.isNotEmpty() && value != input,
+                            onClick = {
+                                input?.let { onChange(it) }
+                                isOpen = false
+                            }
+                        ) {
+                            Text(context.symphony.t.done)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
     }
 }

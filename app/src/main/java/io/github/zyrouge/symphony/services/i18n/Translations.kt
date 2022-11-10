@@ -54,6 +54,10 @@ sealed class Translations(
     val previous: String,
     val next: String,
     val pause: String,
+    val done: String,
+    val groove: String,
+    val songsFilterPattern: String,
+    val reset: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -110,6 +114,10 @@ sealed class Translations(
         previous = "Previous",
         next = "Next",
         pause = "Pause",
+        done = "Done",
+        groove = "Groove",
+        songsFilterPattern = "Songs filter pattern",
+        reset = "Reset",
     )
 
     companion object {

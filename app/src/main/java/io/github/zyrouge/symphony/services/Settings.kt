@@ -35,12 +35,14 @@ object SettingsKeys {
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_tab"
+    const val songs_filter_pattern = "songs_filter_pattern"
 }
 
 data class SettingsData(
     val themeMode: ThemeMode,
     val language: String?,
-    val useMaterialYou: Boolean
+    val useMaterialYou: Boolean,
+    val songsFilterPattern: String?,
 )
 
 class SettingsManager(private val symphony: Symphony) {
@@ -49,7 +51,8 @@ class SettingsManager(private val symphony: Symphony) {
     fun getSettings() = SettingsData(
         themeMode = getThemeMode(),
         language = getLanguage(),
-        useMaterialYou = getUseMaterialYou()
+        useMaterialYou = getUseMaterialYou(),
+        songsFilterPattern = getSongsFilterPattern(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -157,6 +160,16 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.home_last_tab, value)
         }
         onChange.dispatch(SettingsKeys.home_last_tab)
+    }
+
+    fun getSongsFilterPattern() =
+        getSharedPreferences().getString(SettingsKeys.songs_filter_pattern, null)
+
+    fun setSongsFilterPattern(value: String?) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.songs_filter_pattern, value)
+        }
+        onChange.dispatch(SettingsKeys.songs_filter_pattern)
     }
 
     private fun getSharedPreferences() =

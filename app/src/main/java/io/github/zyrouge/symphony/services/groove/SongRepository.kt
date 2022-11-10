@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
@@ -36,6 +37,14 @@ class SongRepository(private val symphony: Symphony) {
         )
     )
 
+    init {
+        symphony.settings.onChange.subscribe { event ->
+            if (event == SettingsKeys.songs_filter_pattern) {
+                fetch()
+            }
+        }
+    }
+
     fun fetch() {
         runBlocking {
             withContext(Dispatchers.Default) {
@@ -54,9 +63,13 @@ class SongRepository(private val symphony: Symphony) {
             MediaStore.Audio.Media.TITLE + " ASC"
         )
         cursor?.let {
+            val regex = symphony.settings.getSongsFilterPattern()
+                ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
             while (it.moveToNext()) {
                 val song = Song.fromCursor(it)
-                cached[song.id] = song
+                if (regex?.containsMatchIn(song.filename) != false) {
+                    cached[song.id] = song
+                }
             }
         }
         cursor?.close()
@@ -95,5 +108,8 @@ class SongRepository(private val symphony: Symphony) {
             }
             return if (reversed) sorted.reversed() else sorted
         }
+
+        fun getFiltered(songs: List<Song>, regex: Regex) =
+            songs.filter { regex.containsMatchIn(it.filename) }
     }
 }
