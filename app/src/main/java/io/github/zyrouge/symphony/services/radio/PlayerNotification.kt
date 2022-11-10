@@ -12,6 +12,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 
@@ -84,6 +85,15 @@ class PlayerNotification(private val symphony: Symphony) {
             setSmallIcon(R.drawable.material_icon_music_note)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             setStyle(style)
+            setContentIntent(
+                PendingIntent.getActivity(
+                    symphony.applicationContext,
+                    0,
+                    Intent(symphony.applicationContext, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                )
+            )
         }
         symphony.applicationContext.registerReceiver(
             receiver,
@@ -199,15 +209,17 @@ class PlayerNotification(private val symphony: Symphony) {
 
     private fun createAction(icon: Int, title: String, action: String): NotificationCompat.Action {
         return NotificationCompat.Action.Builder(
-            icon,
-            title,
-            PendingIntent.getBroadcast(
-                symphony.applicationContext,
-                0,
-                Intent(action),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
+            icon, title, createActionIntent(action)
         ).build()
+    }
+
+    private fun createActionIntent(action: String): PendingIntent {
+        return PendingIntent.getBroadcast(
+            symphony.applicationContext,
+            0,
+            Intent(action),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     private fun handleAction(action: String) {
