@@ -67,7 +67,7 @@ class SongRepository(private val symphony: Symphony) {
                 ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
             while (it.moveToNext()) {
                 val song = Song.fromCursor(it)
-                if (regex?.containsMatchIn(song.filename) != false) {
+                if (regex?.containsMatchIn(song.path) != false) {
                     cached[song.id] = song
                 }
             }
