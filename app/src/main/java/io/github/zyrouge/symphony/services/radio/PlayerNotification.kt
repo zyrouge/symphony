@@ -120,6 +120,7 @@ class PlayerNotification(private val symphony: Symphony) {
     fun destroy() {
         usable = false
         session.release()
+        manager.cancel(NOTIFICATION_ID)
         manager.deleteNotificationChannel(CHANNEL_ID)
     }
 
