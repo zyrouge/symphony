@@ -84,7 +84,7 @@ fun SettingsView(context: ViewContext) {
                             Icon(Icons.Default.Palette, null)
                         },
                         title = {
-                            Text(context.symphony.t.language_)
+                            Text(context.symphony.t.theme)
                         },
                         value = settings.themeMode,
                         values = mapOf(
