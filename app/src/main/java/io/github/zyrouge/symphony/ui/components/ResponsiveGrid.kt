@@ -12,8 +12,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ResponsiveGrid(
     topBar: (@Composable () -> Unit)? = null,
-    content: LazyGridScope.() -> Unit,
-    showScrollBar: Boolean = true
+    content: LazyGridScope.() -> Unit
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val cols = (maxWidth.value / 200).roundToInt()
