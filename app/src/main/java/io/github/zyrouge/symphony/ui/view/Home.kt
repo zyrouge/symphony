@@ -71,7 +71,7 @@ fun HomeView(context: ViewContext) {
             ?.ordinal ?: 0
     )
     var currentPage by remember { mutableStateOf(HomePages.valueAt(pageState.currentPage)) }
-    var optionsDropdownState by remember { mutableStateOf(false) }
+    var showOptionsDropdown by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -106,8 +106,8 @@ fun HomeView(context: ViewContext) {
                         content = {
                             Icon(Icons.Default.MoreVert, null)
                             DropdownMenu(
-                                expanded = optionsDropdownState,
-                                onDismissRequest = { optionsDropdownState = false },
+                                expanded = showOptionsDropdown,
+                                onDismissRequest = { showOptionsDropdown = false },
                             ) {
                                 DropdownMenuItem(
                                     leadingIcon = {
@@ -120,13 +120,14 @@ fun HomeView(context: ViewContext) {
                                         Text(context.symphony.t.settings)
                                     },
                                     onClick = {
+                                        showOptionsDropdown = false
                                         context.navController.navigate(Routes.Settings)
                                     }
                                 )
                             }
                         },
                         onClick = {
-                            optionsDropdownState = !optionsDropdownState
+                            showOptionsDropdown = !showOptionsDropdown
                         }
                     )
                 }
