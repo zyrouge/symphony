@@ -31,13 +31,19 @@ jobs:
               with:
                   script: |
                       const tagName = `v${process.env["APP_VERSION_NAME"]}`;
-                      const result = await github.rest.repos.getReleaseByTag({
-                          tag: tagName,
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                      });
+                      let statusCode;
+                      try {
+                          const result = await github.rest.repos.getReleaseByTag({
+                              tag: tagName,
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                          });
+                          statusCode = result.status;
+                      } catch (err) {
+                          statusCode = err.status;
+                      }
                       if (result.status !== 404) {
-                          throw new Error(`${tagName} tag already exists`);
+                          throw new Error(`${tagName} tag already exists (received status code: ${statusCode})`);
                       }
 
             - name: 🔨 Generate certificate
