@@ -33,28 +33,32 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.NowPlaying.route,
                     enterTransition = Transitions.SlideUpEnterTransition,
-                    exitTransition = Transitions.SlideDownExitTransition
+                    exitTransition = Transitions.SlideDownExitTransition,
+                    popEnterTransition = Transitions.NoEnterTransition,
                 ) {
                     NowPlayingView(context)
                 }
                 composable(
                     Routes.Queue.route,
                     enterTransition = Transitions.SlideUpEnterTransition,
-                    exitTransition = Transitions.SlideDownExitTransition
+                    exitTransition = Transitions.SlideDownExitTransition,
+                    popEnterTransition = Transitions.NoEnterTransition,
                 ) {
                     QueueView(context)
                 }
                 composable(
                     Routes.Settings.route,
                     enterTransition = Transitions.ScaleUpEnterTransition,
-                    exitTransition = Transitions.ScaleDownExitTransition
+                    exitTransition = Transitions.ScaleDownExitTransition,
+                    popEnterTransition = Transitions.NoEnterTransition,
                 ) {
                     SettingsView(context)
                 }
                 composable(
                     Routes.Artist.route,
                     enterTransition = Transitions.SlideFromRightEnterTransition,
-                    exitTransition = Transitions.SlideFromRightExitTransition
+                    exitTransition = Transitions.SlideFromRightExitTransition,
+                    popEnterTransition = Transitions.NoEnterTransition,
                 ) { backStackEntry ->
                     ArtistView(
                         context,
@@ -65,7 +69,8 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.Album.route,
                     enterTransition = Transitions.SlideFromRightEnterTransition,
-                    exitTransition = Transitions.SlideFromRightExitTransition
+                    exitTransition = Transitions.SlideFromRightExitTransition,
+                    popEnterTransition = Transitions.NoEnterTransition,
                 ) { backStackEntry ->
                     AlbumView(
                         context,
@@ -76,7 +81,8 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.Search.route,
                     enterTransition = Transitions.ScaleUpEnterTransition,
-                    exitTransition = Transitions.ScaleDownExitTransition
+                    exitTransition = Transitions.ScaleDownExitTransition,
+                    popEnterTransition = Transitions.NoEnterTransition,
                 ) {
                     SearchView(context)
                 }

@@ -11,6 +11,9 @@ private typealias EnterTransitionFn = (AnimatedContentScope<NavBackStackEntry>.(
 private typealias ExitTransitionFn = (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)
 
 object Transitions {
+    val NoEnterTransition: EnterTransitionFn = { EnterTransition.None }
+    val NoExitTransition: ExitTransitionFn = { ExitTransition.None }
+
     private fun calculateSlideTransitionOffset(size: IntSize) = IntOffset(0, size.height / 2)
     val SlideUpEnterTransition: EnterTransitionFn = {
         slideIn { calculateSlideTransitionOffset(it) } + fadeIn()

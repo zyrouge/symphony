@@ -58,7 +58,7 @@ android {
 }
 
 dependencies {
-    def accompanist_version = '0.26.5-rc'
+    def accompanist_version = '0.27.0'
     def navigation_version = '2.5.3'
 
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
@@ -76,8 +76,8 @@ dependencies {
     implementation "androidx.compose.material3:material3:$compose_material3_version"
     implementation "androidx.compose.material3:material3:$compose_material3_version"
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
