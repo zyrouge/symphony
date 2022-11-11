@@ -75,7 +75,7 @@ jobs:
                       const buildApkFile = process.env["BUILD_APK_FILE"];
                       const appVersionName = process.env["APP_VERSION_NAME"];
                       const releaseApkFile = path.join(
-                          buildApkFile, `../symphony-${appVersionName}.apk`
+                          buildApkFile, `../symphony-v${appVersionName}.apk`
                       );
                       fs.copyFileSync(buildApkFile, releaseApkFile);
                       return releaseApkFile;
