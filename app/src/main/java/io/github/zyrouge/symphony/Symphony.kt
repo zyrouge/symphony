@@ -5,14 +5,20 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.services.PermissionsManager
 import io.github.zyrouge.symphony.services.SettingsManager
 import io.github.zyrouge.symphony.services.groove.GrooveManager
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.services.i18n.Translator
 import io.github.zyrouge.symphony.services.radio.Radio
+import io.github.zyrouge.symphony.ui.helpers.AppMeta
 import io.github.zyrouge.symphony.utils.Eventer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 interface SymphonyHooks {
     fun onSymphonyReady() {}
@@ -20,7 +26,7 @@ interface SymphonyHooks {
     fun onSymphonyDestroy() {}
 }
 
-class Symphony(application: Application) : AndroidViewModel(application) {
+class Symphony(application: Application) : AndroidViewModel(application), SymphonyHooks {
     val permission = PermissionsManager(this)
     val settings = SettingsManager(this)
     val groove = GrooveManager(this)
@@ -33,12 +39,11 @@ class Symphony(application: Application) : AndroidViewModel(application) {
     val applicationContext: Context
         get() = getApplication<Application>().applicationContext
     private var isReady = false
-    private var hooks = listOf<SymphonyHooks>(radio)
+    private var hooks = listOf<SymphonyHooks>(this, radio)
 
     fun ready() {
         if (isReady) return
         isReady = true
-        createService()
         hooks.forEach { it.onSymphonyReady() }
     }
 
@@ -50,6 +55,12 @@ class Symphony(application: Application) : AndroidViewModel(application) {
         hooks.forEach { it.onSymphonyDestroy() }
     }
 
+    override fun onSymphonyReady() {
+        super.onSymphonyReady()
+        createService()
+        checkVersion()
+    }
+
     private fun createService() {
         SymphonyService.bridge.subscribe {
             when (it) {
@@ -58,6 +69,25 @@ class Symphony(application: Application) : AndroidViewModel(application) {
         }
         Intent(applicationContext, SymphonyService::class.java).also { intent ->
             applicationContext.startService(intent)
+        }
+    }
+
+    private fun checkVersion() {
+        viewModelScope.launch {
+            val latestVersion = withContext(Dispatchers.IO) { AppMeta.getLatestVersion() }
+            latestVersion?.let {
+                withContext(Dispatchers.Main) {
+                    if (settings.getCheckForUpdates() && AppMeta.version != it) {
+                        Toast
+                            .makeText(
+                                applicationContext,
+                                t.newVersionAvailableX(it),
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                    }
+                }
+            }
         }
     }
 }

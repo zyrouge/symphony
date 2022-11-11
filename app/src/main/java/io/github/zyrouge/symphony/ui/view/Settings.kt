@@ -1,7 +1,5 @@
 package io.github.zyrouge.symphony.ui.view
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,9 +18,9 @@ import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.helpers.AndroidXShorty
 import io.github.zyrouge.symphony.ui.helpers.AppMeta
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,10 +131,35 @@ fun SettingsView(context: ViewContext) {
                     )
                     Divider()
                     SideHeading(context.symphony.t.about)
+                    val isLatestVersion =
+                        AppMeta.latestVersion?.let { it == AppMeta.version } ?: true
+                    SimpleTile(
+                        icon = {
+                            Icon(Icons.Default.MusicNote, null)
+                        },
+                        title = {
+                            Text("${AppMeta.appName} ${AppMeta.version}")
+                        },
+                        subtitle = when {
+                            !isLatestVersion -> ({
+                                Text(context.symphony.t.newVersionAvailableX(AppMeta.latestVersion!!))
+                            })
+                            else -> null
+                        },
+                        onClick = {
+                            AndroidXShorty.startBrowserActivity(
+                                context.activity,
+                                when {
+                                    isLatestVersion -> AppMeta.githubRepositoryUrl
+                                    else -> AppMeta.githubLatestReleaseUrl
+                                }
+                            )
+                        }
+                    )
                     LinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Favorite, null)
+                            Icon(Icons.Default.Favorite, null, tint = Color.Red)
                         },
                         title = {
                             Text(context.symphony.t.madeByX(AppMeta.author))
@@ -152,6 +175,18 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.github)
                         },
                         url = AppMeta.githubRepositoryUrl
+                    )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Update, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.checkForUpdates)
+                        },
+                        value = settings.checkForUpdates,
+                        onChange = { value ->
+                            context.symphony.settings.setCheckForUpdates(value)
+                        }
                     )
                 }
             }
@@ -170,6 +205,27 @@ private object TileDefaults {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun SimpleTile(
+    icon: @Composable () -> Unit,
+    title: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)? = null,
+    onClick: () -> Unit = {},
+) {
+    Card(
+        colors = TileDefaults.cardColors(),
+        onClick = onClick
+    ) {
+        ListItem(
+            colors = TileDefaults.listItemColors(),
+            leadingContent = { icon() },
+            headlineText = { title() },
+            supportingText = { subtitle?.let { it() } }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun LinkTile(
     context: ViewContext,
     icon: @Composable () -> Unit,
@@ -179,7 +235,7 @@ private fun LinkTile(
     Card(
         colors = TileDefaults.cardColors(),
         onClick = {
-            context.activity.startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)))
+            AndroidXShorty.startBrowserActivity(context.activity, url)
         }
     ) {
         ListItem(

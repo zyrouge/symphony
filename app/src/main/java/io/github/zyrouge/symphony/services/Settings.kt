@@ -36,6 +36,7 @@ object SettingsKeys {
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_tab"
     const val songs_filter_pattern = "songs_filter_pattern"
+    const val check_for_updates = "check_for_updates"
 }
 
 data class SettingsData(
@@ -43,6 +44,7 @@ data class SettingsData(
     val language: String?,
     val useMaterialYou: Boolean,
     val songsFilterPattern: String?,
+    val checkForUpdates: Boolean,
 )
 
 class SettingsManager(private val symphony: Symphony) {
@@ -53,6 +55,7 @@ class SettingsManager(private val symphony: Symphony) {
         language = getLanguage(),
         useMaterialYou = getUseMaterialYou(),
         songsFilterPattern = getSongsFilterPattern(),
+        checkForUpdates = getCheckForUpdates(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -170,6 +173,16 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.songs_filter_pattern, value)
         }
         onChange.dispatch(SettingsKeys.songs_filter_pattern)
+    }
+
+    fun getCheckForUpdates() =
+        getSharedPreferences().getBoolean(SettingsKeys.check_for_updates, true)
+
+    fun setCheckForUpdates(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.check_for_updates, value)
+        }
+        onChange.dispatch(SettingsKeys.check_for_updates)
     }
 
     private fun getSharedPreferences() =

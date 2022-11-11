@@ -59,6 +59,9 @@ sealed class Translations(
     val songsFilterPattern: String,
     val reset: String,
     val theme: String,
+    val newVersionAvailableX: (String) -> String,
+    val checkForUpdates: String,
+    val version: String,
     val unk: String = "?"
 ) {
     object english : Translations(
@@ -120,6 +123,9 @@ sealed class Translations(
         songsFilterPattern = "Songs filter pattern",
         reset = "Reset",
         theme = "Theme",
+        newVersionAvailableX = { x -> "New version available! ($x)" },
+        checkForUpdates = "Check for updates",
+        version = "Version",
     )
 
     companion object {
