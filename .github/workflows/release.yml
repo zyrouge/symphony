@@ -1,0 +1,84 @@
+name: Build artifacts
+
+on:
+    workflow_dispatch:
+
+env:
+    SIGNING_KEYSTORE_FILENAME: signing_key.jks
+    BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: 🔢 Get version
+              uses: actions/github-script@v6
+              id: app_version
+              with:
+                  result-encoding: string
+                  script: |
+                      const versioner = require("cli/helpers/version");
+                      const { versionName } = await versioner.getVersion();
+                      return versionName;
+
+            - name: 🔎 Check for release
+              uses: actions/github-script@v6
+              with:
+                  env:
+                      APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
+                  script: |
+                      const tagName = `v${process.env["APP_VERSION_NAME"]}`;
+                      const result = await github.rest.repos.getReleaseByTag(
+                          tag: tagName,
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                      );
+                      if (result.status !== 404) {
+                          throw new Error(`${tagName} tag already exists`);
+                      }
+
+            - name: 🔨 Generate certificate
+              run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
+              env:
+                  SIGNING_KEYSTORE_FILE: ./${{ env.SIGNING_KEYSTORE_FILENAME }}
+                  SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }} 
+
+            - name: 🔨 Build apk
+              run: |
+                  chmod +x ./gradlew
+                  ./gradlew build
+              env:
+                  SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILENAME }}
+                  SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+                  SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+                  SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+            - name: 📝 Rename apk
+              uses: actions/github-script@v6
+              id: app_binary
+              with:
+                  result-encoding: string
+                  env:
+                      APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
+                  script: |
+                      const fs = require("fs");
+                      const path = require("path");
+                      const buildApkFile = process.env["BUILD_APK_FILE"];
+                      const appVersionName = process.env["APP_VERSION_NAME"];
+                      const releaseApkFile = path.join(
+                          buildApkFile, `../symphony-${appVersionName}.apk`
+                      );
+                      fs.copyFileSync(buildApkFile, releaseApkFile);
+                      return releaseApkFile;
+
+            - name: 🚀 Upload apk
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: v${{ steps.app_version.outputs.result }}
+                  artifacts: ${{ steps.app_binary.outputs.result }}
+                  generateReleaseNotes: true
+                  draft: true
+                  artifactErrorsFailBuild: true

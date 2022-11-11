@@ -5,7 +5,7 @@ on:
 
 env:
     SIGNING_KEYSTORE_FILENAME: signing_key.jks
-    RELEASE_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
+    BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
 
 jobs:
     build:
@@ -33,4 +33,4 @@ jobs:
             - name: 🚀 Upload apk
               uses: actions/upload-artifact@v3
               with:
-                  path: ${{ env.RELEASE_APK_FILE }}
+                  path: ${{ env.BUILD_APK_FILE }}
