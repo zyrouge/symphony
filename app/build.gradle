@@ -11,8 +11,9 @@ android {
         applicationId "io.github.zyrouge.symphony"
         minSdk 29
         targetSdk 33
+        
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,8 +23,8 @@ android {
 
     signingConfigs {
         release {
-            def storeFilePath = System.getenv("SIGNING_KEYSTORE_FILE")
-            storeFile storeFilePath ? file(storeFilePath) : null
+            def storeFileEnv = System.getenv("SIGNING_KEYSTORE_FILE")
+            storeFile storeFileEnv ? file(storeFileEnv) : null
             storePassword System.getenv("SIGNING_KEYSTORE_PASSWORD")
             keyAlias System.getenv("SIGNING_KEY_ALIAS")
             keyPassword System.getenv("SIGNING_KEY_PASSWORD")
