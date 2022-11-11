@@ -26,9 +26,9 @@ jobs:
 
             - name: 🔎 Check for release
               uses: actions/github-script@v6
+              env:
+                  APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
               with:
-                  env:
-                      APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
                   script: |
                       const tagName = `v${process.env["APP_VERSION_NAME"]}`;
                       const result = await github.rest.repos.getReleaseByTag(
@@ -59,10 +59,10 @@ jobs:
             - name: 📝 Rename apk
               uses: actions/github-script@v6
               id: app_binary
+              env:
+                  APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
               with:
                   result-encoding: string
-                  env:
-                      APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
                   script: |
                       const fs = require("fs");
                       const path = require("path");
