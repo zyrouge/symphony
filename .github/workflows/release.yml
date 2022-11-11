@@ -20,7 +20,7 @@ jobs:
               with:
                   result-encoding: string
                   script: |
-                      const versioner = require("cli/helpers/version");
+                      const versioner = require("./cli/helpers/version");
                       const { versionName } = await versioner.getVersion();
                       return versionName;
 
