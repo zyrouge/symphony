@@ -1,0 +1,14 @@
+{
+  "name": "symphony-cli",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "increment-version": "node ./cli/increment-version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zyrouge/symphony.git"
+  },
+  "author": "Zyrouge",
+  "license": "GPL-3.0"
+}
