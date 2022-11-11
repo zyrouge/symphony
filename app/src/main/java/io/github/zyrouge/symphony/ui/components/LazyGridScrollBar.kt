@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -34,7 +35,7 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
     )
     val showScrollPointerAnimated = animateFloatAsState(
         if (showScrollPointer) 1f else 0f,
-        animationSpec = tween(durationMillis = 500)
+        animationSpec = tween(durationMillis = 50, easing = EaseInOut)
     )
     drawWithContent {
         drawContent()
