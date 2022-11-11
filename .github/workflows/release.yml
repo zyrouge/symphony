@@ -42,7 +42,7 @@ jobs:
                       } catch (err) {
                           statusCode = err.status;
                       }
-                      if (result.status !== 404) {
+                      if (statusCode !== 404) {
                           throw new Error(`${tagName} tag already exists (received status code: ${statusCode})`);
                       }
 
