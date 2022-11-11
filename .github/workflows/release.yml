@@ -31,11 +31,11 @@ jobs:
               with:
                   script: |
                       const tagName = `v${process.env["APP_VERSION_NAME"]}`;
-                      const result = await github.rest.repos.getReleaseByTag(
+                      const result = await github.rest.repos.getReleaseByTag({
                           tag: tagName,
                           owner: context.repo.owner,
                           repo: context.repo.repo,
-                      );
+                      });
                       if (result.status !== 404) {
                           throw new Error(`${tagName} tag already exists`);
                       }
