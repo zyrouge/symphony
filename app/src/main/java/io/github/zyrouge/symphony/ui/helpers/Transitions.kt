@@ -13,6 +13,7 @@ private typealias ExitTransitionFn = (AnimatedContentScope<NavBackStackEntry>.()
 
 sealed class TransitionDurations(val milliseconds: Int) {
     object Normal : TransitionDurations(300)
+    object Slow : TransitionDurations(500)
 
     fun <T> asTween() = tween<T>(milliseconds)
 }
@@ -21,18 +22,25 @@ object ScaleTransitions {
     val ScaleUpEnterTransition: EnterTransitionFn = {
         scaleIn(
             animationSpec = constructAnimationSpec(),
-            initialScale = ScaleTransitionInitialScale
+            initialScale = ShrinkScale
         ) + fadeIn()
+    }
+    val ScaleUpExitTransition: ExitTransitionFn = {
+        scaleOut(
+            animationSpec = constructAnimationSpec(),
+            targetScale = ExpandScale
+        ) + fadeOut()
     }
     val ScaleDownExitTransition: ExitTransitionFn = {
         scaleOut(
             animationSpec = constructAnimationSpec(),
-            targetScale = ScaleTransitionInitialScale
+            targetScale = ShrinkScale
         ) + fadeOut()
     }
 
-    private const val ScaleTransitionInitialScale = 0.85f
-    private fun <T> constructAnimationSpec() = TransitionDurations.Normal.asTween<T>()
+    private const val ShrinkScale = 0.9f
+    private const val ExpandScale = 1.1f
+    private fun <T> constructAnimationSpec() = TransitionDurations.Slow.asTween<T>()
 }
 
 object SlideTransitions {
@@ -56,8 +64,8 @@ object SlideTransitions {
     }
 
     private fun <T> constructAnimationSpec() = TransitionDurations.Normal.asTween<T>()
-    private fun calculateSlideUpOffset(size: IntSize) = IntOffset(0, -size.height / 4)
-    private fun calculateSlideDownOffset(size: IntSize) = IntOffset(0, size.height / 4)
+    private fun calculateSlideUpOffset(size: IntSize) = IntOffset(0, -size.height / 5)
+    private fun calculateSlideDownOffset(size: IntSize) = IntOffset(0, size.height / 5)
     private fun calculateSlideRightOffset(size: IntSize) =
         IntOffset((0.2 * size.width).toInt(), 0)
 }

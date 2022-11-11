@@ -27,7 +27,10 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 navController = context.navController,
                 startDestination = Routes.Home.route
             ) {
-                composable(Routes.Home.route) {
+                composable(
+                    Routes.Home.route,
+                    popEnterTransition = FadeTransitions.FadeInEnterTransition,
+                ) {
                     HomeView(context)
                 }
                 composable(
