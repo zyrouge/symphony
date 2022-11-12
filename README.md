@@ -10,7 +10,7 @@
 <h1 align="center">Symphony</h1>
 
 <p align="center">🎵 Groovify & Symphonize with Symphony!</p>
-<p align="center">Symphony is a lightweight, elegant music player to enhance your offline playblack.</p>
+<p align="center">Symphony is a lightweight, elegant music player that enhances your offline music experience.</p>
 
 <p align="center">
     <a href=""><img src="https://img.shields.io/badge/stage-beta-545DFF"></a>
@@ -32,7 +32,7 @@ Why was this created? As I was getting into offline music, most of the popular g
 
 ## Contributing
 
-Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful.
+Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Sponsorships through GitHub Sponsors helps me to stay motivated.
 
 ## License
 
