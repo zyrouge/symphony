@@ -35,28 +35,37 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
 
 object Fuzzy {
     fun compare(input: String, against: String) =
-        compareStrict(input.lowercase(), against.lowercase())
+        compareStrict(normalizeTerms(input), normalizeTerms(against))
+
+    private const val MATCH_BONUS = 2f
+    private const val DISTANCE_PENALTY_MULTIPLIER = 0.15f
+    private const val NO_MATCH_PENALTY = -0.3f
 
     private fun compareStrict(input: String, against: String): Float {
-        val inputLetters = input.split("")
-        val inputLength = inputLetters.size
-        val againstLetters = against.split("")
-        val againstLength = againstLetters.size
-        var pos = 0
+        val inputLength = input.length
+        val againstLength = against.length
+        var currPosition = 0
+        var prevPosition = 0
         var score = 0f
         for (i in 0 until inputLength) {
-            val x = inputLetters[i]
+            val x = input[i]
             var matched = false
-            for (j in pos until againstLength) {
-                val y = againstLetters[j]
+            for (j in currPosition until againstLength) {
+                val y = against[j]
                 if (x == y) {
-                    pos = j + 1
+                    prevPosition = currPosition
+                    currPosition = j
                     matched = true
                     break
                 }
             }
-            score += if (matched) 1f else -0.3f
+            score += if (matched) MATCH_BONUS - (DISTANCE_PENALTY_MULTIPLIER * (currPosition - prevPosition - 1))
+            else NO_MATCH_PENALTY
+            currPosition++
         }
         return max(0f, score) / againstLength
     }
+
+    private val whitespaceRegex = Regex("""\S+""")
+    private fun normalizeTerms(terms: String) = terms.lowercase().replace(whitespaceRegex, " ")
 }
