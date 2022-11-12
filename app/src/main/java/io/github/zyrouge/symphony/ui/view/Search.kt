@@ -223,7 +223,7 @@ private fun SideHeading(text: String) {
     Text(
         text,
         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-        modifier = Modifier.padding(12.dp, 12.dp, 12.dp, 0.dp)
+        modifier = Modifier.padding(12.dp, 12.dp, 12.dp, 4.dp)
     )
 }
 
