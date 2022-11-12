@@ -208,7 +208,7 @@ class PlayerNotification(private val symphony: Symphony) {
                         )
                         addAction(
                             createAction(
-                                R.drawable.material_icon_close,
+                                R.drawable.material_icon_stop,
                                 symphony.t.stop,
                                 ACTION_STOP
                             )
