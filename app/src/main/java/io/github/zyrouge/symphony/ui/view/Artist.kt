@@ -98,7 +98,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
                             }
                             if (albums.isNotEmpty()) {
                                 item {
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     AlbumRow(context, albums)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Divider()

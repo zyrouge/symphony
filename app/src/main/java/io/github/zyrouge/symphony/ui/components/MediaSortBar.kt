@@ -26,7 +26,7 @@ fun <T : Enum<T>> MediaSortBar(
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
-        copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+        copy(color = MaterialTheme.colorScheme.onSurface)
     }
 
     val iconButtonStyle = IconButtonDefaults.iconButtonColors(
@@ -111,7 +111,7 @@ fun <T : Enum<T>> MediaSortBar(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 ProvideTextStyle(currentTextStyle) {
                     label()
                 }
