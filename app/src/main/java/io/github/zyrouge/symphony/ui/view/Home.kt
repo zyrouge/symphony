@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -26,6 +27,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
+import io.github.zyrouge.symphony.ui.view.home.HomeViewData
 import io.github.zyrouge.symphony.ui.view.home.SongsView
 import kotlinx.coroutines.launch
 
@@ -60,7 +62,6 @@ enum class HomePages(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
@@ -72,6 +73,11 @@ fun HomeView(context: ViewContext) {
     )
     var currentPage by remember { mutableStateOf(HomePages.valueAt(pageState.currentPage)) }
     var showOptionsDropdown by remember { mutableStateOf(false) }
+    val data = remember { HomeViewData(context.symphony) }
+
+    DisposableEffect(LocalContext.current) {
+        onDispose { data.dispose() }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -145,9 +151,9 @@ fun HomeView(context: ViewContext) {
                         .fillMaxSize()
                 ) {
                     when (HomePages.mapped[it]!!) {
-                        HomePages.Songs -> SongsView(context)
-                        HomePages.Albums -> AlbumsView(context)
-                        HomePages.Artists -> ArtistsView(context)
+                        HomePages.Songs -> SongsView(context, data)
+                        HomePages.Albums -> AlbumsView(context, data)
+                        HomePages.Artists -> ArtistsView(context, data)
                     }
                 }
             }
