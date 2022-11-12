@@ -65,6 +65,7 @@ sealed class Translations(
     val shufflePlay: String,
     val viewAlbumArtist: String,
     val stop: String,
+    val all: String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -132,6 +133,7 @@ sealed class Translations(
         shufflePlay = "Shuffle play",
         viewAlbumArtist = "View album artist",
         stop = "Stop",
+        all = "All",
     )
 
     companion object {

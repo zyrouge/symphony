@@ -12,7 +12,7 @@ import androidx.compose.ui.draw.drawWithContent
 import kotlin.math.floor
 
 fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = composed {
-    val scrollPointerColor = MaterialTheme.colorScheme.primary
+    val scrollPointerColor = MaterialTheme.colorScheme.surfaceTint
     val isLastItemVisible by remember {
         derivedStateOf {
             state.layoutInfo.visibleItemsInfo.lastOrNull()?.index == state.layoutInfo.totalItemsCount - 1

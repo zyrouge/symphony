@@ -11,7 +11,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 
 fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
-    val scrollPointerColor = MaterialTheme.colorScheme.primary
+    val scrollPointerColor = MaterialTheme.colorScheme.surfaceTint
     val isLastItemVisible by remember {
         derivedStateOf {
             state.layoutInfo.visibleItemsInfo.lastOrNull()?.index == state.layoutInfo.totalItemsCount - 1

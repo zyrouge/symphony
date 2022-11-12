@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 
 object ContentDrawScopeScrollBarDefaults {
     val scrollPointerWidth = 4.dp
-    val scrollPointerHeight = 60.dp
+    val scrollPointerHeight = 16.dp
 }
 
 fun ContentDrawScope.drawScrollBar(

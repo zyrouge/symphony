@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Artist
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
@@ -42,6 +43,7 @@ fun SearchView(context: ViewContext) {
     val songs = remember { mutableStateListOf<Song>() }
     val artists = remember { mutableStateListOf<Artist>() }
     val albums = remember { mutableStateListOf<Album>() }
+    var selectedChip by remember { mutableStateOf<GrooveKinds?>(null) }
 
     var currentTermsRoutine: Job? = null
     fun setTerms(nTerms: String) {
@@ -64,6 +66,8 @@ fun SearchView(context: ViewContext) {
         }
     }
 
+    fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
+
     val textFieldFocusRequester = FocusRequester()
     val configuration = LocalConfiguration.current
     LaunchedEffect(LocalContext.current) {
@@ -75,44 +79,76 @@ fun SearchView(context: ViewContext) {
 
     Scaffold(
         topBar = {
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(textFieldFocusRequester),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                singleLine = true,
-                value = terms,
-                onValueChange = { setTerms(it) },
-                placeholder = {
-                    Text(context.symphony.t.searchYourMusic)
-                },
-                leadingIcon = {
-                    IconButton(
-                        onClick = {
-                            context.navController.popBackStack()
-                        }
-                    ) {
-                        Icon(Icons.Default.ArrowBack, null)
-                    }
-                },
-                trailingIcon = {
-                    if (terms.isNotEmpty()) {
+            Column {
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(textFieldFocusRequester),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    singleLine = true,
+                    value = terms,
+                    onValueChange = { setTerms(it) },
+                    placeholder = {
+                        Text(context.symphony.t.searchYourMusic)
+                    },
+                    leadingIcon = {
                         IconButton(
-                            onClick = { setTerms("") }
+                            onClick = {
+                                context.navController.popBackStack()
+                            }
                         ) {
-                            Icon(Icons.Default.Close, null)
+                            Icon(Icons.Default.ArrowBack, null)
                         }
+                    },
+                    trailingIcon = {
+                        if (terms.isNotEmpty()) {
+                            IconButton(
+                                onClick = { setTerms("") }
+                            ) {
+                                Icon(Icons.Default.Close, null)
+                            }
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(12.dp, 0.dp)
+                ) {
+                    FilterChip(
+                        selected = selectedChip == null,
+                        label = {
+                            Text(context.symphony.t.all)
+                        },
+                        onClick = {
+                            selectedChip = null
+                        }
+                    )
+                    GrooveKinds.values().map {
+                        FilterChip(
+                            selected = selectedChip == it,
+                            label = {
+                                Text(it.label(context))
+                            },
+                            onClick = {
+                                selectedChip = it
+                            }
+                        )
                     }
                 }
-            )
+            }
         },
         content = { contentPadding ->
+            val hasSongs = isChipSelected(GrooveKinds.SONG) && songs.isNotEmpty()
+            val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artists.isNotEmpty()
+            val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albums.isNotEmpty()
+
             Box(
                 modifier = Modifier
                     .padding(contentPadding)
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 if (terms.isNotEmpty()) {
                     when {
@@ -132,7 +168,7 @@ fun SearchView(context: ViewContext) {
                                 )
                             }
                         }
-                        songs.isEmpty() && artists.isEmpty() && albums.isEmpty() -> {
+                        !hasSongs && !hasArtists && !hasAlbums -> {
                             Box(modifier = Modifier.align(Alignment.Center)) {
                                 IconTextBody(
                                     icon = { modifier ->
@@ -150,17 +186,25 @@ fun SearchView(context: ViewContext) {
                         }
                         else -> {
                             LazyColumn {
-                                if (songs.isNotEmpty()) {
+                                if (hasSongs) {
                                     item { SideHeading(context.symphony.t.songs) }
-                                    items(songs) { song ->
+                                    items(
+                                        songs,
+                                        key = { it.id },
+                                        contentType = { GrooveKinds.SONG },
+                                    ) { song ->
                                         SongCard(context, song) {
                                             context.symphony.radio.shorty.playQueue(song)
                                         }
                                     }
                                 }
-                                if (artists.isNotEmpty()) {
+                                if (hasArtists) {
                                     item { SideHeading(context.symphony.t.artists) }
-                                    items(artists) { artist ->
+                                    items(
+                                        artists,
+                                        key = { it.artistName },
+                                        contentType = { GrooveKinds.ARTIST },
+                                    ) { artist ->
                                         GenericGrooveCard(
                                             image = {
                                                 artist.getArtwork(context.symphony, 150)
@@ -183,9 +227,13 @@ fun SearchView(context: ViewContext) {
                                         )
                                     }
                                 }
-                                if (albums.isNotEmpty()) {
+                                if (hasAlbums) {
                                     item { SideHeading(context.symphony.t.albums) }
-                                    items(albums) { album ->
+                                    items(
+                                        albums,
+                                        key = { it.albumId },
+                                        contentType = { GrooveKinds.ALBUM },
+                                    ) { album ->
                                         GenericGrooveCard(
                                             image = {
                                                 album.getArtwork(context.symphony, 150)
@@ -275,4 +323,10 @@ private fun GenericGrooveCard(
             }
         }
     }
+}
+
+private fun GrooveKinds.label(context: ViewContext) = when (this) {
+    GrooveKinds.SONG -> context.symphony.t.songs
+    GrooveKinds.ALBUM -> context.symphony.t.albums
+    GrooveKinds.ARTIST -> context.symphony.t.artists
 }
