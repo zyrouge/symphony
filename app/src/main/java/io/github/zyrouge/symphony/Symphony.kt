@@ -8,13 +8,13 @@ import android.os.IBinder
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.PermissionsManager
 import io.github.zyrouge.symphony.services.SettingsManager
 import io.github.zyrouge.symphony.services.groove.GrooveManager
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.services.i18n.Translator
 import io.github.zyrouge.symphony.services.radio.Radio
-import io.github.zyrouge.symphony.ui.helpers.AppMeta
 import io.github.zyrouge.symphony.utils.Eventer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,7 +74,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
 
     private fun checkVersion() {
         viewModelScope.launch {
-            val latestVersion = withContext(Dispatchers.IO) { AppMeta.getLatestVersion() }
+            val latestVersion = withContext(Dispatchers.IO) { AppMeta.fetchLatestVersion() }
             latestVersion?.let {
                 withContext(Dispatchers.Main) {
                     if (settings.getCheckForUpdates() && AppMeta.version != it) {

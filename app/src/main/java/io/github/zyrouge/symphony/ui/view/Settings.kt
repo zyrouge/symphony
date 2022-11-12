@@ -14,13 +14,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.helpers.AndroidXShorty
-import io.github.zyrouge.symphony.ui.helpers.AppMeta
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.AndroidXShorty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

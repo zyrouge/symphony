@@ -1,9 +1,10 @@
-package io.github.zyrouge.symphony.ui.helpers
+package io.github.zyrouge.symphony.services
 
-import android.util.Log
 import io.github.zyrouge.symphony.BuildConfig
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.github.zyrouge.symphony.ui.helpers.HttpClient
+import io.github.zyrouge.symphony.utils.Logger
+import okhttp3.CacheControl
+import okhttp3.Request
 import org.json.JSONObject
 
 object AppMeta {
@@ -22,12 +23,16 @@ object AppMeta {
     /**
      * Format: v\[yyyy].\[mm].\[versionCode]
      */
-    suspend fun getLatestVersion(): String? {
+    fun fetchLatestVersion(): String? {
         try {
             val latestReleaseUrl =
                 "https://api.github.com/repos/$githubRepositoryOwner/$githubRepositoryName/releases/latest"
-            val resp = httpClient.get(latestReleaseUrl)
-            val content = resp.bodyAsText()
+            val req = Request.Builder()
+                .url(latestReleaseUrl)
+                .cacheControl(CacheControl.FORCE_NETWORK)
+                .build()
+            val res = HttpClient.newCall(req).execute()
+            val content = res.body?.string() ?: ""
             val json = JSONObject(content)
             val tagName = json.getString("tag_name")
             val draft = json.getBoolean("draft")
@@ -36,7 +41,7 @@ object AppMeta {
                 return tagName
             }
         } catch (err: Exception) {
-            Log.w("SymLog", "Version check failed: $err")
+            Logger.warn("Version check failed: $err")
         }
         return null
     }

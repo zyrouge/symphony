@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.helpers
+package io.github.zyrouge.symphony.utils
 
 import android.content.Context
 import android.content.Intent
