@@ -2,20 +2,23 @@
     <img src="./media/banner.png" width="100%">
 </p>
 
-![Made by Zyrouge](https://img.shields.io/badge/made%20by-zyrouge-d946ef)
-![GitHub Sponsors](https://img.shields.io/github/sponsors/zyrouge?color=EA4AAA&logo=github-sponsors)
+<p align="center">
+    <img src="https://img.shields.io/badge/made%20by-zyrouge-d946ef">
+    <img src="https://img.shields.io/github/sponsors/zyrouge?color=EA4AAA&logo=github-sponsors">
+</p>
 
-# Symphony
+<h1 align="center">Symphony</h1>
 
-🎵 Groovify & Symphonize with Symphony!
+<p align="center">🎵 Groovify & Symphonize with Symphony!</p>
+<p align="center">Symphony is a lightweight, elegant music player to enhance your offline playblack.</p>
 
-Symphony is a lightweight, elegant music player to enhance your offline playblack.
-
-![App Stage](https://img.shields.io/badge/stage-beta-545DFF)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/zyrouge/symphony?label=latest)](https://github.com/zyrouge/symphony/releases/latest)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/zyrouge/symphony/latest/total)
-[![Release](https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg)](https://github.com/zyrouge/symphony/actions/workflows/release.yml)
-![GitHub](https://img.shields.io/github/license/zyrouge/symphony)
+<p align="center">
+    <a href=""><img src="https://img.shields.io/badge/stage-beta-545DFF"></a>
+    <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/v/release/zyrouge/symphony?label=latest"></a>
+    <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total"></a>
+    <a href="https://github.com/zyrouge/symphony/actions/workflows/release.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/github/license/zyrouge/symphony"></a>
+</p>
 
 <p align="center">
     <img src="./media/screenshots/unified.png" width="100%">
