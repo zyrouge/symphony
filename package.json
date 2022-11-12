@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "bump": "node ./cli/increment-version"
+    "bump": "node ./cli/increment-version",
+    "release": "gh workflow run release"
   },
   "repository": {
     "type": "git",
