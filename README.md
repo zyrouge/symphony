@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/made%20by-zyrouge-d946ef">
-    <img src="https://img.shields.io/github/sponsors/zyrouge?color=EA4AAA&logo=github-sponsors">
+    <a href="https://github.com/zyrouge"><img src="https://img.shields.io/badge/made%20by-zyrouge-d946ef"></a>
+    <a href="https://github.com/sponsors/zyrouge"><img src="https://img.shields.io/github/sponsors/zyrouge?color=EA4AAA&logo=github-sponsors"></a>
 </p>
 
 <h1 align="center">Symphony</h1>
@@ -32,7 +32,7 @@ Why was this created? As I was getting into offline music, most of the popular g
 
 ## Contributing
 
-Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Sponsorships through GitHub Sponsors helps me to stay motivated.
+Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Sponsorships through [GitHub Sponsors](https://github.com/sponsors/zyrouge) helps me to stay motivated.
 
 ## License
 
