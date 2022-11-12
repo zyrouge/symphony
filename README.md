@@ -20,6 +20,8 @@
     <a href="./LICENSE"><img src="https://img.shields.io/github/license/zyrouge/symphony"></a>
 </p>
 
+<br>
+
 <p align="center">
     <img src="./media/screenshots/unified.png" width="100%">
 </p>
