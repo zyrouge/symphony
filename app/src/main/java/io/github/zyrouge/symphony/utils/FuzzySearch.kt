@@ -66,6 +66,6 @@ object Fuzzy {
         return max(0f, score) / againstLength
     }
 
-    private val whitespaceRegex = Regex("""\S+""")
+    private val whitespaceRegex = Regex("""\s+""")
     private fun normalizeTerms(terms: String) = terms.lowercase().replace(whitespaceRegex, " ")
 }
