@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
@@ -36,6 +37,11 @@ fun ArtistView(context: ViewContext, artistName: String) {
             swap(context.symphony.groove.song.getSongsOfArtist(artistName))
         }
     }
+    val albums = remember {
+        mutableStateListOf<Album>().apply {
+            swap(context.symphony.groove.album.getAlbumsOfArtist(artistName))
+        }
+    }
     var isViable by remember { mutableStateOf(artist != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
@@ -46,6 +52,10 @@ fun ArtistView(context: ViewContext, artistName: String) {
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
         songs.swap(context.symphony.groove.song.getSongsOfArtist(artistName))
+    }
+
+    EventerEffect(context.symphony.groove.album.onUpdate) {
+        albums.swap(context.symphony.groove.album.getAlbumsOfArtist(artistName))
     }
 
     Scaffold(
@@ -85,6 +95,14 @@ fun ArtistView(context: ViewContext, artistName: String) {
                         leadingContent = {
                             item {
                                 ArtistHero(context, artist!!)
+                            }
+                            if (albums.isNotEmpty()) {
+                                item {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    AlbumRow(context, albums)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Divider()
+                                }
                             }
                         }
                     )

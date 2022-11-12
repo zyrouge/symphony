@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.groove.SongSortBy
@@ -72,10 +73,17 @@ fun SongList(
                 },
                 label = {
                     Text(context.symphony.t.XSongs(songs.size))
+                },
+                onShufflePlay = {
+                    context.symphony.radio.shorty.playQueue(sortedSongs, shuffle = true)
                 }
             )
         }
-        itemsIndexed(sortedSongs, key = { _, x -> x.id }) { i, song ->
+        itemsIndexed(
+            sortedSongs,
+            key = { _, x -> x.id },
+            contentType = { _, _ -> GrooveKinds.SONG }
+        ) { i, song ->
             SongCard(context, song) {
                 context.symphony.radio.shorty.playQueue(
                     sortedSongs,

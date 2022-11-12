@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.ArtistRepository
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
@@ -61,7 +62,11 @@ fun ArtistGrid(context: ViewContext, artists: List<Artist>) {
             )
         },
         content = {
-            items(sortedArtists, key = { it.artistName }) { artist ->
+            items(
+                sortedArtists,
+                key = { it.artistName },
+                contentType = { GrooveKinds.ARTIST }
+            ) { artist ->
                 ArtistTile(context, artist)
             }
         }

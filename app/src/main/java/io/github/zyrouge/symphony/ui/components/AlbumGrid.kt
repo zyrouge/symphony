@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.AlbumSortBy
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
@@ -61,7 +62,11 @@ fun AlbumGrid(context: ViewContext, albums: List<Album>) {
             )
         },
         content = {
-            items(sortedAlbums, key = { it.albumId }) { album ->
+            items(
+                sortedAlbums,
+                key = { it.albumId },
+                contentType = { GrooveKinds.ALBUM }
+            ) { album ->
                 AlbumTile(context, album)
             }
         }

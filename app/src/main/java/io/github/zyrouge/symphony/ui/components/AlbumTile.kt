@@ -45,7 +45,11 @@ fun AlbumTile(context: ViewContext, album: Album) {
                         contentDescription = null,
                         contentScale = ContentScale.Crop
                     )
-                    Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 4.dp)
+                    ) {
                         var showOptionsMenu by remember { mutableStateOf(false) }
                         IconButton(
                             onClick = { showOptionsMenu = !showOptionsMenu }
@@ -112,6 +116,21 @@ fun AlbumDropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
     ) {
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.PlaylistPlay, null)
+            },
+            text = {
+                Text(context.symphony.t.shufflePlay)
+            },
+            onClick = {
+                onDismissRequest()
+                context.symphony.radio.shorty.playQueue(
+                    context.symphony.groove.song.getSongsOfAlbum(album.albumId),
+                    shuffle = true,
+                )
+            }
+        )
         DropdownMenuItem(
             leadingIcon = {
                 Icon(Icons.Default.PlaylistPlay, null)

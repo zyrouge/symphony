@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,11 +22,20 @@ fun <T : Enum<T>> MediaSortBar(
     sorts: Map<T, (ViewContext) -> String>,
     onSortChange: (T) -> Unit,
     label: @Composable () -> Unit,
+    onShufflePlay: (() -> Unit)? = null,
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
         copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
     }
+
+    val iconButtonStyle = IconButtonDefaults.iconButtonColors(
+        contentColor = currentTextStyle.color
+    )
+    val iconModifier = Modifier.size(20.dp)
+    val textButtonStyle = ButtonDefaults.textButtonColors(
+        contentColor = currentTextStyle.color
+    )
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -35,24 +45,18 @@ fun <T : Enum<T>> MediaSortBar(
         Row {
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = currentTextStyle.color
-                ),
-                onClick = {
-                    onReverseChange(!reverse)
-                }
+                colors = iconButtonStyle,
+                onClick = { onReverseChange(!reverse) }
             ) {
                 Icon(
                     if (reverse) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                     null,
-                    modifier = Modifier.size(20.dp),
+                    modifier = iconModifier,
                 )
             }
             Box {
                 TextButton(
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = currentTextStyle.color
-                    ),
+                    colors = textButtonStyle,
                     onClick = {
                         showDropdown = !showDropdown
                     }
@@ -94,8 +98,23 @@ fun <T : Enum<T>> MediaSortBar(
             }
         }
         Box(modifier = Modifier.padding(16.dp, 0.dp)) {
-            ProvideTextStyle(currentTextStyle) {
-                label()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                onShufflePlay?.let {
+                    IconButton(
+                        colors = iconButtonStyle,
+                        onClick = it,
+                    ) {
+                        Icon(
+                            Icons.Default.Shuffle,
+                            null,
+                            modifier = iconModifier,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                ProvideTextStyle(currentTextStyle) {
+                    label()
+                }
             }
         }
     }

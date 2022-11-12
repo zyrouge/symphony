@@ -123,7 +123,7 @@ fun SongDropdownMenu(
     context: ViewContext,
     song: Song,
     expanded: Boolean,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
 
@@ -170,6 +170,38 @@ fun SongDropdownMenu(
                     onDismissRequest()
                     context.navController.navigate(
                         RoutesBuilder.buildArtistRoute(artistName)
+                    )
+                }
+            )
+        }
+        song.artistName?.let { artistName ->
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Default.Person, null)
+                },
+                text = {
+                    Text(context.symphony.t.viewArtist)
+                },
+                onClick = {
+                    onDismissRequest()
+                    context.navController.navigate(
+                        RoutesBuilder.buildArtistRoute(artistName)
+                    )
+                }
+            )
+        }
+        song.albumArtist?.let { albumArtist ->
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Default.Person, null)
+                },
+                text = {
+                    Text(context.symphony.t.viewAlbumArtist)
+                },
+                onClick = {
+                    onDismissRequest()
+                    context.navController.navigate(
+                        RoutesBuilder.buildArtistRoute(albumArtist)
                     )
                 }
             )

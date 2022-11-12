@@ -37,6 +37,15 @@ class PlayerNotification(private val symphony: Symphony) {
     private var usable = false
 
     fun start() {
+        symphony.applicationContext.registerReceiver(
+            receiver,
+            IntentFilter().apply {
+                addAction(ACTION_PLAY_PAUSE)
+                addAction(ACTION_PREVIOUS)
+                addAction(ACTION_NEXT)
+                addAction(ACTION_STOP)
+            }
+        )
         session.isActive = true
         session.setCallback(
             object : MediaSessionCompat.Callback() {
@@ -58,6 +67,11 @@ class PlayerNotification(private val symphony: Symphony) {
                 override fun onSkipToNext() {
                     super.onSkipToNext()
                     handleAction(ACTION_NEXT)
+                }
+
+                override fun onStop() {
+                    super.onStop()
+                    handleAction(ACTION_STOP)
                 }
 
                 override fun onSeekTo(pos: Long) {
@@ -95,14 +109,6 @@ class PlayerNotification(private val symphony: Symphony) {
                 )
             )
         }
-        symphony.applicationContext.registerReceiver(
-            receiver,
-            IntentFilter().apply {
-                addAction(ACTION_PLAY_PAUSE)
-                addAction(ACTION_PREVIOUS)
-                addAction(ACTION_NEXT)
-            }
-        )
         usable = true
         update()
         symphony.radio.onUpdate.subscribe {
@@ -200,6 +206,13 @@ class PlayerNotification(private val symphony: Symphony) {
                                 ACTION_NEXT
                             )
                         )
+                        addAction(
+                            createAction(
+                                R.drawable.material_icon_close,
+                                symphony.t.stop,
+                                ACTION_STOP
+                            )
+                        )
                         manager.notify(CHANNEL_ID, NOTIFICATION_ID, build())
                     }
                 }
@@ -229,6 +242,7 @@ class PlayerNotification(private val symphony: Symphony) {
             ACTION_PLAY_PAUSE -> symphony.radio.shorty.playPause()
             ACTION_PREVIOUS -> symphony.radio.shorty.previous()
             ACTION_NEXT -> symphony.radio.shorty.skip()
+            ACTION_STOP -> symphony.radio.stop()
         }
     }
 
@@ -240,5 +254,6 @@ class PlayerNotification(private val symphony: Symphony) {
         const val ACTION_PLAY_PAUSE = "${R.string.app_name}_play_pause"
         const val ACTION_PREVIOUS = "${R.string.app_name}_previous"
         const val ACTION_NEXT = "${R.string.app_name}_next"
+        const val ACTION_STOP = "${R.string.app_name}_stop"
     }
 }

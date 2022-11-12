@@ -62,9 +62,12 @@ sealed class Translations(
     val newVersionAvailableX: (String) -> String,
     val checkForUpdates: String,
     val version: String,
+    val shufflePlay: String,
+    val viewAlbumArtist: String,
+    val stop: String,
     val unk: String = "?"
 ) {
-    object english : Translations(
+    object English : Translations(
         language = "English",
         songs = "Songs",
         artists = "Artists",
@@ -126,11 +129,14 @@ sealed class Translations(
         newVersionAvailableX = { x -> "New version available! ($x)" },
         checkForUpdates = "Check for updates",
         version = "Version",
+        shufflePlay = "Shuffle play",
+        viewAlbumArtist = "View album artist",
+        stop = "Stop",
     )
 
     companion object {
-        val all = arrayOf<Translations>(english)
-        val default = english
+        val all = arrayOf<Translations>(English)
+        val default = English
 
         fun of(language: String) = all.find {
             it.language == language
