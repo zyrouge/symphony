@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.services.radio
 
-import android.media.MediaPlayer
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
@@ -26,19 +25,17 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
 
-    private var manager = MediaPlayerManager(symphony)
-    private val currentMediaPlayer: MediaPlayer?
-        get() = manager.getPlayer()
-    private var notification = PlayerNotification(symphony)
+    private var player = RadioPlayer(symphony)
+    private var notification = RadioNotification(symphony)
 
     val hasPlayer: Boolean
-        get() = currentMediaPlayer != null
+        get() = player.usable
     val isPlaying: Boolean
-        get() = currentMediaPlayer?.isPlaying ?: false
+        get() = player.isPlaying
     val currentPlaybackPosition: PlaybackPosition?
-        get() = manager.playbackPosition
+        get() = player.playbackPosition
     val onPlaybackPositionUpdate: Eventer<PlaybackPosition>
-        get() = manager.onPlaybackPositionUpdate
+        get() = player.onPlaybackPositionUpdate
 
     data class PlayOptions(
         val index: Int = 0,
@@ -53,7 +50,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             queue.getSongAt(options.index) ?: return play(options.copy(index = options.index + 1))
         queue.currentSongIndex = options.index
         try {
-            manager.play(song.uri) {
+            player.play(song.uri) {
                 onSongFinish()
             }
         } catch (_: Exception) {
@@ -62,18 +59,44 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         onUpdate.dispatch(RadioEvents.SongStaged)
         options.startPosition?.let { seek(it) }
         if (options.autostart) {
-            currentMediaPlayer!!.start()
+            start()
             onUpdate.dispatch(RadioEvents.StartPlaying)
         }
     }
 
+    private fun start() {
+        if (!hasPlayer) return
+        when {
+            symphony.settings.getFadePlayback() -> {
+                runCatching {
+                    RadioEffects.fadeIn(player) {}
+                }
+            }
+            else -> player.start()
+        }
+        onUpdate.dispatch(RadioEvents.ResumePlaying)
+    }
+
     fun pause() {
-        currentMediaPlayer?.pause()
-        onUpdate.dispatch(RadioEvents.PausePlaying)
+        if (!hasPlayer) return
+        when {
+            symphony.settings.getFadePlayback() -> {
+                runCatching {
+                    RadioEffects.fadeOut(player) {
+                        onUpdate.dispatch(RadioEvents.PausePlaying)
+                    }
+                }
+            }
+            else -> {
+                player.pause()
+                onUpdate.dispatch(RadioEvents.PausePlaying)
+            }
+        }
     }
 
     fun resume() {
-        currentMediaPlayer?.start()
+        if (!hasPlayer) return
+        start()
         onUpdate.dispatch(RadioEvents.ResumePlaying)
     }
 
@@ -91,13 +114,14 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     fun seek(position: Int) {
         if (!hasPlayer) return
-        currentMediaPlayer!!.seekTo(position)
+        player.seek(position)
         onUpdate.dispatch(RadioEvents.SongSeeked)
     }
 
     private fun stopCurrentSong() {
         if (!hasPlayer) return
-        manager.release()
+        pause()
+        player.stop()
         onUpdate.dispatch(RadioEvents.StopPlaying)
     }
 

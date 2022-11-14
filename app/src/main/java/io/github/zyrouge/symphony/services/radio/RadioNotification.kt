@@ -16,7 +16,7 @@ import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 
-class PlayerNotification(private val symphony: Symphony) {
+class RadioNotification(private val symphony: Symphony) {
     private val session = MediaSessionCompat(
         symphony.applicationContext,
         MEDIA_SESSION_ID

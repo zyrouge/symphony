@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
         mutableStateOf(context.symphony.radio.queue.currentPlayingSong)
     }
     var isPlaying by remember { mutableStateOf(context.symphony.radio.isPlaying) }
+    val showMiniPlayerExtendedControls = context.symphony.settings.getMiniPlayerExtendedControls()
 
     EventerEffect(context.symphony.radio.onUpdate) {
         currentPlayingSong = context.symphony.radio.queue.currentPlayingSong
@@ -108,6 +110,13 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(15.dp))
+                                if (showMiniPlayerExtendedControls) {
+                                    IconButton(
+                                        onClick = { context.symphony.radio.shorty.previous() }
+                                    ) {
+                                        Icon(Icons.Default.SkipPrevious, null)
+                                    }
+                                }
                                 IconButton(
                                     onClick = { context.symphony.radio.shorty.playPause() }
                                 ) {
@@ -117,10 +126,12 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                         null
                                     )
                                 }
-                                IconButton(
-                                    onClick = { context.symphony.radio.shorty.skip() }
-                                ) {
-                                    Icon(Icons.Default.SkipNext, null)
+                                if (showMiniPlayerExtendedControls) {
+                                    IconButton(
+                                        onClick = { context.symphony.radio.shorty.skip() }
+                                    ) {
+                                        Icon(Icons.Default.SkipNext, null)
+                                    }
                                 }
                             }
                         }

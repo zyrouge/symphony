@@ -66,6 +66,8 @@ sealed class Translations(
     val viewAlbumArtist: String,
     val stop: String,
     val all: String,
+    val miniPlayerExtendedControls: String,
+    val fadePlaybackInOut: String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -134,6 +136,8 @@ sealed class Translations(
         viewAlbumArtist = "View album artist",
         stop = "Stop",
         all = "All",
+        miniPlayerExtendedControls = "Mini-player extended controls",
+        fadePlaybackInOut = "Fade playback in-out",
     )
 
     companion object {

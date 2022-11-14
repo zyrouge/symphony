@@ -107,6 +107,30 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setUseMaterialYou(value)
                         }
                     )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.SkipNext, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.miniPlayerExtendedControls)
+                        },
+                        value = settings.miniPlayerExtendedControls,
+                        onChange = { value ->
+                            context.symphony.settings.setMiniPlayerExtendedControls(value)
+                        }
+                    )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Equalizer, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.fadePlaybackInOut)
+                        },
+                        value = settings.fadePlayback,
+                        onChange = { value ->
+                            context.symphony.settings.setFadePlayback(value)
+                        }
+                    )
                     Divider()
                     SideHeading(context.symphony.t.groove)
                     val defaultSongsFilterPattern = ".*"
@@ -124,8 +148,10 @@ fun SettingsView(context: ViewContext) {
                         },
                         onChange = { value ->
                             context.symphony.settings.setSongsFilterPattern(
-                                if (value == defaultSongsFilterPattern) null
-                                else value
+                                when (value) {
+                                    defaultSongsFilterPattern -> null
+                                    else -> value
+                                }
                             )
                         }
                     )

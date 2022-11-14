@@ -37,6 +37,8 @@ object SettingsKeys {
     const val home_last_tab = "home_last_tab"
     const val songs_filter_pattern = "songs_filter_pattern"
     const val check_for_updates = "check_for_updates"
+    const val mini_player_extended_controls = "mini_player_extended_controls"
+    const val fade_playback = "fade_playback"
 }
 
 data class SettingsData(
@@ -45,6 +47,8 @@ data class SettingsData(
     val useMaterialYou: Boolean,
     val songsFilterPattern: String?,
     val checkForUpdates: Boolean,
+    val miniPlayerExtendedControls: Boolean,
+    val fadePlayback: Boolean,
 )
 
 class SettingsManager(private val symphony: Symphony) {
@@ -56,6 +60,8 @@ class SettingsManager(private val symphony: Symphony) {
         useMaterialYou = getUseMaterialYou(),
         songsFilterPattern = getSongsFilterPattern(),
         checkForUpdates = getCheckForUpdates(),
+        miniPlayerExtendedControls = getMiniPlayerExtendedControls(),
+        fadePlayback = getFadePlayback(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -183,6 +189,26 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.check_for_updates, value)
         }
         onChange.dispatch(SettingsKeys.check_for_updates)
+    }
+
+    fun getMiniPlayerExtendedControls() =
+        getSharedPreferences().getBoolean(SettingsKeys.mini_player_extended_controls, false)
+
+    fun setMiniPlayerExtendedControls(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.mini_player_extended_controls, value)
+        }
+        onChange.dispatch(SettingsKeys.mini_player_extended_controls)
+    }
+
+    fun getFadePlayback() =
+        getSharedPreferences().getBoolean(SettingsKeys.fade_playback, false)
+
+    fun setFadePlayback(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.fade_playback, value)
+        }
+        onChange.dispatch(SettingsKeys.fade_playback)
     }
 
     private fun getSharedPreferences() =
