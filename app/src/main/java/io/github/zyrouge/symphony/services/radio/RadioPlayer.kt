@@ -21,33 +21,33 @@ data class PlaybackPosition(
 class RadioPlayer(private val symphony: Symphony) {
     var usable = false
     private var mediaPlayer: MediaPlayer? = null
-    private var playbackPositionUpdater: Timer? = null
+    private val usableMediaPlayer: MediaPlayer?
+        get() = if (usable) mediaPlayer else null
 
+    private var playbackPositionUpdater: Timer? = null
     val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
     val playbackPosition: PlaybackPosition?
-        get() = when {
-            usable -> mediaPlayer?.let {
-                PlaybackPosition(
-                    played = it.currentPosition,
-                    total = it.duration
-                )
-            }
-            else -> null
+        get() = usableMediaPlayer?.let {
+            PlaybackPosition(
+                played = it.currentPosition,
+                total = it.duration
+            )
         }
 
     var volume: Float = MAX_VOLUME
     val isPlaying: Boolean
-        get() = mediaPlayer?.isPlaying ?: false
+        get() = usableMediaPlayer?.isPlaying ?: false
 
     fun play(uri: Uri, onFinish: () -> Unit) {
         try {
-            mediaPlayer = MediaPlayer.create(symphony.applicationContext, uri)
-            mediaPlayer!!.setOnCompletionListener {
-                usable = false
-                onFinish()
-            }
-            mediaPlayer!!.setOnErrorListener { _, _, _ ->
-                true
+            mediaPlayer = MediaPlayer.create(symphony.applicationContext, uri).apply {
+                setOnCompletionListener {
+                    usable = false
+                    onFinish()
+                }
+                setOnErrorListener { _, _, _ ->
+                    true
+                }
             }
             createDurationTimer()
             usable = true
@@ -66,19 +66,18 @@ class RadioPlayer(private val symphony: Symphony) {
         }
     }
 
-    fun start() = mediaPlayer?.start()
-    fun pause() = mediaPlayer?.pause()
-    fun seek(to: Int) = mediaPlayer?.seekTo(to)
+    fun start() = usableMediaPlayer?.start()
+    fun pause() = usableMediaPlayer?.pause()
+    fun seek(to: Int) = usableMediaPlayer?.seekTo(to)
 
     @JvmName("setVolumeTo")
     fun setVolume(to: Float) {
         volume = to
-        mediaPlayer?.setVolume(to, to)
+        usableMediaPlayer?.setVolume(to, to)
     }
 
     private fun createDurationTimer() {
         playbackPositionUpdater = kotlin.concurrent.timer(period = 100L) {
-            if (!usable) return@timer
             playbackPosition?.let {
                 onPlaybackPositionUpdate.dispatch(it)
             }
@@ -95,4 +94,3 @@ class RadioPlayer(private val symphony: Symphony) {
         const val MAX_VOLUME = 1f
     }
 }
-
