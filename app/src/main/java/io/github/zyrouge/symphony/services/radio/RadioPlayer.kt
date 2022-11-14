@@ -3,31 +3,34 @@ package io.github.zyrouge.symphony.services.radio
 import android.media.MediaPlayer
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.Eventer
 import java.util.*
 
 data class PlaybackPosition(
     val played: Int,
     val total: Int,
 ) {
-    fun toRatio() = played.toFloat() / total.toFloat()
-    fun toPercent() = toRatio() * 100
+    val ratio: Float
+        get() = played.toFloat() / total.toFloat()
 
     companion object {
         val zero = PlaybackPosition(0, 0)
     }
 }
 
-class RadioPlayer(private val symphony: Symphony) {
-    var usable = false
-    private var mediaPlayer: MediaPlayer? = null
-    private val usableMediaPlayer: MediaPlayer?
-        get() = if (usable) mediaPlayer else null
+typealias RadioPlayerOnPlaybackPositionUpdateListener = (PlaybackPosition) -> Unit
+typealias RadioPlayerOnFinishListener = () -> Unit
 
+class RadioPlayer(val symphony: Symphony, val uri: Uri) {
+    var usable = false
+    private val unsafeMediaPlayer: MediaPlayer
+    private val mediaPlayer: MediaPlayer?
+        get() = if (usable) unsafeMediaPlayer else null
+
+    private var onPlaybackPositionUpdate: RadioPlayerOnPlaybackPositionUpdateListener? = null
+    private var onFinish: RadioPlayerOnFinishListener? = null
     private var playbackPositionUpdater: Timer? = null
-    val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
     val playbackPosition: PlaybackPosition?
-        get() = usableMediaPlayer?.let {
+        get() = mediaPlayer?.let {
             PlaybackPosition(
                 played = it.currentPosition,
                 total = it.duration
@@ -36,25 +39,20 @@ class RadioPlayer(private val symphony: Symphony) {
 
     var volume: Float = MAX_VOLUME
     val isPlaying: Boolean
-        get() = usableMediaPlayer?.isPlaying ?: false
+        get() = mediaPlayer?.isPlaying ?: false
 
-    fun play(uri: Uri, onFinish: () -> Unit) {
-        try {
-            mediaPlayer = MediaPlayer.create(symphony.applicationContext, uri).apply {
-                setOnCompletionListener {
-                    usable = false
-                    onFinish()
-                }
-                setOnErrorListener { _, _, _ ->
-                    true
-                }
+    init {
+        unsafeMediaPlayer = MediaPlayer.create(symphony.applicationContext, uri).apply {
+            setOnCompletionListener {
+                usable = false
+                onFinish?.invoke()
             }
-            createDurationTimer()
-            usable = true
-        } catch (err: Exception) {
-            stop()
-            throw err
+            setOnErrorListener { _, _, _ ->
+                true
+            }
         }
+        createDurationTimer()
+        usable = true
     }
 
     fun stop() {
@@ -66,20 +64,32 @@ class RadioPlayer(private val symphony: Symphony) {
         }
     }
 
-    fun start() = usableMediaPlayer?.start()
-    fun pause() = usableMediaPlayer?.pause()
-    fun seek(to: Int) = usableMediaPlayer?.seekTo(to)
+    fun start() = mediaPlayer?.start()
+    fun pause() = mediaPlayer?.pause()
+    fun seek(to: Int) = mediaPlayer?.seekTo(to)
 
     @JvmName("setVolumeTo")
     fun setVolume(to: Float) {
         volume = to
-        usableMediaPlayer?.setVolume(to, to)
+        mediaPlayer?.setVolume(to, to)
+    }
+
+    fun setOnPlaybackPositionUpdateListener(
+        listener: RadioPlayerOnPlaybackPositionUpdateListener?
+    ) {
+        onPlaybackPositionUpdate = listener
+    }
+
+    fun setOnFinishListener(
+        listener: RadioPlayerOnFinishListener?
+    ) {
+        onFinish = listener
     }
 
     private fun createDurationTimer() {
         playbackPositionUpdater = kotlin.concurrent.timer(period = 100L) {
             playbackPosition?.let {
-                onPlaybackPositionUpdate.dispatch(it)
+                onPlaybackPositionUpdate?.invoke(it)
             }
         }
     }

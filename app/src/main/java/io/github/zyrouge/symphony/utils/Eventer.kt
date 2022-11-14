@@ -8,9 +8,7 @@ class Eventer<T> {
 
     fun subscribe(subscriber: EventSubscriber<T>): EventUnsubscribeFn {
         subscribers.add(subscriber)
-        return {
-            unsubscribe(subscriber)
-        }
+        return { unsubscribe(subscriber) }
     }
 
     fun unsubscribe(subscriber: EventSubscriber<T>) {

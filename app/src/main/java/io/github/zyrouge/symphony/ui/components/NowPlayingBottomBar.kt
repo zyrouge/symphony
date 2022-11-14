@@ -72,7 +72,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         modifier = Modifier
                             .align(Alignment.CenterStart)
                             .background(MaterialTheme.colorScheme.primary)
-                            .fillMaxWidth(duration.toRatio())
+                            .fillMaxWidth(duration.ratio)
                             .fillMaxHeight()
                     )
                 }

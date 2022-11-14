@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.services.radio
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
+import io.github.zyrouge.symphony.utils.Logger
 
 enum class RadioEvents {
     StartPlaying,
@@ -25,17 +26,16 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
 
-    private var player = RadioPlayer(symphony)
+    private var player: RadioPlayer? = null
     private var notification = RadioNotification(symphony)
 
     val hasPlayer: Boolean
-        get() = player.usable
+        get() = player?.usable ?: false
     val isPlaying: Boolean
-        get() = player.isPlaying
+        get() = player?.isPlaying ?: false
     val currentPlaybackPosition: PlaybackPosition?
-        get() = player.playbackPosition
-    val onPlaybackPositionUpdate: Eventer<PlaybackPosition>
-        get() = player.onPlaybackPositionUpdate
+        get() = player?.playbackPosition
+    val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
 
     data class PlayOptions(
         val index: Int = 0,
@@ -44,64 +44,69 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     )
 
     fun play(options: PlayOptions) {
-        if (hasPlayer) stopCurrentSong()
+        stopCurrentSong()
         if (!queue.hasSongAt(options.index)) return
-        val song =
-            queue.getSongAt(options.index) ?: return play(options.copy(index = options.index + 1))
+        val song = queue.getSongAt(options.index)!!
         queue.currentSongIndex = options.index
         try {
-            player.play(song.uri) {
-                onSongFinish()
+            player = RadioPlayer(symphony, song.uri).apply {
+                setOnPlaybackPositionUpdateListener {
+                    onPlaybackPositionUpdate.dispatch(it)
+                }
+                setOnFinishListener {
+                    onSongFinish()
+                }
             }
-        } catch (_: Exception) {
+            onUpdate.dispatch(RadioEvents.SongStaged)
+            options.startPosition?.let { seek(it) }
+            if (options.autostart) {
+                start()
+                onUpdate.dispatch(RadioEvents.StartPlaying)
+            }
+        } catch (err: Exception) {
+            Logger.warn("Skipping song at ${queue.currentPlayingSong} (${queue.currentSongIndex}) due to $err")
             queue.remove(queue.currentSongIndex)
         }
-        onUpdate.dispatch(RadioEvents.SongStaged)
-        options.startPosition?.let { seek(it) }
-        if (options.autostart) {
-            start()
-            onUpdate.dispatch(RadioEvents.StartPlaying)
-        }
     }
 
+    fun resume() = start()
     private fun start() {
-        if (!hasPlayer) return
-        when {
-            symphony.settings.getFadePlayback() -> {
-                runCatching {
-                    RadioEffects.fadeIn(player) {}
-                }
-            }
-            else -> player.start()
-        }
-        onUpdate.dispatch(RadioEvents.ResumePlaying)
-    }
-
-    fun pause() {
-        if (!hasPlayer) return
-        when {
-            symphony.settings.getFadePlayback() -> {
-                runCatching {
-                    RadioEffects.fadeOut(player) {
-                        onUpdate.dispatch(RadioEvents.PausePlaying)
+        player?.let {
+            when {
+                symphony.settings.getFadePlayback() -> {
+                    runCatching {
+                        RadioEffects.fadeIn(it) {}
                     }
                 }
+                else -> it.start()
             }
-            else -> {
-                player.pause()
-                onUpdate.dispatch(RadioEvents.PausePlaying)
+            onUpdate.dispatch(RadioEvents.ResumePlaying)
+        }
+    }
+
+    fun pause() = pause {}
+    private fun pause(onEnd: () -> Unit) {
+        player?.let {
+            when {
+                symphony.settings.getFadePlayback() -> {
+                    runCatching {
+                        RadioEffects.fadeOut(it) {
+                            onEnd()
+                            onUpdate.dispatch(RadioEvents.PausePlaying)
+                        }
+                    }
+                }
+                else -> {
+                    it.pause()
+                    onEnd()
+                    onUpdate.dispatch(RadioEvents.PausePlaying)
+                }
             }
         }
     }
 
-    fun resume() {
-        if (!hasPlayer) return
-        start()
-        onUpdate.dispatch(RadioEvents.ResumePlaying)
-    }
 
     fun stop() {
-        if (!hasPlayer) return
         stopCurrentSong()
         queue.reset()
     }
@@ -113,16 +118,21 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun canJumpToNext() = queue.hasSongAt(queue.currentSongIndex + 1)
 
     fun seek(position: Int) {
-        if (!hasPlayer) return
-        player.seek(position)
-        onUpdate.dispatch(RadioEvents.SongSeeked)
+        player?.let {
+            it.seek(position)
+            onUpdate.dispatch(RadioEvents.SongSeeked)
+        }
     }
 
     private fun stopCurrentSong() {
-        if (!hasPlayer) return
-        pause()
-        player.stop()
-        onUpdate.dispatch(RadioEvents.StopPlaying)
+        player?.let {
+            it.setOnPlaybackPositionUpdateListener {}
+            pause {
+                it.stop()
+                onUpdate.dispatch(RadioEvents.StopPlaying)
+            }
+            player = null
+        }
     }
 
     private fun onSongFinish() {
