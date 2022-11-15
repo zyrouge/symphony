@@ -39,6 +39,8 @@ object SettingsKeys {
     const val check_for_updates = "check_for_updates"
     const val mini_player_extended_controls = "mini_player_extended_controls"
     const val fade_playback = "fade_playback"
+    const val require_audio_focus = "require_audio_focus"
+    const val ignore_audio_focus_loss = "ignore_audio_focus_loss"
 }
 
 data class SettingsData(
@@ -49,6 +51,8 @@ data class SettingsData(
     val checkForUpdates: Boolean,
     val miniPlayerExtendedControls: Boolean,
     val fadePlayback: Boolean,
+    val requireAudioFocus: Boolean,
+    val ignoreAudioFocusLoss: Boolean,
 )
 
 class SettingsManager(private val symphony: Symphony) {
@@ -62,6 +66,8 @@ class SettingsManager(private val symphony: Symphony) {
         checkForUpdates = getCheckForUpdates(),
         miniPlayerExtendedControls = getMiniPlayerExtendedControls(),
         fadePlayback = getFadePlayback(),
+        requireAudioFocus = getRequireAudioFocus(),
+        ignoreAudioFocusLoss = getIgnoreAudioFocusLoss(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -209,6 +215,26 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.fade_playback, value)
         }
         onChange.dispatch(SettingsKeys.fade_playback)
+    }
+
+    fun getRequireAudioFocus() =
+        getSharedPreferences().getBoolean(SettingsKeys.require_audio_focus, true)
+
+    fun setRequireAudioFocus(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.require_audio_focus, value)
+        }
+        onChange.dispatch(SettingsKeys.require_audio_focus)
+    }
+
+    fun getIgnoreAudioFocusLoss() =
+        getSharedPreferences().getBoolean(SettingsKeys.ignore_audio_focus_loss, false)
+
+    fun setIgnoreAudioFocusLoss(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.ignore_audio_focus_loss, value)
+        }
+        onChange.dispatch(SettingsKeys.ignore_audio_focus_loss)
     }
 
     private fun getSharedPreferences() =

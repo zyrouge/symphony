@@ -125,7 +125,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SwitchTile(
                         icon = {
-                            Icon(Icons.Default.Equalizer, null)
+                            Icon(Icons.Default.GraphicEq, null)
                         },
                         title = {
                             Text(context.symphony.t.fadePlaybackInOut)
@@ -133,6 +133,42 @@ fun SettingsView(context: ViewContext) {
                         value = settings.fadePlayback,
                         onChange = { value ->
                             context.symphony.settings.setFadePlayback(value)
+                        }
+                    )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.GraphicEq, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.fadePlaybackInOut)
+                        },
+                        value = settings.fadePlayback,
+                        onChange = { value ->
+                            context.symphony.settings.setFadePlayback(value)
+                        }
+                    )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.CenterFocusWeak, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.requireAudioFocus)
+                        },
+                        value = settings.requireAudioFocus,
+                        onChange = { value ->
+                            context.symphony.settings.setRequireAudioFocus(value)
+                        }
+                    )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.CenterFocusWeak, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ignoreAudioFocusLoss)
+                        },
+                        value = settings.ignoreAudioFocusLoss,
+                        onChange = { value ->
+                            context.symphony.settings.setIgnoreAudioFocusLoss(value)
                         }
                     )
                     Divider()

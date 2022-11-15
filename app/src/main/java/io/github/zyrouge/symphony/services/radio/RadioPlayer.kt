@@ -38,6 +38,9 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
         }
 
     var volume: Float = MAX_VOLUME
+    val fadePlayback: Boolean
+        get() = symphony.settings.getFadePlayback()
+    private var fader: RadioEffects.Fader? = null
     val isPlaying: Boolean
         get() = mediaPlayer?.isPlaying ?: false
 
@@ -58,10 +61,8 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
     fun stop() {
         usable = false
         destroyDurationTimer()
-        mediaPlayer?.let {
-            it.stop()
-            it.release()
-        }
+        unsafeMediaPlayer.stop()
+        unsafeMediaPlayer.release()
     }
 
     fun start() = mediaPlayer?.start()
@@ -69,7 +70,23 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
     fun seek(to: Int) = mediaPlayer?.seekTo(to)
 
     @JvmName("setVolumeTo")
-    fun setVolume(to: Float) {
+    fun setVolume(to: Float, onFinish: (Boolean) -> Unit) {
+        fader?.stop()
+        if (to == volume) return
+        fader = RadioEffects.Fader(
+            RadioEffects.Fader.Options(volume, to),
+            onUpdate = {
+                setVolumeInstant(it)
+            },
+            onFinish = {
+                onFinish(it)
+                fader = null
+            }
+        )
+        fader?.start()
+    }
+
+    fun setVolumeInstant(to: Float) {
         volume = to
         mediaPlayer?.setVolume(to, to)
     }
@@ -102,5 +119,6 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
     companion object {
         const val MIN_VOLUME = 0f
         const val MAX_VOLUME = 1f
+        const val DUCK_VOLUME = 0.2f
     }
 }

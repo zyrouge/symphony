@@ -68,6 +68,8 @@ sealed class Translations(
     val all: String,
     val miniPlayerExtendedControls: String,
     val fadePlaybackInOut: String,
+    val requireAudioFocus: String,
+    val ignoreAudioFocusLoss: String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -138,6 +140,8 @@ sealed class Translations(
         all = "All",
         miniPlayerExtendedControls = "Mini-player extended controls",
         fadePlaybackInOut = "Fade playback in-out",
+        requireAudioFocus = "Require audio focus",
+        ignoreAudioFocusLoss = "Ignore audio focus loss",
     )
 
     companion object {

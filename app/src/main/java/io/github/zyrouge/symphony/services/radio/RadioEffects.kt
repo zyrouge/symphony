@@ -8,7 +8,7 @@ object RadioEffects {
     class Fader(
         val options: Options,
         val onUpdate: (Float) -> Unit,
-        val onEnd: () -> Unit,
+        val onFinish: (Boolean) -> Unit,
     ) {
         data class Options(
             val from: Float,
@@ -23,6 +23,7 @@ object RadioEffects {
         }
 
         private var timer: Timer? = null
+        private var ended = false
 
         fun start() {
             val interval = options.duration / options.steps
@@ -35,10 +36,16 @@ object RadioEffects {
                     volume = if (isReverse) max(options.to, volume + increments)
                     else min(options.to, volume + increments)
                 } else {
-                    onEnd()
+                    ended = true
+                    onFinish(true)
                     destroy()
                 }
             }
+        }
+
+        fun stop() {
+            if (!ended) onFinish(false)
+            destroy()
         }
 
         private fun destroy() {
@@ -47,35 +54,35 @@ object RadioEffects {
         }
     }
 
-    fun fadeIn(player: RadioPlayer, onEnd: () -> Unit) {
-        val options = Fader.Options(
-            when {
-                player.isPlaying -> player.volume
-                else -> RadioPlayer.MIN_VOLUME
-            },
-            RadioPlayer.MAX_VOLUME,
-        )
-        val fader = Fader(
-            options,
-            onUpdate = { player.setVolume(it) },
-            onEnd = { onEnd() }
-        )
-        player.setVolume(options.from)
-        player.start()
-        fader.start()
-    }
-
-    fun fadeOut(player: RadioPlayer, onEnd: () -> Unit) {
-        val options = Fader.Options(player.volume, RadioPlayer.MIN_VOLUME)
-        val fader = Fader(
-            options,
-            onUpdate = { player.setVolume(it) },
-            onEnd = {
-                player.pause()
-                onEnd()
-            }
-        )
-        player.setVolume(options.from)
-        fader.start()
-    }
+//    fun fadeIn(player: RadioPlayer, onEnd: () -> Unit) {
+//        val options = Fader.Options(
+//            when {
+//                player.isPlaying -> player.volume
+//                else -> RadioPlayer.MIN_VOLUME
+//            },
+//            RadioPlayer.MAX_VOLUME,
+//        )
+//        val fader = Fader(
+//            options,
+//            onUpdate = { player.setVolume(it) },
+//            onFinish = { onEnd() }
+//        )
+//        player.setVolume(options.from)
+//        player.start()
+//        fader.start()
+//    }
+//
+//    fun fadeOut(player: RadioPlayer, onEnd: () -> Unit) {
+//        val options = Fader.Options(player.volume, RadioPlayer.MIN_VOLUME)
+//        val fader = Fader(
+//            options,
+//            onUpdate = { player.setVolume(it) },
+//            onFinish = {
+//                player.pause()
+//                onEnd()
+//            }
+//        )
+//        player.setVolume(options.from)
+//        fader.start()
+//    }
 }

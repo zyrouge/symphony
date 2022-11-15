@@ -4,6 +4,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
+import kotlin.math.max
 
 enum class RadioEvents {
     StartPlaying,
@@ -25,9 +26,11 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val onUpdate = Eventer<RadioEvents>()
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
+    val focus = RadioFocus(symphony)
 
     private var player: RadioPlayer? = null
     private var notification = RadioNotification(symphony)
+    private var focusCounter = 0
 
     val hasPlayer: Boolean
         get() = player?.usable ?: false
@@ -72,39 +75,29 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun resume() = start()
     private fun start() {
         player?.let {
-            when {
-                symphony.settings.getFadePlayback() -> {
-                    runCatching {
-                        RadioEffects.fadeIn(it) {}
-                    }
+            val hasFocus = requestFocus()
+            if (hasFocus || !symphony.settings.getRequireAudioFocus()) {
+                if (it.fadePlayback) {
+                    it.setVolumeInstant(RadioPlayer.MIN_VOLUME)
                 }
-                else -> it.start()
+                it.setVolume(RadioPlayer.MAX_VOLUME) {}
+                it.start()
+                onUpdate.dispatch(RadioEvents.ResumePlaying)
             }
-            onUpdate.dispatch(RadioEvents.ResumePlaying)
         }
     }
 
     fun pause() = pause {}
-    private fun pause(onEnd: () -> Unit) {
+    private fun pause(onFinish: () -> Unit) {
         player?.let {
-            when {
-                symphony.settings.getFadePlayback() -> {
-                    runCatching {
-                        RadioEffects.fadeOut(it) {
-                            onEnd()
-                            onUpdate.dispatch(RadioEvents.PausePlaying)
-                        }
-                    }
-                }
-                else -> {
-                    it.pause()
-                    onEnd()
-                    onUpdate.dispatch(RadioEvents.PausePlaying)
-                }
+            it.setVolume(RadioPlayer.MIN_VOLUME) { _ ->
+                it.pause()
+                abandonFocus()
+                onFinish()
+                onUpdate.dispatch(RadioEvents.PausePlaying)
             }
         }
     }
-
 
     fun stop() {
         stopCurrentSong()
@@ -124,14 +117,26 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
+    fun duck() {
+        player?.let {
+            it.setVolume(RadioPlayer.DUCK_VOLUME) {}
+        }
+    }
+
+    fun restoreVolume() {
+        player?.let {
+            it.setVolume(RadioPlayer.MAX_VOLUME) {}
+        }
+    }
+
     private fun stopCurrentSong() {
         player?.let {
+            player = null
             it.setOnPlaybackPositionUpdateListener {}
-            pause {
+            it.setVolume(RadioPlayer.MIN_VOLUME) { _ ->
                 it.stop()
                 onUpdate.dispatch(RadioEvents.StopPlaying)
             }
-            player = null
         }
     }
 
@@ -150,6 +155,21 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     queue.currentSongIndex = -1
                 }
             }
+        }
+    }
+
+    private fun requestFocus(): Boolean {
+        val result = focus.requestFocus()
+        if (result) {
+            focusCounter++
+        }
+        return result
+    }
+
+    private fun abandonFocus() {
+        focusCounter = max(0, focusCounter - 1)
+        if (focusCounter == 0) {
+            focus.abandonFocus()
         }
     }
 
