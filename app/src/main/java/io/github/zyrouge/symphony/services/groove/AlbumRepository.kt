@@ -62,7 +62,7 @@ class AlbumRepository(private val symphony: Symphony) {
             albumId
         )
         return when {
-            symphony.applicationContext.contentResolver.exists(uri) -> uri
+            AndroidXShorty.checkIfContentUriExists(symphony.applicationContext, uri) -> uri
             else -> getDefaultAlbumArtworkUri()
         }
     }

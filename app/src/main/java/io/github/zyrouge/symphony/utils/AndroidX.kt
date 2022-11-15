@@ -1,9 +1,9 @@
 package io.github.zyrouge.symphony.utils
 
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 
 object AndroidXShorty {
     fun startBrowserActivity(context: Context, uri: Uri) {
@@ -12,10 +12,9 @@ object AndroidXShorty {
 
     fun startBrowserActivity(context: Context, url: String) =
         startBrowserActivity(context, Uri.parse(url))
+
+    fun checkIfContentUriExists(context: Context, uri: Uri): Boolean {
+        return DocumentFile.fromSingleUri(context, uri)?.exists() ?: false
+    }
 }
 
-fun ContentResolver.exists(uri: Uri): Boolean {
-    return query(uri, null, null, null)
-        ?.use { true }
-        ?: false
-}
