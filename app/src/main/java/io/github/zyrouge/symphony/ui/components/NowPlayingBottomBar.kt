@@ -16,9 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -92,8 +92,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
-                                    song.getArtwork(context.symphony, 150)
-                                        .asImageBitmap(),
+                                    rememberAsyncImagePainter(song.getArtworkUri(context.symphony)),
                                     null,
                                     modifier = Modifier
                                         .size(45.dp)

@@ -5,10 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.MediaMetadata
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Size
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -140,15 +140,15 @@ class RadioNotification(private val symphony: Symphony) {
                     session.run {
                         setMetadata(
                             MediaMetadataCompat.Builder().run {
-                                putString(MediaMetadata.METADATA_KEY_TITLE, song.title)
-                                putString(MediaMetadata.METADATA_KEY_ARTIST, song.artistName)
-                                putString(MediaMetadata.METADATA_KEY_ALBUM, song.albumName)
-                                putBitmap(
-                                    MediaMetadata.METADATA_KEY_ALBUM_ART,
-                                    song.getArtwork(symphony, 250)
+                                putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
+                                putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artistName)
+                                putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
+                                putString(
+                                    MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+                                    song.getArtworkUri(symphony).toString()
                                 )
                                 putLong(
-                                    MediaMetadata.METADATA_KEY_DURATION,
+                                    MediaMetadataCompat.METADATA_KEY_DURATION,
                                     playbackPosition.total.toLong()
                                 )
                                 build()
@@ -175,7 +175,13 @@ class RadioNotification(private val symphony: Symphony) {
                     builder!!.run {
                         setContentTitle(song.title)
                         setContentText(song.artistName)
-                        setLargeIcon(song.getArtwork(symphony, 250))
+                        setLargeIcon(
+                            symphony.applicationContext.contentResolver.loadThumbnail(
+                                song.getArtworkUri(symphony),
+                                Size(250, 250),
+                                null
+                            )
+                        )
                         setOngoing(isPlaying)
                         clearActions()
                         addAction(

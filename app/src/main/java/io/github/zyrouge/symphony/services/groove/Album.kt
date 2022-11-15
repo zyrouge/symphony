@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.provider.MediaStore.Audio.AlbumColumns
 import android.provider.MediaStore.Audio.AudioColumns
 import androidx.compose.runtime.Immutable
@@ -17,9 +16,7 @@ data class Album(
     val artistId: Long,
     val artistName: String?
 ) {
-    fun getArtwork(symphony: Symphony, size: Int): Bitmap {
-        return symphony.groove.album.fetchAlbumArtwork(albumId, size)
-    }
+    fun getArtworkUri(symphony: Symphony) = symphony.groove.album.getAlbumArtworkUri(albumId)
 
     companion object {
         fun fromCursor(cursor: Cursor): Album {

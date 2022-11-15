@@ -1,19 +1,14 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.content.ContentUris
-import android.graphics.Bitmap
+import android.net.Uri
 import android.provider.MediaStore
-import android.util.Size
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.io.IOException
 
 enum class AlbumSortBy {
     ALBUM_NAME,
@@ -60,18 +55,15 @@ class AlbumRepository(private val symphony: Symphony) {
         return total
     }
 
-    fun getAlbumArtworkUri(albumId: Long) = ContentUris.withAppendedId(
-        MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-        albumId
-    )
-
-    fun fetchAlbumArtwork(albumId: Long, size: Int): Bitmap {
-        val uri = getAlbumArtworkUri(albumId)
-        val context = symphony.applicationContext
-        return try {
-            context.contentResolver.loadThumbnail(uri, Size(size, size), null)
-        } catch (_: IOException) {
-            Assets.getPlaceholder(context)
+    fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
+    fun getAlbumArtworkUri(albumId: Long): Uri {
+        val uri = ContentUris.withAppendedId(
+            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+            albumId
+        )
+        return when {
+            symphony.applicationContext.contentResolver.exists(uri) -> uri
+            else -> getDefaultAlbumArtworkUri()
         }
     }
 

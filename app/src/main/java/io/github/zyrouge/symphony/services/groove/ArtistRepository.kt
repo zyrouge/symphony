@@ -1,9 +1,8 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.graphics.Bitmap
+import android.net.Uri
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
@@ -57,10 +56,10 @@ class ArtistRepository(private val symphony: Symphony) {
         return total
     }
 
-    fun fetchArtistArtwork(artistName: String, size: Int): Bitmap {
+    fun getArtistArtworkUri(artistName: String): Uri {
         val album = symphony.groove.album.getAlbumOfArtist(artistName)
-        return album?.getArtwork(symphony, size)
-            ?: Assets.getPlaceholder(symphony.applicationContext)
+        return album?.getArtworkUri(symphony)
+            ?: symphony.groove.album.getDefaultAlbumArtworkUri()
     }
 
     fun getAll() = cached.values.toList()

@@ -15,10 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -39,14 +39,13 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box {
                     Image(
+                        rememberAsyncImagePainter(artist.getArtworkUri(context.symphony)),
+                        null,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .aspectRatio(1f)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp)),
-                        bitmap = artist.getArtwork(context.symphony, 250)
-                            .asImageBitmap(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
                     )
                     Box(
                         modifier = Modifier

@@ -15,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
+import coil.compose.rememberAsyncImagePainter
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
@@ -191,7 +191,7 @@ private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
         BoxWithConstraints(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
             val dimension = min(maxHeight, maxWidth)
             Image(
-                song.getArtwork(context.symphony, 500).asImageBitmap(),
+                rememberAsyncImagePainter(song.getArtworkUri(context.symphony)),
                 null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

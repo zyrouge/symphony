@@ -123,6 +123,8 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setMiniPlayerExtendedControls(value)
                         }
                     )
+                    Divider()
+                    SideHeading(context.symphony.t.player)
                     SwitchTile(
                         icon = {
                             Icon(Icons.Default.GraphicEq, null)

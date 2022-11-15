@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,12 +17,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
@@ -206,10 +206,7 @@ fun SearchView(context: ViewContext) {
                                         contentType = { GrooveKinds.ARTIST },
                                     ) { artist ->
                                         GenericGrooveCard(
-                                            image = {
-                                                artist.getArtwork(context.symphony, 150)
-                                                    .asImageBitmap()
-                                            },
+                                            image = { artist.getArtworkUri(context.symphony) },
                                             title = { Text(artist.artistName) },
                                             options = { expanded, onDismissRequest ->
                                                 ArtistDropdownMenu(
@@ -235,10 +232,7 @@ fun SearchView(context: ViewContext) {
                                         contentType = { GrooveKinds.ALBUM },
                                     ) { album ->
                                         GenericGrooveCard(
-                                            image = {
-                                                album.getArtwork(context.symphony, 150)
-                                                    .asImageBitmap()
-                                            },
+                                            image = { album.getArtworkUri(context.symphony) },
                                             title = { Text(album.albumName) },
                                             subtitle = album.artistName?.let { { Text(it) } },
                                             options = { expanded, onDismissRequest ->
@@ -278,7 +272,7 @@ private fun SideHeading(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GenericGrooveCard(
-    image: () -> ImageBitmap,
+    image: () -> Uri,
     title: @Composable () -> Unit,
     subtitle: (@Composable () -> Unit)? = null,
     options: @Composable (expanded: Boolean, onDismissRequest: () -> Unit) -> Unit,
@@ -292,7 +286,7 @@ private fun GenericGrooveCard(
         Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    image(),
+                    rememberAsyncImagePainter(image()),
                     null,
                     modifier = Modifier
                         .size(45.dp)

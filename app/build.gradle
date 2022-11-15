@@ -69,7 +69,7 @@ dependencies {
     implementation 'androidx.core:core-splashscreen:1.0.0'
     implementation 'androidx.media:media:1.6.0'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
+    implementation 'io.coil-kt:coil-compose:2.2.2'
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
