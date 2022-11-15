@@ -137,18 +137,6 @@ fun SettingsView(context: ViewContext) {
                     )
                     SwitchTile(
                         icon = {
-                            Icon(Icons.Default.GraphicEq, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.fadePlaybackInOut)
-                        },
-                        value = settings.fadePlayback,
-                        onChange = { value ->
-                            context.symphony.settings.setFadePlayback(value)
-                        }
-                    )
-                    SwitchTile(
-                        icon = {
                             Icon(Icons.Default.CenterFocusWeak, null)
                         },
                         title = {
