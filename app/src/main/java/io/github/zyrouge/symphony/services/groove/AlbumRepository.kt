@@ -43,27 +43,29 @@ class AlbumRepository(private val symphony: Symphony) {
             null,
             MediaStore.Audio.Albums.ALBUM + " ASC"
         )
-        cursor?.let {
+        cursor?.use {
             while (it.moveToNext()) {
                 val album = Album.fromCursor(it)
                 cached[album.albumId] = album
             }
         }
-        cursor?.close()
         val total = cached.size
         onUpdate.dispatch(total)
         return total
     }
 
     fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
-    fun getAlbumArtworkUri(albumId: Long): Uri {
+    fun getAlbumArtworkUri(albumId: Long) =
+        getAlbumArtworkUriNullable(albumId) ?: getDefaultAlbumArtworkUri()
+
+    fun getAlbumArtworkUriNullable(albumId: Long): Uri? {
         val uri = ContentUris.withAppendedId(
             MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
             albumId
         )
         return when {
             AndroidXShorty.checkIfContentUriExists(symphony.applicationContext, uri) -> uri
-            else -> getDefaultAlbumArtworkUri()
+            else -> null
         }
     }
 

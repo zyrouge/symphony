@@ -44,13 +44,12 @@ class ArtistRepository(private val symphony: Symphony) {
             null,
             MediaStore.Audio.Artists.ARTIST + " ASC"
         )
-        cursor?.let {
+        cursor?.use {
             while (it.moveToNext()) {
                 val artist = Artist.fromCursor(it)
                 cached[artist.artistName] = artist
             }
         }
-        cursor?.close()
         val total = cached.size
         onUpdate.dispatch(total)
         return total

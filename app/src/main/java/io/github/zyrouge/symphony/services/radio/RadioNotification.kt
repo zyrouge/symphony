@@ -15,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.ui.helpers.Assets
 
 class RadioNotification(private val symphony: Symphony) {
     private val session = MediaSessionCompat(
@@ -175,12 +176,16 @@ class RadioNotification(private val symphony: Symphony) {
                     builder!!.run {
                         setContentTitle(song.title)
                         setContentText(song.artistName)
+                        val iconSize = Size(250, 250)
                         setLargeIcon(
-                            symphony.applicationContext.contentResolver.loadThumbnail(
-                                song.getArtworkUri(symphony),
-                                Size(250, 250),
-                                null
-                            )
+                            symphony.groove.album.getAlbumArtworkUriNullable(song.albumId)
+                                ?.let { uri ->
+                                    symphony.applicationContext.contentResolver.loadThumbnail(
+                                        uri,
+                                        iconSize,
+                                        null
+                                    )
+                                } ?: Assets.getPlaceholderBitmap(symphony.applicationContext)
                         )
                         setOngoing(isPlaying)
                         clearActions()

@@ -62,7 +62,7 @@ class SongRepository(private val symphony: Symphony) {
             null,
             MediaStore.Audio.Media.TITLE + " ASC"
         )
-        cursor?.let {
+        cursor?.use {
             val regex = symphony.settings.getSongsFilterPattern()
                 ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
             while (it.moveToNext()) {
@@ -72,7 +72,6 @@ class SongRepository(private val symphony: Symphony) {
                 }
             }
         }
-        cursor?.close()
         val total = cached.size
         onUpdate.dispatch(total)
         return total
