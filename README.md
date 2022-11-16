@@ -13,6 +13,11 @@
 <p align="center">Symphony is a lightweight, elegant music player that enhances your offline music experience.</p>
 
 <p align="center">
+    <a href="https://github.com/zyrouge/symphony/releases/latest">Download (latest)</a> |
+    <a href="https://github.com/zyrouge/symphony/releases">View all releases</a>
+</p>
+
+<p align="center">
     <a href=""><img src="https://img.shields.io/badge/stage-beta-545DFF"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/v/release/zyrouge/symphony?label=latest"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total"></a>

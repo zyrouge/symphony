@@ -160,6 +160,30 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setIgnoreAudioFocusLoss(value)
                         }
                     )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Headset, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.playOnHeadphonesConnect)
+                        },
+                        value = settings.playOnHeadphonesConnect,
+                        onChange = { value ->
+                            context.symphony.settings.setPlayOnHeadphonesConnect(value)
+                        }
+                    )
+                    SwitchTile(
+                        icon = {
+                            Icon(Icons.Default.HeadsetOff, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.pauseOnHeadphonesDisconnect)
+                        },
+                        value = settings.pauseOnHeadphonesDisconnect,
+                        onChange = { value ->
+                            context.symphony.settings.setPauseOnHeadphonesDisconnect(value)
+                        }
+                    )
                     Divider()
                     SideHeading(context.symphony.t.groove)
                     val defaultSongsFilterPattern = ".*"

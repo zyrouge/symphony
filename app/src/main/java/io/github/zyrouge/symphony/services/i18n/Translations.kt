@@ -71,6 +71,8 @@ sealed class Translations(
     val requireAudioFocus: String,
     val ignoreAudioFocusLoss: String,
     val player: String,
+    val playOnHeadphonesConnect: String,
+    val pauseOnHeadphonesDisconnect: String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -144,6 +146,8 @@ sealed class Translations(
         requireAudioFocus = "Require audio focus",
         ignoreAudioFocusLoss = "Ignore audio focus loss",
         player = "Player",
+        playOnHeadphonesConnect = "Play on headphones connect",
+        pauseOnHeadphonesDisconnect = "Pause on headphones disconnect",
     )
 
     companion object {

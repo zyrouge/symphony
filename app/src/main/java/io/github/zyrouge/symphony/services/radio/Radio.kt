@@ -26,7 +26,9 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val onUpdate = Eventer<RadioEvents>()
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
-    val focus = RadioFocus(symphony)
+
+    private val focus = RadioFocus(symphony)
+    private val nativeReceiver = RadioNativeReceiver(symphony)
 
     private var player: RadioPlayer? = null
     private var notification = RadioNotification(symphony)
@@ -39,6 +41,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val currentPlaybackPosition: PlaybackPosition?
         get() = player?.playbackPosition
     val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
+
+    init {
+        nativeReceiver.start()
+    }
 
     data class PlayOptions(
         val index: Int = 0,
@@ -96,6 +102,13 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 onFinish()
                 onUpdate.dispatch(RadioEvents.PausePlaying)
             }
+        }
+    }
+
+    fun pauseInstant() {
+        player?.let {
+            it.pause()
+            onUpdate.dispatch(RadioEvents.PausePlaying)
         }
     }
 

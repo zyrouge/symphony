@@ -41,6 +41,8 @@ object SettingsKeys {
     const val fade_playback = "fade_playback"
     const val require_audio_focus = "require_audio_focus"
     const val ignore_audio_focus_loss = "ignore_audio_focus_loss"
+    const val play_on_headphones_connect = "play_on_headphones_connect"
+    const val pause_on_headphones_disconnect = "pause_on_headphones_disconnect"
 }
 
 data class SettingsData(
@@ -53,6 +55,8 @@ data class SettingsData(
     val fadePlayback: Boolean,
     val requireAudioFocus: Boolean,
     val ignoreAudioFocusLoss: Boolean,
+    val playOnHeadphonesConnect: Boolean,
+    val pauseOnHeadphonesDisconnect: Boolean,
 )
 
 class SettingsManager(private val symphony: Symphony) {
@@ -68,6 +72,8 @@ class SettingsManager(private val symphony: Symphony) {
         fadePlayback = getFadePlayback(),
         requireAudioFocus = getRequireAudioFocus(),
         ignoreAudioFocusLoss = getIgnoreAudioFocusLoss(),
+        playOnHeadphonesConnect = getPlayOnHeadphonesConnect(),
+        pauseOnHeadphonesDisconnect = getPauseOnHeadphonesDisconnect(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -235,6 +241,26 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.ignore_audio_focus_loss, value)
         }
         onChange.dispatch(SettingsKeys.ignore_audio_focus_loss)
+    }
+
+    fun getPlayOnHeadphonesConnect() =
+        getSharedPreferences().getBoolean(SettingsKeys.play_on_headphones_connect, false)
+
+    fun setPlayOnHeadphonesConnect(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.play_on_headphones_connect, value)
+        }
+        onChange.dispatch(SettingsKeys.play_on_headphones_connect)
+    }
+
+    fun getPauseOnHeadphonesDisconnect() =
+        getSharedPreferences().getBoolean(SettingsKeys.pause_on_headphones_disconnect, true)
+
+    fun setPauseOnHeadphonesDisconnect(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.pause_on_headphones_disconnect, value)
+        }
+        onChange.dispatch(SettingsKeys.pause_on_headphones_disconnect)
     }
 
     private fun getSharedPreferences() =
