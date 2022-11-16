@@ -17,8 +17,9 @@ class RadioShorty(private val symphony: Symphony) {
         if (!symphony.radio.hasPlayer) return
         if (symphony.radio.currentPlaybackPosition!!.played <= 3000 && symphony.radio.canJumpToPrevious()) {
             symphony.radio.jumpToPrevious()
+        } else {
+            symphony.radio.seek(0)
         }
-        symphony.radio.seek(0)
     }
 
     fun skip() {
