@@ -222,6 +222,15 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     override fun onSymphonyPause() {
+        saveCurrentQueue()
+    }
+
+    override fun onSymphonyDestroy() {
+        notification.destroy()
+        saveCurrentQueue()
+    }
+
+    private fun saveCurrentQueue() {
         if (queue.isEmpty()) return
         symphony.settings.setPreviousSongQueue(
             RadioQueue.Serialized.create(
@@ -229,9 +238,5 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 playbackPosition = currentPlaybackPosition ?: PlaybackPosition.zero
             )
         )
-    }
-
-    override fun onSymphonyDestroy() {
-        notification.destroy()
     }
 }
