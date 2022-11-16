@@ -177,7 +177,7 @@ class RadioNotification(private val symphony: Symphony) {
                     builder!!.run {
                         setContentTitle(song.title)
                         setContentText(song.artistName)
-                        val iconSize = Size(250, 250)
+                        val iconSize = Size(500, 500)
                         setLargeIcon(
                             symphony.groove.album.getAlbumArtworkUriNullable(song.albumId)
                                 ?.let { uri ->
