@@ -15,6 +15,7 @@ import io.github.zyrouge.symphony.services.groove.GrooveManager
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.services.i18n.Translator
 import io.github.zyrouge.symphony.services.radio.Radio
+import io.github.zyrouge.symphony.utils.AndroidXShorty
 import io.github.zyrouge.symphony.utils.Eventer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ interface SymphonyHooks {
 }
 
 class Symphony(application: Application) : AndroidViewModel(application), SymphonyHooks {
+    val shorty = AndroidXShorty(this)
     val permission = PermissionsManager(this)
     val settings = SettingsManager(this)
     val groove = GrooveManager(this)

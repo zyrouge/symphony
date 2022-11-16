@@ -22,7 +22,6 @@ import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.AndroidXShorty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,7 +202,7 @@ fun SettingsView(context: ViewContext) {
                             else -> null
                         },
                         onClick = {
-                            AndroidXShorty.startBrowserActivity(
+                            context.symphony.shorty.startBrowserActivity(
                                 context.activity,
                                 when {
                                     isLatestVersion -> AppMeta.githubRepositoryUrl
@@ -291,7 +290,7 @@ private fun LinkTile(
     Card(
         colors = TileDefaults.cardColors(),
         onClick = {
-            AndroidXShorty.startBrowserActivity(context.activity, url)
+            context.symphony.shorty.startBrowserActivity(context.activity, url)
         }
     ) {
         ListItem(

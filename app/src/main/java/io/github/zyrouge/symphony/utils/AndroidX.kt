@@ -1,23 +1,32 @@
 package io.github.zyrouge.symphony.utils
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Point
 import android.net.Uri
-import android.util.Size
+import android.os.Bundle
+import io.github.zyrouge.symphony.Symphony
 
-object AndroidXShorty {
-    fun startBrowserActivity(context: Context, uri: Uri) {
-        context.startActivity(Intent(Intent.ACTION_VIEW).setData(uri))
+class AndroidXShorty(val symphony: Symphony) {
+    fun startBrowserActivity(activity: Context, url: String) =
+        startBrowserActivity(activity, Uri.parse(url))
+
+    fun startBrowserActivity(activity: Context, uri: Uri) {
+        activity.startActivity(Intent(Intent.ACTION_VIEW).setData(uri))
     }
 
-    fun startBrowserActivity(context: Context, url: String) =
-        startBrowserActivity(context, Uri.parse(url))
-
-    fun checkIfContentUriExists(context: Context, uri: Uri): Boolean {
+    fun checkIfMediaStoreThumbnailExists(uri: Uri): Boolean {
         return try {
             // NOTE: this seems to be a nasty hack, none other works
-            context.contentResolver.loadThumbnail(uri, Size(1, 1), null)
-            true
+            symphony.applicationContext.contentResolver.openTypedAssetFile(
+                uri,
+                "image/*",
+                Bundle(1).apply {
+                    putParcelable(ContentResolver.EXTRA_SIZE, Point(1, 1))
+                },
+                null
+            ).use { true }
         } catch (err: Exception) {
             false
         }

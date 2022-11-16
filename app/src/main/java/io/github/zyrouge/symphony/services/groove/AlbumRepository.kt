@@ -5,7 +5,10 @@ import android.net.Uri
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
-import io.github.zyrouge.symphony.utils.*
+import io.github.zyrouge.symphony.utils.Eventer
+import io.github.zyrouge.symphony.utils.FuzzySearchOption
+import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -64,7 +67,7 @@ class AlbumRepository(private val symphony: Symphony) {
             albumId
         )
         return when {
-            AndroidXShorty.checkIfContentUriExists(symphony.applicationContext, uri) -> uri
+            symphony.shorty.checkIfMediaStoreThumbnailExists(uri) -> uri
             else -> null
         }
     }
