@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.view.home
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Album
@@ -28,7 +27,6 @@ class HomeViewData(val symphony: Symphony) {
         albumsSubscriber = symphony.groove.song.onUpdate.subscribe {
             albums.swap(symphony.groove.album.getAll())
         }
-        Log.i("SymLog", "data created!")
     }
 
     fun dispose() {

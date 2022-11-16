@@ -3,8 +3,6 @@ package io.github.zyrouge.symphony.ui.view
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -185,26 +183,18 @@ fun SearchView(context: ViewContext) {
                             }
                         }
                         else -> {
-                            LazyColumn {
+                            Column {
                                 if (hasSongs) {
-                                    item { SideHeading(context.symphony.t.songs) }
-                                    items(
-                                        songs,
-                                        key = { it.id },
-                                        contentType = { GrooveKinds.SONG },
-                                    ) { song ->
+                                    SideHeading(context.symphony.t.songs)
+                                    songs.forEach { song ->
                                         SongCard(context, song) {
                                             context.symphony.radio.shorty.playQueue(song)
                                         }
                                     }
                                 }
                                 if (hasArtists) {
-                                    item { SideHeading(context.symphony.t.artists) }
-                                    items(
-                                        artists,
-                                        key = { it.artistName },
-                                        contentType = { GrooveKinds.ARTIST },
-                                    ) { artist ->
+                                    SideHeading(context.symphony.t.artists)
+                                    artists.forEach { artist ->
                                         GenericGrooveCard(
                                             image = { artist.getArtworkUri(context.symphony) },
                                             title = { Text(artist.artistName) },
@@ -225,12 +215,8 @@ fun SearchView(context: ViewContext) {
                                     }
                                 }
                                 if (hasAlbums) {
-                                    item { SideHeading(context.symphony.t.albums) }
-                                    items(
-                                        albums,
-                                        key = { it.albumId },
-                                        contentType = { GrooveKinds.ALBUM },
-                                    ) { album ->
+                                    SideHeading(context.symphony.t.albums)
+                                    albums.forEach { album ->
                                         GenericGrooveCard(
                                             image = { album.getArtworkUri(context.symphony) },
                                             title = { Text(album.albumName) },
