@@ -18,7 +18,7 @@ object AndroidXShorty {
             // NOTE: this seems to be a nasty hack, none other works
             context.contentResolver.loadThumbnail(uri, Size(1, 1), null)
             true
-        } catch (_: Exception) {
+        } catch (err: Exception) {
             false
         }
     }
