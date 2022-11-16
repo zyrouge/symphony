@@ -72,8 +72,8 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
     @JvmName("setVolumeTo")
     fun setVolume(to: Float, onFinish: (Boolean) -> Unit) {
         fader?.stop()
-        if (to == volume) return
         when {
+            to == volume -> onFinish(true)
             fadePlayback -> {
                 fader = RadioEffects.Fader(
                     RadioEffects.Fader.Options(volume, to),
@@ -87,7 +87,10 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
                 )
                 fader?.start()
             }
-            else -> setVolumeInstant(to)
+            else -> {
+                setVolumeInstant(to)
+                onFinish(true)
+            }
         }
     }
 
