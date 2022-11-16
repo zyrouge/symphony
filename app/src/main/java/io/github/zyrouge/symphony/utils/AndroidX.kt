@@ -3,7 +3,7 @@ package io.github.zyrouge.symphony.utils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
+import android.util.Size
 
 object AndroidXShorty {
     fun startBrowserActivity(context: Context, uri: Uri) {
@@ -13,18 +13,11 @@ object AndroidXShorty {
     fun startBrowserActivity(context: Context, url: String) =
         startBrowserActivity(context, Uri.parse(url))
 
-    // NOTE: this seems to be a nasty hack
     fun checkIfContentUriExists(context: Context, uri: Uri): Boolean {
         return try {
-            context.contentResolver.query(
-                uri,
-                listOf(MediaStore.MediaColumns._ID).toTypedArray(),
-                null,
-                null,
-            ).use { cursor ->
-                cursor?.moveToFirst()
-                return cursor?.getString(0)?.isNotEmpty() ?: false
-            }
+            // NOTE: this seems to be a nasty hack, none other works
+            context.contentResolver.loadThumbnail(uri, Size(1, 1), null)
+            true
         } catch (_: Exception) {
             false
         }
