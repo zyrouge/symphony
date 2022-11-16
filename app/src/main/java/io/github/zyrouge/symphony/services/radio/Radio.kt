@@ -165,7 +165,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 if (queue.hasSongAt(nextSongIndex)) {
                     play(PlayOptions(nextSongIndex))
                 } else {
-                    queue.currentSongIndex = -1
+                    queue.reset(soft = true)
                 }
             }
         }

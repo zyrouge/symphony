@@ -118,6 +118,7 @@ class RadioNotification(private val symphony: Symphony) {
                 RadioEvents.PausePlaying,
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
+                RadioEvents.SongSeeked,
                 RadioEvents.QueueEnded -> update()
                 else -> {}
             }
@@ -126,8 +127,8 @@ class RadioNotification(private val symphony: Symphony) {
 
     fun destroy() {
         usable = false
+        cancel()
         session.release()
-        manager.cancel(NOTIFICATION_ID)
         manager.deleteNotificationChannel(CHANNEL_ID)
     }
 
@@ -228,8 +229,13 @@ class RadioNotification(private val symphony: Symphony) {
                     }
                 }
             }
-            else -> manager.cancel(CHANNEL_ID, NOTIFICATION_ID)
+            else -> cancel()
         }
+    }
+
+    private fun cancel() {
+        session.isActive = false
+        manager.cancel(CHANNEL_ID, NOTIFICATION_ID)
     }
 
     private fun createAction(icon: Int, title: String, action: String): NotificationCompat.Action {
