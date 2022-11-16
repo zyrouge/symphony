@@ -44,10 +44,8 @@ class RadioQueue(private val symphony: Symphony) {
     fun getSongAt(index: Int) = symphony.groove.song.getSongWithId(getSongIdAt(index))
 
     fun reset() {
-        if (!soft) {
-            originalQueue.clear()
-            currentQueue.clear()
-        }
+        originalQueue.clear()
+        currentQueue.clear()
         currentSongIndex = -1
         symphony.radio.onUpdate.dispatch(RadioEvents.QueueEnded)
     }
