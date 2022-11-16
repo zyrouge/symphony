@@ -158,14 +158,16 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         when (queue.currentLoopMode) {
             RadioLoopMode.Song -> play(PlayOptions(queue.currentSongIndex))
             else -> {
+                var autostart = true
                 var nextSongIndex = queue.currentSongIndex + 1
-                if (!queue.hasSongAt(nextSongIndex) && queue.currentLoopMode == RadioLoopMode.Queue) {
+                if (!queue.hasSongAt(nextSongIndex)) {
                     nextSongIndex = 0
+                    autostart = queue.currentLoopMode == RadioLoopMode.Queue
                 }
                 if (queue.hasSongAt(nextSongIndex)) {
-                    play(PlayOptions(nextSongIndex))
+                    play(PlayOptions(nextSongIndex, autostart = autostart))
                 } else {
-                    queue.reset(soft = true)
+                    queue.reset()
                 }
             }
         }
