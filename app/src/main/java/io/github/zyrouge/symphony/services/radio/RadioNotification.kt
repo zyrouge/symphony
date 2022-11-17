@@ -126,6 +126,7 @@ class RadioNotification(private val symphony: Symphony) {
     }
 
     fun destroy() {
+        if (!usable) return
         usable = false
         cancel()
         session.release()
