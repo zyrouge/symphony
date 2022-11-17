@@ -1,8 +1,10 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
@@ -11,10 +13,10 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -101,12 +103,13 @@ fun QueueView(context: ViewContext) {
                         listState.animateScrollToItem(currentSongIndex)
                     }
                     LazyColumn(state = listState) {
-                        items(queue.size) { i ->
+                        itemsIndexed(
+                            queue,
+                            key = { _, id -> id },
+                            contentType = { _, _ -> GrooveKinds.SONG },
+                        ) { i, _ ->
                             val song = context.symphony.radio.queue.getSongAt(i)!!
-                            Box(
-                                modifier = Modifier
-                                    .alpha(if (i < currentSongIndex) 0.7f else 1f)
-                            ) {
+                            Box {
                                 SongCard(
                                     context,
                                     song,
@@ -133,6 +136,15 @@ fun QueueView(context: ViewContext) {
                                         context.symphony.radio.jumpTo(i)
                                     }
                                 )
+                                if (i < currentSongIndex) {
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .background(
+                                                MaterialTheme.colorScheme.background.copy(alpha = 0.3f)
+                                            )
+                                    )
+                                }
                             }
                         }
                     }

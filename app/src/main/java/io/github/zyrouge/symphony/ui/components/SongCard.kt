@@ -28,7 +28,7 @@ fun SongCard(
     autoHighlight: Boolean = true,
     leading: @Composable () -> Unit = {},
     thumbnailLabel: (@Composable () -> Unit)? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     var isCurrentPlaying by remember {
         mutableStateOf(autoHighlight && song.id == context.symphony.radio.queue.currentPlayingSong?.id)
