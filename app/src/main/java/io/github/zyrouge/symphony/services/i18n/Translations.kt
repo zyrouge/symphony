@@ -73,6 +73,7 @@ sealed class Translations(
     val player: String,
     val playOnHeadphonesConnect: String,
     val pauseOnHeadphonesDisconnect: String,
+    val genre: String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -148,6 +149,7 @@ sealed class Translations(
         player = "Player",
         playOnHeadphonesConnect = "Play on headphones connect",
         pauseOnHeadphonesDisconnect = "Pause on headphones disconnect",
+        genre = "Genre",
     )
 
     companion object {

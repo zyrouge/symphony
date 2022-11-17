@@ -70,6 +70,12 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                         context.symphony.t.duration,
                         DurationFormatter.formatAsMS(song.duration)
                     )
+                    song.genre?.let {
+                        KeyValueTextComponent(context.symphony.t.genre, it)
+                    }
+                    song.bitrate?.let {
+                        KeyValueTextComponent(context.symphony.t.bitrate, it.toString())
+                    }
                     KeyValueTextComponent(
                         context.symphony.t.filename,
                         song.filename

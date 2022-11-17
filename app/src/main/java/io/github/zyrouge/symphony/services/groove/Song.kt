@@ -28,7 +28,9 @@ data class Song(
     val dateAdded: Long,
     val dateModified: Long,
     val size: Long,
-    val path: String
+    val path: String,
+    val genre: String?,
+    val bitrate: Int?,
 ) {
     val filename = Path(path).fileName.toString()
 
@@ -84,7 +86,13 @@ data class Song(
                 },
                 path = cursor.getColumnValue(AudioColumns.DATA) {
                     cursor.getString(it)
-                }
+                },
+                genre = cursor.getColumnValueNullable(AudioColumns.GENRE) {
+                    cursor.getString(it)
+                },
+                bitrate = cursor.getColumnValueNullable(AudioColumns.BITRATE) {
+                    cursor.getInt(it)
+                },
             )
         }
     }
