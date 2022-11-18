@@ -57,7 +57,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     )
                     KeyValueTextComponent(
                         context.symphony.t.albumArtist,
-                        song.albumArtist ?: context.symphony.t.unk
+                        song.albumArtist ?: song.artistNames.firstOrNull() ?: context.symphony.t.unk
                     )
                     KeyValueTextComponent(
                         context.symphony.t.composer,
@@ -74,7 +74,10 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                         KeyValueTextComponent(context.symphony.t.genre, it)
                     }
                     song.bitrate?.let {
-                        KeyValueTextComponent(context.symphony.t.bitrate, it.toString())
+                        KeyValueTextComponent(
+                            context.symphony.t.bitrate,
+                            context.symphony.t.XKbps((it / 1000).toString())
+                        )
                     }
                     KeyValueTextComponent(
                         context.symphony.t.filename,

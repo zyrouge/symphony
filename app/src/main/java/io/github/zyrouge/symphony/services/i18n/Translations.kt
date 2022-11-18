@@ -74,6 +74,7 @@ sealed class Translations(
     val playOnHeadphonesConnect: String,
     val pauseOnHeadphonesDisconnect: String,
     val genre: String,
+    val XKbps: (String) -> String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -150,6 +151,7 @@ sealed class Translations(
         playOnHeadphonesConnect = "Play on headphones connect",
         pauseOnHeadphonesDisconnect = "Pause on headphones disconnect",
         genre = "Genre",
+        XKbps = { x -> "${x}kbps" },
     )
 
     companion object {
