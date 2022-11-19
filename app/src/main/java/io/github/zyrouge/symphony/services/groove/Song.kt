@@ -23,7 +23,6 @@ data class Song(
     val albumName: String?,
     val artistId: Long,
     val artistName: String?,
-    val artistNames: List<String>,
     val composer: String?,
     val albumArtist: String?,
     val dateAdded: Long,
@@ -42,9 +41,6 @@ data class Song(
 
     companion object {
         fun fromCursor(cursor: Cursor): Song {
-            val artistName = cursor.getColumnValueNullable(AudioColumns.ARTIST) {
-                cursor.getStringOrNull(it)
-            }
             return Song(
                 id = cursor.getColumnValue(AudioColumns._ID) {
                     cursor.getLong(it)
@@ -70,8 +66,9 @@ data class Song(
                 artistId = cursor.getColumnValue(AudioColumns.ARTIST_ID) {
                     cursor.getLong(it)
                 },
-                artistName = artistName,
-                artistNames = artistName?.split("/") ?: listOf(),
+                artistName = cursor.getColumnValueNullable(AudioColumns.ARTIST) {
+                    cursor.getStringOrNull(it)
+                },
                 composer = cursor.getColumnValueNullable(AudioColumns.COMPOSER) {
                     cursor.getStringOrNull(it)
                 },
