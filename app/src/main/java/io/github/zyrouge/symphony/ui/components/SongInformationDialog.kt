@@ -57,7 +57,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     )
                     KeyValueTextComponent(
                         context.symphony.t.albumArtist,
-                        song.albumArtist ?: song.artistNames.firstOrNull() ?: context.symphony.t.unk
+                        song.albumArtist ?: context.symphony.t.unk
                     )
                     KeyValueTextComponent(
                         context.symphony.t.composer,

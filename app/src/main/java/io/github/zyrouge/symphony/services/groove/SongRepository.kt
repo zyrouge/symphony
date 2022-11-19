@@ -107,8 +107,5 @@ class SongRepository(private val symphony: Symphony) {
             }
             return if (reversed) sorted.reversed() else sorted
         }
-
-        fun getFiltered(songs: List<Song>, regex: Regex) =
-            songs.filter { regex.containsMatchIn(it.filename) }
     }
 }
