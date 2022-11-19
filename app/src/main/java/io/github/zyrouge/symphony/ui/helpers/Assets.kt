@@ -27,5 +27,4 @@ object Assets {
             .appendPath(resources.getResourceEntryName(resourceId))
             .build()
     }
-
 }
