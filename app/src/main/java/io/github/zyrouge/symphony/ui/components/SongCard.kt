@@ -174,22 +174,6 @@ fun SongDropdownMenu(
                 }
             )
         }
-        song.artistName?.let { artistName ->
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Default.Person, null)
-                },
-                text = {
-                    Text(context.symphony.t.viewArtist)
-                },
-                onClick = {
-                    onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildArtistRoute(artistName)
-                    )
-                }
-            )
-        }
         song.albumArtist?.let { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
