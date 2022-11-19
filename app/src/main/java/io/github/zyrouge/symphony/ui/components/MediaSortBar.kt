@@ -97,25 +97,24 @@ fun <T : Enum<T>> MediaSortBar(
                 }
             }
         }
-        Box(modifier = Modifier.padding(16.dp, 0.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                onShufflePlay?.let {
-                    IconButton(
-                        colors = iconButtonStyle,
-                        onClick = it,
-                    ) {
-                        Icon(
-                            Icons.Default.Shuffle,
-                            null,
-                            modifier = iconModifier,
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                ProvideTextStyle(currentTextStyle) {
-                    label()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ProvideTextStyle(currentTextStyle) {
+                label()
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            onShufflePlay?.let {
+                IconButton(
+                    colors = iconButtonStyle,
+                    onClick = it,
+                ) {
+                    Icon(
+                        Icons.Default.Shuffle,
+                        null,
+                        modifier = iconModifier,
+                    )
                 }
             }
+            Spacer(modifier = Modifier.width(4.dp))
         }
     }
 }
