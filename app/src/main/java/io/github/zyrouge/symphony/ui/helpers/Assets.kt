@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.helpers
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import io.github.zyrouge.symphony.R
@@ -13,7 +14,7 @@ object Assets {
         R.raw.placeholder,
     )
 
-    fun getPlaceholderBitmap(context: Context) = BitmapFactory.decodeResource(
+    fun getPlaceholderBitmap(context: Context): Bitmap = BitmapFactory.decodeResource(
         context.resources,
         R.raw.placeholder,
     )
