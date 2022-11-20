@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,12 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.RadioEvents
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,8 +52,11 @@ fun SongCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 leading()
                 Box {
-                    Image(
-                        rememberAsyncImagePainter(song.getArtworkUri(context.symphony)),
+                    AsyncImage(
+                        createHandyAsyncImageRequest(
+                            LocalContext.current,
+                            song.getArtworkUri(context.symphony),
+                        ),
                         null,
                         modifier = Modifier
                             .size(45.dp)

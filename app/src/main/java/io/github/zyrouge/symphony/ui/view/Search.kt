@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.ui.view
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +20,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
@@ -32,6 +31,7 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 import kotlinx.coroutines.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -275,8 +275,11 @@ private fun GenericGrooveCard(
     ) {
         Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    rememberAsyncImagePainter(image()),
+                AsyncImage(
+                    createHandyAsyncImageRequest(
+                        LocalContext.current,
+                        image()
+                    ),
                     null,
                     modifier = Modifier
                         .size(45.dp)

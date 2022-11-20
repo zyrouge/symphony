@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,12 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,8 +36,11 @@ fun AlbumTile(context: ViewContext, album: Album) {
         Box(modifier = Modifier.padding(12.dp)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box {
-                    Image(
-                        rememberAsyncImagePainter(album.getArtworkUri(context.symphony)),
+                    AsyncImage(
+                        createHandyAsyncImageRequest(
+                            LocalContext.current,
+                            album.getArtworkUri(context.symphony)
+                        ),
                         null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

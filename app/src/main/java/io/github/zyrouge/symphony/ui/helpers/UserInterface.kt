@@ -1,8 +1,10 @@
 package io.github.zyrouge.symphony.ui.helpers
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.ui.unit.Dp
+import coil.request.ImageRequest
 
 enum class ScreenOrientation {
     PORTRAIT,
@@ -26,3 +28,13 @@ enum class ScreenOrientation {
         }
     }
 }
+
+fun createHandyAsyncImageRequest(
+    context: Context,
+    data: Any
+) = ImageRequest.Builder(context).apply {
+    data(data)
+    crossfade(true)
+    build()
+}
+

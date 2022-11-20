@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -16,21 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.helpers.Routes
-import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
-import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.helpers.*
 import io.github.zyrouge.symphony.utils.DurationFormatter
 
 private data class PlayerStateData(
@@ -190,8 +187,11 @@ private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
     data.run {
         BoxWithConstraints(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
             val dimension = min(maxHeight, maxWidth)
-            Image(
-                rememberAsyncImagePainter(song.getArtworkUri(context.symphony)),
+            AsyncImage(
+                createHandyAsyncImageRequest(
+                    LocalContext.current,
+                    song.getArtworkUri(context.symphony)
+                ),
                 null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

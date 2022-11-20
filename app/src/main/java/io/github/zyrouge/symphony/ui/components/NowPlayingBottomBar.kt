@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,12 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 import io.github.zyrouge.symphony.ui.helpers.navigate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,8 +92,11 @@ fun NowPlayingBottomBar(context: ViewContext) {
                     ) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Image(
-                                    rememberAsyncImagePainter(song.getArtworkUri(context.symphony)),
+                                AsyncImage(
+                                    createHandyAsyncImageRequest(
+                                        LocalContext.current,
+                                        song.getArtworkUri(context.symphony)
+                                    ),
                                     null,
                                     modifier = Modifier
                                         .size(45.dp)
