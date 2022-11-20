@@ -32,7 +32,7 @@ enum class ScreenOrientation {
 fun createHandyAsyncImageRequest(
     context: Context,
     data: Any
-) = ImageRequest.Builder(context).apply {
+) = ImageRequest.Builder(context).run {
     data(data)
     crossfade(true)
     build()
