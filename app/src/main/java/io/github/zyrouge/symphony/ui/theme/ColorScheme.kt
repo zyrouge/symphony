@@ -4,6 +4,8 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
 
 object ThemeColorSchemes {
     private val LightBackgroundColor = ThemeColors.Neutral50
@@ -15,6 +17,8 @@ object ThemeColorSchemes {
     private val LightContrastColor = Color.White
     private val BlackContrastColor = Color.Black
 
+    private const val BackgroundBlendRatio = 0.03f
+
     fun createLightColorScheme(PrimaryColor: Color) = lightColorScheme(
         primary = PrimaryColor,
         onPrimary = LightContrastColor,
@@ -22,7 +26,7 @@ object ThemeColorSchemes {
         onSecondary = LightContrastColor,
         tertiary = PrimaryColor,
         onTertiary = LightContrastColor,
-        background = LightBackgroundColor,
+        background = blendColors(LightBackgroundColor, PrimaryColor, BackgroundBlendRatio),
         onBackground = BlackContrastColor,
         surface = LightSurfaceColor,
         surfaceVariant = LightSurfaceVariantColor,
@@ -42,7 +46,7 @@ object ThemeColorSchemes {
         tertiaryContainer = PrimaryColor,
         onTertiary = LightContrastColor,
         onTertiaryContainer = LightContrastColor,
-        background = DarkBackgroundColor,
+        background = blendColors(DarkBackgroundColor, PrimaryColor, BackgroundBlendRatio),
         onBackground = LightContrastColor,
         surface = DarkSurfaceColor,
         onSurface = LightContrastColor,
@@ -73,4 +77,7 @@ object ThemeColorSchemes {
 
     fun toBlackColorScheme(colorScheme: ColorScheme) =
         colorScheme.copy(background = BlackContrastColor)
+
+    private fun blendColors(color1: Color, color2: Color, ratio: Float) =
+        Color(ColorUtils.blendARGB(color1.toArgb(), color2.toArgb(), ratio))
 }
