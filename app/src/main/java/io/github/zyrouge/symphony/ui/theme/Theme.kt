@@ -3,9 +3,10 @@ package io.github.zyrouge.symphony.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -14,72 +15,6 @@ import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-
-private val LightBackgroundColor = ThemeColors.Neutral50
-private val LightSurfaceColor = ThemeColors.Neutral100
-private val LightSurfaceVariantColor = ThemeColors.Neutral200
-private val PrimaryColor = ThemeColors.Blue500
-private val DarkBackgroundColor = ThemeColors.Neutral900
-private val DarkSurfaceColor = ThemeColors.Neutral900
-private val DarkSurfaceVariantColor = ThemeColors.Neutral800
-private val LightContrastColor = Color.White
-private val BlackContrastColor = Color.Black
-
-private val LightColorScheme = lightColorScheme(
-    primary = PrimaryColor,
-    onPrimary = LightContrastColor,
-    secondary = PrimaryColor,
-    onSecondary = LightContrastColor,
-    tertiary = PrimaryColor,
-    onTertiary = LightContrastColor,
-    background = LightBackgroundColor,
-    onBackground = BlackContrastColor,
-    surface = LightSurfaceColor,
-    surfaceVariant = LightSurfaceVariantColor,
-    onSurface = BlackContrastColor
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryColor,
-    primaryContainer = PrimaryColor,
-    onPrimary = LightContrastColor,
-    onPrimaryContainer = LightContrastColor,
-    secondary = PrimaryColor,
-    secondaryContainer = PrimaryColor,
-    onSecondary = LightContrastColor,
-    onSecondaryContainer = LightContrastColor,
-    tertiary = PrimaryColor,
-    tertiaryContainer = PrimaryColor,
-    onTertiary = LightContrastColor,
-    onTertiaryContainer = LightContrastColor,
-    background = DarkBackgroundColor,
-    onBackground = LightContrastColor,
-    surface = DarkSurfaceColor,
-    onSurface = LightContrastColor,
-    surfaceVariant = DarkSurfaceVariantColor,
-    onSurfaceVariant = LightContrastColor
-)
-
-private val BlackColorScheme = darkColorScheme(
-    primary = PrimaryColor,
-    primaryContainer = PrimaryColor,
-    onPrimary = LightContrastColor,
-    onPrimaryContainer = LightContrastColor,
-    secondary = PrimaryColor,
-    secondaryContainer = PrimaryColor,
-    onSecondary = LightContrastColor,
-    onSecondaryContainer = LightContrastColor,
-    tertiary = PrimaryColor,
-    tertiaryContainer = PrimaryColor,
-    onTertiary = LightContrastColor,
-    onTertiaryContainer = LightContrastColor,
-    background = BlackContrastColor,
-    onBackground = LightContrastColor,
-    surface = DarkBackgroundColor,
-    surfaceVariant = DarkSurfaceColor,
-    onSurface = LightContrastColor,
-    onSurfaceVariant = LightContrastColor
-)
 
 private enum class ColorSchemeMode {
     LIGHT,
@@ -90,16 +25,19 @@ private enum class ColorSchemeMode {
 @Composable
 fun SymphonyTheme(
     context: ViewContext,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var themeMode by remember { mutableStateOf(context.symphony.settings.getThemeMode()) }
     var useMaterialYou by remember { mutableStateOf(context.symphony.settings.getUseMaterialYou()) }
+    var primaryColorName by remember { mutableStateOf(context.symphony.settings.getPrimaryColor()) }
 
     EventerEffect(context.symphony.settings.onChange) {
         when (it) {
             SettingsKeys.themeMode -> themeMode = context.symphony.settings.getThemeMode()
             SettingsKeys.materialYou -> useMaterialYou =
                 context.symphony.settings.getUseMaterialYou()
+            SettingsKeys.primary_color -> primaryColorName =
+                context.symphony.settings.getPrimaryColor()
         }
     }
 
@@ -115,12 +53,17 @@ fun SymphonyTheme(
         when (colorSchemeMode) {
             ColorSchemeMode.LIGHT -> dynamicLightColorScheme(currentContext)
             ColorSchemeMode.DARK -> dynamicDarkColorScheme(currentContext)
-            ColorSchemeMode.BLACK -> dynamicDarkColorScheme(currentContext).copy(background = BlackContrastColor)
+            ColorSchemeMode.BLACK -> ThemeColorSchemes.toBlackColorScheme(
+                dynamicDarkColorScheme(currentContext)
+            )
         }
-    } else when (colorSchemeMode) {
-        ColorSchemeMode.LIGHT -> LightColorScheme
-        ColorSchemeMode.DARK -> DarkColorScheme
-        ColorSchemeMode.BLACK -> BlackColorScheme
+    } else {
+        val primaryColor = ThemeColors.resolvePrimaryColor(primaryColorName)
+        when (colorSchemeMode) {
+            ColorSchemeMode.LIGHT -> ThemeColorSchemes.createLightColorScheme(primaryColor)
+            ColorSchemeMode.DARK -> ThemeColorSchemes.createDarkColorScheme(primaryColor)
+            ColorSchemeMode.BLACK -> ThemeColorSchemes.createBlackColorScheme(primaryColor)
+        }
     }
 
     val view = LocalView.current

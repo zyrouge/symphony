@@ -22,6 +22,8 @@ import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
+import io.github.zyrouge.symphony.ui.theme.ThemeColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,6 +110,20 @@ fun SettingsView(context: ViewContext) {
                         value = settings.useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.setUseMaterialYou(value)
+                        }
+                    )
+                    MultiOptionTile(
+                        icon = {
+                            Icon(Icons.Default.Colorize, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.primaryColor)
+                        },
+                        value = ThemeColors.resolvePrimaryColorKey(settings.primaryColor),
+                        values = PrimaryThemeColors.values()
+                            .associateWith { it.toHumanString() },
+                        onChange = { value ->
+                            context.symphony.settings.setPrimaryColor(value.name)
                         }
                     )
                     SwitchTile(
@@ -384,7 +400,10 @@ private fun <T> MultiOptionTile(
     if (isOpen) {
         Dialog(onDismissRequest = { isOpen = false }) {
             Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
-                Column {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                ) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Box(
                         contentAlignment = Alignment.Center,

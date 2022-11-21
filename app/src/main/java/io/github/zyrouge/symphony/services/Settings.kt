@@ -43,6 +43,7 @@ object SettingsKeys {
     const val ignore_audio_focus_loss = "ignore_audio_focus_loss"
     const val play_on_headphones_connect = "play_on_headphones_connect"
     const val pause_on_headphones_disconnect = "pause_on_headphones_disconnect"
+    const val primary_color = "primary_color"
 }
 
 data class SettingsData(
@@ -57,6 +58,7 @@ data class SettingsData(
     val ignoreAudioFocusLoss: Boolean,
     val playOnHeadphonesConnect: Boolean,
     val pauseOnHeadphonesDisconnect: Boolean,
+    val primaryColor: String?,
 )
 
 class SettingsManager(private val symphony: Symphony) {
@@ -74,6 +76,7 @@ class SettingsManager(private val symphony: Symphony) {
         ignoreAudioFocusLoss = getIgnoreAudioFocusLoss(),
         playOnHeadphonesConnect = getPlayOnHeadphonesConnect(),
         pauseOnHeadphonesDisconnect = getPauseOnHeadphonesDisconnect(),
+        primaryColor = getPrimaryColor(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -261,6 +264,16 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.pause_on_headphones_disconnect, value)
         }
         onChange.dispatch(SettingsKeys.pause_on_headphones_disconnect)
+    }
+
+    fun getPrimaryColor() =
+        getSharedPreferences().getString(SettingsKeys.primary_color, null)
+
+    fun setPrimaryColor(value: String) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.primary_color, value)
+        }
+        onChange.dispatch(SettingsKeys.primary_color)
     }
 
     private fun getSharedPreferences() =

@@ -76,6 +76,7 @@ sealed class Translations(
     val genre: String,
     val XKbps: (String) -> String,
     val damnThisIsSoEmpty: String,
+    val primaryColor: String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -153,7 +154,8 @@ sealed class Translations(
         pauseOnHeadphonesDisconnect = "Pause on headphones disconnect",
         genre = "Genre",
         XKbps = { x -> "${x}kbps" },
-        damnThisIsSoEmpty = "Damn, this is so empty!"
+        damnThisIsSoEmpty = "Damn, this is so empty!",
+        primaryColor = "Primary Color",
     )
 
     companion object {
