@@ -12,10 +12,9 @@ android {
         minSdk 29
         targetSdk 33
 
-        versionCode 27
-        versionName "2022.11.27"
+        versionCode 28
+        versionName "2022.11.28"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -34,7 +33,6 @@ android {
         debug {
             applicationIdSuffix '.debug'
             versionNameSuffix '-debug'
-            
         }
         release {
             minifyEnabled true
