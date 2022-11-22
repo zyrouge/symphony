@@ -16,6 +16,10 @@ class RadioNativeReceiver(private val symphony: Symphony) : BroadcastReceiver() 
         )
     }
 
+    fun destroy() {
+        symphony.applicationContext.unregisterReceiver(this)
+    }
+
     override fun onReceive(context: Context?, intent: Intent?) {
         intent?.action?.let { action ->
             when (action) {

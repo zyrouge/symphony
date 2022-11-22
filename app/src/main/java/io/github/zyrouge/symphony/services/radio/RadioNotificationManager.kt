@@ -91,11 +91,6 @@ class RadioNotificationService : Service() {
         return START_NOT_STICKY
     }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        super.onTaskRemoved(rootIntent)
-        destroy()
-    }
-
     companion object {
         val events = Eventer<RadioNotificationServiceEvents>()
         var instance: RadioNotificationService? = null

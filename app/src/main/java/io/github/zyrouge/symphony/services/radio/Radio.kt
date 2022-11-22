@@ -46,6 +46,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         nativeReceiver.start()
     }
 
+    fun destroy() {
+        stop()
+        notification.destroy()
+        nativeReceiver.destroy()
+    }
+
     data class PlayOptions(
         val index: Int = 0,
         val autostart: Boolean = true,
@@ -229,7 +235,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     override fun onSymphonyDestroy() {
         saveCurrentQueue()
-        stop()
+        destroy()
     }
 
     private fun saveCurrentQueue() {

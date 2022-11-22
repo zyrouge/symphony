@@ -111,6 +111,12 @@ class RadioNotification(private val symphony: Symphony) {
         }
     }
 
+    fun destroy() {
+        cancel()
+        session.release()
+        symphony.applicationContext.unregisterReceiver(receiver)
+    }
+
     private fun update() {
         if (!usable) return
         when {
