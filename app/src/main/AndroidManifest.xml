@@ -33,6 +33,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <service android:name=".SymphonyService" />
+        <service android:name=".SymphonyService" android:stopWithTask="true" />
     </application>
 </manifest>
