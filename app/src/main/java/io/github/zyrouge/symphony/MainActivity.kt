@@ -55,6 +55,11 @@ class MainActivity : ComponentActivity() {
         gSymphony?.pause()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        gSymphony?.destroy()
+    }
+
     private fun handleBackPressed() {
         onBackPressedDispatcher.addCallback {
             moveTaskToBack(true)

@@ -9,9 +9,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Size
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
@@ -26,8 +24,7 @@ class RadioNotification(private val symphony: Symphony) {
         androidx.media.app.NotificationCompat.MediaStyle()
             .setMediaSession(session.sessionToken)
     private var builder: NotificationCompat.Builder? = null
-    private var manager =
-        NotificationManagerCompat.from(symphony.applicationContext)
+    private var manager = RadioNotificationManager(symphony)
     private var receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.action?.let { action ->
@@ -81,18 +78,7 @@ class RadioNotification(private val symphony: Symphony) {
                 }
             }
         )
-        manager.createNotificationChannel(
-            NotificationChannelCompat.Builder(
-                CHANNEL_ID,
-                NotificationManagerCompat.IMPORTANCE_DEFAULT
-            ).run {
-                setName(symphony.applicationContext.getString(R.string.app_name))
-                setLightsEnabled(false)
-                setVibrationEnabled(false)
-                setShowBadge(false)
-                build()
-            }
-        )
+        manager.prepare()
         builder = NotificationCompat.Builder(
             symphony.applicationContext,
             CHANNEL_ID
@@ -123,14 +109,6 @@ class RadioNotification(private val symphony: Symphony) {
                 else -> {}
             }
         }
-    }
-
-    fun destroy() {
-        if (!usable) return
-        usable = false
-        cancel()
-        session.release()
-        manager.deleteNotificationChannel(CHANNEL_ID)
     }
 
     private fun update() {
@@ -226,7 +204,7 @@ class RadioNotification(private val symphony: Symphony) {
                                 ACTION_STOP
                             )
                         )
-                        manager.notify(CHANNEL_ID, NOTIFICATION_ID, build())
+                        manager.notify(build())
                     }
                 }
             }
@@ -236,7 +214,7 @@ class RadioNotification(private val symphony: Symphony) {
 
     private fun cancel() {
         session.isActive = false
-        manager.cancel(CHANNEL_ID, NOTIFICATION_ID)
+        manager.cancel()
     }
 
     private fun createAction(icon: Int, title: String, action: String): NotificationCompat.Action {

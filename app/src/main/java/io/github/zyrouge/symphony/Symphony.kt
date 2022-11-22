@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 interface SymphonyHooks {
     fun onSymphonyReady() {}
     fun onSymphonyPause() {}
+    fun onSymphonyDestroy() {}
 }
 
 class Symphony(application: Application) : AndroidViewModel(application), SymphonyHooks {
@@ -46,6 +47,10 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
 
     fun pause() {
         notifyHooks { onSymphonyPause() }
+    }
+
+    fun destroy() {
+        notifyHooks { onSymphonyDestroy() }
     }
 
     override fun onSymphonyReady() {
