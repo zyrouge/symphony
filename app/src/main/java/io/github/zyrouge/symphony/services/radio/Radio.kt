@@ -221,15 +221,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             )
         }
         notification.start()
-    }
-
-    override fun onSymphonyPause() {
-        saveCurrentQueue()
-    }
-
-    override fun onSymphonyDestroy() {
-        notification.destroy()
-        saveCurrentQueue()
+        // NOTE: make this efficient?
+        kotlin.concurrent.timer(period = 30000L) {
+            saveCurrentQueue()
+        }
     }
 
     private fun saveCurrentQueue() {
