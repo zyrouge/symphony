@@ -20,7 +20,7 @@ data class PlaybackPosition(
 typealias RadioPlayerOnPlaybackPositionUpdateListener = (PlaybackPosition) -> Unit
 typealias RadioPlayerOnFinishListener = () -> Unit
 
-class RadioPlayer(val symphony: Symphony, val uri: Uri) {
+class RadioPlayer(val symphony: Symphony, uri: Uri) {
     var usable = false
     private val unsafeMediaPlayer: MediaPlayer
     private val mediaPlayer: MediaPlayer?
@@ -40,6 +40,8 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
     var volume: Float = MAX_VOLUME
     val fadePlayback: Boolean
         get() = symphony.settings.getFadePlayback()
+    private val fadePlaybackDuration: Int
+        get() = (symphony.settings.getFadePlaybackDuration() * 1000).toInt()
     private var fader: RadioEffects.Fader? = null
     val isPlaying: Boolean
         get() = mediaPlayer?.isPlaying ?: false
@@ -76,7 +78,7 @@ class RadioPlayer(val symphony: Symphony, val uri: Uri) {
             to == volume -> onFinish(true)
             fadePlayback -> {
                 fader = RadioEffects.Fader(
-                    RadioEffects.Fader.Options(volume, to),
+                    RadioEffects.Fader.Options(volume, to, fadePlaybackDuration),
                     onUpdate = {
                         setVolumeInstant(it)
                     },

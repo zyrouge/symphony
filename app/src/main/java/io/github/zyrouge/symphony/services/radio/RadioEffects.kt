@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.services.radio
 
+import android.util.Log
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -13,12 +14,11 @@ object RadioEffects {
         data class Options(
             val from: Float,
             val to: Float,
-            val duration: Long = DEFAULT_DURATION,
-            val steps: Int = DEFAULT_STEPS,
+            val duration: Int,
+            val interval: Int = DEFAULT_INTERVAL,
         ) {
             companion object {
-                private const val DEFAULT_DURATION = 1000L
-                private const val DEFAULT_STEPS = 20
+                private const val DEFAULT_INTERVAL = 50
             }
         }
 
@@ -26,11 +26,19 @@ object RadioEffects {
         private var ended = false
 
         fun start() {
-            val interval = options.duration / options.steps
-            val increments = (options.to - options.from) / options.steps
+            val increments =
+                (options.to - options.from) * (options.interval.toFloat() / options.duration)
+            Log.i(
+                "SymLog",
+                "increments: $increments [(${options.to} - ${options.from}) * (${options.interval} / ${options.duration})]"
+            )
+            Log.i(
+                "SymLog",
+                "[(${options.to - options.from}) * (${options.interval / options.duration})]"
+            )
             var volume = options.from
             val isReverse = options.to < options.from
-            timer = kotlin.concurrent.timer(period = interval) {
+            timer = kotlin.concurrent.timer(period = options.interval.toLong()) {
                 if (volume != options.to) {
                     onUpdate(volume)
                     volume = if (isReverse) max(options.to, volume + increments)

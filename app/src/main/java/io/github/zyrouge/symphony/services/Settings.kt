@@ -14,12 +14,7 @@ enum class ThemeMode {
     SYSTEM,
     LIGHT,
     DARK,
-    BLACK;
-
-    companion object {
-        val defaultThemeMode = SYSTEM
-        val all = values()
-    }
+    BLACK,
 }
 
 object SettingsKeys {
@@ -44,6 +39,7 @@ object SettingsKeys {
     const val play_on_headphones_connect = "play_on_headphones_connect"
     const val pause_on_headphones_disconnect = "pause_on_headphones_disconnect"
     const val primary_color = "primary_color"
+    const val fade_playback_duration = "fade_playback_duration"
 }
 
 data class SettingsData(
@@ -59,7 +55,21 @@ data class SettingsData(
     val playOnHeadphonesConnect: Boolean,
     val pauseOnHeadphonesDisconnect: Boolean,
     val primaryColor: String?,
+    val fadePlaybackDuration: Float,
 )
+
+object SettingsDataDefaults {
+    val themeMode = ThemeMode.SYSTEM
+    const val useMaterialYou = true
+    const val checkForUpdates = true
+    const val miniPlayerExtendedControls = false
+    const val fadePlayback = false
+    const val requireAudioFocus = true
+    const val ignoreAudioFocusLoss = false
+    const val playOnHeadphonesConnect = false
+    const val pauseOnHeadphonesDisconnect = true
+    const val fadePlaybackDuration = 1f
+}
 
 class SettingsManager(private val symphony: Symphony) {
     val onChange = Eventer<String>()
@@ -77,11 +87,12 @@ class SettingsManager(private val symphony: Symphony) {
         playOnHeadphonesConnect = getPlayOnHeadphonesConnect(),
         pauseOnHeadphonesDisconnect = getPauseOnHeadphonesDisconnect(),
         primaryColor = getPrimaryColor(),
+        fadePlaybackDuration = getFadePlaybackDuration(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
-        ?: ThemeMode.defaultThemeMode
+        ?: SettingsDataDefaults.themeMode
 
     fun setThemeMode(themeMode: ThemeMode) {
         getSharedPreferences().edit {
@@ -98,7 +109,11 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.language)
     }
 
-    fun getUseMaterialYou() = getSharedPreferences().getBoolean(SettingsKeys.materialYou, true)
+    fun getUseMaterialYou() = getSharedPreferences().getBoolean(
+        SettingsKeys.materialYou,
+        SettingsDataDefaults.useMaterialYou,
+    )
+
     fun setUseMaterialYou(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.materialYou, value)
@@ -127,7 +142,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getLastUsedArtistsSortReverse() =
-        getSharedPreferences().getBoolean(SettingsKeys.lastUsedArtistsSortReverse, false)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.lastUsedArtistsSortReverse,
+            SettingsDataDefaults.useMaterialYou,
+        )
 
     fun setLastUsedArtistsSortReverse(reverse: Boolean) {
         getSharedPreferences().edit {
@@ -197,7 +215,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getCheckForUpdates() =
-        getSharedPreferences().getBoolean(SettingsKeys.check_for_updates, true)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.check_for_updates,
+            SettingsDataDefaults.checkForUpdates,
+        )
 
     fun setCheckForUpdates(value: Boolean) {
         getSharedPreferences().edit {
@@ -207,7 +228,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getMiniPlayerExtendedControls() =
-        getSharedPreferences().getBoolean(SettingsKeys.mini_player_extended_controls, false)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.mini_player_extended_controls,
+            SettingsDataDefaults.miniPlayerExtendedControls,
+        )
 
     fun setMiniPlayerExtendedControls(value: Boolean) {
         getSharedPreferences().edit {
@@ -217,7 +241,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getFadePlayback() =
-        getSharedPreferences().getBoolean(SettingsKeys.fade_playback, false)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.fade_playback,
+            SettingsDataDefaults.fadePlayback,
+        )
 
     fun setFadePlayback(value: Boolean) {
         getSharedPreferences().edit {
@@ -227,7 +254,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getRequireAudioFocus() =
-        getSharedPreferences().getBoolean(SettingsKeys.require_audio_focus, true)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.require_audio_focus,
+            SettingsDataDefaults.requireAudioFocus,
+        )
 
     fun setRequireAudioFocus(value: Boolean) {
         getSharedPreferences().edit {
@@ -237,7 +267,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getIgnoreAudioFocusLoss() =
-        getSharedPreferences().getBoolean(SettingsKeys.ignore_audio_focus_loss, false)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.ignore_audio_focus_loss,
+            SettingsDataDefaults.ignoreAudioFocusLoss,
+        )
 
     fun setIgnoreAudioFocusLoss(value: Boolean) {
         getSharedPreferences().edit {
@@ -247,7 +280,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getPlayOnHeadphonesConnect() =
-        getSharedPreferences().getBoolean(SettingsKeys.play_on_headphones_connect, false)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.play_on_headphones_connect,
+            SettingsDataDefaults.playOnHeadphonesConnect,
+        )
 
     fun setPlayOnHeadphonesConnect(value: Boolean) {
         getSharedPreferences().edit {
@@ -257,7 +293,10 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getPauseOnHeadphonesDisconnect() =
-        getSharedPreferences().getBoolean(SettingsKeys.pause_on_headphones_disconnect, true)
+        getSharedPreferences().getBoolean(
+            SettingsKeys.pause_on_headphones_disconnect,
+            SettingsDataDefaults.pauseOnHeadphonesDisconnect,
+        )
 
     fun setPauseOnHeadphonesDisconnect(value: Boolean) {
         getSharedPreferences().edit {
@@ -274,6 +313,19 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.primary_color, value)
         }
         onChange.dispatch(SettingsKeys.primary_color)
+    }
+
+    fun getFadePlaybackDuration() =
+        getSharedPreferences().getFloat(
+            SettingsKeys.fade_playback_duration,
+            SettingsDataDefaults.fadePlaybackDuration,
+        )
+
+    fun setFadePlaybackDuration(value: Float) {
+        getSharedPreferences().edit {
+            putFloat(SettingsKeys.fade_playback_duration, value)
+        }
+        onChange.dispatch(SettingsKeys.fade_playback_duration)
     }
 
     private fun getSharedPreferences() =

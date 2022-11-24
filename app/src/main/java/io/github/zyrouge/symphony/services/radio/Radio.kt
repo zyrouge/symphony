@@ -60,7 +60,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     fun play(options: PlayOptions) {
         stopCurrentSong()
-        if (!queue.hasSongAt(options.index)) return
+        if (!queue.hasSongAt(options.index)) {
+            queue.currentSongIndex = -1
+            return
+        }
         val song = queue.getSongAt(options.index)!!
         queue.currentSongIndex = options.index
         try {

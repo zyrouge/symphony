@@ -59,7 +59,7 @@ sealed class Translations(
     val songsFilterPattern: String,
     val reset: String,
     val theme: String,
-    val newVersionAvailableX: (String) -> String,
+    val newVersionAvailableX: (x: String) -> String,
     val checkForUpdates: String,
     val version: String,
     val shufflePlay: String,
@@ -74,9 +74,10 @@ sealed class Translations(
     val playOnHeadphonesConnect: String,
     val pauseOnHeadphonesDisconnect: String,
     val genre: String,
-    val XKbps: (String) -> String,
+    val XKbps: (x: String) -> String,
     val damnThisIsSoEmpty: String,
     val primaryColor: String,
+    val XSecs: (x: Float) -> String,
     val unk: String = "?"
 ) {
     object English : Translations(
@@ -156,6 +157,7 @@ sealed class Translations(
         XKbps = { x -> "${x}kbps" },
         damnThisIsSoEmpty = "Damn, this is so empty!",
         primaryColor = "Primary Color",
+        XSecs = { x -> "${x}s" },
     )
 
     companion object {
