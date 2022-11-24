@@ -24,7 +24,7 @@ class RadioNotificationManager(val symphony: Symphony) {
         manager.createNotificationChannel(
             NotificationChannelCompat.Builder(
                 RadioNotification.CHANNEL_ID,
-                NotificationManagerCompat.IMPORTANCE_DEFAULT
+                NotificationManagerCompat.IMPORTANCE_LOW
             ).run {
                 setName(symphony.applicationContext.getString(R.string.app_name))
                 setLightsEnabled(false)
