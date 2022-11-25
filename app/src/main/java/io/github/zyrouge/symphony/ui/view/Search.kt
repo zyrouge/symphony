@@ -43,7 +43,7 @@ fun SearchView(context: ViewContext) {
     val songs = remember { mutableStateListOf<Song>() }
     val artists = remember { mutableStateListOf<Artist>() }
     val albums = remember { mutableStateListOf<Album>() }
-    var selectedChip by remember { mutableStateOf<GrooveKinds?>(null) }
+    var selectedChip by rememberSaveable { mutableStateOf<GrooveKinds?>(null) }
 
     var currentTermsRoutine: Job? = null
     fun setTerms(nTerms: String) {
