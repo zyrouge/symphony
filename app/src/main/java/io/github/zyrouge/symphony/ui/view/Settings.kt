@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.github.zyrouge.symphony.services.AppMeta
+import io.github.zyrouge.symphony.services.SettingsDataDefaults
 import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.EventerEffect
@@ -158,6 +159,7 @@ fun SettingsView(context: ViewContext) {
                         }
                     )
                     SliderTile(
+                        context,
                         icon = {
                             Icon(Icons.Default.GraphicEq, null)
                         },
@@ -174,6 +176,11 @@ fun SettingsView(context: ViewContext) {
                         },
                         onChange = { value ->
                             context.symphony.settings.setFadePlaybackDuration(value)
+                        },
+                        onReset = {
+                            context.symphony.settings.setFadePlaybackDuration(
+                                SettingsDataDefaults.fadePlaybackDuration
+                            )
                         },
                     )
                     SwitchTile(
@@ -543,8 +550,8 @@ private fun TextInputTile(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Divider()
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.padding(20.dp)) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(modifier = Modifier.padding(20.dp, 0.dp)) {
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
@@ -567,7 +574,7 @@ private fun TextInputTile(
                         onReset?.let {
                             TextButton(
                                 onClick = {
-                                    onReset()
+                                    it()
                                     isOpen = false
                                 }
                             ) {
@@ -594,6 +601,7 @@ private fun TextInputTile(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SliderTile(
+    context: ViewContext,
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     label: @Composable (Float) -> Unit,
@@ -601,6 +609,7 @@ private fun SliderTile(
     range: ClosedFloatingPointRange<Float>,
     onValue: (Float) -> Float = { it },
     onChange: (Float) -> Unit,
+    onReset: (() -> Unit)? = null,
 ) {
     var isOpen by remember { mutableStateOf(false) }
     var value by remember { mutableStateOf(initialValue) }
@@ -621,12 +630,7 @@ private fun SliderTile(
     }
 
     if (isOpen) {
-        Dialog(
-            onDismissRequest = {
-                isOpen = false
-                onChange(value)
-            }
-        ) {
+        Dialog(onDismissRequest = { isOpen = false }) {
             Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
                 Column(
                     modifier = Modifier
@@ -650,7 +654,7 @@ private fun SliderTile(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Divider()
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     BoxWithConstraints(modifier = Modifier.padding(20.dp, 0.dp)) {
                         val height = 12.dp
                         val shape = RoundedCornerShape(height.div(2))
@@ -703,6 +707,32 @@ private fun SliderTile(
                             label(range.start)
                             label(value)
                             label(range.endInclusive)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp, 0.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        onReset?.let {
+                            TextButton(
+                                onClick = {
+                                    it()
+                                    isOpen = false
+                                }
+                            ) {
+                                Text(context.symphony.t.reset)
+                            }
+                        }
+                        TextButton(
+                            onClick = {
+                                onChange(value)
+                                isOpen = false
+                            }
+                        ) {
+                            Text(context.symphony.t.done)
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))

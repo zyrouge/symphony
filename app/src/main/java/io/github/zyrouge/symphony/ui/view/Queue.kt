@@ -14,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.EventerEffect
@@ -22,10 +21,12 @@ import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueView(context: ViewContext) {
+    val scope = rememberCoroutineScope()
     val queue = remember {
         mutableStateListOf<Long>().apply {
             swap(context.symphony.radio.queue.currentQueue)
@@ -33,6 +34,9 @@ fun QueueView(context: ViewContext) {
     }
     var currentSongIndex by remember { mutableStateOf(context.symphony.radio.queue.currentSongIndex) }
     val selectedSongIndices = remember { mutableStateListOf<Int>() }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = currentSongIndex,
+    )
 
     BackHandler {
         context.navController.popBackStack()
@@ -98,10 +102,6 @@ fun QueueView(context: ViewContext) {
                 if (queue.isEmpty()) {
                     NothingPlayingBody(context)
                 } else {
-                    val listState = rememberLazyListState()
-                    LaunchedEffect(LocalContext.current) {
-                        listState.animateScrollToItem(currentSongIndex)
-                    }
                     LazyColumn(state = listState) {
                         itemsIndexed(
                             queue,
@@ -134,7 +134,10 @@ fun QueueView(context: ViewContext) {
                                     },
                                     onClick = {
                                         context.symphony.radio.jumpTo(i)
-                                    }
+                                        scope.launch {
+                                            listState.animateScrollToItem(i)
+                                        }
+                                    },
                                 )
                                 if (i < currentSongIndex) {
                                     Box(
