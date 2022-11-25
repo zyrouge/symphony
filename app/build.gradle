@@ -12,8 +12,8 @@ android {
         minSdk 29
         targetSdk 33
 
-        versionCode 29
-        versionName "2022.11.29"
+        versionCode 30
+        versionName "2022.11.30"
 
         vectorDrawables {
             useSupportLibrary true
