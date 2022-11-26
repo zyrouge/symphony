@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -104,11 +105,18 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                 )
                                 Spacer(modifier = Modifier.width(15.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(song.title, style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        song.title,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
                                     song.artistName?.let { artistName ->
                                         Text(
                                             artistName,
-                                            style = MaterialTheme.typography.bodySmall
+                                            style = MaterialTheme.typography.bodySmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                         )
                                     }
                                 }

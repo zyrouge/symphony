@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
@@ -217,10 +218,16 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                     Text(
                         song.title,
                         style = MaterialTheme.typography.headlineSmall
-                            .copy(fontWeight = FontWeight.Bold)
+                            .copy(fontWeight = FontWeight.Bold),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     song.artistName?.let {
-                        Text(it)
+                        Text(
+                            it,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                     Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
                     Row(
