@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Album
+import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.*
@@ -25,10 +26,7 @@ import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
-import io.github.zyrouge.symphony.ui.view.home.AlbumsView
-import io.github.zyrouge.symphony.ui.view.home.ArtistsView
-import io.github.zyrouge.symphony.ui.view.home.HomeViewData
-import io.github.zyrouge.symphony.ui.view.home.SongsView
+import io.github.zyrouge.symphony.ui.view.home.*
 import kotlinx.coroutines.launch
 
 enum class HomePages(
@@ -36,6 +34,11 @@ enum class HomePages(
     val selectedIcon: @Composable () -> ImageVector,
     val unselectedIcon: @Composable () -> ImageVector
 ) {
+    ForYou(
+        label = { it.symphony.t.forYou },
+        selectedIcon = { Icons.Filled.Face },
+        unselectedIcon = { Icons.Outlined.Face }
+    ),
     Songs(
         label = { it.symphony.t.songs },
         selectedIcon = { Icons.Filled.MusicNote },
@@ -151,6 +154,7 @@ fun HomeView(context: ViewContext) {
                         .fillMaxSize()
                 ) {
                     when (HomePages.mapped[it]!!) {
+                        HomePages.ForYou -> ForYouView(context, data)
                         HomePages.Songs -> SongsView(context, data)
                         HomePages.Albums -> AlbumsView(context, data)
                         HomePages.Artists -> ArtistsView(context, data)

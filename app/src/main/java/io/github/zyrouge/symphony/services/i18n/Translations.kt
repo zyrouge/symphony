@@ -78,7 +78,11 @@ sealed class Translations(
     val damnThisIsSoEmpty: String,
     val primaryColor: String,
     val XSecs: (x: Float) -> String,
-    val unk: String = "?"
+    val playAll: String,
+    val forYou: String,
+    val randomAlbums: String,
+    val randomArtists: String,
+    val unk: String = "?",
 ) {
     object English : Translations(
         language = "English",
@@ -158,6 +162,10 @@ sealed class Translations(
         damnThisIsSoEmpty = "Damn, this is so empty!",
         primaryColor = "Primary Color",
         XSecs = { x -> "${x}s" },
+        playAll = "Play all",
+        forYou = "For you",
+        randomAlbums = "Random albums",
+        randomArtists = "Random artists",
     )
 
     companion object {

@@ -38,8 +38,8 @@ object ScaleTransitions {
         ) + fadeOut()
     }
 
-    private const val ShrinkScale = 0.9f
-    private const val ExpandScale = 1.1f
+    private const val ShrinkScale = 0.95f
+    private const val ExpandScale = 1.05f
     private fun <T> constructAnimationSpec() = TransitionDurations.Slow.asTween<T>()
 }
 
@@ -64,10 +64,10 @@ object SlideTransitions {
     }
 
     private fun <T> constructAnimationSpec() = TransitionDurations.Normal.asTween<T>()
-    private fun calculateSlideUpOffset(size: IntSize) = IntOffset(0, -size.height / 5)
-    private fun calculateSlideDownOffset(size: IntSize) = IntOffset(0, size.height / 5)
-    private fun calculateSlideRightOffset(size: IntSize) =
-        IntOffset((0.2 * size.width).toInt(), 0)
+    private fun calculateOffset(size: Int) = (0.1 * size).toInt()
+    private fun calculateSlideUpOffset(size: IntSize) = IntOffset(0, calculateOffset(-size.height))
+    private fun calculateSlideDownOffset(size: IntSize) = IntOffset(0, calculateOffset(size.height))
+    private fun calculateSlideRightOffset(size: IntSize) = IntOffset(calculateOffset(size.width), 0)
 }
 
 object FadeTransitions {
