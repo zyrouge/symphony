@@ -31,10 +31,14 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     private var playbackPositionUpdater: Timer? = null
     val playbackPosition: PlaybackPosition?
         get() = mediaPlayer?.let {
-            PlaybackPosition(
-                played = it.currentPosition,
-                total = it.duration
-            )
+            try {
+                PlaybackPosition(
+                    played = it.currentPosition,
+                    total = it.duration
+                )
+            } catch (_: IllegalStateException) {
+                null
+            }
         }
 
     var volume: Float = MAX_VOLUME
