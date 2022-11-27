@@ -73,8 +73,8 @@ interface Translations {
     val primaryColor: String
     val playAll: String
     val forYou: String
-    val randomAlbums: String
-    val randomArtists: String
+    val suggestedAlbums: String
+    val suggestedArtists: String
     val recentlyAddedSongs: String
 
     fun XSongs(x: Int): String

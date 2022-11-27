@@ -93,7 +93,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 SideHeading {
                     Text(context.symphony.t.recentlyAddedSongs)
                 }
@@ -107,7 +107,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         Spacer(modifier = Modifier.width(12.dp))
                         recentlyAddedSongs.subListNonStrict(5).forEachIndexed { i, song ->
                             val tileHeight = 96.dp
-                            val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                            val backgroundColor = MaterialTheme.colorScheme.surface
                             ElevatedCard(
                                 modifier = Modifier
                                     .width(tileWidth)
@@ -135,9 +135,9 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                                             .background(
                                                 Brush.horizontalGradient(
                                                     colors = listOf(
-                                                        backgroundColor.copy(alpha = 0.3f),
+                                                        backgroundColor.copy(alpha = 0.2f),
+                                                        backgroundColor.copy(alpha = 0.7f),
                                                         backgroundColor.copy(alpha = 0.8f),
-                                                        backgroundColor,
                                                     ),
                                                 )
                                             )
@@ -205,7 +205,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 SideHeading {
-                    Text(context.symphony.t.randomAlbums)
+                    Text(context.symphony.t.suggestedAlbums)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 SixGrid(randomAlbums) { album ->
@@ -232,7 +232,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 SideHeading {
-                    Text(context.symphony.t.randomArtists)
+                    Text(context.symphony.t.suggestedArtists)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 SixGrid(randomArtists) { artist ->
@@ -257,7 +257,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
         else -> IconTextBody(

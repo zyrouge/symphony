@@ -73,8 +73,8 @@ class English : Translations {
     override val primaryColor = "Primary Color"
     override val playAll = "Play all"
     override val forYou = "For you"
-    override val randomAlbums = "Random albums"
-    override val randomArtists = "Random artists"
+    override val suggestedAlbums = "Suggested albums"
+    override val suggestedArtists = "Suggested artists"
     override val recentlyAddedSongs = "Recently added songs"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
