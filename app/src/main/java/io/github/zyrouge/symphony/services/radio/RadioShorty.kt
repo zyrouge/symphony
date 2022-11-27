@@ -13,20 +13,32 @@ class RadioShorty(private val symphony: Symphony) {
         }
     }
 
-    fun previous() {
-        if (!symphony.radio.hasPlayer) return
-        if (symphony.radio.currentPlaybackPosition!!.played <= 3000 && symphony.radio.canJumpToPrevious()) {
-            symphony.radio.jumpToPrevious()
-        } else {
-            symphony.radio.seek(0)
+    fun previous(): Boolean {
+        return when {
+            !symphony.radio.hasPlayer -> false
+            symphony.radio.currentPlaybackPosition!!.played <= 3000 && symphony.radio.canJumpToPrevious() -> {
+                symphony.radio.jumpToPrevious()
+                true
+            }
+            else -> {
+                symphony.radio.seek(0)
+                false
+            }
         }
     }
 
-    fun skip() {
-        if (!symphony.radio.hasPlayer) return
-        when {
-            symphony.radio.canJumpToNext() -> symphony.radio.jumpToNext()
-            else -> symphony.radio.play(Radio.PlayOptions(index = 0, autostart = false))
+    fun skip(): Boolean {
+        if (!symphony.radio.hasPlayer) return false
+        return when {
+            !symphony.radio.hasPlayer -> false
+            symphony.radio.canJumpToNext() -> {
+                symphony.radio.jumpToNext()
+                true
+            }
+            else -> {
+                symphony.radio.play(Radio.PlayOptions(index = 0, autostart = false))
+                false
+            }
         }
     }
 
