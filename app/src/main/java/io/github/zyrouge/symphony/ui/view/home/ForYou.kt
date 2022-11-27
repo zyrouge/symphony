@@ -1,7 +1,10 @@
 package io.github.zyrouge.symphony.ui.view.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,22 +19,42 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.groove.SongRepository
+import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 import io.github.zyrouge.symphony.utils.randomSubList
+import io.github.zyrouge.symphony.utils.subListNonStrict
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouView(context: ViewContext, data: HomeViewData) {
     when {
         data.songs.isNotEmpty() && data.albums.isNotEmpty() -> {
+            val allSongs by remember {
+                derivedStateOf {
+                    SongRepository.sort(
+                        data.songs,
+                        context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE,
+                        reversed = context.symphony.settings.getLastUsedSongsSortReverse(),
+                    )
+                }
+            }
+            val recentlyAddedSongs by remember {
+                derivedStateOf {
+                    SongRepository.sort(data.songs, SongSortBy.DATE_ADDED, reversed = true)
+                }
+            }
             val randomAlbums by remember {
                 derivedStateOf { data.albums.randomSubList(6) }
             }
@@ -50,7 +73,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                                 Text(context.symphony.t.playAll)
                             },
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(data.songs)
+                                context.symphony.radio.shorty.playQueue(allSongs)
                             },
                         )
                     }
@@ -68,6 +91,116 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                                 )
                             }
                         )
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                SideHeading {
+                    Text(context.symphony.t.recentlyAddedSongs)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                BoxWithConstraints {
+                    val tileWidth = maxWidth.times(0.7f)
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        recentlyAddedSongs.subListNonStrict(5).forEachIndexed { i, song ->
+                            val tileHeight = 96.dp
+                            val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .width(tileWidth)
+                                    .height(tileHeight),
+                                onClick = {
+                                    context.symphony.radio.shorty.playQueue(
+                                        recentlyAddedSongs,
+                                        options = Radio.PlayOptions(index = i),
+                                    )
+                                }
+                            ) {
+                                Box {
+                                    AsyncImage(
+                                        createHandyAsyncImageRequest(
+                                            LocalContext.current,
+                                            song.getArtworkUri(context.symphony),
+                                        ),
+                                        null,
+                                        contentScale = ContentScale.FillWidth,
+                                        modifier = Modifier.matchParentSize(),
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .background(
+                                                Brush.horizontalGradient(
+                                                    colors = listOf(
+                                                        backgroundColor.copy(alpha = 0.3f),
+                                                        backgroundColor.copy(alpha = 0.8f),
+                                                        backgroundColor,
+                                                    ),
+                                                )
+                                            )
+                                    )
+                                    Row(modifier = Modifier.padding(8.dp)) {
+                                        Box {
+                                            AsyncImage(
+                                                createHandyAsyncImageRequest(
+                                                    LocalContext.current,
+                                                    song.getArtworkUri(context.symphony),
+                                                ),
+                                                null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                    .aspectRatio(1f)
+                                                    .fillMaxHeight()
+                                                    .clip(RoundedCornerShape(4.dp)),
+                                            )
+                                            Box(
+                                                modifier = Modifier.matchParentSize(),
+                                                contentAlignment = Alignment.Center,
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .background(
+                                                            backgroundColor.copy(alpha = 0.25f),
+                                                            CircleShape,
+                                                        )
+                                                        .padding(1.dp)
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.PlayArrow,
+                                                        null,
+                                                        modifier = Modifier.size(20.dp),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
+                                        ) {
+                                            Text(
+                                                song.title,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                            song.artistName?.let {
+                                                Text(
+                                                    it,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    maxLines = 2,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))

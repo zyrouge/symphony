@@ -75,6 +75,7 @@ class English : Translations {
     override val forYou = "For you"
     override val randomAlbums = "Random albums"
     override val randomArtists = "Random artists"
+    override val recentlyAddedSongs = "Recently added songs"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

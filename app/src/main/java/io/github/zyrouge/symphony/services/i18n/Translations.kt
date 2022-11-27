@@ -75,6 +75,7 @@ interface Translations {
     val forYou: String
     val randomAlbums: String
     val randomArtists: String
+    val recentlyAddedSongs: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
