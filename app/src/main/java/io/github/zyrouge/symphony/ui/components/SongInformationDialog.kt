@@ -76,7 +76,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     song.bitrate?.let {
                         KeyValueTextComponent(
                             context.symphony.t.bitrate,
-                            context.symphony.t.XKbps((it / 1000).toString())
+                            context.symphony.t.XKbps(it / 1000)
                         )
                     }
                     KeyValueTextComponent(
