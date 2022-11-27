@@ -76,10 +76,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 }
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
-            options.startPosition?.let { seek(it) }
-            if (options.autostart) {
-                start()
-                onUpdate.dispatch(RadioEvents.StartPlaying)
+            player!!.prepare {
+                options.startPosition?.let { seek(it) }
+                if (options.autostart) {
+                    start(0)
+                    onUpdate.dispatch(RadioEvents.StartPlaying)
+                }
             }
         } catch (err: Exception) {
             Logger.warn("Skipping song at ${queue.currentPlayingSong} (${queue.currentSongIndex}) due to $err")
@@ -87,8 +89,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    fun resume() = start()
-    private fun start() {
+    fun resume() = start(1)
+    private fun start(source: Int) {
         player?.let {
             val hasFocus = requestFocus()
             if (hasFocus || !symphony.settings.getRequireAudioFocus()) {
@@ -97,7 +99,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 }
                 it.setVolume(RadioPlayer.MAX_VOLUME) {}
                 it.start()
-                onUpdate.dispatch(RadioEvents.ResumePlaying)
+                onUpdate.dispatch(
+                    when (source) {
+                        0 -> RadioEvents.StartPlaying
+                        else -> RadioEvents.ResumePlaying
+                    }
+                )
             }
         }
     }

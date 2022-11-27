@@ -17,6 +17,7 @@ data class PlaybackPosition(
     }
 }
 
+typealias RadioPlayerOnPreparedListener = () -> Unit
 typealias RadioPlayerOnPlaybackPositionUpdateListener = (PlaybackPosition) -> Unit
 typealias RadioPlayerOnFinishListener = () -> Unit
 
@@ -26,6 +27,7 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     private val mediaPlayer: MediaPlayer?
         get() = if (usable) unsafeMediaPlayer else null
 
+    private var onPrepared: RadioPlayerOnPreparedListener? = null
     private var onPlaybackPositionUpdate: RadioPlayerOnPlaybackPositionUpdateListener? = null
     private var onFinish: RadioPlayerOnFinishListener? = null
     private var playbackPositionUpdater: Timer? = null
@@ -51,7 +53,12 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         get() = mediaPlayer?.isPlaying ?: false
 
     init {
-        unsafeMediaPlayer = MediaPlayer.create(symphony.applicationContext, uri).apply {
+        unsafeMediaPlayer = MediaPlayer().apply {
+            setOnPreparedListener {
+                usable = true
+                createDurationTimer()
+                onPrepared?.invoke()
+            }
             setOnCompletionListener {
                 usable = false
                 onFinish?.invoke()
@@ -59,9 +66,13 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
             setOnErrorListener { _, _, _ ->
                 true
             }
+            setDataSource(symphony.applicationContext, uri)
         }
-        createDurationTimer()
-        usable = true
+    }
+
+    fun prepare(listener: RadioPlayerOnPreparedListener) {
+        onPrepared = listener
+        unsafeMediaPlayer.prepareAsync()
     }
 
     fun stop() {
