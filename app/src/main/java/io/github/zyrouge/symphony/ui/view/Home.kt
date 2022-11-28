@@ -68,7 +68,7 @@ enum class HomePages(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     val pageState = rememberPagerState(
         context.symphony.settings.getHomeLastTab()
             ?.let { value -> HomePages.values().find { it.name == value } }
@@ -76,7 +76,7 @@ fun HomeView(context: ViewContext) {
     )
     var currentPage by remember { mutableStateOf(HomePages.valueAt(pageState.currentPage)) }
     var showOptionsDropdown by remember { mutableStateOf(false) }
-    val data = remember { HomeViewData(context.symphony) }
+    val data = remember { HomeViewData(context.symphony, scope) }
 
     DisposableEffect(LocalContext.current) {
         onDispose { data.dispose() }
@@ -183,7 +183,7 @@ fun HomeView(context: ViewContext) {
                             label = { Text(label) },
                             onClick = {
                                 currentPage = page
-                                coroutineScope.launch {
+                                scope.launch {
                                     pageState.animateScrollToPage(page.ordinal)
                                 }
                                 context.symphony.settings.setHomeLastTab(currentPage.name)

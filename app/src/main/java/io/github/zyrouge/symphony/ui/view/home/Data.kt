@@ -7,8 +7,10 @@ import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.EventUnsubscribeFn
 import io.github.zyrouge.symphony.utils.swap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class HomeViewData(val symphony: Symphony) {
+class HomeViewData(val symphony: Symphony, val scope: CoroutineScope) {
     val songs = mutableStateListOf<Song>().apply { swap(symphony.groove.song.getAll()) }
     val artists = mutableStateListOf<Artist>().apply { swap(symphony.groove.artist.getAll()) }
     val albums = mutableStateListOf<Album>().apply { swap(symphony.groove.album.getAll()) }
@@ -19,13 +21,13 @@ class HomeViewData(val symphony: Symphony) {
 
     init {
         songsSubscriber = symphony.groove.song.onUpdate.subscribe {
-            songs.swap(symphony.groove.song.getAll())
+            scope.launch { songs.swap(symphony.groove.song.getAll()) }
         }
         artistsSubscriber = symphony.groove.song.onUpdate.subscribe {
-            artists.swap(symphony.groove.artist.getAll())
+            scope.launch { artists.swap(symphony.groove.artist.getAll()) }
         }
         albumsSubscriber = symphony.groove.song.onUpdate.subscribe {
-            albums.swap(symphony.groove.album.getAll())
+            scope.launch { albums.swap(symphony.groove.album.getAll()) }
         }
     }
 

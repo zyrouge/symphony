@@ -10,8 +10,6 @@ import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 enum class AlbumSortBy {
     ALBUM_NAME,
@@ -20,7 +18,7 @@ enum class AlbumSortBy {
 
 class AlbumRepository(private val symphony: Symphony) {
     private val cached = mutableMapOf<Long, Album>()
-    val onUpdate = Eventer<Int>()
+    val onUpdate = Eventer<Nothing?>()
 
     private val searcher = FuzzySearcher<Album>(
         options = listOf(
@@ -30,14 +28,12 @@ class AlbumRepository(private val symphony: Symphony) {
     )
 
     fun fetch() {
-        runBlocking {
-            withContext(Dispatchers.Default) {
-                fetchSync()
-            }
+        symphony.launchInScope(Dispatchers.Default) {
+            fetchSync()
         }
     }
 
-    private fun fetchSync(): Int {
+    private fun fetchSync() {
         cached.clear()
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
@@ -51,10 +47,8 @@ class AlbumRepository(private val symphony: Symphony) {
                 val album = Album.fromCursor(it)
                 cached[album.albumId] = album
             }
+            onUpdate.dispatch(null)
         }
-        val total = cached.size
-        onUpdate.dispatch(total)
-        return total
     }
 
     fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)

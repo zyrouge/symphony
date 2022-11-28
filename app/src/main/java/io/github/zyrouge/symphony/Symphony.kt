@@ -13,9 +13,9 @@ import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.services.i18n.Translator
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.utils.AndroidXShorty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 interface SymphonyHooks {
     fun onSymphonyReady() {}
@@ -52,6 +52,12 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     fun destroy() {
         notifyHooks { onSymphonyDestroy() }
     }
+
+    fun launchInScope(
+        context: CoroutineContext = EmptyCoroutineContext,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> Unit,
+    ) = viewModelScope.launch(context, start, block)
 
     override fun onSymphonyReady() {
         checkVersion()
