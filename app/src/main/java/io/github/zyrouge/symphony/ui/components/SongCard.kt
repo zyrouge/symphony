@@ -178,7 +178,7 @@ fun SongDropdownMenu(
                 }
             )
         }
-        song.albumArtist?.let { albumArtist ->
+        song.additional.albumArtist?.let { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Default.Person, null)

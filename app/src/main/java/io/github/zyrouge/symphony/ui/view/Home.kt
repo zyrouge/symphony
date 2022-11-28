@@ -76,7 +76,7 @@ fun HomeView(context: ViewContext) {
     )
     var currentPage by remember { mutableStateOf(HomePages.valueAt(pageState.currentPage)) }
     var showOptionsDropdown by remember { mutableStateOf(false) }
-    val data = remember { HomeViewData(context.symphony, scope) }
+    val data = remember { HomeViewData(context.symphony) }
 
     DisposableEffect(LocalContext.current) {
         onDispose { data.dispose() }

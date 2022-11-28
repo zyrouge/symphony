@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.database.Cursor
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AudioColumns
@@ -24,27 +25,27 @@ data class Song(
     val artistId: Long,
     val artistName: String?,
     val composer: String?,
-    val albumArtist: String?,
+    val additional: SongAdditionalMetadata,
     val dateAdded: Long,
     val dateModified: Long,
     val size: Long,
     val path: String,
-    val genre: String?,
-    val bitrate: Int?,
 ) {
     val filename = Path(path).fileName.toString()
-
-    val uri: Uri
-        get() = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
+    val uri: Uri get() = buildUri(id)
 
     fun getArtworkUri(symphony: Symphony) = symphony.groove.album.getAlbumArtworkUri(albumId)
 
     companion object {
-        fun fromCursor(cursor: Cursor): Song {
+        fun buildUri(id: Long) =
+            Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
+
+        fun fromCursor(symphony: Symphony, cursor: Cursor): Song {
+            val id = cursor.getColumnValue(AudioColumns._ID) {
+                cursor.getLong(it)
+            }
             return Song(
-                id = cursor.getColumnValue(AudioColumns._ID) {
-                    cursor.getLong(it)
-                },
+                id = id,
                 title = cursor.getColumnValue(AudioColumns.TITLE) {
                     cursor.getString(it)
                 },
@@ -72,9 +73,7 @@ data class Song(
                 composer = cursor.getColumnValueNullable(AudioColumns.COMPOSER) {
                     cursor.getStringOrNull(it)
                 },
-                albumArtist = cursor.getColumnValueNullable(AudioColumns.ALBUM_ARTIST) {
-                    cursor.getStringOrNull(it)
-                },
+                additional = SongAdditionalMetadata.fetch(symphony, id),
                 dateAdded = cursor.getColumnValue(AudioColumns.DATE_ADDED) {
                     cursor.getLong(it)
                 },
@@ -87,13 +86,30 @@ data class Song(
                 path = cursor.getColumnValue(AudioColumns.DATA) {
                     cursor.getString(it)
                 },
-                genre = cursor.getColumnValueNullable(AudioColumns.GENRE) {
-                    cursor.getString(it)
-                },
-                bitrate = cursor.getColumnValueNullable(AudioColumns.BITRATE) {
-                    cursor.getInt(it)
-                },
             )
+        }
+    }
+}
+
+@Immutable
+data class SongAdditionalMetadata(
+    val albumArtist: String?,
+    val genre: String?,
+    val bitrate: Int?,
+) {
+    companion object {
+        fun fetch(symphony: Symphony, id: Long): SongAdditionalMetadata {
+            val retriever = MediaMetadataRetriever().apply {
+                setDataSource(symphony.applicationContext, Song.buildUri(id))
+            }
+            return retriever.use {
+                SongAdditionalMetadata(
+                    albumArtist = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST),
+                    bitrate = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                        ?.toInt(),
+                    genre = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE),
+                )
+            }
         }
     }
 }

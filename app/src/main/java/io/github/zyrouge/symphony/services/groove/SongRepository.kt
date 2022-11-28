@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.SettingsKeys
@@ -25,6 +24,7 @@ enum class SongSortBy {
 
 class SongRepository(private val symphony: Symphony) {
     private val cached = mutableMapOf<Long, Song>()
+    var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
     private val searcher = FuzzySearcher<Song>(
@@ -51,6 +51,8 @@ class SongRepository(private val symphony: Symphony) {
     }
 
     private fun fetchSync() {
+        if (isUpdating) return
+        isUpdating = true
         cached.clear()
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -62,25 +64,23 @@ class SongRepository(private val symphony: Symphony) {
         cursor?.use {
             val regex = symphony.settings.getSongsFilterPattern()
                 ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
-            // NOTE: emits `onUpdate` slowly
-            val timer = kotlin.concurrent.timer(period = 200L) {
-                onUpdate.dispatch(null)
-            }
+            var i = 0
             while (it.moveToNext()) {
-                val song = Song.fromCursor(it)
+                val song = Song.fromCursor(symphony, it)
                 if (regex?.containsMatchIn(song.path) != false) {
-                    MediaMetadataRetriever().run {
-                        setDataSource(symphony.applicationContext, song.uri)
-                        use {
-                            extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
-                        }
-                    }
                     cached[song.id] = song
+                    i = when {
+                        i > 30 -> {
+                            onUpdate.dispatch(null)
+                            0
+                        }
+                        else -> i + 1
+                    }
                 }
             }
-            timer.cancel()
-            onUpdate.dispatch(null)
         }
+        isUpdating = false
+        onUpdate.dispatch(null)
     }
 
     fun getAll() = cached.values.toList()
@@ -107,7 +107,7 @@ class SongRepository(private val symphony: Symphony) {
                 SongSortBy.DATE_ADDED -> songs.sortedBy { it.dateAdded }
                 SongSortBy.DATE_MODIFIED -> songs.sortedBy { it.dateModified }
                 SongSortBy.COMPOSER -> songs.sortedBy { it.composer }
-                SongSortBy.ALBUM_ARTIST -> songs.sortedBy { it.albumArtist }
+                SongSortBy.ALBUM_ARTIST -> songs.sortedBy { it.additional.albumArtist }
                 SongSortBy.YEAR -> songs.sortedBy { it.year }
                 SongSortBy.FILENAME -> songs.sortedBy { it.filename }
             }

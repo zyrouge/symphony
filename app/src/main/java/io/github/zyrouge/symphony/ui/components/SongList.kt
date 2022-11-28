@@ -20,6 +20,7 @@ fun SongList(
     songs: List<Song>,
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
+    isLoading: Boolean = false,
 ) {
     var sortBy by remember {
         mutableStateOf(
@@ -56,6 +57,7 @@ fun SongList(
                 label = {
                     Text(context.symphony.t.XSongs(songs.size))
                 },
+                isLoading = isLoading,
                 onShufflePlay = {
                     context.symphony.radio.shorty.playQueue(sortedSongs, shuffle = true)
                 }
