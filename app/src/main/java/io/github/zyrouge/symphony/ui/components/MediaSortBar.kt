@@ -68,6 +68,11 @@ fun <T : Enum<T>> MediaSortBar(
                     onDismissRequest = { showDropdown = false }
                 ) {
                     sorts.map {
+                        val onClick = {
+                            showDropdown = false
+                            onSortChange(it.key)
+                        }
+
                         DropdownMenuItem(
                             contentPadding = MenuDefaults.DropdownMenuItemContentPadding.run {
                                 val horizontalPadding =
@@ -80,18 +85,13 @@ fun <T : Enum<T>> MediaSortBar(
                             leadingIcon = {
                                 RadioButton(
                                     selected = it.key == sort,
-                                    onClick = {
-                                        it.value(context)
-                                    }
+                                    onClick = onClick,
                                 )
                             },
                             text = {
                                 Text(it.value(context))
                             },
-                            onClick = {
-                                showDropdown = false
-                                onSortChange(it.key)
-                            }
+                            onClick = onClick,
                         )
                     }
                 }

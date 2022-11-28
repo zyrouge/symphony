@@ -7,15 +7,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
-import kotlinx.coroutines.launch
 
 @Composable
 fun SongList(
@@ -24,7 +21,6 @@ fun SongList(
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
 ) {
-    val scope = rememberCoroutineScope()
     var sortBy by remember {
         mutableStateOf(
             context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE
@@ -33,20 +29,8 @@ fun SongList(
     var sortReverse by remember {
         mutableStateOf(context.symphony.settings.getLastUsedSongsSortReverse())
     }
-    val sortedSongs = remember {
-        mutableStateListOf<Song>().apply {
-            swap(SongRepository.sort(songs, sortBy, sortReverse))
-        }
-    }
-
-    fun sortSongsAgain() {
-        sortedSongs.swap(SongRepository.sort(songs, sortBy, sortReverse))
-    }
-
-    LaunchedEffect(LocalContext.current) {
-        scope.launch {
-            snapshotFlow { songs.toList() }.collect { sortSongsAgain() }
-        }
+    val sortedSongs by remember {
+        derivedStateOf { SongRepository.sort(songs, sortBy, sortReverse) }
     }
 
     val lazyListState = rememberLazyListState()
@@ -61,14 +45,12 @@ fun SongList(
                 reverse = sortReverse,
                 onReverseChange = {
                     sortReverse = it
-                    sortSongsAgain()
                     context.symphony.settings.setLastUsedSongsSortReverse(it)
                 },
                 sort = sortBy,
                 sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
                 onSortChange = {
                     sortBy = it
-                    sortSongsAgain()
                     context.symphony.settings.setLastUsedSongsSortBy(it)
                 },
                 label = {
