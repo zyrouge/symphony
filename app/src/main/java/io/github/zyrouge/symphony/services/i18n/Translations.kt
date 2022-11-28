@@ -76,6 +76,7 @@ interface Translations {
     val suggestedAlbums: String
     val suggestedArtists: String
     val recentlyAddedSongs: String
+    val sponsorViaGitHub: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

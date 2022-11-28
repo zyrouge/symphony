@@ -302,6 +302,16 @@ fun SettingsView(context: ViewContext) {
                         },
                         url = AppMeta.githubRepositoryUrl
                     )
+                    LinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Redeem, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.sponsorViaGitHub)
+                        },
+                        url = AppMeta.githubSponsorsUrl
+                    )
                     SwitchTile(
                         icon = {
                             Icon(Icons.Default.Update, null)

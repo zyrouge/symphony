@@ -76,6 +76,7 @@ class English : Translations {
     override val suggestedAlbums = "Suggested albums"
     override val suggestedArtists = "Suggested artists"
     override val recentlyAddedSongs = "Recently added songs"
+    override val sponsorViaGitHub = "Sponsor via GitHub"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

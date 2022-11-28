@@ -15,6 +15,7 @@ object AppMeta {
     const val githubProfileUrl = "https://github.com/$githubRepositoryOwner"
     const val githubRepositoryUrl =
         "https://github.com/$githubRepositoryOwner/$githubRepositoryName"
+    const val githubSponsorsUrl = "https://github.com/sponsors/$githubRepositoryOwner"
 
     const val version = "v${BuildConfig.VERSION_NAME}"
     var latestVersion: String? = null
