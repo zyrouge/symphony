@@ -20,7 +20,7 @@ object ThemeColorSchemes {
     private const val BackgroundBlendRatio = 0.03f
     private const val SurfaceBlendRatio = 0.02f
     private const val SurfaceVariantBlendRatio = 0.01f
-    private const val DarkOnPrimaryLightness = -0.3f
+    private const val DarkOnPrimaryLightness = -0.35f
     private const val DarkOnSecondaryLightness = -0.4f
     private const val DarkOnTertiaryLightness = -0.5f
     private const val LightOnBackgroundLightness = -0.5f
