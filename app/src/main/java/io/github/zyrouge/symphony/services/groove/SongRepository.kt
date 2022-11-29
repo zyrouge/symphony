@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.services.groove
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.SettingsKeys
+import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
@@ -64,11 +65,18 @@ class SongRepository(private val symphony: Symphony) {
         cursor?.use {
             val regex = symphony.settings.getSongsFilterPattern()
                 ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
+            val additionalMetadataCache = kotlin
+                .runCatching { symphony.database.songCache.read() }
+                .getOrNull()
+            val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
             var i = 0
             while (it.moveToNext()) {
-                val song = Song.fromCursor(symphony, it)
+                val song = Song.fromCursor(symphony, it) { id ->
+                    additionalMetadataCache?.get(id)
+                }
                 if (regex?.containsMatchIn(song.path) != false) {
                     cached[song.id] = song
+                    nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
                     i = when {
                         i > 30 -> {
                             onUpdate.dispatch(null)
@@ -78,6 +86,7 @@ class SongRepository(private val symphony: Symphony) {
                     }
                 }
             }
+            symphony.database.songCache.update(nAdditionalMetadata)
         }
         isUpdating = false
         onUpdate.dispatch(null)

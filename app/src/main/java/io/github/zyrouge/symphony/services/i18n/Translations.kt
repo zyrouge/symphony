@@ -77,6 +77,9 @@ interface Translations {
     val suggestedArtists: String
     val recentlyAddedSongs: String
     val sponsorViaGitHub: String
+    val clearSongCache: String
+    val restartAppForChangesToTakeEffect: String
+    val songCacheCleared: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

@@ -23,17 +23,21 @@ import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.SettingsDataDefaults
 import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
+import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.RangeUtils
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsView(context: ViewContext) {
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     var settings by remember { mutableStateOf(context.symphony.settings.getSettings()) }
 
     EventerEffect(context.symphony.settings.onChange) {
@@ -42,6 +46,11 @@ fun SettingsView(context: ViewContext) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) {
+                AdaptiveSnackbar(it)
+            }
+        },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -253,6 +262,25 @@ fun SettingsView(context: ViewContext) {
                                     else -> value
                                 }
                             )
+                        }
+                    )
+                    SimpleTile(
+                        icon = {
+                            Icon(Icons.Default.Storage, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.clearSongCache)
+                        },
+                        onClick = {
+                            scope.launch {
+                                context.symphony.database.songCache.update(mapOf())
+                                context.symphony.t.run {
+                                    snackbarHostState.showSnackbar(
+                                        "$songCacheCleared ($restartAppForChangesToTakeEffect)",
+                                        withDismissAction = true,
+                                    )
+                                }
+                            }
                         }
                     )
                     Divider()

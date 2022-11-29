@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.PermissionsManager
 import io.github.zyrouge.symphony.services.SettingsManager
+import io.github.zyrouge.symphony.services.database.Database
 import io.github.zyrouge.symphony.services.groove.GrooveManager
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.services.i18n.Translator
@@ -27,6 +28,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     val shorty = AndroidXShorty(this)
     val permission = PermissionsManager(this)
     val settings = SettingsManager(this)
+    val database = Database(this)
     val groove = GrooveManager(this)
     val radio = Radio(this)
 

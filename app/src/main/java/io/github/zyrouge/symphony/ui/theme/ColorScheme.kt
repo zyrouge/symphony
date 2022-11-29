@@ -88,9 +88,9 @@ object ThemeColorSchemes {
         onTertiaryContainer = LightContrastColor,
         background = BlackContrastColor,
         onBackground = LightContrastColor,
-        surface = blendColors(DarkBackgroundColor, PrimaryColor, SurfaceBlendRatio),
+        surface = blendColors(BlackContrastColor, PrimaryColor, SurfaceBlendRatio),
         onSurface = LightContrastColor,
-        surfaceVariant = blendColors(DarkBackgroundColor, PrimaryColor, SurfaceVariantBlendRatio),
+        surfaceVariant = blendColors(BlackContrastColor, PrimaryColor, SurfaceVariantBlendRatio),
         onSurfaceVariant = LightContrastColor,
     )
 

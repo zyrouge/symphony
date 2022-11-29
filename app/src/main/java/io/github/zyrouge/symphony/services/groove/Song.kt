@@ -9,6 +9,7 @@ import androidx.compose.runtime.Immutable
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.getColumnValue
 import io.github.zyrouge.symphony.utils.getColumnValueNullable
 import kotlin.io.path.Path
@@ -25,12 +26,41 @@ data class Song(
     val artistId: Long,
     val artistName: String?,
     val composer: String?,
-    val additional: SongAdditionalMetadata,
+    val additional: AdditionalMetadata,
     val dateAdded: Long,
     val dateModified: Long,
     val size: Long,
     val path: String,
 ) {
+    @Immutable
+    data class AdditionalMetadata(
+        val albumArtist: String?,
+        val genre: String?,
+        val bitrate: Int?,
+    ) {
+        companion object {
+            fun fromSongCacheAttributes(attributes: SongCache.Attributes) = AdditionalMetadata(
+                albumArtist = attributes.albumArtist,
+                bitrate = attributes.bitrate?.toInt(),
+                genre = attributes.genre,
+            )
+
+            fun fetch(symphony: Symphony, id: Long): AdditionalMetadata {
+                val retriever = MediaMetadataRetriever().apply {
+                    setDataSource(symphony.applicationContext, buildUri(id))
+                }
+                return retriever.use {
+                    AdditionalMetadata(
+                        albumArtist = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST),
+                        bitrate = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                            ?.toInt(),
+                        genre = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE),
+                    )
+                }
+            }
+        }
+    }
+
     val filename = Path(path).fileName.toString()
     val uri: Uri get() = buildUri(id)
 
@@ -40,8 +70,15 @@ data class Song(
         fun buildUri(id: Long) =
             Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
 
-        fun fromCursor(symphony: Symphony, cursor: Cursor): Song {
+        fun fromCursor(
+            symphony: Symphony,
+            cursor: Cursor,
+            fetchCachedAttributes: (Long) -> SongCache.Attributes?,
+        ): Song {
             val id = cursor.getColumnValue(AudioColumns._ID) {
+                cursor.getLong(it)
+            }
+            val dateModified = cursor.getColumnValue(AudioColumns.DATE_MODIFIED) {
                 cursor.getLong(it)
             }
             return Song(
@@ -73,43 +110,21 @@ data class Song(
                 composer = cursor.getColumnValueNullable(AudioColumns.COMPOSER) {
                     cursor.getStringOrNull(it)
                 },
-                additional = SongAdditionalMetadata.fetch(symphony, id),
                 dateAdded = cursor.getColumnValue(AudioColumns.DATE_ADDED) {
                     cursor.getLong(it)
                 },
-                dateModified = cursor.getColumnValue(AudioColumns.DATE_MODIFIED) {
-                    cursor.getLong(it)
-                },
+                dateModified = dateModified,
                 size = cursor.getColumnValue(AudioColumns.SIZE) {
                     cursor.getLong(it)
                 },
                 path = cursor.getColumnValue(AudioColumns.DATA) {
                     cursor.getString(it)
                 },
+                additional = fetchCachedAttributes(id)
+                    ?.takeIf { it.lastModified == dateModified }
+                    ?.let { AdditionalMetadata.fromSongCacheAttributes(it) }
+                    ?: AdditionalMetadata.fetch(symphony, id),
             )
-        }
-    }
-}
-
-@Immutable
-data class SongAdditionalMetadata(
-    val albumArtist: String?,
-    val genre: String?,
-    val bitrate: Int?,
-) {
-    companion object {
-        fun fetch(symphony: Symphony, id: Long): SongAdditionalMetadata {
-            val retriever = MediaMetadataRetriever().apply {
-                setDataSource(symphony.applicationContext, Song.buildUri(id))
-            }
-            return retriever.use {
-                SongAdditionalMetadata(
-                    albumArtist = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST),
-                    bitrate = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
-                        ?.toInt(),
-                    genre = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE),
-                )
-            }
         }
     }
 }
