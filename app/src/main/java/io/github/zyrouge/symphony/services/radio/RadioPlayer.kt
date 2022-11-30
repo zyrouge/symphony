@@ -10,7 +10,7 @@ data class PlaybackPosition(
     val total: Int,
 ) {
     val ratio: Float
-        get() = played.toFloat() / total.toFloat()
+        get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
 
     companion object {
         val zero = PlaybackPosition(0, 0)
