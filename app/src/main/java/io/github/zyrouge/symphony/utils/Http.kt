@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.helpers
+package io.github.zyrouge.symphony.utils
 
 import okhttp3.OkHttpClient
 

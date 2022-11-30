@@ -67,7 +67,7 @@ data class Song(
     fun getArtworkUri(symphony: Symphony) = symphony.groove.album.getAlbumArtworkUri(albumId)
 
     companion object {
-        fun buildUri(id: Long) =
+        fun buildUri(id: Long): Uri =
             Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
 
         fun fromCursor(
