@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.services.radio
 
-import android.util.Log
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -28,14 +27,6 @@ object RadioEffects {
         fun start() {
             val increments =
                 (options.to - options.from) * (options.interval.toFloat() / options.duration)
-            Log.i(
-                "SymLog",
-                "increments: $increments [(${options.to} - ${options.from}) * (${options.interval} / ${options.duration})]"
-            )
-            Log.i(
-                "SymLog",
-                "[(${options.to - options.from}) * (${options.interval / options.duration})]"
-            )
             var volume = options.from
             val isReverse = options.to < options.from
             timer = kotlin.concurrent.timer(period = options.interval.toLong()) {

@@ -14,11 +14,17 @@ class RadioNotificationManager(val symphony: Symphony) {
     private var manager = NotificationManagerCompat.from(symphony.applicationContext)
     private var lastNotification: Notification? = null
 
-    private var isCreatingService: Boolean = false
+    enum class State {
+        PREPARING,
+        READY,
+        DESTROYED,
+    }
+
+    private var state = State.DESTROYED
     private val service: RadioNotificationService?
         get() = RadioNotificationService.instance
     private val hasService: Boolean
-        get() = service != null
+        get() = state == State.READY && service != null
 
     fun prepare() {
         manager.createNotificationChannel(
@@ -41,8 +47,13 @@ class RadioNotificationManager(val symphony: Symphony) {
         }
     }
 
+    fun cancel() {
+        destroy()
+        RadioNotificationService.destroy()
+    }
+
     fun notify(notification: Notification) {
-        if (!hasService) {
+        if (state != State.READY) {
             createService()
             lastNotification = notification
             return
@@ -50,22 +61,22 @@ class RadioNotificationManager(val symphony: Symphony) {
         manager.notify(RadioNotification.NOTIFICATION_ID, notification)
     }
 
-    fun cancel() {
+    private fun destroy() {
+        if (state == State.DESTROYED) return
+        state = State.DESTROYED
         lastNotification = null
-        isCreatingService = false
         manager.cancel(RadioNotification.CHANNEL_ID, RadioNotification.NOTIFICATION_ID)
-        RadioNotificationService.destroy()
     }
 
     private fun createService() {
-        if (hasService || isCreatingService) return
+        if (state == State.READY || state == State.PREPARING) return
         val intent = Intent(symphony.applicationContext, RadioNotificationService::class.java)
         symphony.applicationContext.startForegroundService(intent)
-        isCreatingService = true
+        state = State.PREPARING
     }
 
     private fun onServiceStart() {
-        isCreatingService = false
+        state = State.READY
         lastNotification?.let { notification ->
             lastNotification = null
             service!!.startForeground(RadioNotification.NOTIFICATION_ID, notification)
@@ -73,7 +84,7 @@ class RadioNotificationManager(val symphony: Symphony) {
     }
 
     private fun onServiceStop() {
-        cancel()
+        destroy()
     }
 }
 

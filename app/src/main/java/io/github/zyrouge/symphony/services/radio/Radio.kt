@@ -222,7 +222,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     if (i < currentSongIndex) currentSongIndex--
                 }
             }
-            if (originalQueue.isEmpty()) return
+            if (originalQueue.isEmpty()) return@let
             if (currentSongIndex >= originalQueue.size) {
                 currentSongIndex = 0
                 playedDuration = 0
