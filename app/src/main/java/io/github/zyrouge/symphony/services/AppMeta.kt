@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.services
 
 import io.github.zyrouge.symphony.BuildConfig
-import io.github.zyrouge.symphony.ui.helpers.HttpClient
+import io.github.zyrouge.symphony.utils.HttpClient
 import io.github.zyrouge.symphony.utils.Logger
 import okhttp3.CacheControl
 import okhttp3.Request
