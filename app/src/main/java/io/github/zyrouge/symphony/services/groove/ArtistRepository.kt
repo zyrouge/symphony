@@ -3,10 +3,7 @@ package io.github.zyrouge.symphony.services.groove
 import android.net.Uri
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
 
 enum class ArtistSortBy {
@@ -40,13 +37,25 @@ class ArtistRepository(private val symphony: Symphony) {
             null,
             MediaStore.Audio.Artists.ARTIST + " ASC"
         )
-        cursor?.use {
-            while (it.moveToNext()) {
-                val artist = Artist.fromCursor(it)
-                cached[artist.artistName] = artist
+        try {
+            val updateDispatcher = GrooveRepositoryUpdateDispatcher {
+                onUpdate.dispatch(null)
             }
-            onUpdate.dispatch(null)
+            cursor?.use {
+                while (it.moveToNext()) {
+                    kotlin
+                        .runCatching { Artist.fromCursor(it) }
+                        .getOrNull()
+                        ?.let { artist ->
+                            cached[artist.artistName] = artist
+                            updateDispatcher.increment()
+                        }
+                }
+            }
+        } catch (err: Exception) {
+            Logger.error("ArtistRepository", "fetch failed: $err")
         }
+        onUpdate.dispatch(null)
     }
 
     fun getArtistArtworkUri(artistName: String): Uri {

@@ -5,10 +5,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
 
 enum class AlbumSortBy {
@@ -42,13 +39,25 @@ class AlbumRepository(private val symphony: Symphony) {
             null,
             MediaStore.Audio.Albums.ALBUM + " ASC"
         )
-        cursor?.use {
-            while (it.moveToNext()) {
-                val album = Album.fromCursor(it)
-                cached[album.albumId] = album
+        try {
+            val updateDispatcher = GrooveRepositoryUpdateDispatcher {
+                onUpdate.dispatch(null)
             }
-            onUpdate.dispatch(null)
+            cursor?.use {
+                while (it.moveToNext()) {
+                    kotlin
+                        .runCatching { Album.fromCursor(it) }
+                        .getOrNull()
+                        ?.let { album ->
+                            cached[album.albumId] = album
+                            updateDispatcher.increment()
+                        }
+                }
+            }
+        } catch (err: Exception) {
+            Logger.error("AlbumRepository", "fetch failed: $err")
         }
+        onUpdate.dispatch(null)
     }
 
     fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)

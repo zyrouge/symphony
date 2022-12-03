@@ -29,3 +29,23 @@ class GrooveManager(private val symphony: Symphony) {
         artist.fetch()
     }
 }
+
+class GrooveRepositoryUpdateDispatcher(
+    val maxCount: Int = 30,
+    val minTimeDiff: Int = 200,
+    val dispatch: () -> Unit,
+) {
+    var count = 0
+    var time = System.currentTimeMillis()
+
+    fun increment() {
+        when {
+            count > maxCount && (time - System.currentTimeMillis()) > minTimeDiff -> {
+                dispatch()
+                count = 0
+                time = System.currentTimeMillis()
+            }
+            else -> count++
+        }
+    }
+}

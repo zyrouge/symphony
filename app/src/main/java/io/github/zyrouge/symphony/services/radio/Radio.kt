@@ -84,7 +84,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 }
             }
         } catch (err: Exception) {
-            Logger.warn("Skipping song at ${queue.currentPlayingSong} (${queue.currentSongIndex}) due to $err")
+            Logger.warn(
+                "Radio",
+                "skipping song at ${queue.currentPlayingSong} (${queue.currentSongIndex}) due to $err"
+            )
             queue.remove(queue.currentSongIndex)
         }
     }

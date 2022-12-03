@@ -4,10 +4,7 @@ import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.database.SongCache
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
 
 enum class SongSortBy {
@@ -62,31 +59,36 @@ class SongRepository(private val symphony: Symphony) {
             null,
             MediaStore.Audio.Media.TITLE + " ASC"
         )
-        cursor?.use {
-            val regex = symphony.settings.getSongsFilterPattern()
-                ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
-            val additionalMetadataCache = kotlin
-                .runCatching { symphony.database.songCache.read() }
-                .getOrNull()
-            val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
-            var i = 0
-            while (it.moveToNext()) {
-                val song = Song.fromCursor(symphony, it) { id ->
-                    additionalMetadataCache?.get(id)
-                }
-                if (regex?.containsMatchIn(song.path) != false) {
-                    cached[song.id] = song
-                    nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
-                    i = when {
-                        i > 30 -> {
-                            onUpdate.dispatch(null)
-                            0
-                        }
-                        else -> i + 1
-                    }
-                }
+        try {
+            val updateDispatcher = GrooveRepositoryUpdateDispatcher {
+                onUpdate.dispatch(null)
             }
-            symphony.database.songCache.update(nAdditionalMetadata)
+            cursor?.use {
+                val regex = symphony.settings.getSongsFilterPattern()
+                    ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
+                val additionalMetadataCache = kotlin
+                    .runCatching { symphony.database.songCache.read() }
+                    .getOrNull()
+                val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
+                while (it.moveToNext()) {
+                    kotlin
+                        .runCatching {
+                            Song.fromCursor(symphony, it) { id ->
+                                additionalMetadataCache?.get(id)
+                            }
+                        }
+                        .getOrNull()
+                        ?.takeIf { song -> regex?.containsMatchIn(song.path) != false }
+                        ?.let { song ->
+                            cached[song.id] = song
+                            nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
+                            updateDispatcher.increment()
+                        }
+                }
+                symphony.database.songCache.update(nAdditionalMetadata)
+            }
+        } catch (err: Exception) {
+            Logger.error("SongRepository", "fetch failed: $err")
         }
         isUpdating = false
         onUpdate.dispatch(null)

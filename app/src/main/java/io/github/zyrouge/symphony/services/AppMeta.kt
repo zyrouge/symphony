@@ -42,7 +42,7 @@ object AppMeta {
                 return tagName
             }
         } catch (err: Exception) {
-            Logger.warn("Version check failed: $err")
+            Logger.warn("AppMeta", "version check failed: $err")
         }
         return null
     }
