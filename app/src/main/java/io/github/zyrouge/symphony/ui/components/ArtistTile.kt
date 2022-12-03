@@ -15,14 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,10 +38,7 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box {
                     AsyncImage(
-                        createHandyAsyncImageRequest(
-                            LocalContext.current,
-                            artist.getArtworkUri(context.symphony)
-                        ),
+                        artist.createArtworkImageRequest(context.symphony).build(),
                         null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

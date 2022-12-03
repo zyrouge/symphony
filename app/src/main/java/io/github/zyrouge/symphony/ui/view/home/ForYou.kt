@@ -22,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -32,7 +31,6 @@ import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 import io.github.zyrouge.symphony.utils.randomSubList
 import io.github.zyrouge.symphony.utils.subListNonStrict
 
@@ -121,10 +119,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                             ) {
                                 Box {
                                     AsyncImage(
-                                        createHandyAsyncImageRequest(
-                                            LocalContext.current,
-                                            song.getArtworkUri(context.symphony),
-                                        ),
+                                        song.createArtworkImageRequest(context.symphony).build(),
                                         null,
                                         contentScale = ContentScale.FillWidth,
                                         modifier = Modifier.matchParentSize(),
@@ -145,10 +140,8 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                                     Row(modifier = Modifier.padding(8.dp)) {
                                         Box {
                                             AsyncImage(
-                                                createHandyAsyncImageRequest(
-                                                    LocalContext.current,
-                                                    song.getArtworkUri(context.symphony),
-                                                ),
+                                                song.createArtworkImageRequest(context.symphony)
+                                                    .build(),
                                                 null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -217,10 +210,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         }
                     ) {
                         AsyncImage(
-                            createHandyAsyncImageRequest(
-                                LocalContext.current,
-                                album.getArtworkUri(context.symphony),
-                            ),
+                            album.createArtworkImageRequest(context.symphony).build(),
                             null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -244,10 +234,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         }
                     ) {
                         AsyncImage(
-                            createHandyAsyncImageRequest(
-                                LocalContext.current,
-                                artist.getArtworkUri(context.symphony),
-                            ),
+                            artist.createArtworkImageRequest(context.symphony).build(),
                             null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier

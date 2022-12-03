@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -30,7 +29,6 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 import io.github.zyrouge.symphony.ui.helpers.navigate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -194,10 +192,7 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Spacer(modifier = Modifier.width(12.dp))
         AsyncImage(
-            createHandyAsyncImageRequest(
-                LocalContext.current,
-                song.getArtworkUri(context.symphony)
-            ),
+            song.createArtworkImageRequest(context.symphony).build(),
             null,
             modifier = Modifier
                 .size(45.dp)

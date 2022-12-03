@@ -12,7 +12,8 @@ data class Artist(
     val numberOfAlbums: Int,
     val numberOfTracks: Int
 ) {
-    fun getArtworkUri(symphony: Symphony) = symphony.groove.artist.getArtistArtworkUri(artistName)
+    fun createArtworkImageRequest(symphony: Symphony) =
+        symphony.groove.artist.createArtistArtworkImageRequest(artistName)
 
     companion object {
         fun fromCursor(cursor: Cursor): Artist {

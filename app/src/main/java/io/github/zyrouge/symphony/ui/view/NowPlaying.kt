@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
@@ -189,10 +188,7 @@ private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
         BoxWithConstraints(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
             val dimension = min(maxHeight, maxWidth)
             AsyncImage(
-                createHandyAsyncImageRequest(
-                    LocalContext.current,
-                    song.getArtworkUri(context.symphony)
-                ),
+                song.createArtworkImageRequest(context.symphony).build(),
                 null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

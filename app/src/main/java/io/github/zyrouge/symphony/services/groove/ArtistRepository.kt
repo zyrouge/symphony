@@ -1,8 +1,9 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.net.Uri
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.ui.helpers.Assets
+import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
 
@@ -58,11 +59,16 @@ class ArtistRepository(private val symphony: Symphony) {
         onUpdate.dispatch(null)
     }
 
-    fun getArtistArtworkUri(artistName: String): Uri {
-        val album = symphony.groove.album.getAlbumOfArtist(artistName)
-        return album?.getArtworkUri(symphony)
-            ?: symphony.groove.album.getDefaultAlbumArtworkUri()
-    }
+    fun getArtistArtworkUri(artistName: String) =
+        symphony.groove.album.getAlbumOfArtist(artistName)?.let {
+            symphony.groove.album.getAlbumArtworkUri(it.albumId)
+        } ?: symphony.groove.album.getDefaultAlbumArtworkUri()
+
+    fun createArtistArtworkImageRequest(artistName: String) = createHandyImageRequest(
+        symphony.applicationContext,
+        image = getArtistArtworkUri(artistName),
+        fallback = Assets.placeholderId,
+    )
 
     fun getAll() = cached.values.toList()
     fun getArtistFromName(artistName: String) = cached[artistName]

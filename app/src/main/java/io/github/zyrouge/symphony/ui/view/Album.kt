@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -23,7 +22,6 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.createHandyAsyncImageRequest
 import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,10 +101,7 @@ private fun AlbumHero(context: ViewContext, album: Album) {
     val defaultHorizontalPadding = 20.dp
     BoxWithConstraints {
         AsyncImage(
-            createHandyAsyncImageRequest(
-                LocalContext.current,
-                album.getArtworkUri(context.symphony)
-            ),
+            album.createArtworkImageRequest(context.symphony).build(),
             null,
             contentScale = ContentScale.Crop,
             modifier = Modifier

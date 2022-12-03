@@ -1,10 +1,10 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.content.ContentUris
-import android.net.Uri
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
+import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
 
@@ -61,19 +61,17 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
-    fun getAlbumArtworkUri(albumId: Long) =
-        getAlbumArtworkUriNullable(albumId) ?: getDefaultAlbumArtworkUri()
 
-    fun getAlbumArtworkUriNullable(albumId: Long): Uri? {
-        val uri = ContentUris.withAppendedId(
-            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-            albumId
-        )
-        return when {
-            symphony.shorty.checkIfMediaStoreThumbnailExists(uri) -> uri
-            else -> null
-        }
-    }
+    fun getAlbumArtworkUri(albumId: Long) = ContentUris.withAppendedId(
+        MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+        albumId
+    )
+
+    fun createAlbumArtworkImageRequest(albumId: Long) = createHandyImageRequest(
+        symphony.applicationContext,
+        image = getAlbumArtworkUri(albumId),
+        fallback = Assets.placeholderId,
+    )
 
     fun getAll() = cached.values.toList()
     fun getAlbumWithId(albumId: Long) = cached[albumId]

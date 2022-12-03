@@ -52,8 +52,10 @@ data class Song(
                 kotlin.runCatching {
                     MediaMetadataRetriever().use {
                         it.setDataSource(symphony.applicationContext, buildUri(id))
-                        albumArtist = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-                        bitrate = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toInt()
+                        albumArtist =
+                            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
+                        bitrate =
+                            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toInt()
                         genre = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                     }
                 }
@@ -69,7 +71,8 @@ data class Song(
     val filename = Path(path).fileName.toString()
     val uri: Uri get() = buildUri(id)
 
-    fun getArtworkUri(symphony: Symphony) = symphony.groove.album.getAlbumArtworkUri(albumId)
+    fun createArtworkImageRequest(symphony: Symphony) =
+        symphony.groove.album.createAlbumArtworkImageRequest(albumId)
 
     companion object {
         fun buildUri(id: Long): Uri =
