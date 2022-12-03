@@ -5,15 +5,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Size
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.toBitmap
+import coil.Coil
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.helpers.Assets
 
 class RadioNotification(private val symphony: Symphony) {
     private val session = MediaSessionCompat(
@@ -132,7 +133,9 @@ class RadioNotification(private val symphony: Symphony) {
                                 putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
                                 putString(
                                     MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                                    song.getArtworkUri(symphony).toString()
+                                    symphony.groove.album
+                                        .getAlbumArtworkUri(song.albumId)
+                                        .toString()
                                 )
                                 putLong(
                                     MediaMetadataCompat.METADATA_KEY_DURATION,
@@ -162,17 +165,16 @@ class RadioNotification(private val symphony: Symphony) {
                     builder!!.run {
                         setContentTitle(song.title)
                         setContentText(song.artistName)
-                        val iconSize = Size(500, 500)
-                        setLargeIcon(
-                            symphony.groove.album.getAlbumArtworkUriNullable(song.albumId)
-                                ?.let { uri ->
-                                    symphony.applicationContext.contentResolver.loadThumbnail(
-                                        uri,
-                                        iconSize,
-                                        null
-                                    )
-                                } ?: Assets.getPlaceholderBitmap(symphony.applicationContext)
-                        )
+                        symphony.launchInScope {
+                            Coil.imageLoader(symphony.applicationContext).enqueue(
+                                song.createArtworkImageRequest(symphony).run {
+                                    target { icon ->
+                                        setLargeIcon(Bitmap.createBitmap(icon.toBitmap()))
+                                    }
+                                    build()
+                                }
+                            )
+                        }
                         setOngoing(isPlaying)
                         clearActions()
                         addAction(
