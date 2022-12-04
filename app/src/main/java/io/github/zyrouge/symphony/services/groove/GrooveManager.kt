@@ -36,16 +36,19 @@ class GrooveRepositoryUpdateDispatcher(
     val dispatch: () -> Unit,
 ) {
     var count = 0
-    var time = System.currentTimeMillis()
+    var time = currentTime
 
     fun increment() {
-        when {
-            count > maxCount && (time - System.currentTimeMillis()) > minTimeDiff -> {
-                dispatch()
-                count = 0
-                time = System.currentTimeMillis()
-            }
-            else -> count++
+        if (count > maxCount && (currentTime - time) > minTimeDiff) {
+            dispatch()
+            count = 0
+            time = System.currentTimeMillis()
+            return
         }
+        count++
+    }
+
+    companion object {
+        private val currentTime: Long get() = System.currentTimeMillis()
     }
 }
