@@ -3,14 +3,11 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.ArtistRepository
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
-import kotlinx.coroutines.launch
 
 @Composable
 fun ArtistGrid(
@@ -37,7 +34,6 @@ internal fun ArtistGrid(
     isLoading: Boolean = false,
     isAlbumArtist: Boolean,
 ) {
-    val scope = rememberCoroutineScope()
     var sortBy by remember {
         mutableStateOf(
             context.symphony.settings.getLastUsedArtistsSortBy() ?: ArtistSortBy.ARTIST_NAME
@@ -46,20 +42,8 @@ internal fun ArtistGrid(
     var sortReverse by remember {
         mutableStateOf(context.symphony.settings.getLastUsedArtistsSortReverse())
     }
-    val sortedArtists = remember {
-        mutableStateListOf<Artist>().apply {
-            swap(ArtistRepository.sort(artists, sortBy, sortReverse))
-        }
-    }
-
-    fun sortArtistsAgain() {
-        sortedArtists.swap(ArtistRepository.sort(artists, sortBy, sortReverse))
-    }
-
-    LaunchedEffect(LocalContext.current) {
-        scope.launch {
-            snapshotFlow { artists.toList() }.collect { sortArtistsAgain() }
-        }
+    val sortedArtists by remember {
+        derivedStateOf { ArtistRepository.sort(artists, sortBy, sortReverse) }
     }
 
     ResponsiveGrid(
@@ -69,14 +53,12 @@ internal fun ArtistGrid(
                 reverse = sortReverse,
                 onReverseChange = {
                     sortReverse = it
-                    sortArtistsAgain()
                     context.symphony.settings.setLastUsedArtistsSortReverse(it)
                 },
                 sort = sortBy,
                 sorts = ArtistSortBy.values().associateWith { x -> { x.label(it) } },
                 onSortChange = {
                     sortBy = it
-                    sortArtistsAgain()
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
                 },
                 label = {

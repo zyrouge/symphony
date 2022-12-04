@@ -36,7 +36,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsView(context: ViewContext) {
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var settings by remember { mutableStateOf(context.symphony.settings.getSettings()) }
 
@@ -272,7 +272,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.clearSongCache)
                         },
                         onClick = {
-                            scope.launch {
+                            coroutineScope.launch {
                                 context.symphony.database.songCache.update(mapOf())
                                 context.symphony.t.run {
                                     snackbarHostState.showSnackbar(

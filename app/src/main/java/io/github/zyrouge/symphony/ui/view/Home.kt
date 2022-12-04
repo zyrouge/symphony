@@ -77,7 +77,7 @@ enum class HomePages(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val pageState = rememberPagerState(
         context.symphony.settings.getHomeLastTab()
             ?.let { value -> HomePages.values().find { it.name == value } }
@@ -201,7 +201,7 @@ fun HomeView(context: ViewContext) {
                             },
                             onClick = {
                                 currentPage = page
-                                scope.launch {
+                                coroutineScope.launch {
                                     pageState.animateScrollToPage(page.ordinal)
                                 }
                                 context.symphony.settings.setHomeLastTab(currentPage.name)

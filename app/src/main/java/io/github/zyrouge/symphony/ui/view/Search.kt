@@ -33,7 +33,7 @@ import kotlinx.coroutines.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchView(context: ViewContext) {
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     var terms by rememberSaveable { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
     val songs = remember { mutableStateListOf<Song>() }
@@ -50,7 +50,7 @@ fun SearchView(context: ViewContext) {
         terms = nTerms
         isSearching = true
         currentTermsRoutine?.cancel()
-        currentTermsRoutine = scope.launch {
+        currentTermsRoutine = coroutineScope.launch {
             withContext(Dispatchers.Default) {
                 delay(250)
                 songs.clear()

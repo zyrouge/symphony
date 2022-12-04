@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueView(context: ViewContext) {
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val queue = remember {
         mutableStateListOf<Long>().apply {
             swap(context.symphony.radio.queue.currentQueue)
@@ -134,7 +134,7 @@ fun QueueView(context: ViewContext) {
                                     },
                                     onClick = {
                                         context.symphony.radio.jumpTo(i)
-                                        scope.launch {
+                                        coroutineScope.launch {
                                             listState.animateScrollToItem(i)
                                         }
                                     },
