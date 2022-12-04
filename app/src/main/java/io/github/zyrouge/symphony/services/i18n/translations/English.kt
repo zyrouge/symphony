@@ -80,6 +80,8 @@ class English : Translations {
     override val clearSongCache = "Clear song cache"
     override val restartAppForChangesToTakeEffect = "Restart app for changes to take effect"
     override val songCacheCleared = "Song cache cleared"
+    override val albumArtists = "Album artists"
+    override val genres = "Genres"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"
@@ -91,4 +93,6 @@ class English : Translations {
     override fun newVersionAvailableX(x: String) = "New version available! ($x)"
     override fun XKbps(x: Int) = "${x}kbps"
     override fun XSecs(x: Float) = "${x}s"
+    override fun unknownGenreX(x: String) = "Unknown genre $x"
+    override fun XGenres(x: Int) = "$x genres"
 }

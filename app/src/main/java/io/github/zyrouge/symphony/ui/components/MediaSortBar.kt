@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
-fun <T : Enum<T>> MediaSortBar(
+fun <T : Enum<T>?> MediaSortBar(
     context: ViewContext,
     reverse: Boolean,
     onReverseChange: (Boolean) -> Unit,
@@ -24,6 +24,7 @@ fun <T : Enum<T>> MediaSortBar(
     label: @Composable () -> Unit,
     onShufflePlay: (() -> Unit)? = null,
     isLoading: Boolean = false,
+    disableCustomSort: Boolean = false,
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
@@ -55,45 +56,47 @@ fun <T : Enum<T>> MediaSortBar(
                     modifier = iconModifier,
                 )
             }
-            Box {
-                TextButton(
-                    colors = textButtonStyle,
-                    onClick = {
-                        showDropdown = !showDropdown
-                    }
-                ) {
-                    Text(sorts[sort]!!(context), style = currentTextStyle)
-                }
-                DropdownMenu(
-                    expanded = showDropdown,
-                    onDismissRequest = { showDropdown = false }
-                ) {
-                    sorts.map {
-                        val onClick = {
-                            showDropdown = false
-                            onSortChange(it.key)
+            if (!disableCustomSort) {
+                Box {
+                    TextButton(
+                        colors = textButtonStyle,
+                        onClick = {
+                            showDropdown = !showDropdown
                         }
+                    ) {
+                        Text(sorts[sort]!!(context), style = currentTextStyle)
+                    }
+                    DropdownMenu(
+                        expanded = showDropdown,
+                        onDismissRequest = { showDropdown = false }
+                    ) {
+                        sorts.map {
+                            val onClick = {
+                                showDropdown = false
+                                onSortChange(it.key)
+                            }
 
-                        DropdownMenuItem(
-                            contentPadding = MenuDefaults.DropdownMenuItemContentPadding.run {
-                                val horizontalPadding =
-                                    calculateLeftPadding(LayoutDirection.Ltr)
-                                PaddingValues(
-                                    start = horizontalPadding.div(2),
-                                    end = horizontalPadding.times(4),
-                                )
-                            },
-                            leadingIcon = {
-                                RadioButton(
-                                    selected = it.key == sort,
-                                    onClick = onClick,
-                                )
-                            },
-                            text = {
-                                Text(it.value(context))
-                            },
-                            onClick = onClick,
-                        )
+                            DropdownMenuItem(
+                                contentPadding = MenuDefaults.DropdownMenuItemContentPadding.run {
+                                    val horizontalPadding =
+                                        calculateLeftPadding(LayoutDirection.Ltr)
+                                    PaddingValues(
+                                        start = horizontalPadding.div(2),
+                                        end = horizontalPadding.times(4),
+                                    )
+                                },
+                                leadingIcon = {
+                                    RadioButton(
+                                        selected = it.key == sort,
+                                        onClick = onClick,
+                                    )
+                                },
+                                text = {
+                                    Text(it.value(context))
+                                },
+                                onClick = onClick,
+                            )
+                        }
                     }
                 }
             }

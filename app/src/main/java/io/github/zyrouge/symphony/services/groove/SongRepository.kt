@@ -23,6 +23,8 @@ enum class SongSortBy {
 
 class SongRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<Long, Song>()
+    private var cachedAlbumArtists = mutableMapOf<String, MutableSet<Long>>()
+    internal var cachedGenres = mutableListOf<String>()
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
@@ -51,8 +53,11 @@ class SongRepository(private val symphony: Symphony) {
 
     private fun fetchSync() {
         if (isUpdating) return
-        isUpdating = true
+        setGlobalUpdateState(true)
         cached.clear()
+        cachedAlbumArtists.clear()
+        cachedGenres.clear()
+        dispatchGlobalUpdate()
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             null,
@@ -70,6 +75,8 @@ class SongRepository(private val symphony: Symphony) {
                 val additionalMetadataCache = kotlin
                     .runCatching { symphony.database.songCache.read() }
                     .getOrNull()
+                val albumArtists = mutableMapOf<String, MutableSet<Long>>()
+                val genres = mutableSetOf<String>()
                 val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
                 while (it.moveToNext()) {
                     kotlin
@@ -83,29 +90,53 @@ class SongRepository(private val symphony: Symphony) {
                         ?.let { song ->
                             cached[song.id] = song
                             nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
+                            song.additional.albumArtist?.let { albumArtist ->
+                                albumArtists.compute(albumArtist) { _, value ->
+                                    value?.apply { add(song.albumId) } ?: mutableSetOf(song.albumId)
+                                }
+                            }
+                            song.additional.genre?.let { genre -> genres.add(genre) }
                             updateDispatcher.increment()
                         }
                 }
+                cachedAlbumArtists = albumArtists
+                cachedGenres = genres.toMutableList()
                 symphony.database.songCache.update(nAdditionalMetadata)
             }
         } catch (err: Exception) {
             Logger.error("SongRepository", "fetch failed: $err")
         }
-        isUpdating = false
+        setGlobalUpdateState(false)
+        dispatchGlobalUpdate()
+    }
+
+    private fun setGlobalUpdateState(to: Boolean) {
+        isUpdating = to
+        symphony.groove.albumArtist.isUpdating = to
+        symphony.groove.genre.isUpdating = to
+    }
+
+    private fun dispatchGlobalUpdate() {
         onUpdate.dispatch(null)
+        symphony.groove.albumArtist.onUpdate.dispatch(null)
+        symphony.groove.genre.onUpdate.dispatch(null)
     }
 
     fun getAll() = cached.values.toList()
+    private fun getAll(filter: (Song) -> Boolean) = getAll().filter(filter)
+
     fun getSongWithId(songId: Long) = cached[songId]
     fun hasSongWithId(songId: Long) = getSongWithId(songId) != null
 
-    fun getSongsOfArtist(artistName: String) = getAll().filter {
-        it.artistName == artistName
-    }
+    fun getAlbumArtistNames() = cachedAlbumArtists.keys.toList()
+    fun getAlbumIdsOfAlbumArtist(artistName: String) =
+        cachedAlbumArtists[artistName]?.toList() ?: listOf()
 
-    fun getSongsOfAlbum(albumId: Long) = getAll().filter {
-        it.albumId == albumId
-    }
+    fun getSongsOfArtist(artistName: String) = getAll { it.artistName == artistName }
+    fun getSongsOfAlbum(albumId: Long) = getAll { it.albumId == albumId }
+    fun getSongsOfGenre(genre: String) = getAll { it.additional.genre == genre }
+    fun getSongsOfAlbumArtist(artistName: String) =
+        getAll { it.additional.albumArtist == artistName }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

@@ -20,14 +20,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
-import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
-import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.components.SongCard
+import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import kotlinx.coroutines.*
@@ -41,7 +39,11 @@ fun SearchView(context: ViewContext) {
     val songs = remember { mutableStateListOf<Song>() }
     val artists = remember { mutableStateListOf<Artist>() }
     val albums = remember { mutableStateListOf<Album>() }
+    val albumArtists = remember { mutableStateListOf<Artist>() }
+    val genres = remember { mutableStateListOf<String>() }
+
     var selectedChip by rememberSaveable { mutableStateOf<GrooveKinds?>(null) }
+    fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
 
     var currentTermsRoutine: Job? = null
     fun setTerms(nTerms: String) {
@@ -54,17 +56,39 @@ fun SearchView(context: ViewContext) {
                 songs.clear()
                 artists.clear()
                 albums.clear()
+                albumArtists.clear()
+                genres.clear()
                 if (nTerms.isNotEmpty()) {
-                    songs.addAll(context.symphony.groove.song.search(terms).map { it.entity })
-                    artists.addAll(context.symphony.groove.artist.search(terms).map { it.entity })
-                    albums.addAll(context.symphony.groove.album.search(terms).map { it.entity })
+                    if (isChipSelected(GrooveKinds.SONG)) {
+                        songs.addAll(
+                            context.symphony.groove.song.search(terms).map { it.entity }
+                        )
+                    }
+                    if (isChipSelected(GrooveKinds.ARTIST)) {
+                        artists.addAll(
+                            context.symphony.groove.artist.search(terms).map { it.entity }
+                        )
+                    }
+                    if (isChipSelected(GrooveKinds.ALBUM)) {
+                        albums.addAll(
+                            context.symphony.groove.album.search(terms).map { it.entity }
+                        )
+                    }
+                    if (isChipSelected(GrooveKinds.ALBUM_ARTIST)) {
+                        albumArtists.addAll(
+                            context.symphony.groove.albumArtist.search(terms).map { it.entity }
+                        )
+                    }
+                    if (isChipSelected(GrooveKinds.GENRE)) {
+                        genres.addAll(
+                            context.symphony.groove.genre.search(terms).map { it.entity }
+                        )
+                    }
                 }
                 isSearching = false
             }
         }
     }
-
-    fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
 
     val textFieldFocusRequester = FocusRequester()
     val configuration = LocalConfiguration.current
@@ -122,6 +146,7 @@ fun SearchView(context: ViewContext) {
                         },
                         onClick = {
                             selectedChip = null
+                            setTerms(terms)
                         }
                     )
                     GrooveKinds.values().map {
@@ -132,6 +157,7 @@ fun SearchView(context: ViewContext) {
                             },
                             onClick = {
                                 selectedChip = it
+                                setTerms(terms)
                             }
                         )
                     }
@@ -142,6 +168,11 @@ fun SearchView(context: ViewContext) {
             val hasSongs = isChipSelected(GrooveKinds.SONG) && songs.isNotEmpty()
             val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artists.isNotEmpty()
             val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albums.isNotEmpty()
+            val hasAlbumArtists =
+                isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtists.isNotEmpty()
+            val hasGenres = isChipSelected(GrooveKinds.GENRE) && genres.isNotEmpty()
+            val hasNoResults =
+                !hasSongs && !hasArtists && !hasAlbums && !hasAlbumArtists && !hasGenres
 
             Box(
                 modifier = Modifier
@@ -166,7 +197,7 @@ fun SearchView(context: ViewContext) {
                                 )
                             }
                         }
-                        !hasSongs && !hasArtists && !hasAlbums -> {
+                        hasNoResults -> {
                             Box(modifier = Modifier.align(Alignment.Center)) {
                                 IconTextBody(
                                     icon = { modifier ->
@@ -187,7 +218,7 @@ fun SearchView(context: ViewContext) {
                                 modifier = Modifier.verticalScroll(rememberScrollState())
                             ) {
                                 if (hasSongs) {
-                                    SideHeading(context.symphony.t.songs)
+                                    SideHeading(context, GrooveKinds.SONG)
                                     songs.forEach { song ->
                                         SongCard(context, song) {
                                             context.symphony.radio.shorty.playQueue(song)
@@ -195,7 +226,7 @@ fun SearchView(context: ViewContext) {
                                     }
                                 }
                                 if (hasArtists) {
-                                    SideHeading(context.symphony.t.artists)
+                                    SideHeading(context, GrooveKinds.ARTIST)
                                     artists.forEach { artist ->
                                         GenericGrooveCard(
                                             image = artist
@@ -221,7 +252,7 @@ fun SearchView(context: ViewContext) {
                                     }
                                 }
                                 if (hasAlbums) {
-                                    SideHeading(context.symphony.t.albums)
+                                    SideHeading(context, GrooveKinds.ALBUM)
                                     albums.forEach { album ->
                                         GenericGrooveCard(
                                             image = album
@@ -247,6 +278,47 @@ fun SearchView(context: ViewContext) {
                                         )
                                     }
                                 }
+                                if (hasAlbumArtists) {
+                                    SideHeading(context, GrooveKinds.ALBUM_ARTIST)
+                                    albumArtists.forEach { artist ->
+                                        GenericGrooveCard(
+                                            image = artist
+                                                .createArtworkImageRequest(context.symphony)
+                                                .build(),
+                                            title = {
+                                                Text(artist.artistName)
+                                            },
+                                            options = { expanded, onDismissRequest ->
+                                                AlbumArtistDropdownMenu(
+                                                    context,
+                                                    artist,
+                                                    expanded = expanded,
+                                                    onDismissRequest = onDismissRequest,
+                                                )
+                                            },
+                                            onClick = {
+                                                context.navController.navigate(
+                                                    RoutesBuilder.buildAlbumArtistRoute(artist.artistName)
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+                                if (hasGenres) {
+                                    SideHeading(context, GrooveKinds.GENRE)
+                                    genres.forEach { genre ->
+                                        GenericGrooveCard(
+                                            image = null,
+                                            title = { Text(genre) },
+                                            options = null,
+                                            onClick = {
+                                                context.navController.navigate(
+                                                    RoutesBuilder.buildGenreRoute(genre)
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -254,6 +326,11 @@ fun SearchView(context: ViewContext) {
             }
         }
     )
+}
+
+@Composable
+private fun SideHeading(context: ViewContext, kind: GrooveKinds) {
+    SideHeading(kind.label(context))
 }
 
 @Composable
@@ -268,10 +345,10 @@ private fun SideHeading(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GenericGrooveCard(
-    image: Any,
+    image: ImageRequest?,
     title: @Composable () -> Unit,
     subtitle: (@Composable () -> Unit)? = null,
-    options: @Composable (expanded: Boolean, onDismissRequest: () -> Unit) -> Unit,
+    options: (@Composable (expanded: Boolean, onDismissRequest: () -> Unit) -> Unit)?,
     onClick: () -> Unit,
 ) {
     Card(
@@ -281,14 +358,16 @@ private fun GenericGrooveCard(
     ) {
         Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AsyncImage(
-                    image,
-                    null,
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(RoundedCornerShape(10.dp)),
-                )
-                Spacer(modifier = Modifier.width(15.dp))
+                image?.let {
+                    AsyncImage(
+                        it,
+                        null,
+                        modifier = Modifier
+                            .size(45.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                    )
+                    Spacer(modifier = Modifier.width(15.dp))
+                }
                 Column(modifier = Modifier.weight(1f)) {
                     ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                         title()
@@ -301,13 +380,15 @@ private fun GenericGrooveCard(
                 }
                 Spacer(modifier = Modifier.width(15.dp))
 
-                var showOptionsMenu by remember { mutableStateOf(false) }
-                IconButton(
-                    onClick = { showOptionsMenu = !showOptionsMenu }
-                ) {
-                    Icon(Icons.Default.MoreVert, null)
-                    options(showOptionsMenu) {
-                        showOptionsMenu = false
+                options?.let {
+                    var showOptionsMenu by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { showOptionsMenu = !showOptionsMenu }
+                    ) {
+                        Icon(Icons.Default.MoreVert, null)
+                        it(showOptionsMenu) {
+                            showOptionsMenu = false
+                        }
                     }
                 }
             }
@@ -319,4 +400,6 @@ private fun GrooveKinds.label(context: ViewContext) = when (this) {
     GrooveKinds.SONG -> context.symphony.t.songs
     GrooveKinds.ALBUM -> context.symphony.t.albums
     GrooveKinds.ARTIST -> context.symphony.t.artists
+    GrooveKinds.ALBUM_ARTIST -> context.symphony.t.albumArtists
+    GrooveKinds.GENRE -> context.symphony.t.genres
 }

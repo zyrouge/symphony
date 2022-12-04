@@ -85,6 +85,28 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 ) {
                     SearchView(context)
                 }
+                composable(
+                    Routes.AlbumArtist.route,
+                    enterTransition = SlideTransitions.SlideFromRightEnterTransition,
+                    exitTransition = SlideTransitions.SlideFromRightExitTransition,
+                ) { backStackEntry ->
+                    AlbumArtistView(
+                        context,
+                        backStackEntry.getRouteArgument(RoutesParameters.AlbumArtistRouteArtistName)
+                            ?: ""
+                    )
+                }
+                composable(
+                    Routes.Genre.route,
+                    enterTransition = SlideTransitions.SlideFromRightEnterTransition,
+                    exitTransition = SlideTransitions.SlideFromRightExitTransition,
+                ) { backStackEntry ->
+                    GenreView(
+                        context,
+                        backStackEntry.getRouteArgument(RoutesParameters.GenreRouteGenre)
+                            ?: ""
+                    )
+                }
             }
         }
     }

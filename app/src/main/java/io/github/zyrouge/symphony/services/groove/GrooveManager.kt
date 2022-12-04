@@ -1,21 +1,25 @@
 package io.github.zyrouge.symphony.services.groove
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.PermissionEvents
 
 enum class GrooveKinds {
     SONG,
     ALBUM,
     ARTIST,
+    ALBUM_ARTIST,
+    GENRE,
 }
 
-class GrooveManager(private val symphony: Symphony) {
+class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     val song = SongRepository(symphony)
     val album = AlbumRepository(symphony)
     val artist = ArtistRepository(symphony)
+    val albumArtist = AlbumArtistRepository(symphony)
+    val genre = GenreRepository(symphony)
 
     init {
-        fetch()
         symphony.permission.onUpdate.subscribe {
             when (it) {
                 PermissionEvents.MEDIA_PERMISSION_GRANTED -> fetch()
@@ -27,6 +31,10 @@ class GrooveManager(private val symphony: Symphony) {
         song.fetch()
         album.fetch()
         artist.fetch()
+    }
+
+    override fun onSymphonyReady() {
+        fetch()
     }
 }
 

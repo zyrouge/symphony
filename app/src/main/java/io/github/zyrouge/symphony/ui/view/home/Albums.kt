@@ -12,7 +12,11 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun AlbumsView(context: ViewContext, data: HomeViewData) {
     when {
-        data.albums.isNotEmpty() -> AlbumGrid(context, data.albums)
+        data.albums.isNotEmpty() -> AlbumGrid(
+            context,
+            data.albums,
+            isLoading = data.albumsIsUpdating,
+        )
         else -> IconTextBody(
             icon = { modifier ->
                 Icon(

@@ -16,6 +16,7 @@ enum class AlbumSortBy {
 
 class AlbumRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<Long, Album>()
+    var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
     private val searcher = FuzzySearcher<Album>(
@@ -32,7 +33,10 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     private fun fetchSync() {
+        if (isUpdating) return
+        isUpdating = true
         cached.clear()
+        onUpdate.dispatch(null)
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
             null,
@@ -58,6 +62,7 @@ class AlbumRepository(private val symphony: Symphony) {
         } catch (err: Exception) {
             Logger.error("AlbumRepository", "fetch failed: $err")
         }
+        isUpdating = false
         onUpdate.dispatch(null)
     }
 
@@ -84,6 +89,10 @@ class AlbumRepository(private val symphony: Symphony) {
     fun getAlbumsOfArtist(artistName: String) = cached.values.filter {
         it.artistName == artistName
     }
+
+    fun getAlbumsOfAlbumArtist(artistName: String) =
+        symphony.groove.song.getAlbumIdsOfAlbumArtist(artistName)
+            .mapNotNull { getAlbumWithId(it) }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

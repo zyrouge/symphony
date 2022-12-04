@@ -13,7 +13,11 @@ import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable
-fun AlbumGrid(context: ViewContext, albums: List<Album>) {
+fun AlbumGrid(
+    context: ViewContext,
+    albums: List<Album>,
+    isLoading: Boolean = false,
+) {
     val scope = rememberCoroutineScope()
     var sortBy by remember {
         mutableStateOf(
@@ -58,7 +62,8 @@ fun AlbumGrid(context: ViewContext, albums: List<Album>) {
                 },
                 label = {
                     Text(context.symphony.t.XAlbums(albums.size))
-                }
+                },
+                isLoading = isLoading,
             )
         },
         content = {

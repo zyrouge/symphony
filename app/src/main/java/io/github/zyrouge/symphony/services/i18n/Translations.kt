@@ -80,6 +80,8 @@ interface Translations {
     val clearSongCache: String
     val restartAppForChangesToTakeEffect: String
     val songCacheCleared: String
+    val albumArtists: String
+    val genres: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
@@ -91,6 +93,8 @@ interface Translations {
     fun newVersionAvailableX(x: String): String
     fun XKbps(x: Int): String
     fun XSecs(x: Float): String
+    fun unknownGenreX(x: String): String
+    fun XGenres(x: Int): String
 
     companion object {
         val all = arrayOf<Translations>(English())

@@ -19,19 +19,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Artist
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArtistTile(context: ViewContext, artist: Artist) {
+fun ArtistTile(context: ViewContext, artist: Artist, isAlbumArtist: Boolean) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         onClick = {
-            context.navController.navigate(RoutesBuilder.buildArtistRoute(artist.artistName))
+            context.navController.navigate(
+                if (isAlbumArtist) RoutesBuilder.buildAlbumArtistRoute(artist.artistName)
+                else RoutesBuilder.buildArtistRoute(artist.artistName)
+            )
         }
     ) {
         Box(modifier = Modifier.padding(12.dp)) {
@@ -106,6 +110,34 @@ fun ArtistDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit
 ) {
+    ArtistDropdownMenu(context, artist, expanded, onDismissRequest, false)
+}
+
+@Composable
+fun AlbumArtistDropdownMenu(
+    context: ViewContext,
+    artist: Artist,
+    expanded: Boolean,
+    onDismissRequest: () -> Unit
+) {
+    ArtistDropdownMenu(context, artist, expanded, onDismissRequest, true)
+}
+
+@Composable
+private fun ArtistDropdownMenu(
+    context: ViewContext,
+    artist: Artist,
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    isAlbumArtist: Boolean,
+) {
+    fun getSongs(): List<Song> {
+        return when {
+            isAlbumArtist -> context.symphony.groove.song.getSongsOfArtist(artist.artistName)
+            else -> context.symphony.groove.song.getSongsOfAlbumArtist(artist.artistName)
+        }
+    }
+
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
@@ -119,10 +151,7 @@ fun ArtistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(
-                    context.symphony.groove.song.getSongsOfArtist(artist.artistName),
-                    shuffle = true,
-                )
+                context.symphony.radio.shorty.playQueue(getSongs(), shuffle = true)
             }
         )
         DropdownMenuItem(
@@ -135,7 +164,7 @@ fun ArtistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.song.getSongsOfArtist(artist.artistName),
+                    getSongs(),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -149,9 +178,7 @@ fun ArtistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    context.symphony.groove.song.getSongsOfArtist(artist.artistName)
-                )
+                context.symphony.radio.queue.add(getSongs())
             }
         )
     }

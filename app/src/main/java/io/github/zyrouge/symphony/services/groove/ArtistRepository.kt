@@ -16,9 +16,10 @@ enum class ArtistSortBy {
 
 class ArtistRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<String, Artist>()
+    var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
-    private val searcher = FuzzySearcher<Artist>(
+    internal val searcher = FuzzySearcher<Artist>(
         options = listOf(
             FuzzySearchOption({ it.artistName })
         )
@@ -31,7 +32,10 @@ class ArtistRepository(private val symphony: Symphony) {
     }
 
     private fun fetchSync() {
+        if (isUpdating) return
+        isUpdating = true
         cached.clear()
+        onUpdate.dispatch(null)
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
             null,
@@ -57,6 +61,7 @@ class ArtistRepository(private val symphony: Symphony) {
         } catch (err: Exception) {
             Logger.error("ArtistRepository", "fetch failed: $err")
         }
+        isUpdating = false
         onUpdate.dispatch(null)
     }
 

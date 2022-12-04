@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Album
-import androidx.compose.material.icons.outlined.Face
-import androidx.compose.material.icons.outlined.Group
-import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -32,7 +31,7 @@ import kotlinx.coroutines.launch
 enum class HomePages(
     val label: (context: ViewContext) -> String,
     val selectedIcon: @Composable () -> ImageVector,
-    val unselectedIcon: @Composable () -> ImageVector
+    val unselectedIcon: @Composable () -> ImageVector,
 ) {
     ForYou(
         label = { it.symphony.t.forYou },
@@ -53,6 +52,16 @@ enum class HomePages(
         label = { it.symphony.t.albums },
         selectedIcon = { Icons.Filled.Album },
         unselectedIcon = { Icons.Outlined.Album }
+    ),
+    AlbumArtists(
+        label = { it.symphony.t.albumArtists },
+        selectedIcon = { Icons.Filled.SupervisorAccount },
+        unselectedIcon = { Icons.Outlined.SupervisorAccount }
+    ),
+    Genres(
+        label = { it.symphony.t.genres },
+        selectedIcon = { Icons.Filled.Tune },
+        unselectedIcon = { Icons.Outlined.Tune }
     );
 
     companion object {
@@ -158,6 +167,8 @@ fun HomeView(context: ViewContext) {
                         HomePages.Songs -> SongsView(context, data)
                         HomePages.Albums -> AlbumsView(context, data)
                         HomePages.Artists -> ArtistsView(context, data)
+                        HomePages.AlbumArtists -> AlbumArtistsView(context, data)
+                        HomePages.Genres -> GenresView(context, data)
                     }
                 }
             }
@@ -166,7 +177,7 @@ fun HomeView(context: ViewContext) {
             Column {
                 NowPlayingBottomBar(context)
                 NavigationBar {
-                    HomePages.values().map { page ->
+                    HomePages.values().reversed().slice(0..3).map { page ->
                         val isSelected = currentPage == page
                         val label = page.label(context)
                         NavigationBarItem(
@@ -180,7 +191,14 @@ fun HomeView(context: ViewContext) {
                                     )
                                 }
                             },
-                            label = { Text(label) },
+                            label = {
+                                Text(
+                                    label,
+                                    textAlign = TextAlign.Center,
+                                    overflow = TextOverflow.Ellipsis,
+                                    softWrap = false,
+                                )
+                            },
                             onClick = {
                                 currentPage = page
                                 scope.launch {

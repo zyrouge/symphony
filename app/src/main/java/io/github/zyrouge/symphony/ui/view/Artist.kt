@@ -25,7 +25,6 @@ import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistView(context: ViewContext, artistName: String) {
     var artist by remember {
@@ -57,6 +56,28 @@ fun ArtistView(context: ViewContext, artistName: String) {
         albums.swap(context.symphony.groove.album.getAlbumsOfArtist(artistName))
     }
 
+    ArtistViewScaffold(
+        context,
+        isViable = isViable,
+        artistName = artistName,
+        artist = artist,
+        songs = songs,
+        albums = albums,
+        titlePrefix = context.symphony.t.artist,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ArtistViewScaffold(
+    context: ViewContext,
+    isViable: Boolean,
+    artistName: String,
+    artist: Artist?,
+    songs: List<Song>,
+    albums: List<Album>,
+    titlePrefix: String,
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -70,10 +91,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
                 },
                 title = {
                     TopAppBarMinimalTitle {
-                        Text(
-                            context.symphony.t.artist
-                                    + if (artist != null) " - $artistName" else ""
-                        )
+                        Text(titlePrefix + if (artist != null) " - $artistName" else "")
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

@@ -28,6 +28,7 @@ object SettingsKeys {
     const val lastUsedArtistsSortReverse = "last_used_artists_sort_reverse"
     const val lastUsedAlbumsSortBy = "last_used_albums_sort_by"
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
+    const val lastUsedGenresSortReverse = "last_used_genres_sort_reverse"
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_tab"
     const val songs_filter_pattern = "songs_filter_pattern"
@@ -142,10 +143,7 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getLastUsedArtistsSortReverse() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.lastUsedArtistsSortReverse,
-            SettingsDataDefaults.useMaterialYou,
-        )
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedArtistsSortReverse, false)
 
     fun setLastUsedArtistsSortReverse(reverse: Boolean) {
         getSharedPreferences().edit {
@@ -182,6 +180,16 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.lastUsedAlbumsSortReverse, reverse)
         }
         onChange.dispatch(SettingsKeys.lastUsedAlbumsSortReverse)
+    }
+
+    fun getLastUsedGenresSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedGenresSortReverse, false)
+
+    fun setLastUsedGenresSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedGenresSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedGenresSortReverse)
     }
 
     fun getPreviousSongQueue(): RadioQueue.Serialized? {

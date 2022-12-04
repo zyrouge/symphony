@@ -13,7 +13,30 @@ import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable
-fun ArtistGrid(context: ViewContext, artists: List<Artist>) {
+fun ArtistGrid(
+    context: ViewContext,
+    artists: List<Artist>,
+    isLoading: Boolean = false,
+) {
+    ArtistGrid(context, artists, isLoading = isLoading, isAlbumArtist = false)
+}
+
+@Composable
+fun AlbumArtistGrid(
+    context: ViewContext,
+    artists: List<Artist>,
+    isLoading: Boolean = false,
+) {
+    ArtistGrid(context, artists, isLoading = isLoading, isAlbumArtist = true)
+}
+
+@Composable
+internal fun ArtistGrid(
+    context: ViewContext,
+    artists: List<Artist>,
+    isLoading: Boolean = false,
+    isAlbumArtist: Boolean,
+) {
     val scope = rememberCoroutineScope()
     var sortBy by remember {
         mutableStateOf(
@@ -58,7 +81,8 @@ fun ArtistGrid(context: ViewContext, artists: List<Artist>) {
                 },
                 label = {
                     Text(context.symphony.t.XArtists(artists.size))
-                }
+                },
+                isLoading = isLoading,
             )
         },
         content = {
@@ -67,7 +91,7 @@ fun ArtistGrid(context: ViewContext, artists: List<Artist>) {
                 key = { it.artistName },
                 contentType = { GrooveKinds.ARTIST }
             ) { artist ->
-                ArtistTile(context, artist)
+                ArtistTile(context, artist, isAlbumArtist)
             }
         }
     )
