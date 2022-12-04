@@ -8,6 +8,7 @@ import io.github.zyrouge.symphony.services.groove.AlbumSortBy
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.RadioQueue
+import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.utils.Eventer
 
 enum class ThemeMode {
@@ -41,6 +42,7 @@ object SettingsKeys {
     const val pause_on_headphones_disconnect = "pause_on_headphones_disconnect"
     const val primary_color = "primary_color"
     const val fade_playback_duration = "fade_playback_duration"
+    const val home_tabs = "home_tabs"
 }
 
 data class SettingsData(
@@ -57,6 +59,7 @@ data class SettingsData(
     val pauseOnHeadphonesDisconnect: Boolean,
     val primaryColor: String?,
     val fadePlaybackDuration: Float,
+    val homeTabs: Set<HomePages>,
 )
 
 object SettingsDataDefaults {
@@ -70,6 +73,12 @@ object SettingsDataDefaults {
     const val playOnHeadphonesConnect = false
     const val pauseOnHeadphonesDisconnect = true
     const val fadePlaybackDuration = 1f
+    val homeTabs = setOf(
+        HomePages.ForYou,
+        HomePages.Songs,
+        HomePages.Albums,
+        HomePages.Artists
+    )
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -89,6 +98,7 @@ class SettingsManager(private val symphony: Symphony) {
         pauseOnHeadphonesDisconnect = getPauseOnHeadphonesDisconnect(),
         primaryColor = getPrimaryColor(),
         fadePlaybackDuration = getFadePlaybackDuration(),
+        homeTabs = getHomeTabs(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -336,6 +346,20 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.fade_playback_duration)
     }
 
+    fun getHomeTabs() = getSharedPreferences()
+        .getString(SettingsKeys.home_tabs, null)
+        ?.split(",")
+        ?.mapNotNull { parseEnumValue<HomePages>(it) }
+        ?.toSet()
+        ?: SettingsDataDefaults.homeTabs
+
+    fun setHomeTabs(tabs: Set<HomePages>) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.home_tabs, tabs.joinToString(",") { it.name })
+        }
+        onChange.dispatch(SettingsKeys.home_tabs)
+    }
+
     private fun getSharedPreferences() =
         symphony.applicationContext.getSharedPreferences(
             SettingsKeys.identifier,
@@ -349,11 +373,7 @@ private inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
 ): T? {
     var result = defaultValue
     getString(key, null)?.let { value ->
-        T::class.java.enumConstants?.forEach {
-            if (it.name == value) {
-                result = it
-            }
-        }
+        result = parseEnumValue<T>(value)
     }
     return result
 }
@@ -362,3 +382,6 @@ private inline fun <reified T : Enum<T>> SharedPreferences.Editor.putEnum(
     key: String,
     value: T?
 ) = putString(key, value?.name)
+
+private inline fun <reified T : Enum<T>> parseEnumValue(value: String): T? =
+    T::class.java.enumConstants?.find { it.name == value }

@@ -10,6 +10,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -99,15 +100,16 @@ fun GenreGrid(
                                 .align(Alignment.BottomStart)
                                 .matchParentSize()
                                 .fillMaxWidth()
-                                .alpha(0.3f)
-                                .absoluteOffset(8.dp, 10.dp)
+                                .alpha(0.25f)
+                                .absoluteOffset(8.dp, 12.dp)
                         ) {
                             Text(
                                 genre,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.displaySmall
                                     .copy(fontWeight = FontWeight.Bold),
-                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Clip,
                             )
                         }
                         Box(modifier = Modifier.padding(20.dp)) {

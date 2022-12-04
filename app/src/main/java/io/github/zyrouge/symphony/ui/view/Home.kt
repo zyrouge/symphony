@@ -26,6 +26,7 @@ import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.ui.view.home.*
+import io.github.zyrouge.symphony.utils.indexOfOrNull
 import kotlinx.coroutines.launch
 
 enum class HomePages(
@@ -63,27 +64,19 @@ enum class HomePages(
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
     );
-
-    companion object {
-        val mapped = values().mapIndexed { i, x ->
-            i to x
-        }.toMap()
-        val size = mapped.size
-
-        fun valueAt(index: Int) = mapped[index]!!
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
+    val tabs = context.symphony.settings.getHomeTabs().toList()
     val pageState = rememberPagerState(
         context.symphony.settings.getHomeLastTab()
-            ?.let { value -> HomePages.values().find { it.name == value } }
-            ?.ordinal ?: 0
+            ?.let { value -> tabs.indexOfOrNull { it.name == value } }
+            ?: 0
     )
-    var currentPage by remember { mutableStateOf(HomePages.valueAt(pageState.currentPage)) }
+    var currentPage by remember { mutableStateOf(tabs[pageState.currentPage]) }
     var showOptionsDropdown by remember { mutableStateOf(false) }
     val data = remember { HomeViewData(context.symphony) }
 
@@ -111,8 +104,7 @@ fun HomeView(context: ViewContext) {
                 title = {
                     Crossfade(targetState = currentPage.label(context)) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             TopAppBarMinimalTitle { Text(it) }
@@ -154,7 +146,7 @@ fun HomeView(context: ViewContext) {
         content = { contentPadding ->
             HorizontalPager(
                 state = pageState,
-                count = HomePages.size,
+                count = tabs.size,
                 userScrollEnabled = false
             ) {
                 Box(
@@ -162,7 +154,7 @@ fun HomeView(context: ViewContext) {
                         .padding(contentPadding)
                         .fillMaxSize()
                 ) {
-                    when (HomePages.mapped[it]!!) {
+                    when (tabs[it]) {
                         HomePages.ForYou -> ForYouView(context, data)
                         HomePages.Songs -> SongsView(context, data)
                         HomePages.Albums -> AlbumsView(context, data)
@@ -177,7 +169,7 @@ fun HomeView(context: ViewContext) {
             Column {
                 NowPlayingBottomBar(context)
                 NavigationBar {
-                    HomePages.values().reversed().slice(0..3).map { page ->
+                    tabs.map { page ->
                         val isSelected = currentPage == page
                         val label = page.label(context)
                         NavigationBarItem(
@@ -202,7 +194,7 @@ fun HomeView(context: ViewContext) {
                             onClick = {
                                 currentPage = page
                                 coroutineScope.launch {
-                                    pageState.animateScrollToPage(page.ordinal)
+                                    pageState.animateScrollToPage(tabs.indexOf(page))
                                 }
                                 context.symphony.settings.setHomeLastTab(currentPage.name)
                             }

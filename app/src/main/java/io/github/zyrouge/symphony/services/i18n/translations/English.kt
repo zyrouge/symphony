@@ -82,6 +82,9 @@ class English : Translations {
     override val songCacheCleared = "Song cache cleared"
     override val albumArtists = "Album artists"
     override val genres = "Genres"
+    override val cancel = "Cancel"
+    override val homeTabs = "Home tabs"
+    override val selectAtleast2orAtmost5Tabs = "Select atleast 2 or atmost 5 tabs"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

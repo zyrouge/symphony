@@ -82,6 +82,9 @@ interface Translations {
     val songCacheCleared: String
     val albumArtists: String
     val genres: String
+    val cancel: String
+    val homeTabs: String
+    val selectAtleast2orAtmost5Tabs: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
