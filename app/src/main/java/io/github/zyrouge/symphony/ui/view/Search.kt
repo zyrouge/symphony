@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -137,8 +138,9 @@ fun SearchView(context: ViewContext) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(12.dp, 0.dp)
+                    modifier = Modifier.horizontalScroll(rememberScrollState())
                 ) {
+                    Spacer(modifier = Modifier.width(12.dp))
                     FilterChip(
                         selected = selectedChip == null,
                         label = {
@@ -161,6 +163,7 @@ fun SearchView(context: ViewContext) {
                             }
                         )
                     }
+                    Spacer(modifier = Modifier.width(12.dp))
                 }
             }
         },
