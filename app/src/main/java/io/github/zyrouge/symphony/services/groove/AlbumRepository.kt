@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
+import java.util.concurrent.ConcurrentHashMap
 
 enum class AlbumSortBy {
     ALBUM_NAME,
@@ -14,7 +15,7 @@ enum class AlbumSortBy {
 }
 
 class AlbumRepository(private val symphony: Symphony) {
-    private val cached = mutableMapOf<Long, Album>()
+    private val cached = ConcurrentHashMap<Long, Album>()
     val onUpdate = Eventer<Nothing?>()
 
     private val searcher = FuzzySearcher<Album>(

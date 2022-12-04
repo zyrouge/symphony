@@ -6,6 +6,7 @@ import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.Dispatchers
+import java.util.concurrent.ConcurrentHashMap
 
 enum class SongSortBy {
     TITLE,
@@ -21,7 +22,7 @@ enum class SongSortBy {
 }
 
 class SongRepository(private val symphony: Symphony) {
-    private val cached = mutableMapOf<Long, Song>()
+    private val cached = ConcurrentHashMap<Long, Song>()
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
