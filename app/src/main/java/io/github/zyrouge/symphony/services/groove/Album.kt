@@ -27,7 +27,7 @@ data class Album(
                 albumName = cursor.getColumnValue(AlbumColumns.ALBUM) {
                     cursor.getString(it)
                 },
-                artistName = cursor.getColumnValueNullable(AlbumColumns.NUMBER_OF_SONGS) {
+                artistName = cursor.getColumnValueNullable(AlbumColumns.ARTIST) {
                     cursor.getStringOrNull(it)
                 },
                 numberOfTracks = cursor.getColumnValue(AlbumColumns.NUMBER_OF_SONGS) {
