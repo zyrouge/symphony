@@ -6,15 +6,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
-import coil.Coil
+import coil.imageLoader
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.ui.helpers.Assets
 
 class RadioNotification(private val symphony: Symphony) {
     private val session = MediaSessionCompat(
@@ -163,16 +166,7 @@ class RadioNotification(private val symphony: Symphony) {
             builder!!.run {
                 setContentTitle(song.title)
                 setContentText(song.artistName)
-                symphony.launchInScope {
-                    Coil.imageLoader(symphony.applicationContext).enqueue(
-                        song.createArtworkImageRequest(symphony).run {
-                            target { icon ->
-                                setLargeIcon(Bitmap.createBitmap(icon.toBitmap()))
-                            }
-                            build()
-                        }
-                    )
-                }
+                setLargeIcon(getSongArtworkBitmap(song))
                 setOngoing(isPlaying)
                 clearActions()
                 addAction(
@@ -243,6 +237,39 @@ class RadioNotification(private val symphony: Symphony) {
             ACTION_NEXT -> symphony.radio.shorty.skip()
             ACTION_STOP -> symphony.radio.stop()
         }
+    }
+
+    private var defaultArtworkBitmap: Bitmap? = null
+    private var currentArtworkSongId: Long? = null
+    private var currentArtworkBitmap: Bitmap? = null
+
+    private fun getDefaultArtworkBitmap(): Bitmap {
+        return defaultArtworkBitmap ?: run {
+            val bitmap = BitmapFactory.decodeResource(
+                symphony.applicationContext.resources,
+                Assets.placeholderId,
+            )
+            defaultArtworkBitmap = bitmap
+            bitmap
+        }
+    }
+
+    private fun getSongArtworkBitmap(song: Song): Bitmap {
+        if (currentArtworkSongId != song.id) {
+            currentArtworkSongId = song.id
+            currentArtworkBitmap = null
+            symphony.launchInScope {
+                val result = symphony.applicationContext.imageLoader
+                    .execute(song.createArtworkImageRequest(symphony).build())
+                if (currentArtworkSongId == song.id) {
+                    val size = symphony.applicationContext.resources.displayMetrics.widthPixels
+                    currentArtworkBitmap = result.drawable?.toBitmap(size, size)
+                    // NOTE: rebuild notification since the cover has been fetched
+                    update()
+                }
+            }
+        }
+        return currentArtworkBitmap ?: getDefaultArtworkBitmap()
     }
 
     companion object {
