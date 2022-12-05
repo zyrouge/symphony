@@ -12,6 +12,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.groove.Genre
+import io.github.zyrouge.symphony.services.groove.GenreRepository
+import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -43,14 +46,19 @@ private object GenreTile {
 @Composable
 fun GenreGrid(
     context: ViewContext,
-    genres: List<String>,
+    genres: List<Genre>,
     isLoading: Boolean = false,
 ) {
+    var sortBy by remember {
+        mutableStateOf(
+            context.symphony.settings.getLastUsedGenresSortBy() ?: GenreSortBy.GENRE
+        )
+    }
     var sortReverse by remember {
         mutableStateOf(context.symphony.settings.getLastUsedGenresSortReverse())
     }
     val sortedGenres by remember {
-        derivedStateOf { if (sortReverse) genres.sorted() else genres.sortedDescending() }
+        derivedStateOf { GenreRepository.sort(genres, sortBy, sortReverse) }
     }
 
     ResponsiveGrid(
@@ -60,22 +68,24 @@ fun GenreGrid(
                 reverse = sortReverse,
                 onReverseChange = {
                     sortReverse = it
-                    context.symphony.settings.setLastUsedArtistsSortReverse(it)
+                    context.symphony.settings.setLastUsedGenresSortReverse(it)
                 },
-                sort = null,
-                sorts = mapOf(),
-                onSortChange = {},
+                sort = sortBy,
+                sorts = GenreSortBy.values().associateWith { x -> { x.label(it) } },
+                onSortChange = {
+                    sortBy = it
+                    context.symphony.settings.setLastUsedGenresSortBy(it)
+                },
                 label = {
                     Text(context.symphony.t.XGenres(genres.size))
                 },
                 isLoading = isLoading,
-                disableCustomSort = true,
             )
         },
         content = { gridData ->
             itemsIndexed(
                 sortedGenres,
-                key = { _, x -> x },
+                key = { _, x -> x.genre },
                 contentType = { _, _ -> GrooveKinds.GENRE }
             ) { i, genre ->
                 Card(
@@ -86,14 +96,14 @@ fun GenreGrid(
                     ),
                     colors = GenreTile.cardColors(i),
                     onClick = {
-                        context.navController.navigate(RoutesBuilder.buildGenreRoute(genre))
+                        context.navController.navigate(RoutesBuilder.buildGenreRoute(genre.genre))
                     }
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .defaultMinSize(minHeight = 80.dp),
-                        contentAlignment = Alignment.Center
+                            .defaultMinSize(minHeight = 88.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Box(
                             modifier = Modifier
@@ -104,7 +114,7 @@ fun GenreGrid(
                                 .absoluteOffset(8.dp, 12.dp)
                         ) {
                             Text(
-                                genre,
+                                genre.genre,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.displaySmall
                                     .copy(fontWeight = FontWeight.Bold),
@@ -112,12 +122,21 @@ fun GenreGrid(
                                 overflow = TextOverflow.Clip,
                             )
                         }
-                        Box(modifier = Modifier.padding(20.dp)) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
                             Text(
-                                genre,
+                                genre.genre,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.bodyLarge
                                     .copy(fontWeight = FontWeight.Bold),
+                            )
+                            Text(
+                                context.symphony.t.XSongs(genre.numberOfTracks),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.labelSmall,
                             )
                         }
                     }
@@ -125,4 +144,9 @@ fun GenreGrid(
             }
         }
     )
+}
+
+private fun GenreSortBy.label(context: ViewContext) = when (this) {
+    GenreSortBy.GENRE -> context.symphony.t.genre
+    GenreSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
 }

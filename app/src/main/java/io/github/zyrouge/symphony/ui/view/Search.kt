@@ -22,10 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.zyrouge.symphony.services.groove.Album
-import io.github.zyrouge.symphony.services.groove.Artist
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -41,7 +38,7 @@ fun SearchView(context: ViewContext) {
     val artists = remember { mutableStateListOf<Artist>() }
     val albums = remember { mutableStateListOf<Album>() }
     val albumArtists = remember { mutableStateListOf<Artist>() }
-    val genres = remember { mutableStateListOf<String>() }
+    val genres = remember { mutableStateListOf<Genre>() }
 
     var selectedChip by rememberSaveable { mutableStateOf<GrooveKinds?>(null) }
     fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
@@ -313,11 +310,14 @@ fun SearchView(context: ViewContext) {
                                     genres.forEach { genre ->
                                         GenericGrooveCard(
                                             image = null,
-                                            title = { Text(genre) },
+                                            title = { Text(genre.genre) },
+                                            subtitle = {
+                                                Text(context.symphony.t.XSongs(genre.numberOfTracks))
+                                            },
                                             options = null,
                                             onClick = {
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildGenreRoute(genre)
+                                                    RoutesBuilder.buildGenreRoute(genre.genre)
                                                 )
                                             }
                                         )

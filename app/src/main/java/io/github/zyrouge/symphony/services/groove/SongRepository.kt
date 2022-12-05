@@ -23,8 +23,8 @@ enum class SongSortBy {
 
 class SongRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<Long, Song>()
-    private var cachedAlbumArtists = mutableMapOf<String, MutableSet<Long>>()
-    internal var cachedGenres = mutableListOf<String>()
+    private var cachedAlbumArtists = ConcurrentHashMap<String, MutableSet<Long>>()
+    internal var cachedGenres = ConcurrentHashMap<String, Genre>()
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
@@ -66,17 +66,13 @@ class SongRepository(private val symphony: Symphony) {
             MediaStore.Audio.Media.TITLE + " ASC"
         )
         try {
-            val updateDispatcher = GrooveRepositoryUpdateDispatcher {
-                onUpdate.dispatch(null)
-            }
+            val updateDispatcher = GrooveRepositoryUpdateDispatcher { dispatchGlobalUpdate() }
             cursor?.use {
                 val regex = symphony.settings.getSongsFilterPattern()
                     ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
                 val additionalMetadataCache = kotlin
                     .runCatching { symphony.database.songCache.read() }
                     .getOrNull()
-                val albumArtists = mutableMapOf<String, MutableSet<Long>>()
-                val genres = mutableSetOf<String>()
                 val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
                 while (it.moveToNext()) {
                     kotlin
@@ -91,16 +87,20 @@ class SongRepository(private val symphony: Symphony) {
                             cached[song.id] = song
                             nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
                             song.additional.albumArtist?.let { albumArtist ->
-                                albumArtists.compute(albumArtist) { _, value ->
+                                cachedAlbumArtists.compute(albumArtist) { _, value ->
                                     value?.apply { add(song.albumId) } ?: mutableSetOf(song.albumId)
                                 }
                             }
-                            song.additional.genre?.let { genre -> genres.add(genre) }
+                            song.additional.genre?.let { genre ->
+                                cachedGenres.compute(genre) { _, value ->
+                                    value
+                                        ?.apply { numberOfTracks++ }
+                                        ?: Genre(genre = genre, numberOfTracks = 1)
+                                }
+                            }
                             updateDispatcher.increment()
                         }
                 }
-                cachedAlbumArtists = albumArtists
-                cachedGenres = genres.toMutableList()
                 symphony.database.songCache.update(nAdditionalMetadata)
             }
         } catch (err: Exception) {

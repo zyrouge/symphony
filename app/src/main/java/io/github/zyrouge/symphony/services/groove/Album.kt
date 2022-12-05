@@ -2,7 +2,6 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.database.Cursor
 import android.provider.MediaStore.Audio.AlbumColumns
-import android.provider.MediaStore.Audio.AudioColumns
 import androidx.compose.runtime.Immutable
 import androidx.core.database.getStringOrNull
 import io.github.zyrouge.symphony.Symphony
@@ -14,6 +13,7 @@ data class Album(
     val albumId: Long,
     val albumName: String,
     val artistName: String?,
+    val numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.album.createAlbumArtworkImageRequest(albumId)
@@ -27,9 +27,12 @@ data class Album(
                 albumName = cursor.getColumnValue(AlbumColumns.ALBUM) {
                     cursor.getString(it)
                 },
-                artistName = cursor.getColumnValueNullable(AudioColumns.ARTIST) {
+                artistName = cursor.getColumnValueNullable(AlbumColumns.NUMBER_OF_SONGS) {
                     cursor.getStringOrNull(it)
-                }
+                },
+                numberOfTracks = cursor.getColumnValue(AlbumColumns.NUMBER_OF_SONGS) {
+                    cursor.getInt(it)
+                },
             )
         }
     }

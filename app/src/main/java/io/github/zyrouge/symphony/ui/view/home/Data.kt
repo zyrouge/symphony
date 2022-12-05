@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Artist
+import io.github.zyrouge.symphony.services.groove.Genre
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.EventUnsubscribeFn
 import io.github.zyrouge.symphony.utils.swap
@@ -33,7 +34,7 @@ class HomeViewData(val symphony: Symphony) {
     }
 
     var genresIsUpdating by mutableStateOf(symphony.groove.genre.isUpdating)
-    val genres = mutableStateListOf<String>().apply {
+    val genres = mutableStateListOf<Genre>().apply {
         swap(symphony.groove.genre.getAll())
     }
 
@@ -61,7 +62,7 @@ class HomeViewData(val symphony: Symphony) {
             albumArtists.swap(symphony.groove.albumArtist.getAll())
         }
         genresSubscriber = symphony.groove.genre.onUpdate.subscribe {
-            albumArtistsIsUpdating = symphony.groove.genre.isUpdating
+            genresIsUpdating = symphony.groove.genre.isUpdating
             genres.swap(symphony.groove.genre.getAll())
         }
     }

@@ -6,6 +6,7 @@ import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.AlbumSortBy
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
+import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.view.HomePages
@@ -29,6 +30,7 @@ object SettingsKeys {
     const val lastUsedArtistsSortReverse = "last_used_artists_sort_reverse"
     const val lastUsedAlbumsSortBy = "last_used_albums_sort_by"
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
+    const val lastUsedGenresSortBy = "last_used_genres_sort_by"
     const val lastUsedGenresSortReverse = "last_used_genres_sort_reverse"
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_tab"
@@ -190,6 +192,16 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.lastUsedAlbumsSortReverse, reverse)
         }
         onChange.dispatch(SettingsKeys.lastUsedAlbumsSortReverse)
+    }
+
+    fun getLastUsedGenresSortBy() =
+        getSharedPreferences().getEnum<GenreSortBy>(SettingsKeys.lastUsedGenresSortBy, null)
+
+    fun setLastUsedGenresSortBy(sortBy: GenreSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedGenresSortBy, sortBy)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedGenresSortBy)
     }
 
     fun getLastUsedGenresSortReverse() =
