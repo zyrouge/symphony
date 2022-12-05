@@ -50,14 +50,16 @@ data class Song(
                 var bitrate: Int? = null
                 var genre: String? = null
                 kotlin.runCatching {
-                    MediaMetadataRetriever().use {
-                        it.setDataSource(symphony.applicationContext, buildUri(id))
+                    val retriever = MediaMetadataRetriever()
+                    retriever.runCatching {
+                        setDataSource(symphony.applicationContext, buildUri(id))
                         albumArtist =
-                            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-                        bitrate =
-                            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toInt()
-                        genre = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+                            extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
+                        bitrate = extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                            ?.toInt()
+                        genre = extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                     }
+                    retriever.close()
                 }
                 return AdditionalMetadata(
                     albumArtist = albumArtist,
