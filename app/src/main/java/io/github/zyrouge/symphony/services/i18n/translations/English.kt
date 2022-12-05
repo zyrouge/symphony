@@ -85,6 +85,7 @@ class English : Translations {
     override val cancel = "Cancel"
     override val homeTabs = "Home tabs"
     override val selectAtleast2orAtmost5Tabs = "Select atleast 2 or atmost 5 tabs"
+    override val folders = "Folders"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"
@@ -98,4 +99,6 @@ class English : Translations {
     override fun XSecs(x: Float) = "${x}s"
     override fun unknownGenreX(x: String) = "Unknown genre $x"
     override fun XGenres(x: Int) = "$x genres"
+    override fun XFoldersYFiles(x: Int, y: Int) = "$x folders, $y files"
+    override fun XItems(x: Int) = "$x items"
 }

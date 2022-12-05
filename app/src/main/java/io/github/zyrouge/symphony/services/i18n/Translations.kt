@@ -85,6 +85,7 @@ interface Translations {
     val cancel: String
     val homeTabs: String
     val selectAtleast2orAtmost5Tabs: String
+    val folders: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
@@ -98,6 +99,8 @@ interface Translations {
     fun XSecs(x: Float): String
     fun unknownGenreX(x: String): String
     fun XGenres(x: Int): String
+    fun XFoldersYFiles(x: Int, y: Int): String
+    fun XItems(x: Int): String
 
     companion object {
         val all = arrayOf<Translations>(English())

@@ -63,24 +63,26 @@ fun GenreGrid(
 
     ResponsiveGrid(
         topBar = {
-            MediaSortBar(
-                context,
-                reverse = sortReverse,
-                onReverseChange = {
-                    sortReverse = it
-                    context.symphony.settings.setLastUsedGenresSortReverse(it)
-                },
-                sort = sortBy,
-                sorts = GenreSortBy.values().associateWith { x -> { x.label(it) } },
-                onSortChange = {
-                    sortBy = it
-                    context.symphony.settings.setLastUsedGenresSortBy(it)
-                },
-                label = {
-                    Text(context.symphony.t.XGenres(genres.size))
-                },
-                isLoading = isLoading,
-            )
+            Box(modifier = Modifier.padding(bottom = 4.dp)) {
+                MediaSortBar(
+                    context,
+                    reverse = sortReverse,
+                    onReverseChange = {
+                        sortReverse = it
+                        context.symphony.settings.setLastUsedGenresSortReverse(it)
+                    },
+                    sort = sortBy,
+                    sorts = GenreSortBy.values().associateWith { x -> { x.label(it) } },
+                    onSortChange = {
+                        sortBy = it
+                        context.symphony.settings.setLastUsedGenresSortBy(it)
+                    },
+                    label = {
+                        Text(context.symphony.t.XGenres(genres.size))
+                    },
+                    isLoading = isLoading,
+                )
+            }
         },
         content = { gridData ->
             itemsIndexed(

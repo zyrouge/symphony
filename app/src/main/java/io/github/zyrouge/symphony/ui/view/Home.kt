@@ -63,6 +63,11 @@ enum class HomePages(
         label = { it.symphony.t.genres },
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
+    ),
+    Folders(
+        label = { it.symphony.t.folders },
+        selectedIcon = { Icons.Filled.Folder },
+        unselectedIcon = { Icons.Outlined.Folder }
     );
 }
 
@@ -161,6 +166,7 @@ fun HomeView(context: ViewContext) {
                         HomePages.Artists -> ArtistsView(context, data)
                         HomePages.AlbumArtists -> AlbumArtistsView(context, data)
                         HomePages.Genres -> GenresView(context, data)
+                        HomePages.Folders -> FoldersView(context, data)
                     }
                 }
             }

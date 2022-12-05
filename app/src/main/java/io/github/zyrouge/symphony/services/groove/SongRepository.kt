@@ -27,6 +27,7 @@ class SongRepository(private val symphony: Symphony) {
     internal var cachedGenres = ConcurrentHashMap<String, Genre>()
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
+    var explorer = createNewExplorer()
 
     private val searcher = FuzzySearcher<Song>(
         options = listOf(
@@ -57,6 +58,7 @@ class SongRepository(private val symphony: Symphony) {
         cached.clear()
         cachedAlbumArtists.clear()
         cachedGenres.clear()
+        explorer = createNewExplorer()
         dispatchGlobalUpdate()
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -98,6 +100,9 @@ class SongRepository(private val symphony: Symphony) {
                                         ?: Genre(genre = genre, numberOfTracks = 1)
                                 }
                             }
+                            val entity = explorer
+                                .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
+                            entity.data = song.id
                             updateDispatcher.increment()
                         }
                 }
@@ -156,5 +161,7 @@ class SongRepository(private val symphony: Symphony) {
             }
             return if (reversed) sorted.reversed() else sorted
         }
+
+        fun createNewExplorer() = GrooveExplorer.Folder("root")
     }
 }

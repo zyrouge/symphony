@@ -17,6 +17,7 @@ class HomeViewData(val symphony: Symphony) {
     val songs = mutableStateListOf<Song>().apply {
         swap(symphony.groove.song.getAll())
     }
+    var songsExplorerId by mutableStateOf(System.currentTimeMillis())
 
     var artistsIsUpdating by mutableStateOf(symphony.groove.artist.isUpdating)
     val artists = mutableStateListOf<Artist>().apply {
@@ -48,6 +49,7 @@ class HomeViewData(val symphony: Symphony) {
         songsSubscriber = symphony.groove.song.onUpdate.subscribe {
             songsIsUpdating = symphony.groove.song.isUpdating
             songs.swap(symphony.groove.song.getAll())
+            songsExplorerId = System.currentTimeMillis()
         }
         artistsSubscriber = symphony.groove.artist.onUpdate.subscribe {
             artistsIsUpdating = symphony.groove.artist.isUpdating
