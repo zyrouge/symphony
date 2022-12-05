@@ -105,8 +105,8 @@ class RadioNotification(private val symphony: Symphony) {
                 RadioEvents.PausePlaying,
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
-                RadioEvents.SongSeeked,
-                RadioEvents.QueueEnded -> update()
+                RadioEvents.SongSeeked -> update()
+                RadioEvents.QueueEnded -> cancel()
                 else -> {}
             }
         }
@@ -120,103 +120,98 @@ class RadioNotification(private val symphony: Symphony) {
 
     private fun update() {
         if (!usable) return
-        when {
-            symphony.radio.hasPlayer -> {
-                symphony.radio.queue.currentPlayingSong?.let { song ->
-                    val playbackPosition = symphony.radio.currentPlaybackPosition!!
-                    val isPlaying = symphony.radio.isPlaying
-                    session.run {
-                        setMetadata(
-                            MediaMetadataCompat.Builder().run {
-                                putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
-                                putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artistName)
-                                putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
-                                putString(
-                                    MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                                    symphony.groove.album
-                                        .getAlbumArtworkUri(song.albumId)
-                                        .toString()
-                                )
-                                putLong(
-                                    MediaMetadataCompat.METADATA_KEY_DURATION,
-                                    playbackPosition.total.toLong()
-                                )
-                                build()
-                            }
+        symphony.radio.queue.currentPlayingSong?.let { song ->
+            val playbackPosition = symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
+            val isPlaying = symphony.radio.isPlaying
+            session.run {
+                setMetadata(
+                    MediaMetadataCompat.Builder().run {
+                        putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
+                        putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artistName)
+                        putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
+                        putString(
+                            MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+                            symphony.groove.album
+                                .getAlbumArtworkUri(song.albumId)
+                                .toString()
                         )
-                        setPlaybackState(
-                            PlaybackStateCompat.Builder().run {
-                                setState(
-                                    if (isPlaying) PlaybackStateCompat.STATE_PLAYING
-                                    else PlaybackStateCompat.STATE_PAUSED,
-                                    playbackPosition.played.toLong(),
-                                    1f
-                                )
-                                setActions(
-                                    PlaybackStateCompat.ACTION_PLAY
-                                            or PlaybackStateCompat.ACTION_PAUSE
-                                            or PlaybackStateCompat.ACTION_PLAY_PAUSE
-                                            or PlaybackStateCompat.ACTION_SEEK_TO
-                                )
-                                build()
-                            }
+                        putLong(
+                            MediaMetadataCompat.METADATA_KEY_DURATION,
+                            playbackPosition.total.toLong()
                         )
+                        build()
                     }
-                    builder!!.run {
-                        setContentTitle(song.title)
-                        setContentText(song.artistName)
-                        symphony.launchInScope {
-                            Coil.imageLoader(symphony.applicationContext).enqueue(
-                                song.createArtworkImageRequest(symphony).run {
-                                    target { icon ->
-                                        setLargeIcon(Bitmap.createBitmap(icon.toBitmap()))
-                                    }
-                                    build()
-                                }
-                            )
-                        }
-                        setOngoing(isPlaying)
-                        clearActions()
-                        addAction(
-                            createAction(
-                                R.drawable.material_icon_skip_previous,
-                                symphony.t.previous,
-                                ACTION_PREVIOUS
-                            )
+                )
+                setPlaybackState(
+                    PlaybackStateCompat.Builder().run {
+                        setState(
+                            if (isPlaying) PlaybackStateCompat.STATE_PLAYING
+                            else PlaybackStateCompat.STATE_PAUSED,
+                            playbackPosition.played.toLong(),
+                            1f
                         )
-                        addAction(
-                            when {
-                                isPlaying -> createAction(
-                                    R.drawable.material_icon_pause,
-                                    symphony.t.play,
-                                    ACTION_PLAY_PAUSE
-                                )
-                                else -> createAction(
-                                    R.drawable.material_icon_play,
-                                    symphony.t.pause,
-                                    ACTION_PLAY_PAUSE
-                                )
-                            }
+                        setActions(
+                            PlaybackStateCompat.ACTION_PLAY
+                                    or PlaybackStateCompat.ACTION_PAUSE
+                                    or PlaybackStateCompat.ACTION_PLAY_PAUSE
+                                    or PlaybackStateCompat.ACTION_SEEK_TO
                         )
-                        addAction(
-                            createAction(
-                                R.drawable.material_icon_skip_next,
-                                symphony.t.next,
-                                ACTION_NEXT
-                            )
-                        )
-                        addAction(
-                            createAction(
-                                R.drawable.material_icon_stop,
-                                symphony.t.stop,
-                                ACTION_STOP
-                            )
-                        )
-                        manager.notify(build())
+                        build()
                     }
-                }
+                )
             }
-            else -> cancel()
+            builder!!.run {
+                setContentTitle(song.title)
+                setContentText(song.artistName)
+                symphony.launchInScope {
+                    Coil.imageLoader(symphony.applicationContext).enqueue(
+                        song.createArtworkImageRequest(symphony).run {
+                            target { icon ->
+                                setLargeIcon(Bitmap.createBitmap(icon.toBitmap()))
+                            }
+                            build()
+                        }
+                    )
+                }
+                setOngoing(isPlaying)
+                clearActions()
+                addAction(
+                    createAction(
+                        R.drawable.material_icon_skip_previous,
+                        symphony.t.previous,
+                        ACTION_PREVIOUS
+                    )
+                )
+                addAction(
+                    when {
+                        isPlaying -> createAction(
+                            R.drawable.material_icon_pause,
+                            symphony.t.play,
+                            ACTION_PLAY_PAUSE
+                        )
+                        else -> createAction(
+                            R.drawable.material_icon_play,
+                            symphony.t.pause,
+                            ACTION_PLAY_PAUSE
+                        )
+                    }
+                )
+                addAction(
+                    createAction(
+                        R.drawable.material_icon_skip_next,
+                        symphony.t.next,
+                        ACTION_NEXT
+                    )
+                )
+                addAction(
+                    createAction(
+                        R.drawable.material_icon_stop,
+                        symphony.t.stop,
+                        ACTION_STOP
+                    )
+                )
+                manager.notify(build())
+            }
         }
     }
 

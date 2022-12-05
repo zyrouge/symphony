@@ -53,7 +53,7 @@ class RadioNotificationManager(val symphony: Symphony) {
     }
 
     fun notify(notification: Notification) {
-        if (state != State.READY) {
+        if (!hasService) {
             createService()
             lastNotification = notification
             return
@@ -69,7 +69,7 @@ class RadioNotificationManager(val symphony: Symphony) {
     }
 
     private fun createService() {
-        if (state == State.READY || state == State.PREPARING) return
+        if (hasService || state == State.PREPARING) return
         val intent = Intent(symphony.applicationContext, RadioNotificationService::class.java)
         symphony.applicationContext.startForegroundService(intent)
         state = State.PREPARING
