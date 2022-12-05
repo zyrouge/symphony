@@ -13,8 +13,7 @@ import io.github.zyrouge.symphony.utils.getColumnValueNullable
 data class Album(
     val albumId: Long,
     val albumName: String,
-    val artistId: Long,
-    val artistName: String?
+    val artistName: String?,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.album.createAlbumArtworkImageRequest(albumId)
@@ -27,9 +26,6 @@ data class Album(
                 },
                 albumName = cursor.getColumnValue(AlbumColumns.ALBUM) {
                     cursor.getString(it)
-                },
-                artistId = cursor.getColumnValue(AlbumColumns.ARTIST_ID) {
-                    cursor.getLong(it)
                 },
                 artistName = cursor.getColumnValueNullable(AudioColumns.ARTIST) {
                     cursor.getStringOrNull(it)

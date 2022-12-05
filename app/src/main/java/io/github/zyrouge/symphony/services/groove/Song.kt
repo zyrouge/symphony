@@ -41,7 +41,7 @@ data class Song(
         companion object {
             fun fromSongCacheAttributes(attributes: SongCache.Attributes) = AdditionalMetadata(
                 albumArtist = attributes.albumArtist,
-                bitrate = attributes.bitrate?.toInt(),
+                bitrate = attributes.bitrate,
                 genre = attributes.genre,
             )
 

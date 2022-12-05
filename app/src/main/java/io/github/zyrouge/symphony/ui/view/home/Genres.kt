@@ -15,7 +15,7 @@ fun GenresView(context: ViewContext, data: HomeViewData) {
         data.songs.isNotEmpty() -> GenreGrid(
             context,
             data.genres,
-            isLoading = data.songsIsUpdating,
+            isLoading = data.genresIsUpdating,
         )
         else -> IconTextBody(
             icon = { modifier ->
