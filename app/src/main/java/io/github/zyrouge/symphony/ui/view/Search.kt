@@ -135,12 +135,12 @@ fun SearchView(context: ViewContext) {
                         }
                     }
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.horizontalScroll(rememberScrollState())
                 ) {
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     FilterChip(
                         selected = selectedChip == null,
                         label = {
@@ -163,8 +163,9 @@ fun SearchView(context: ViewContext) {
                             }
                         )
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                 }
+                Spacer(modifier = Modifier.height(4.dp))
             }
         },
         content = { contentPadding ->
@@ -322,6 +323,7 @@ fun SearchView(context: ViewContext) {
                                         )
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
                         }
                     }
