@@ -18,6 +18,7 @@ import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Assets
+import kotlinx.coroutines.Job
 
 class RadioNotification(private val symphony: Symphony) {
     private val session = MediaSessionCompat(
@@ -101,14 +102,14 @@ class RadioNotification(private val symphony: Symphony) {
             )
         }
         usable = true
-        update()
+        updateSync()
         symphony.radio.onUpdate.subscribe {
             when (it) {
                 RadioEvents.StartPlaying,
                 RadioEvents.PausePlaying,
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
-                RadioEvents.SongSeeked -> update()
+                RadioEvents.SongSeeked -> updateSync()
                 RadioEvents.QueueEnded -> cancel()
                 else -> {}
             }
@@ -121,7 +122,13 @@ class RadioNotification(private val symphony: Symphony) {
         symphony.applicationContext.unregisterReceiver(receiver)
     }
 
-    private fun update() {
+    private var currentUpdateJob: Job? = null
+    private fun updateSync() {
+        currentUpdateJob?.cancel()
+        currentUpdateJob = symphony.launchInScope { update() }
+    }
+
+    private suspend fun update() {
         if (!usable) return
         symphony.radio.queue.currentPlayingSong?.let { song ->
             val playbackPosition = symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
@@ -204,7 +211,10 @@ class RadioNotification(private val symphony: Symphony) {
                         ACTION_STOP
                     )
                 )
-                manager.notify(build())
+                // NOTE: final check before notifying
+                if (symphony.radio.queue.currentPlayingSong?.id == song.id) {
+                    manager.notify(build())
+                }
             }
         }
     }
@@ -240,8 +250,7 @@ class RadioNotification(private val symphony: Symphony) {
     }
 
     private var defaultArtworkBitmap: Bitmap? = null
-    private var currentArtworkSongId: Long? = null
-    private var currentArtworkBitmap: Bitmap? = null
+    private var currentArtworkBitmap: Pair<Long, Bitmap?>? = null
 
     private fun getDefaultArtworkBitmap(): Bitmap {
         return defaultArtworkBitmap ?: run {
@@ -254,22 +263,14 @@ class RadioNotification(private val symphony: Symphony) {
         }
     }
 
-    private fun getSongArtworkBitmap(song: Song): Bitmap {
-        if (currentArtworkSongId != song.id) {
-            currentArtworkSongId = song.id
-            currentArtworkBitmap = null
-            symphony.launchInScope {
-                val result = symphony.applicationContext.imageLoader
-                    .execute(song.createArtworkImageRequest(symphony).build())
-                if (currentArtworkSongId == song.id) {
-                    val size = symphony.applicationContext.resources.displayMetrics.widthPixels
-                    currentArtworkBitmap = result.drawable?.toBitmap(size, size)
-                    // NOTE: rebuild notification since the cover has been fetched
-                    update()
-                }
-            }
+    private suspend fun getSongArtworkBitmap(song: Song): Bitmap {
+        if (currentArtworkBitmap?.first != song.id) {
+            val result = symphony.applicationContext.imageLoader
+                .execute(song.createArtworkImageRequest(symphony).build())
+            val size = symphony.applicationContext.resources.displayMetrics.widthPixels
+            currentArtworkBitmap = Pair(song.id, result.drawable?.toBitmap(size, size))
         }
-        return currentArtworkBitmap ?: getDefaultArtworkBitmap()
+        return currentArtworkBitmap?.second ?: getDefaultArtworkBitmap()
     }
 
     companion object {

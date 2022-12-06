@@ -85,9 +85,13 @@ fun ExplorerList(
         }
     }
     val currentPath by remember { derivedStateOf { currentFolder.fullPath } }
+    val currentPathScrollState = rememberScrollState()
 
     LaunchedEffect(LocalContext.current) {
-        snapshotFlow { currentPath }.collect { onPathChange(it) }
+        snapshotFlow { currentPath }.collect { path ->
+            onPathChange(path)
+            currentPathScrollState.animateScrollTo(Int.MAX_VALUE)
+        }
     }
 
     BackHandler(enabled = currentPath.size > 1) {
@@ -103,7 +107,7 @@ fun ExplorerList(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(currentPathScrollState)
                     .padding(12.dp, 0.dp),
             ) {
                 currentPath.mapIndexed { i, basename ->
