@@ -3,6 +3,9 @@ package io.github.zyrouge.symphony.services.groove
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.PermissionEvents
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 enum class GrooveKinds {
     SONG,
@@ -19,6 +22,8 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     val albumArtist = AlbumArtistRepository(symphony)
     val genre = GenreRepository(symphony)
 
+    var readyDeferred = CompletableDeferred<Boolean>()
+
     init {
         symphony.permission.onUpdate.subscribe {
             when (it) {
@@ -27,14 +32,21 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    private fun fetch() {
-        song.fetch()
-        album.fetch()
-        artist.fetch()
+    private fun fetch(postFetch: () -> Unit = {}) {
+        symphony.launchInScope {
+            awaitAll(
+                async { song.fetch() },
+                async { album.fetch() },
+                async { artist.fetch() },
+            )
+            postFetch()
+        }
     }
 
     override fun onSymphonyReady() {
-        fetch()
+        fetch {
+            readyDeferred.complete(true)
+        }
     }
 }
 

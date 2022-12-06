@@ -79,6 +79,7 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         usable = false
         destroyDurationTimer()
         unsafeMediaPlayer.stop()
+        unsafeMediaPlayer.reset()
         unsafeMediaPlayer.release()
     }
 

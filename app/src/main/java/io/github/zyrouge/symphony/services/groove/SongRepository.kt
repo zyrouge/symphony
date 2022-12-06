@@ -5,7 +5,6 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.*
-import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.ConcurrentHashMap
 
 enum class SongSortBy {
@@ -47,12 +46,6 @@ class SongRepository(private val symphony: Symphony) {
     }
 
     fun fetch() {
-        symphony.launchInScope(Dispatchers.Default) {
-            fetchSync()
-        }
-    }
-
-    private fun fetchSync() {
         if (isUpdating) return
         setGlobalUpdateState(true)
         cached.clear()

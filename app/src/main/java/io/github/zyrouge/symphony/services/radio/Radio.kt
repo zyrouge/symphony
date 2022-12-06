@@ -207,7 +207,14 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    override fun onSymphonyReady() {
+    private fun attachGrooveListener() {
+        symphony.launchInScope {
+            symphony.groove.readyDeferred.await()
+            restorePreviousQueue()
+        }
+    }
+
+    private fun restorePreviousQueue() {
         symphony.settings.getPreviousSongQueue()?.let { previous ->
             var currentSongIndex = previous.currentSongIndex
             var playedDuration = previous.playedDuration
@@ -225,7 +232,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     if (i < currentSongIndex) currentSongIndex--
                 }
             }
-            if (originalQueue.isEmpty()) return@let
+            if (originalQueue.isEmpty() || hasPlayer) return@let
             if (currentSongIndex >= originalQueue.size) {
                 currentSongIndex = 0
                 playedDuration = 0
@@ -239,7 +246,11 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 )
             )
         }
+    }
+
+    override fun onSymphonyReady() {
         notification.start()
+        attachGrooveListener()
     }
 
     override fun onSymphonyPause() {

@@ -1,5 +1,7 @@
 package io.github.zyrouge.symphony.services.groove
 
+import java.util.concurrent.ConcurrentHashMap
+
 object GrooveExplorer {
     abstract class Entity(val basename: String, var parent: Folder? = null) {
         val fullPath: List<String>
@@ -18,7 +20,7 @@ object GrooveExplorer {
     class Folder(
         basename: String,
         parent: Folder? = null,
-        var children: MutableMap<String, Entity> = mutableMapOf(),
+        var children: ConcurrentHashMap<String, Entity> = ConcurrentHashMap(),
     ) : Entity(basename, parent) {
         val isEmpty: Boolean get() = children.isEmpty()
 

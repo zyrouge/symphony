@@ -5,7 +5,6 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
-import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.ConcurrentHashMap
 
 enum class ArtistSortBy {
@@ -26,12 +25,6 @@ class ArtistRepository(private val symphony: Symphony) {
     )
 
     fun fetch() {
-        symphony.launchInScope(Dispatchers.Default) {
-            fetchSync()
-        }
-    }
-
-    private fun fetchSync() {
         if (isUpdating) return
         isUpdating = true
         cached.clear()
