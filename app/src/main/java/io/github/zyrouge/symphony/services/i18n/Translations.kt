@@ -86,6 +86,10 @@ interface Translations {
     val homeTabs: String
     val selectAtleast2orAtmost5Tabs: String
     val folders: String
+    val invisible: String
+    val alwaysVisible: String
+    val visibleWhenActive: String
+    val bottomBarLabelVisibility: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

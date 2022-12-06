@@ -149,6 +149,20 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setHomeTabs(value)
                         }
                     )
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Default.Label, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.bottomBarLabelVisibility)
+                        },
+                        value = settings.homePageBottomBarLabelVisibility,
+                        values = HomePageBottomBarLabelVisibility.values()
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.setHomePageBottomBarLabelVisibility(value)
+                        }
+                    )
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Default.SkipNext, null)
@@ -364,4 +378,12 @@ fun SettingsView(context: ViewContext) {
             }
         }
     )
+}
+
+fun HomePageBottomBarLabelVisibility.label(context: ViewContext): String {
+    return when (this) {
+        HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE -> context.symphony.t.alwaysVisible
+        HomePageBottomBarLabelVisibility.VISIBLE_WHEN_ACTIVE -> context.symphony.t.visibleWhenActive
+        HomePageBottomBarLabelVisibility.INVISIBLE -> context.symphony.t.invisible
+    }
 }

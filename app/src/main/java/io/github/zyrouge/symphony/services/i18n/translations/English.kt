@@ -86,6 +86,10 @@ class English : Translations {
     override val homeTabs = "Home tabs"
     override val selectAtleast2orAtmost5Tabs = "Select atleast 2 or atmost 5 tabs"
     override val folders = "Folders"
+    override val invisible = "Invisible"
+    override val alwaysVisible = "Always visible"
+    override val visibleWhenActive = "Visible when active"
+    override val bottomBarLabelVisibility = "Bottom bar label visibility"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

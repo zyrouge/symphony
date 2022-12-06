@@ -9,6 +9,7 @@ import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.RadioQueue
+import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.utils.Eventer
 
@@ -48,6 +49,7 @@ object SettingsKeys {
     const val primary_color = "primary_color"
     const val fade_playback_duration = "fade_playback_duration"
     const val home_tabs = "home_tabs"
+    const val home_page_bottom_bar_label_visibility = "home_page_bottom_bar_label_visibility"
 }
 
 data class SettingsData(
@@ -65,6 +67,7 @@ data class SettingsData(
     val primaryColor: String?,
     val fadePlaybackDuration: Float,
     val homeTabs: Set<HomePages>,
+    val homePageBottomBarLabelVisibility: HomePageBottomBarLabelVisibility,
 )
 
 object SettingsDataDefaults {
@@ -84,6 +87,7 @@ object SettingsDataDefaults {
         HomePages.Albums,
         HomePages.Artists
     )
+    val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -104,6 +108,7 @@ class SettingsManager(private val symphony: Symphony) {
         primaryColor = getPrimaryColor(),
         fadePlaybackDuration = getFadePlaybackDuration(),
         homeTabs = getHomeTabs(),
+        homePageBottomBarLabelVisibility = getHomePageBottomBarLabelVisibility(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -247,10 +252,9 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.lastUsedFolderPath)
     }
 
-    fun getPreviousSongQueue(): RadioQueue.Serialized? {
-        val raw = getSharedPreferences().getString(SettingsKeys.previousSongQueue, null)
-        return raw?.let { RadioQueue.Serialized.parse(it) }
-    }
+    fun getPreviousSongQueue() = getSharedPreferences()
+        .getString(SettingsKeys.previousSongQueue, null)
+        ?.let { RadioQueue.Serialized.parse(it) }
 
     fun setPreviousSongQueue(queue: RadioQueue.Serialized) {
         getSharedPreferences().edit {
@@ -403,6 +407,18 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.home_tabs, tabs.joinToString(",") { it.name })
         }
         onChange.dispatch(SettingsKeys.home_tabs)
+    }
+
+    fun getHomePageBottomBarLabelVisibility() =
+        getSharedPreferences()
+            .getEnum(SettingsKeys.home_page_bottom_bar_label_visibility, null)
+            ?: SettingsDataDefaults.homePageBottomBarLabelVisibility
+
+    fun setHomePageBottomBarLabelVisibility(value: HomePageBottomBarLabelVisibility) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.home_page_bottom_bar_label_visibility, value)
+        }
+        onChange.dispatch(SettingsKeys.home_page_bottom_bar_label_visibility)
     }
 
     private fun getSharedPreferences() =

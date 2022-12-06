@@ -1,10 +1,7 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -17,6 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -71,11 +69,18 @@ enum class HomePages(
     );
 }
 
+enum class HomePageBottomBarLabelVisibility {
+    ALWAYS_VISIBLE,
+    VISIBLE_WHEN_ACTIVE,
+    INVISIBLE,
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
     val tabs = context.symphony.settings.getHomeTabs().toList()
+    val labelVisibility = context.symphony.settings.getHomePageBottomBarLabelVisibility()
     val pageState = rememberPagerState(
         context.symphony.settings.getHomeLastTab()
             ?.let { value -> tabs.indexOfOrNull { it.name == value } }
@@ -175,27 +180,32 @@ fun HomeView(context: ViewContext) {
             Column {
                 NowPlayingBottomBar(context)
                 NavigationBar {
+                    Spacer(modifier = Modifier.width(2.dp))
                     tabs.map { page ->
                         val isSelected = currentPage == page
                         val label = page.label(context)
                         NavigationBarItem(
                             selected = isSelected,
-                            alwaysShowLabel = false,
+                            alwaysShowLabel = labelVisibility == HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE,
                             icon = {
                                 Crossfade(targetState = isSelected) {
                                     Icon(
                                         if (it) page.selectedIcon() else page.unselectedIcon(),
-                                        label
+                                        label,
                                     )
                                 }
                             },
-                            label = {
-                                Text(
-                                    label,
-                                    textAlign = TextAlign.Center,
-                                    overflow = TextOverflow.Ellipsis,
-                                    softWrap = false,
-                                )
+                            label = when (labelVisibility) {
+                                HomePageBottomBarLabelVisibility.INVISIBLE -> null
+                                else -> ({
+                                    Text(
+                                        label,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        textAlign = TextAlign.Center,
+                                        overflow = TextOverflow.Ellipsis,
+                                        softWrap = false,
+                                    )
+                                })
                             },
                             onClick = {
                                 currentPage = page
@@ -206,6 +216,7 @@ fun HomeView(context: ViewContext) {
                             }
                         )
                     }
+                    Spacer(modifier = Modifier.width(2.dp))
                 }
             }
         }
