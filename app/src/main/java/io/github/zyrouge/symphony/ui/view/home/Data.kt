@@ -45,28 +45,14 @@ class HomeViewData(val symphony: Symphony) {
     private var albumArtistsSubscriber: EventUnsubscribeFn? = null
     private var genresSubscriber: EventUnsubscribeFn? = null
 
-    init {
-        songsSubscriber = symphony.groove.song.onUpdate.subscribe {
-            songsIsUpdating = symphony.groove.song.isUpdating
-            songs.swap(symphony.groove.song.getAll())
-            songsExplorerId = System.currentTimeMillis()
-        }
-        artistsSubscriber = symphony.groove.artist.onUpdate.subscribe {
-            artistsIsUpdating = symphony.groove.artist.isUpdating
-            artists.swap(symphony.groove.artist.getAll())
-        }
-        albumsSubscriber = symphony.groove.album.onUpdate.subscribe {
-            albumsIsUpdating = symphony.groove.album.isUpdating
-            albums.swap(symphony.groove.album.getAll())
-        }
-        albumArtistsSubscriber = symphony.groove.albumArtist.onUpdate.subscribe {
-            albumArtistsIsUpdating = symphony.groove.albumArtist.isUpdating
-            albumArtists.swap(symphony.groove.albumArtist.getAll())
-        }
-        genresSubscriber = symphony.groove.genre.onUpdate.subscribe {
-            genresIsUpdating = symphony.groove.genre.isUpdating
-            genres.swap(symphony.groove.genre.getAll())
-        }
+    fun initialize() {
+        updateAllStates()
+        songsSubscriber = symphony.groove.song.onUpdate.subscribe { updateSongsState() }
+        artistsSubscriber = symphony.groove.artist.onUpdate.subscribe { updateArtistsState() }
+        albumsSubscriber = symphony.groove.album.onUpdate.subscribe { updateAlbumsState() }
+        albumArtistsSubscriber =
+            symphony.groove.albumArtist.onUpdate.subscribe { updateAlbumArtistsState() }
+        genresSubscriber = symphony.groove.genre.onUpdate.subscribe { updateGenresState() }
     }
 
     fun dispose() {
@@ -75,5 +61,39 @@ class HomeViewData(val symphony: Symphony) {
         albumsSubscriber?.invoke()
         albumArtistsSubscriber?.invoke()
         genresSubscriber?.invoke()
+    }
+
+    private fun updateAllStates() {
+        updateSongsState()
+        updateArtistsState()
+        updateAlbumsState()
+        updateAlbumArtistsState()
+        updateGenresState()
+    }
+
+    private fun updateSongsState() {
+        songsIsUpdating = symphony.groove.song.isUpdating
+        songs.swap(symphony.groove.song.getAll())
+        songsExplorerId = System.currentTimeMillis()
+    }
+
+    private fun updateArtistsState() {
+        artistsIsUpdating = symphony.groove.artist.isUpdating
+        artists.swap(symphony.groove.artist.getAll())
+    }
+
+    private fun updateAlbumsState() {
+        albumsIsUpdating = symphony.groove.album.isUpdating
+        albums.swap(symphony.groove.album.getAll())
+    }
+
+    private fun updateAlbumArtistsState() {
+        albumArtistsIsUpdating = symphony.groove.albumArtist.isUpdating
+        albumArtists.swap(symphony.groove.albumArtist.getAll())
+    }
+
+    private fun updateGenresState() {
+        genresIsUpdating = symphony.groove.genre.isUpdating
+        genres.swap(symphony.groove.genre.getAll())
     }
 }

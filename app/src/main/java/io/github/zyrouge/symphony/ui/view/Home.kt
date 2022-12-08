@@ -90,6 +90,10 @@ fun HomeView(context: ViewContext) {
     var showOptionsDropdown by remember { mutableStateOf(false) }
     val data = remember { HomeViewData(context.symphony) }
 
+    LaunchedEffect(LocalContext.current) {
+        data.initialize()
+    }
+
     DisposableEffect(LocalContext.current) {
         onDispose { data.dispose() }
     }

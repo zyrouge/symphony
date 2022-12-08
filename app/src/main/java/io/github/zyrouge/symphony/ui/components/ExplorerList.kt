@@ -36,6 +36,7 @@ private const val FolderContentType = "folder"
 @Composable
 fun ExplorerList(
     context: ViewContext,
+    key: Any?,
     initialPath: List<String>?,
     explorer: GrooveExplorer.Folder,
     isLoading: Boolean = false,
@@ -56,7 +57,7 @@ fun ExplorerList(
     var sortReverse by remember {
         mutableStateOf(context.symphony.settings.getLastUsedFolderSortReverse())
     }
-    val sortedEntities by remember {
+    val sortedEntities by remember(key) {
         derivedStateOf {
             val folders = mutableListOf<GrooveExplorer.Folder>()
             val files = mutableMapOf<Song, GrooveExplorer.File>()

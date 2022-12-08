@@ -19,6 +19,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class RadioNotification(private val symphony: Symphony) {
     private val session = MediaSessionCompat(
@@ -125,7 +126,7 @@ class RadioNotification(private val symphony: Symphony) {
     private var currentUpdateJob: Job? = null
     private fun updateSync() {
         currentUpdateJob?.cancel()
-        currentUpdateJob = symphony.launchInScope { update() }
+        currentUpdateJob = symphony.groove.coroutineScope.launch { update() }
     }
 
     private suspend fun update() {

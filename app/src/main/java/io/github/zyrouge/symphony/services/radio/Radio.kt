@@ -4,6 +4,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
+import kotlinx.coroutines.launch
 import kotlin.math.max
 
 enum class RadioEvents {
@@ -208,7 +209,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     private fun attachGrooveListener() {
-        symphony.launchInScope {
+        symphony.groove.coroutineScope.launch {
             symphony.groove.readyDeferred.await()
             restorePreviousQueue()
         }
