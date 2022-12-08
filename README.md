@@ -30,7 +30,7 @@
 <br>
 
 <p align="center">
-    <img src="./media/screenshots/unified.png" width="100%">
+    <img src="./media/screenshots.png" width="100%">
 </p>
 
 ## What & How?
