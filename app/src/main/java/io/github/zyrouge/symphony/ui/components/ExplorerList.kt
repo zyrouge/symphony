@@ -142,13 +142,13 @@ fun ExplorerList(
                 reverse = sortReverse,
                 onReverseChange = {
                     sortReverse = it
-                    context.symphony.settings.setLastUsedSongsSortReverse(it)
+                    context.symphony.settings.setLastUsedFolderSortReverse(it)
                 },
                 sort = sortBy,
                 sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
                 onSortChange = {
                     sortBy = it
-                    context.symphony.settings.setLastUsedSongsSortBy(it)
+                    context.symphony.settings.setLastUsedFolderSortBy(it)
                 },
                 label = {
                     Text(

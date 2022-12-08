@@ -268,7 +268,7 @@ class RadioNotification(private val symphony: Symphony) {
             val result = symphony.applicationContext.imageLoader
                 .execute(song.createArtworkImageRequest(symphony).build())
             val size = symphony.applicationContext.resources.displayMetrics.widthPixels
-            currentArtworkBitmap = Pair(song.id, result.drawable?.toBitmap(size, size))
+            currentArtworkBitmap = song.id to result.drawable?.toBitmap(size, size)
         }
         return currentArtworkBitmap?.second ?: getDefaultArtworkBitmap()
     }
