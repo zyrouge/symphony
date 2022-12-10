@@ -1,6 +1,9 @@
 package io.github.zyrouge.symphony.ui.view
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,18 +17,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.helpers.Routes
-import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.helpers.*
 import io.github.zyrouge.symphony.ui.view.home.*
-import io.github.zyrouge.symphony.utils.indexOfOrNull
-import kotlinx.coroutines.launch
 
 enum class HomePages(
     val label: (context: ViewContext) -> String,
@@ -75,18 +72,14 @@ enum class HomePageBottomBarLabelVisibility {
     INVISIBLE,
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
-    val coroutineScope = rememberCoroutineScope()
     val tabs = context.symphony.settings.getHomeTabs().toList()
     val labelVisibility = context.symphony.settings.getHomePageBottomBarLabelVisibility()
-    val pageState = rememberPagerState(
-        context.symphony.settings.getHomeLastTab()
-            ?.let { value -> tabs.indexOfOrNull { it.name == value } }
-            ?: 0
-    )
-    var currentPage by remember { mutableStateOf(tabs[pageState.currentPage]) }
+    var currentPage by remember {
+        mutableStateOf(context.symphony.settings.getHomeLastTab())
+    }
     var showOptionsDropdown by remember { mutableStateOf(false) }
     val data = remember { HomeViewData(context.symphony) }
 
@@ -158,25 +151,32 @@ fun HomeView(context: ViewContext) {
             )
         },
         content = { contentPadding ->
-            HorizontalPager(
-                state = pageState,
-                count = tabs.size,
-                userScrollEnabled = false
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(contentPadding)
-                        .fillMaxSize()
-                ) {
-                    when (tabs[it]) {
-                        HomePages.ForYou -> ForYouView(context, data)
-                        HomePages.Songs -> SongsView(context, data)
-                        HomePages.Albums -> AlbumsView(context, data)
-                        HomePages.Artists -> ArtistsView(context, data)
-                        HomePages.AlbumArtists -> AlbumArtistsView(context, data)
-                        HomePages.Genres -> GenresView(context, data)
-                        HomePages.Folders -> FoldersView(context, data)
+            AnimatedContent(
+                targetState = currentPage,
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize(),
+                transitionSpec = {
+                    val initialIndex = tabs.indexOf(initialState)
+                    val targetIndex = tabs.indexOf(targetState)
+                    val exitAnimationSpec =
+                        TransitionDurations.Normal.asTween<IntOffset>(delayMillis = 200)
+                    when {
+                        targetIndex > initialIndex -> SlideTransitions.slideRight.enterTransition()
+                            .with(SlideTransitions.slideLeft.exitTransition(exitAnimationSpec))
+                        else -> SlideTransitions.slideLeft.enterTransition()
+                            .with(SlideTransitions.slideRight.exitTransition(exitAnimationSpec))
                     }
+                },
+            ) { page ->
+                when (page) {
+                    HomePages.ForYou -> ForYouView(context, data)
+                    HomePages.Songs -> SongsView(context, data)
+                    HomePages.Albums -> AlbumsView(context, data)
+                    HomePages.Artists -> ArtistsView(context, data)
+                    HomePages.AlbumArtists -> AlbumArtistsView(context, data)
+                    HomePages.Genres -> GenresView(context, data)
+                    HomePages.Folders -> FoldersView(context, data)
                 }
             }
         },
@@ -213,10 +213,7 @@ fun HomeView(context: ViewContext) {
                             },
                             onClick = {
                                 currentPage = page
-                                coroutineScope.launch {
-                                    pageState.animateScrollToPage(tabs.indexOf(page))
-                                }
-                                context.symphony.settings.setHomeLastTab(currentPage.name)
+                                context.symphony.settings.setHomeLastTab(currentPage)
                             }
                         )
                     }

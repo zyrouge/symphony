@@ -37,7 +37,7 @@ object SettingsKeys {
     const val lastUsedFolderSortReverse = "last_used_folder_sort_reverse"
     const val lastUsedFolderPath = "last_used_folder_path"
     const val previousSongQueue = "previous_song_queue"
-    const val home_last_tab = "home_last_tab"
+    const val home_last_tab = "home_last_page"
     const val songs_filter_pattern = "songs_filter_pattern"
     const val check_for_updates = "check_for_updates"
     const val mini_player_extended_controls = "mini_player_extended_controls"
@@ -263,10 +263,12 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.previousSongQueue)
     }
 
-    fun getHomeLastTab() = getSharedPreferences().getString(SettingsKeys.home_last_tab, null)
-    fun setHomeLastTab(value: String) {
+    fun getHomeLastTab() =
+        getSharedPreferences().getEnum(SettingsKeys.home_last_tab, null) ?: HomePages.Songs
+
+    fun setHomeLastTab(value: HomePages) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.home_last_tab, value)
+            putEnum(SettingsKeys.home_last_tab, value)
         }
         onChange.dispatch(SettingsKeys.home_last_tab)
     }
