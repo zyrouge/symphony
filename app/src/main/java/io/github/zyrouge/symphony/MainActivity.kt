@@ -11,6 +11,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.ui.view.BaseView
+import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,11 +22,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val splashState: SplashViewModel by viewModels()
+        val ignition: IgnitionViewModel by viewModels()
         if (savedInstanceState == null) {
             installSplashScreen().apply {
-                setKeepOnScreenCondition { !splashState.ready.value }
+                setKeepOnScreenCondition { !ignition.ready.value }
             }
+        }
+
+        Thread.setDefaultUncaughtExceptionHandler { _, error ->
+            Logger.error("MainActivity", "Uncaught exception: $error")
+            error.printStackTrace()
+            ErrorActivity.start(this, error)
+            finish()
         }
 
         val symphony: Symphony by viewModels()
@@ -38,15 +46,12 @@ class MainActivity : ComponentActivity() {
         actionBar?.hide()
         setContent {
             LaunchedEffect(LocalContext.current) {
-                if (!splashState.isReady) {
-                    splashState.toReady()
+                if (!ignition.isReady) {
+                    ignition.toReady()
                 }
             }
 
-            BaseView(
-                symphony = symphony,
-                activity = this
-            )
+            BaseView(symphony = symphony, activity = this)
         }
     }
 
@@ -67,7 +72,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class SplashViewModel : ViewModel() {
+class IgnitionViewModel : ViewModel() {
     private val readyFlow = MutableStateFlow(false)
     val ready = readyFlow.asStateFlow()
     val isReady: Boolean

@@ -115,3 +115,11 @@ interface Translations {
         }
     }
 }
+
+object CommonTranslations {
+    val somethingWentHorriblyWrong = "Something went horribly wrong!"
+
+    fun errorX(x: String) = "Error: $x"
+    fun somethingWentHorriblyWrongErrorX(x: String) =
+        "$somethingWentHorriblyWrong (${errorX(x)})"
+}
