@@ -20,7 +20,7 @@
 <p align="center">
     <a href=""><img src="https://img.shields.io/badge/stage-beta-545DFF"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/v/release/zyrouge/symphony?label=latest"></a>
-    <a href=""><img src="https://img.shields.io/badge/supports-Android%2010+-AD2A5A"></a>
+    <a href=""><img src="https://img.shields.io/badge/supports-Android%209+-AD2A5A"></a>
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/actions/workflows/release.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg"></a>
