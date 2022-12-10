@@ -3,6 +3,8 @@
 package io.github.zyrouge.symphony.ui.helpers
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.IntOffset
@@ -12,8 +14,8 @@ sealed class TransitionDurations(val milliseconds: Int) {
     object Normal : TransitionDurations(300)
     object Slow : TransitionDurations(500)
 
-    fun <T> asTween(delayMillis: Int = 0) =
-        tween<T>(milliseconds, delayMillis)
+    fun <T> asTween(delayMillis: Int = 0, easing: Easing = FastOutSlowInEasing) =
+        tween<T>(milliseconds, delayMillis, easing)
 }
 
 object ScaleTransitions {

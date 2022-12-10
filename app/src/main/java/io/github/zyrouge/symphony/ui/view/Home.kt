@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -157,16 +156,8 @@ fun HomeView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize(),
                 transitionSpec = {
-                    val initialIndex = tabs.indexOf(initialState)
-                    val targetIndex = tabs.indexOf(targetState)
-                    val exitAnimationSpec =
-                        TransitionDurations.Normal.asTween<IntOffset>(delayMillis = 200)
-                    when {
-                        targetIndex > initialIndex -> SlideTransitions.slideRight.enterTransition()
-                            .with(SlideTransitions.slideLeft.exitTransition(exitAnimationSpec))
-                        else -> SlideTransitions.slideLeft.enterTransition()
-                            .with(SlideTransitions.slideRight.exitTransition(exitAnimationSpec))
-                    }
+                    SlideTransitions.slideDown.enterTransition()
+                        .with(ScaleTransitions.scaleDownExitTransition())
                 },
             ) { page ->
                 when (page) {
