@@ -132,6 +132,7 @@ class RadioNotification(private val symphony: Symphony) {
     private suspend fun update() {
         if (!usable) return
         symphony.radio.queue.currentPlayingSong?.let { song ->
+            val cover = getSongArtworkBitmap(song)
             val playbackPosition = symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
             val isPlaying = symphony.radio.isPlaying
             session.run {
@@ -174,7 +175,7 @@ class RadioNotification(private val symphony: Symphony) {
             builder!!.run {
                 setContentTitle(song.title)
                 setContentText(song.artistName)
-                setLargeIcon(getSongArtworkBitmap(song))
+                setLargeIcon(cover)
                 setOngoing(isPlaying)
                 clearActions()
                 addAction(
