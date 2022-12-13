@@ -2,7 +2,9 @@ package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.utils.ConcurrentList
 import io.github.zyrouge.symphony.utils.swap
+import java.util.*
 
 enum class RadioLoopMode {
     None,
@@ -15,8 +17,8 @@ enum class RadioLoopMode {
 }
 
 class RadioQueue(private val symphony: Symphony) {
-    val originalQueue = mutableListOf<Long>()
-    val currentQueue = mutableListOf<Long>()
+    val originalQueue = ConcurrentList<Long>()
+    val currentQueue = ConcurrentList<Long>()
 
     var currentSongIndex = -1
         set(value) {
@@ -199,7 +201,7 @@ class RadioQueue(private val symphony: Symphony) {
             Radio.PlayOptions(
                 index = serialized.currentSongIndex,
                 autostart = false,
-                startPosition = serialized.playedDuration
+                startPosition = serialized.playedDuration,
             )
         )
     }

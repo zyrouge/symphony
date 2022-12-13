@@ -216,6 +216,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     private fun restorePreviousQueue() {
+        if (!queue.isEmpty()) return
         symphony.settings.getPreviousSongQueue()?.let { previous ->
             var currentSongIndex = previous.currentSongIndex
             var playedDuration = previous.playedDuration
