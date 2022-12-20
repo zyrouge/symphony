@@ -123,6 +123,7 @@ class RadioNotification(private val symphony: Symphony) {
         symphony.applicationContext.unregisterReceiver(receiver)
     }
 
+    private var currentSongId: Long? = null
     private var currentUpdateJob: Job? = null
     private fun updateSync() {
         currentUpdateJob?.cancel()
@@ -131,6 +132,7 @@ class RadioNotification(private val symphony: Symphony) {
 
     private suspend fun update() {
         if (!usable) return
+        currentSongId = symphony.radio.queue.currentPlayingSong?.id
         symphony.radio.queue.currentPlayingSong?.let { song ->
             val cover = getSongArtworkBitmap(song)
             val playbackPosition = symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
@@ -213,9 +215,12 @@ class RadioNotification(private val symphony: Symphony) {
                         ACTION_STOP
                     )
                 )
-                // NOTE: final check before notifying
-                if (symphony.radio.queue.currentPlayingSong?.id == song.id) {
-                    manager.notify(build())
+                // NOTE: final check before notifying and excessive prevention
+                //       since android sucks at concurrency
+                if (currentSongId == song.id) {
+                    kotlin.runCatching {
+                        manager.notify(build())
+                    }
                 }
             }
         }
@@ -270,7 +275,10 @@ class RadioNotification(private val symphony: Symphony) {
             val result = symphony.applicationContext.imageLoader
                 .execute(song.createArtworkImageRequest(symphony).build())
             val size = symphony.applicationContext.resources.displayMetrics.widthPixels
-            currentArtworkBitmap = song.id to result.drawable?.toBitmap(size, size)
+            // NOTE: final check before caching
+            if (currentSongId == song.id) {
+                currentArtworkBitmap = song.id to result.drawable?.toBitmap(size, size)
+            }
         }
         return currentArtworkBitmap?.second ?: getDefaultArtworkBitmap()
     }

@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import io.github.zyrouge.symphony.R
@@ -30,7 +31,7 @@ class RadioNotificationManager(val symphony: Symphony) {
         manager.createNotificationChannel(
             NotificationChannelCompat.Builder(
                 RadioNotification.CHANNEL_ID,
-                NotificationManagerCompat.IMPORTANCE_LOW
+                NotificationManagerCompat.IMPORTANCE_LOW,
             ).run {
                 setName(symphony.applicationContext.getString(R.string.app_name))
                 setLightsEnabled(false)

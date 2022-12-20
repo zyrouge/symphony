@@ -47,7 +47,7 @@ class RadioShorty(private val symphony: Symphony) {
         options: Radio.PlayOptions = Radio.PlayOptions(),
         shuffle: Boolean = false,
     ) {
-        symphony.radio.stop()
+        symphony.radio.stop(ended = false)
         symphony.radio.queue.add(
             songs,
             options = options.run {

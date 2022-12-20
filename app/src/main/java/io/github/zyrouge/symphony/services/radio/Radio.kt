@@ -20,6 +20,7 @@ enum class RadioEvents {
     LoopModeChanged,
     ShuffleModeChanged,
     SongStaged,
+    QueueCleared,
     QueueEnded,
 }
 
@@ -132,9 +133,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    fun stop() {
+    fun stop(ended: Boolean = true) {
         stopCurrentSong()
         queue.reset()
+        if (ended) onUpdate.dispatch(RadioEvents.QueueEnded)
     }
 
     fun jumpTo(index: Int) = play(PlayOptions(index = index))

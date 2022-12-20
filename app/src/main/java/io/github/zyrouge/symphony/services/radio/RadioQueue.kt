@@ -49,7 +49,7 @@ class RadioQueue(private val symphony: Symphony) {
         originalQueue.clear()
         currentQueue.clear()
         currentSongIndex = -1
-        symphony.radio.onUpdate.dispatch(RadioEvents.QueueEnded)
+        symphony.radio.onUpdate.dispatch(RadioEvents.QueueCleared)
     }
 
     fun add(
@@ -194,15 +194,17 @@ class RadioQueue(private val symphony: Symphony) {
     }
 
     fun restore(serialized: Serialized) {
-        symphony.radio.stop()
-        originalQueue.swap(serialized.originalQueue)
-        currentQueue.swap(serialized.currentQueue)
-        afterAdd(
-            Radio.PlayOptions(
-                index = serialized.currentSongIndex,
-                autostart = false,
-                startPosition = serialized.playedDuration,
+        if (serialized.originalQueue.isNotEmpty()) {
+            symphony.radio.stop(ended = false)
+            originalQueue.swap(serialized.originalQueue)
+            currentQueue.swap(serialized.currentQueue)
+            afterAdd(
+                Radio.PlayOptions(
+                    index = serialized.currentSongIndex,
+                    autostart = false,
+                    startPosition = serialized.playedDuration,
+                )
             )
-        )
+        }
     }
 }
