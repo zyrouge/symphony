@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 enum class AlbumSortBy {
     ALBUM_NAME,
     ARTIST_NAME,
+    TRACKS_COUNT,
 }
 
 class AlbumRepository(private val symphony: Symphony) {
@@ -94,6 +95,7 @@ class AlbumRepository(private val symphony: Symphony) {
             val sorted = when (by) {
                 AlbumSortBy.ALBUM_NAME -> songs.sortedBy { it.albumName }
                 AlbumSortBy.ARTIST_NAME -> songs.sortedBy { it.artistName }
+                AlbumSortBy.TRACKS_COUNT -> songs.sortedBy { it.numberOfTracks }
             }
             return if (reversed) sorted.reversed() else sorted
         }
