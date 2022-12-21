@@ -3,6 +3,8 @@ package io.github.zyrouge.symphony.services.database
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.adapters.FileDatabaseAdapter
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.utils.getIntOrNull
+import io.github.zyrouge.symphony.utils.getStringOrNull
 import org.json.JSONObject
 import java.nio.file.Paths
 
@@ -21,6 +23,11 @@ class SongCache(val symphony: Symphony) {
         }
 
         companion object {
+            private const val LAST_MODIFIED = "0"
+            private const val ALBUM_ARTIST = "1"
+            private const val BITRATE = "2"
+            private const val GENRE = "3"
+
             fun fromJSONObject(json: JSONObject) = json.run {
                 Attributes(
                     lastModified = getLong(LAST_MODIFIED),
@@ -62,17 +69,4 @@ class SongCache(val symphony: Symphony) {
         }
         adapter.overwrite(json.toString())
     }
-
-    companion object {
-        private const val LAST_MODIFIED = "0"
-        private const val ALBUM_ARTIST = "1"
-        private const val BITRATE = "2"
-        private const val GENRE = "3"
-    }
 }
-
-private fun JSONObject.getStringOrNull(key: String): String? =
-    if (has(key)) getString(key) else null
-
-private fun JSONObject.getIntOrNull(key: String): Int? =
-    if (has(key)) getInt(key) else null

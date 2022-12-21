@@ -205,7 +205,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                     Card(
                         onClick = {
                             context.navController.navigate(
-                                RoutesBuilder.buildAlbumRoute(album.albumId)
+                                RoutesBuilder.buildAlbumRoute(album.id)
                             )
                         }
                     ) {
@@ -229,7 +229,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                     Card(
                         onClick = {
                             context.navController.navigate(
-                                RoutesBuilder.buildArtistRoute(artist.artistName)
+                                RoutesBuilder.buildArtistRoute(artist.name)
                             )
                         }
                     ) {

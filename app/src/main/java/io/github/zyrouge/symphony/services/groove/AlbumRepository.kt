@@ -21,8 +21,8 @@ class AlbumRepository(private val symphony: Symphony) {
 
     private val searcher = FuzzySearcher<Album>(
         options = listOf(
-            FuzzySearchOption({ it.albumName }, 3),
-            FuzzySearchOption({ it.artistName })
+            FuzzySearchOption({ it.name }, 3),
+            FuzzySearchOption({ it.artist })
         )
     )
 
@@ -48,7 +48,7 @@ class AlbumRepository(private val symphony: Symphony) {
                         .runCatching { Album.fromCursor(it) }
                         .getOrNull()
                         ?.let { album ->
-                            cached[album.albumId] = album
+                            cached[album.id] = album
                             updateDispatcher.increment()
                         }
                 }
@@ -77,11 +77,11 @@ class AlbumRepository(private val symphony: Symphony) {
     fun getAlbumWithId(albumId: Long) = cached[albumId]
 
     fun getAlbumOfArtist(artistName: String) = cached.values.find {
-        it.artistName == artistName
+        it.artist == artistName
     }
 
     fun getAlbumsOfArtist(artistName: String) = cached.values.filter {
-        it.artistName == artistName
+        it.artist == artistName
     }
 
     fun getAlbumsOfAlbumArtist(artistName: String) =
@@ -93,8 +93,8 @@ class AlbumRepository(private val symphony: Symphony) {
     companion object {
         fun sort(songs: List<Album>, by: AlbumSortBy, reversed: Boolean): List<Album> {
             val sorted = when (by) {
-                AlbumSortBy.ALBUM_NAME -> songs.sortedBy { it.albumName }
-                AlbumSortBy.ARTIST_NAME -> songs.sortedBy { it.artistName }
+                AlbumSortBy.ALBUM_NAME -> songs.sortedBy { it.name }
+                AlbumSortBy.ARTIST_NAME -> songs.sortedBy { it.artist }
                 AlbumSortBy.TRACKS_COUNT -> songs.sortedBy { it.numberOfTracks }
             }
             return if (reversed) sorted.reversed() else sorted

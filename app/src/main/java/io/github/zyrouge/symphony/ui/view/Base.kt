@@ -107,6 +107,17 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                             ?: ""
                     )
                 }
+                composable(
+                    Routes.Playlist.route,
+                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
+                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
+                ) { backStackEntry ->
+                    PlaylistView(
+                        context,
+                        backStackEntry.getRouteArgument(RoutesParameters.PlaylistRoutePlaylistId)
+                            ?: ""
+                    )
+                }
             }
         }
     }

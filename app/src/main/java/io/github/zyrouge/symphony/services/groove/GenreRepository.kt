@@ -16,7 +16,7 @@ class GenreRepository(private val symphony: Symphony) {
     val onUpdate = Eventer<Nothing?>()
 
     private val searcher = FuzzySearcher<Genre>(
-        options = listOf(FuzzySearchOption({ it.genre }))
+        options = listOf(FuzzySearchOption({ it.name }))
     )
 
     fun getAll() = symphony.groove.song.cachedGenres.values.toList()
@@ -26,7 +26,7 @@ class GenreRepository(private val symphony: Symphony) {
     companion object {
         fun sort(genres: List<Genre>, by: GenreSortBy, reversed: Boolean): List<Genre> {
             val sorted = when (by) {
-                GenreSortBy.GENRE -> genres.sortedBy { it.genre }
+                GenreSortBy.GENRE -> genres.sortedBy { it.name }
                 GenreSortBy.TRACKS_COUNT -> genres.sortedBy { it.numberOfTracks }
             }
             return if (reversed) sorted.reversed() else sorted

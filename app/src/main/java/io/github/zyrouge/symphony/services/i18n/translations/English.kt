@@ -90,6 +90,7 @@ class English : Translations {
     override val alwaysVisible = "Always visible"
     override val visibleWhenActive = "Visible when active"
     override val bottomBarLabelVisibility = "Bottom bar label visibility"
+    override val playlists = "Playlists"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"
@@ -105,4 +106,6 @@ class English : Translations {
     override fun XGenres(x: Int) = "$x genres"
     override fun XFoldersYFiles(x: Int, y: Int) = "$x folders, $y files"
     override fun XItems(x: Int) = "$x items"
+    override fun XPlaylists(x: Int) = "$x playlists"
+    override fun unknownPlaylistX(x: String) = "Unknown playlist (ID: $x)"
 }

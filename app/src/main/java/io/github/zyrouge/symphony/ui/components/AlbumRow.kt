@@ -21,7 +21,7 @@ fun AlbumRow(context: ViewContext, albums: List<Album>) {
         LazyRow {
             items(
                 albums,
-                key = { it.albumId },
+                key = { it.id },
                 contentType = { GrooveKinds.ALBUM }
             ) { album ->
                 Box(modifier = Modifier.width(width)) {

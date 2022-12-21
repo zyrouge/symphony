@@ -8,6 +8,7 @@ object RoutesParameters {
     const val AlbumRouteAlbumId = "albumId"
     const val AlbumArtistRouteArtistName = "albumArtistName"
     const val GenreRouteGenre = "genre"
+    const val PlaylistRoutePlaylistId = "genre"
 }
 
 object RoutesBuilder {
@@ -16,6 +17,7 @@ object RoutesBuilder {
     fun buildAlbumRoute(albumId: String) = "album/$albumId"
     fun buildAlbumArtistRoute(artistName: String) = "album_artist/${encodeParam(artistName)}"
     fun buildGenreRoute(genre: String) = "genre/${encodeParam(genre)}"
+    fun buildPlaylistRoute(playlistId: String) = "playlist/${encodeParam(playlistId)}"
 
     private val encodeParamChars = object {
         val percent = "%" to "%25"
@@ -48,6 +50,7 @@ sealed class Routes(val route: String) {
         Routes({ b, p -> b.buildAlbumArtistRoute("{${p.AlbumArtistRouteArtistName}}") })
 
     object Genre : Routes({ b, p -> b.buildGenreRoute("{${p.GenreRouteGenre}}") })
+    object Playlist : Routes({ b, p -> b.buildPlaylistRoute("{${p.PlaylistRoutePlaylistId}}") })
 }
 
 fun NavHostController.navigate(route: Routes) = navigate(route.route)

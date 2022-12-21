@@ -43,21 +43,32 @@ class RadioShorty(private val symphony: Symphony) {
     }
 
     fun playQueue(
-        songs: List<Song>,
+        songIds: List<Long>,
         options: Radio.PlayOptions = Radio.PlayOptions(),
         shuffle: Boolean = false,
     ) {
         symphony.radio.stop(ended = false)
         symphony.radio.queue.add(
-            songs,
+            songIds,
             options = options.run {
-                copy(index = if (shuffle) Random.nextInt(songs.size) else options.index)
+                copy(index = if (shuffle) Random.nextInt(songIds.size) else options.index)
             }
         )
         if (shuffle) {
             symphony.radio.queue.setShuffleMode(true)
         }
     }
+
+    @JvmName("playQueueFromSongList")
+    fun playQueue(
+        songs: List<Song>,
+        options: Radio.PlayOptions = Radio.PlayOptions(),
+        shuffle: Boolean = false,
+    ) = playQueue(
+        songIds = songs.map { it.id },
+        options = options,
+        shuffle = shuffle,
+    )
 
     fun playQueue(song: Song, shuffle: Boolean = false) = playQueue(listOf(song), shuffle = shuffle)
 }

@@ -4,10 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.AlbumSortBy
-import io.github.zyrouge.symphony.services.groove.ArtistSortBy
-import io.github.zyrouge.symphony.services.groove.GenreSortBy
-import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
@@ -36,6 +33,8 @@ object SettingsKeys {
     const val lastUsedFolderSortBy = "last_used_folder_sort_by"
     const val lastUsedFolderSortReverse = "last_used_folder_sort_reverse"
     const val lastUsedFolderPath = "last_used_folder_path"
+    const val lastUsedPlaylistsSortBy = "last_used_albums_sort_by"
+    const val lastUsedPlaylistsSortReverse = "last_used_albums_sort_reverse"
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_page"
     const val songs_filter_pattern = "songs_filter_pattern"
@@ -250,6 +249,26 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.lastUsedFolderPath, path.joinToString("/"))
         }
         onChange.dispatch(SettingsKeys.lastUsedFolderPath)
+    }
+
+    fun getLastUsedPlaylistsSortBy() =
+        getSharedPreferences().getEnum<PlaylistSortBy>(SettingsKeys.lastUsedPlaylistsSortBy, null)
+
+    fun setLastUsedPlaylistsSortBy(sortBy: PlaylistSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedPlaylistsSortBy, sortBy)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedPlaylistsSortBy)
+    }
+
+    fun getLastUsedPlaylistsSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedPlaylistsSortReverse, false)
+
+    fun setLastUsedPlaylistsSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedPlaylistsSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedPlaylistsSortReverse)
     }
 
     fun getPreviousSongQueue() = getSharedPreferences()

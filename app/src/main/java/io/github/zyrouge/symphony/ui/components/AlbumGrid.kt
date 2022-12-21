@@ -51,7 +51,7 @@ fun AlbumGrid(
         content = {
             items(
                 sortedAlbums,
-                key = { it.albumId },
+                key = { it.id },
                 contentType = { GrooveKinds.ALBUM }
             ) { album ->
                 AlbumTile(context, album)
@@ -63,4 +63,5 @@ fun AlbumGrid(
 private fun AlbumSortBy.label(context: ViewContext) = when (this) {
     AlbumSortBy.ALBUM_NAME -> context.symphony.t.album
     AlbumSortBy.ARTIST_NAME -> context.symphony.t.artist
+    AlbumSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
 }

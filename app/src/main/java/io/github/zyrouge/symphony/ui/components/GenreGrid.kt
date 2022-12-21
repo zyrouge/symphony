@@ -87,7 +87,7 @@ fun GenreGrid(
         content = { gridData ->
             itemsIndexed(
                 sortedGenres,
-                key = { _, x -> x.genre },
+                key = { _, x -> x.name },
                 contentType = { _, _ -> GrooveKinds.GENRE }
             ) { i, genre ->
                 Card(
@@ -98,7 +98,7 @@ fun GenreGrid(
                     ),
                     colors = GenreTile.cardColors(i),
                     onClick = {
-                        context.navController.navigate(RoutesBuilder.buildGenreRoute(genre.genre))
+                        context.navController.navigate(RoutesBuilder.buildGenreRoute(genre.name))
                     }
                 ) {
                     Box(
@@ -116,7 +116,7 @@ fun GenreGrid(
                                 .absoluteOffset(8.dp, 12.dp)
                         ) {
                             Text(
-                                genre.genre,
+                                genre.name,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.displaySmall
                                     .copy(fontWeight = FontWeight.Bold),
@@ -130,7 +130,7 @@ fun GenreGrid(
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Text(
-                                genre.genre,
+                                genre.name,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.bodyLarge
                                     .copy(fontWeight = FontWeight.Bold),

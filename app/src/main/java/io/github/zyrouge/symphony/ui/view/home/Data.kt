@@ -5,10 +5,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.Album
-import io.github.zyrouge.symphony.services.groove.Artist
-import io.github.zyrouge.symphony.services.groove.Genre
-import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.utils.EventUnsubscribeFn
 import io.github.zyrouge.symphony.utils.swap
 
@@ -39,11 +36,17 @@ class HomeViewData(val symphony: Symphony) {
         swap(symphony.groove.genre.getAll())
     }
 
+    var playlistsIsUpdating by mutableStateOf(symphony.groove.playlist.isUpdating)
+    val playlists = mutableStateListOf<Playlist>().apply {
+        swap(symphony.groove.playlist.getAll())
+    }
+
     private var songsSubscriber: EventUnsubscribeFn? = null
     private var artistsSubscriber: EventUnsubscribeFn? = null
     private var albumsSubscriber: EventUnsubscribeFn? = null
     private var albumArtistsSubscriber: EventUnsubscribeFn? = null
     private var genresSubscriber: EventUnsubscribeFn? = null
+    private var playlistsSubscriber: EventUnsubscribeFn? = null
 
     fun initialize() {
         updateAllStates()
@@ -53,6 +56,7 @@ class HomeViewData(val symphony: Symphony) {
         albumArtistsSubscriber =
             symphony.groove.albumArtist.onUpdate.subscribe { updateAlbumArtistsState() }
         genresSubscriber = symphony.groove.genre.onUpdate.subscribe { updateGenresState() }
+        playlistsSubscriber = symphony.groove.playlist.onUpdate.subscribe { updatePlaylistsState() }
     }
 
     fun dispose() {
@@ -61,6 +65,7 @@ class HomeViewData(val symphony: Symphony) {
         albumsSubscriber?.invoke()
         albumArtistsSubscriber?.invoke()
         genresSubscriber?.invoke()
+        playlistsSubscriber?.invoke()
     }
 
     private fun updateAllStates() {
@@ -95,5 +100,10 @@ class HomeViewData(val symphony: Symphony) {
     private fun updateGenresState() {
         genresIsUpdating = symphony.groove.genre.isUpdating
         genres.swap(symphony.groove.genre.getAll())
+    }
+
+    private fun updatePlaylistsState() {
+        playlistsIsUpdating = symphony.groove.playlist.isUpdating
+        playlists.swap(symphony.groove.playlist.getAll())
     }
 }

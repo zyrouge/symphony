@@ -70,7 +70,7 @@ internal fun ArtistGrid(
         content = {
             items(
                 sortedArtists,
-                key = { it.artistName },
+                key = { it.name },
                 contentType = { GrooveKinds.ARTIST }
             ) { artist ->
                 ArtistTile(context, artist, isAlbumArtist)

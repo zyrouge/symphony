@@ -20,7 +20,7 @@ class ArtistRepository(private val symphony: Symphony) {
 
     internal val searcher = FuzzySearcher<Artist>(
         options = listOf(
-            FuzzySearchOption({ it.artistName })
+            FuzzySearchOption({ it.name })
         )
     )
 
@@ -46,7 +46,7 @@ class ArtistRepository(private val symphony: Symphony) {
                         .runCatching { Artist.fromCursor(it) }
                         .getOrNull()
                         ?.let { artist ->
-                            cached[artist.artistName] = artist
+                            cached[artist.name] = artist
                             updateDispatcher.increment()
                         }
                 }
@@ -60,7 +60,7 @@ class ArtistRepository(private val symphony: Symphony) {
 
     fun getArtistArtworkUri(artistName: String) =
         symphony.groove.album.getAlbumOfArtist(artistName)?.let {
-            symphony.groove.album.getAlbumArtworkUri(it.albumId)
+            symphony.groove.album.getAlbumArtworkUri(it.id)
         } ?: symphony.groove.album.getDefaultAlbumArtworkUri()
 
     fun createArtistArtworkImageRequest(artistName: String) = createHandyImageRequest(
@@ -77,7 +77,7 @@ class ArtistRepository(private val symphony: Symphony) {
     companion object {
         fun sort(artists: List<Artist>, by: ArtistSortBy, reversed: Boolean): List<Artist> {
             val sorted = when (by) {
-                ArtistSortBy.ARTIST_NAME -> artists.sortedBy { it.artistName }
+                ArtistSortBy.ARTIST_NAME -> artists.sortedBy { it.name }
                 ArtistSortBy.TRACKS_COUNT -> artists.sortedBy { it.numberOfTracks }
                 ArtistSortBy.ALBUMS_COUNT -> artists.sortedBy { it.numberOfTracks }
             }

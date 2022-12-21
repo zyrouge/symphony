@@ -4,4 +4,5 @@ import io.github.zyrouge.symphony.Symphony
 
 class Database(symphony: Symphony) {
     val songCache = SongCache(symphony)
+    val playlists = PlaylistsBox(symphony)
 }

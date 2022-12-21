@@ -24,6 +24,7 @@ class SongRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<Long, Song>()
     private var cachedAlbumArtists = ConcurrentHashMap<String, MutableSet<Long>>()
     internal var cachedGenres = ConcurrentHashMap<String, Genre>()
+    internal var cachedPaths = ConcurrentHashMap<String, Long>()
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
     var explorer = createNewExplorer()
@@ -90,9 +91,10 @@ class SongRepository(private val symphony: Symphony) {
                                 cachedGenres.compute(genre) { _, value ->
                                     value
                                         ?.apply { numberOfTracks++ }
-                                        ?: Genre(genre = genre, numberOfTracks = 1)
+                                        ?: Genre(name = genre, numberOfTracks = 1)
                                 }
                             }
+                            cachedPaths[song.path] = song.id
                             val entity = explorer
                                 .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
                             entity.data = song.id
@@ -135,6 +137,10 @@ class SongRepository(private val symphony: Symphony) {
     fun getSongsOfGenre(genre: String) = getAll { it.additional.genre == genre }
     fun getSongsOfAlbumArtist(artistName: String) =
         getAll { it.additional.albumArtist == artistName }
+
+    fun getSongsOfPlaylist(playlistId: String) = symphony.groove.playlist
+        .getPlaylistWithId(playlistId)!!
+        .songs.mapNotNull { cached[it] }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

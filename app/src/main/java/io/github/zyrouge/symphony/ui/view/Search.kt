@@ -234,7 +234,7 @@ fun SearchView(context: ViewContext) {
                                                 .createArtworkImageRequest(context.symphony)
                                                 .build(),
                                             title = {
-                                                Text(artist.artistName)
+                                                Text(artist.name)
                                             },
                                             options = { expanded, onDismissRequest ->
                                                 ArtistDropdownMenu(
@@ -246,7 +246,7 @@ fun SearchView(context: ViewContext) {
                                             },
                                             onClick = {
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildArtistRoute(artist.artistName)
+                                                    RoutesBuilder.buildArtistRoute(artist.name)
                                                 )
                                             }
                                         )
@@ -260,9 +260,9 @@ fun SearchView(context: ViewContext) {
                                                 .createArtworkImageRequest(context.symphony)
                                                 .build(),
                                             title = {
-                                                Text(album.albumName)
+                                                Text(album.name)
                                             },
-                                            subtitle = album.artistName?.let { { Text(it) } },
+                                            subtitle = album.artist?.let { { Text(it) } },
                                             options = { expanded, onDismissRequest ->
                                                 AlbumDropdownMenu(
                                                     context,
@@ -273,7 +273,7 @@ fun SearchView(context: ViewContext) {
                                             },
                                             onClick = {
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildAlbumRoute(album.albumId)
+                                                    RoutesBuilder.buildAlbumRoute(album.id)
                                                 )
                                             }
                                         )
@@ -287,7 +287,7 @@ fun SearchView(context: ViewContext) {
                                                 .createArtworkImageRequest(context.symphony)
                                                 .build(),
                                             title = {
-                                                Text(artist.artistName)
+                                                Text(artist.name)
                                             },
                                             options = { expanded, onDismissRequest ->
                                                 AlbumArtistDropdownMenu(
@@ -299,7 +299,7 @@ fun SearchView(context: ViewContext) {
                                             },
                                             onClick = {
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildAlbumArtistRoute(artist.artistName)
+                                                    RoutesBuilder.buildAlbumArtistRoute(artist.name)
                                                 )
                                             }
                                         )
@@ -310,14 +310,14 @@ fun SearchView(context: ViewContext) {
                                     genres.forEach { genre ->
                                         GenericGrooveCard(
                                             image = null,
-                                            title = { Text(genre.genre) },
+                                            title = { Text(genre.name) },
                                             subtitle = {
                                                 Text(context.symphony.t.XSongs(genre.numberOfTracks))
                                             },
                                             options = null,
                                             onClick = {
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildGenreRoute(genre.genre)
+                                                    RoutesBuilder.buildGenreRoute(genre.name)
                                                 )
                                             }
                                         )
@@ -407,4 +407,5 @@ private fun GrooveKinds.label(context: ViewContext) = when (this) {
     GrooveKinds.ARTIST -> context.symphony.t.artists
     GrooveKinds.ALBUM_ARTIST -> context.symphony.t.albumArtists
     GrooveKinds.GENRE -> context.symphony.t.genres
+    GrooveKinds.PLAYLIST -> context.symphony.t.playlists
 }

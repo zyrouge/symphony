@@ -11,6 +11,7 @@ enum class GrooveKinds {
     ARTIST,
     ALBUM_ARTIST,
     GENRE,
+    PLAYLIST,
 }
 
 class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
@@ -22,7 +23,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     val artist = ArtistRepository(symphony)
     val albumArtist = AlbumArtistRepository(symphony)
     val genre = GenreRepository(symphony)
-
+    val playlist = PlaylistRepository(symphony)
 
     init {
         symphony.permission.onUpdate.subscribe {
@@ -39,6 +40,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
                 async { album.fetch() },
                 async { artist.fetch() },
             )
+            playlist.fetch()
             postFetch()
         }
     }

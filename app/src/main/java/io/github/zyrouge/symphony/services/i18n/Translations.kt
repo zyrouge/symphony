@@ -90,6 +90,7 @@ interface Translations {
     val alwaysVisible: String
     val visibleWhenActive: String
     val bottomBarLabelVisibility: String
+    val playlists: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
@@ -105,6 +106,8 @@ interface Translations {
     fun XGenres(x: Int): String
     fun XFoldersYFiles(x: Int, y: Int): String
     fun XItems(x: Int): String
+    fun XPlaylists(x: Int): String
+    fun unknownPlaylistX(x: String): String
 
     companion object {
         val all = arrayOf<Translations>(English())

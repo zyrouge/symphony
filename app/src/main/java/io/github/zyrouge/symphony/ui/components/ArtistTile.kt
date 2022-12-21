@@ -33,8 +33,8 @@ fun ArtistTile(context: ViewContext, artist: Artist, isAlbumArtist: Boolean) {
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         onClick = {
             context.navController.navigate(
-                if (isAlbumArtist) RoutesBuilder.buildAlbumArtistRoute(artist.artistName)
-                else RoutesBuilder.buildArtistRoute(artist.artistName)
+                if (isAlbumArtist) RoutesBuilder.buildAlbumArtistRoute(artist.name)
+                else RoutesBuilder.buildArtistRoute(artist.name)
             )
         }
     ) {
@@ -84,7 +84,7 @@ fun ArtistTile(context: ViewContext, artist: Artist, isAlbumArtist: Boolean) {
                                 .then(Modifier.size(36.dp)),
                             onClick = {
                                 val songs =
-                                    context.symphony.groove.song.getSongsOfArtist(artist.artistName)
+                                    context.symphony.groove.song.getSongsOfArtist(artist.name)
                                 context.symphony.radio.shorty.playQueue(songs)
                             }
                         ) {
@@ -94,7 +94,7 @@ fun ArtistTile(context: ViewContext, artist: Artist, isAlbumArtist: Boolean) {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    artist.artistName,
+                    artist.name,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                 )
@@ -133,8 +133,8 @@ private fun ArtistDropdownMenu(
 ) {
     fun getSongs(): List<Song> {
         return when {
-            isAlbumArtist -> context.symphony.groove.song.getSongsOfArtist(artist.artistName)
-            else -> context.symphony.groove.song.getSongsOfAlbumArtist(artist.artistName)
+            isAlbumArtist -> context.symphony.groove.song.getSongsOfArtist(artist.name)
+            else -> context.symphony.groove.song.getSongsOfAlbumArtist(artist.name)
         }
     }
 

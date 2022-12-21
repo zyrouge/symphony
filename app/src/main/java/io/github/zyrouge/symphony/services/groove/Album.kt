@@ -10,24 +10,24 @@ import io.github.zyrouge.symphony.utils.getColumnValueNullable
 
 @Immutable
 data class Album(
-    val albumId: Long,
-    val albumName: String,
-    val artistName: String?,
+    val id: Long,
+    val name: String,
+    val artist: String?,
     val numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.album.createAlbumArtworkImageRequest(albumId)
+        symphony.groove.album.createAlbumArtworkImageRequest(id)
 
     companion object {
         fun fromCursor(cursor: Cursor): Album {
             return Album(
-                albumId = cursor.getColumnValue(AlbumColumns.ALBUM_ID) {
+                id = cursor.getColumnValue(AlbumColumns.ALBUM_ID) {
                     cursor.getLong(it)
                 },
-                albumName = cursor.getColumnValue(AlbumColumns.ALBUM) {
+                name = cursor.getColumnValue(AlbumColumns.ALBUM) {
                     cursor.getString(it)
                 },
-                artistName = cursor.getColumnValueNullable(AlbumColumns.ARTIST) {
+                artist = cursor.getColumnValueNullable(AlbumColumns.ARTIST) {
                     cursor.getStringOrNull(it)
                 },
                 numberOfTracks = cursor.getColumnValue(AlbumColumns.NUMBER_OF_SONGS) {

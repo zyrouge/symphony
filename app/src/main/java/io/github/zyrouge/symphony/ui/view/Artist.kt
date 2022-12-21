@@ -169,7 +169,7 @@ private fun ArtistHero(context: ViewContext, artist: Artist) {
                     .weight(1f)
             ) {
                 Text(
-                    artist.artistName,
+                    artist.name,
                     style = MaterialTheme.typography.headlineSmall
                         .copy(fontWeight = FontWeight.Bold)
                 )

@@ -3,9 +3,9 @@ package io.github.zyrouge.symphony.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,25 +26,25 @@ import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumView(context: ViewContext, albumId: Long) {
-    var album by remember {
-        mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
+fun PlaylistView(context: ViewContext, playlistId: String) {
+    var playlist by remember {
+        mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
     }
     val songs = remember {
         mutableStateListOf<Song>().apply {
-            swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
+            swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
         }
     }
-    var isViable by remember { mutableStateOf(album != null) }
+    var isViable by remember { mutableStateOf(playlist != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
-        album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
-        isViable = album != null
+        playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
+        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
+        isViable = playlist != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
     }
 
     Scaffold(
@@ -62,7 +62,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                     TopAppBarMinimalTitle {
                         Text(
                             context.symphony.t.album
-                                    + (album?.let { " - ${it.name}" } ?: "")
+                                    + (playlist?.let { " - ${it.title}" } ?: "")
                         )
                     }
                 },
@@ -77,17 +77,10 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                if (isViable) {
-                    SongList(
-                        context,
-                        songs = songs,
-                        leadingContent = {
-                            item {
-                                AlbumHero(context, album!!)
-                            }
-                        }
-                    )
-                } else UnknownAlbum(context, albumId)
+                when {
+                    isViable -> SongList(context, songs = songs)
+                    else -> UnknownPlaylist(context, playlistId)
+                }
             }
         },
         bottomBar = {
@@ -167,17 +160,17 @@ private fun AlbumHero(context: ViewContext, album: Album) {
 }
 
 @Composable
-private fun UnknownAlbum(context: ViewContext, albumId: Long) {
+private fun UnknownPlaylist(context: ViewContext, playlistId: String) {
     IconTextBody(
         icon = { modifier ->
             Icon(
-                Icons.Default.Album,
+                Icons.Default.QueueMusic,
                 null,
                 modifier = modifier
             )
         },
         content = {
-            Text(context.symphony.t.unknownAlbumX(albumId))
+            Text(context.symphony.t.unknownPlaylistX(playlistId))
         }
     )
 }
