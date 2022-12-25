@@ -14,7 +14,8 @@
 
 <p align="center">
     <a href="https://github.com/zyrouge/symphony/releases/latest">Download (latest)</a> |
-    <a href="https://github.com/zyrouge/symphony/releases">View all releases</a>
+    <a href="https://github.com/zyrouge/symphony/releases">View all releases</a> |
+    <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony">IzzyOnDroid repo</a> 
 </p>
 
 <p align="center">
