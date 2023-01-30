@@ -6,6 +6,7 @@ import coil.request.ImageRequest
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.ui.helpers.Assets
+import io.github.zyrouge.symphony.utils.toList
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -65,9 +66,8 @@ data class Playlist(
         const val PLAYLIST_NUMBER_OF_TRACKS_KEY = "n_tracks"
 
         fun fromJSONObject(serialized: JSONObject): Playlist {
-            val songs = serialized.getJSONArray(PLAYLIST_SONGS_KEY).let {
-                MutableList(it.length()) { i -> it.getLong(i) }.toList()
-            }
+            val songs = serialized.getJSONArray(PLAYLIST_SONGS_KEY)
+                .toList { getLong(it) }
             return Playlist(
                 id = serialized.getString(PLAYLIST_ID_KEY),
                 title = serialized.getString(PLAYLIST_TITLE_KEY),
@@ -86,7 +86,8 @@ data class Playlist(
             val m3u = M3U.parse(content)
             val songs = mutableListOf<Long>()
             m3u.entries.forEach { entry ->
-                val resolvedPath = dir.resolve(GrooveExplorer.Path(entry.path)).toString()
+                // TODO: maybe maybe maybe /
+                val resolvedPath = "/" + dir.resolve(GrooveExplorer.Path(entry.path)).toString()
                 val id = symphony.groove.song.cachedPaths[resolvedPath]
                 id?.let { songs.add(it) }
             }

@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.subListNonStrict
 
 enum class GenreSortBy {
+    CUSTOM,
     GENRE,
     TRACKS_COUNT,
 }
@@ -26,6 +27,7 @@ class GenreRepository(private val symphony: Symphony) {
     companion object {
         fun sort(genres: List<Genre>, by: GenreSortBy, reversed: Boolean): List<Genre> {
             val sorted = when (by) {
+                GenreSortBy.CUSTOM -> genres.toList()
                 GenreSortBy.GENRE -> genres.sortedBy { it.name }
                 GenreSortBy.TRACKS_COUNT -> genres.sortedBy { it.numberOfTracks }
             }

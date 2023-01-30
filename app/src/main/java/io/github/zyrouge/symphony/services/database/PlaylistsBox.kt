@@ -24,7 +24,7 @@ class PlaylistsBox(val symphony: Symphony) {
 
             fun fromJSONObject(json: JSONObject) = json.run {
                 Data(
-                    custom = json.getJSONArray(LOCAL)
+                    custom = json.getJSONArray(CUSTOM)
                         .toList { Playlist.fromJSONObject(getJSONObject(it)) },
                     local = json.getJSONArray(LOCAL)
                         .toList { Playlist.Local.fromJSONObject(getJSONObject(it)) },

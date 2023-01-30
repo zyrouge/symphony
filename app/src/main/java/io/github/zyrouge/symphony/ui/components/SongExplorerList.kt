@@ -24,17 +24,18 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
 
-private data class ExplorerResult(
+private data class SongExplorerResult(
     val folders: List<GrooveExplorer.Folder>,
     val files: Map<Song, GrooveExplorer.File>,
 )
 
-private const val FolderContentType = "folder"
+private const val SongFolderContentType = "folder"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExplorerList(
+fun SongExplorerList(
     context: ViewContext,
     key: Any?,
     initialPath: List<String>?,
@@ -71,7 +72,7 @@ fun ExplorerList(
                     }
                 }
             }
-            ExplorerResult(
+            SongExplorerResult(
                 folders = run {
                     val sorted = when (sortBy) {
                         SongSortBy.TITLE, SongSortBy.FILENAME -> folders.sortedBy { it.basename }
@@ -171,7 +172,7 @@ fun ExplorerList(
         items(
             sortedEntities.folders,
             key = { it.basename },
-            contentType = { FolderContentType }
+            contentType = { SongFolderContentType }
         ) { folder ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -216,6 +217,7 @@ fun ExplorerList(
 }
 
 private fun SongSortBy.label(context: ViewContext) = when (this) {
+    SongSortBy.CUSTOM -> context.symphony.t.custom
     SongSortBy.TITLE -> context.symphony.t.title
     SongSortBy.ARTIST -> context.symphony.t.artist
     SongSortBy.ALBUM -> context.symphony.t.album
@@ -226,15 +228,4 @@ private fun SongSortBy.label(context: ViewContext) = when (this) {
     SongSortBy.ALBUM_ARTIST -> context.symphony.t.albumArtist
     SongSortBy.YEAR -> context.symphony.t.year
     SongSortBy.FILENAME -> context.symphony.t.filename
-}
-
-private fun GrooveExplorer.Folder.navigateToFolder(parts: List<String>): GrooveExplorer.Folder? {
-    var folder: GrooveExplorer.Folder? = this
-    parts.forEach { part ->
-        folder = folder?.let {
-            val child = it.children[part]
-            if (child is GrooveExplorer.Folder) child else null
-        }
-    }
-    return folder
 }

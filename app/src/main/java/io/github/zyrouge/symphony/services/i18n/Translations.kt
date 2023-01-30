@@ -91,6 +91,11 @@ interface Translations {
     val visibleWhenActive: String
     val bottomBarLabelVisibility: String
     val playlists: String
+    val newPlaylist: String
+    val importPlaylist: String
+    val noLocalPlaylistsFound: String
+    val custom: String
+    val playlist: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

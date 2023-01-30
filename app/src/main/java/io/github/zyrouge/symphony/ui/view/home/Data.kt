@@ -74,6 +74,7 @@ class HomeViewData(val symphony: Symphony) {
         updateAlbumsState()
         updateAlbumArtistsState()
         updateGenresState()
+        updatePlaylistsState()
     }
 
     private fun updateSongsState() {

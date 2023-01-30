@@ -29,7 +29,7 @@ class PermissionsManager(private val symphony: Symphony) {
         activity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
-            if (permissions.count { it.value } == state.denied.size) {
+            if (permissions.count { it.value } > 0) {
                 onUpdate.dispatch(PermissionEvents.MEDIA_PERMISSION_GRANTED)
             }
         }.launch(state.denied.toTypedArray())

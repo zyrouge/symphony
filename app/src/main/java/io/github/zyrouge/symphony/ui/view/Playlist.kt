@@ -61,7 +61,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 title = {
                     TopAppBarMinimalTitle {
                         Text(
-                            context.symphony.t.album
+                            context.symphony.t.playlist
                                     + (playlist?.let { " - ${it.title}" } ?: "")
                         )
                     }

@@ -61,6 +61,7 @@ fun AlbumGrid(
 }
 
 private fun AlbumSortBy.label(context: ViewContext) = when (this) {
+    AlbumSortBy.CUSTOM -> context.symphony.t.custom
     AlbumSortBy.ALBUM_NAME -> context.symphony.t.album
     AlbumSortBy.ARTIST_NAME -> context.symphony.t.artist
     AlbumSortBy.TRACKS_COUNT -> context.symphony.t.trackCount

@@ -8,6 +8,7 @@ import io.github.zyrouge.symphony.utils.*
 import java.util.concurrent.ConcurrentHashMap
 
 enum class SongSortBy {
+    CUSTOM,
     TITLE,
     ARTIST,
     ALBUM,
@@ -147,6 +148,7 @@ class SongRepository(private val symphony: Symphony) {
     companion object {
         fun sort(songs: List<Song>, by: SongSortBy, reversed: Boolean): List<Song> {
             val sorted = when (by) {
+                SongSortBy.CUSTOM -> songs.toList()
                 SongSortBy.TITLE -> songs.sortedBy { it.title }
                 SongSortBy.ARTIST -> songs.sortedBy { it.artistName }
                 SongSortBy.ALBUM -> songs.sortedBy { it.albumName }

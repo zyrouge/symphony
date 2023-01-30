@@ -52,7 +52,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion compose_compiler_version
     }
     packagingOptions {
         resources {
@@ -65,7 +65,7 @@ dependencies {
     def accompanist_version = '0.27.0'
     def navigation_version = '2.5.3'
 
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_material_version"
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     implementation "androidx.navigation:navigation-compose:$navigation_version"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"

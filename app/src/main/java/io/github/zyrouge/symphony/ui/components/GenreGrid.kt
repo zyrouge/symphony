@@ -149,6 +149,7 @@ fun GenreGrid(
 }
 
 private fun GenreSortBy.label(context: ViewContext) = when (this) {
+    GenreSortBy.CUSTOM -> context.symphony.t.custom
     GenreSortBy.GENRE -> context.symphony.t.genre
     GenreSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
 }

@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -14,6 +15,7 @@ fun PlaylistGrid(
     context: ViewContext,
     playlists: List<Playlist>,
     isLoading: Boolean = false,
+    leadingContent: @Composable () -> Unit = {},
 ) {
     var sortBy by remember {
         mutableStateOf(
@@ -29,24 +31,27 @@ fun PlaylistGrid(
 
     ResponsiveGrid(
         topBar = {
-            MediaSortBar(
-                context,
-                reverse = sortReverse,
-                onReverseChange = {
-                    sortReverse = it
-                    context.symphony.settings.setLastUsedAlbumsSortReverse(it)
-                },
-                sort = sortBy,
-                sorts = PlaylistSortBy.values().associateWith { x -> { x.label(it) } },
-                onSortChange = {
-                    sortBy = it
-                    context.symphony.settings.setLastUsedPlaylistsSortBy(it)
-                },
-                label = {
-                    Text(context.symphony.t.XAlbums(playlists.size))
-                },
-                isLoading = isLoading,
-            )
+            Column {
+                leadingContent()
+                MediaSortBar(
+                    context,
+                    reverse = sortReverse,
+                    onReverseChange = {
+                        sortReverse = it
+                        context.symphony.settings.setLastUsedPlaylistsSortReverse(it)
+                    },
+                    sort = sortBy,
+                    sorts = PlaylistSortBy.values().associateWith { x -> { x.label(it) } },
+                    onSortChange = {
+                        sortBy = it
+                        context.symphony.settings.setLastUsedPlaylistsSortBy(it)
+                    },
+                    label = {
+                        Text(context.symphony.t.XPlaylists(playlists.size))
+                    },
+                    isLoading = isLoading,
+                )
+            }
         },
         content = {
             items(
@@ -61,6 +66,7 @@ fun PlaylistGrid(
 }
 
 private fun PlaylistSortBy.label(context: ViewContext) = when (this) {
+    PlaylistSortBy.CUSTOM -> context.symphony.t.custom
     PlaylistSortBy.TITLE -> context.symphony.t.title
     PlaylistSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
 }

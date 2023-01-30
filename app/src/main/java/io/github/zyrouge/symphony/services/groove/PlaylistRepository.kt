@@ -11,6 +11,7 @@ import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
 
 enum class PlaylistSortBy {
+    CUSTOM,
     TITLE,
     TRACKS_COUNT,
 }
@@ -45,11 +46,24 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun getAll() = cached.values.toList()
     fun getPlaylistWithId(id: String) = cached[id]
 
+    suspend fun addLocalPlaylist(local: Playlist.Local) {
+        val playlist = Playlist.fromM3U(symphony, local)
+        cached[playlist.id] = playlist
+        onUpdate.dispatch(null)
+        save()
+    }
+
+    suspend fun removePlaylist(id: String) {
+        cached.remove(id)
+        onUpdate.dispatch(null)
+        save()
+    }
+
     suspend fun save() {
         val custom = mutableListOf<Playlist>()
         val local = mutableListOf<Playlist.Local>()
         cached.values.forEach { playlist ->
-            if (playlist.isLocal()) playlist.local?.let { local.add(it) }
+            if (playlist.isLocal()) playlist.local!!.let { local.add(it) }
             else custom.add(playlist)
         }
         symphony.database.playlists.update(PlaylistsBox.Data(custom = custom, local = local))
@@ -68,15 +82,18 @@ class PlaylistRepository(private val symphony: Symphony) {
                 val id = cursor.getColumnValue(MediaStore.Files.FileColumns._ID) {
                     cursor.getLong(it)
                 }
-                playlists.add(
-                    Playlist.Local(
-                        id = id,
-                        path = cursor.getColumnValue(MediaStore.Files.FileColumns.DATA) {
-                            cursor.getString(it)
-                        },
-                        uri = getExternalVolumeUri(id),
+                val path = cursor.getColumnValue(MediaStore.Files.FileColumns.DATA) {
+                    cursor.getString(it)
+                }
+                if (!cached.containsKey(path)) {
+                    playlists.add(
+                        Playlist.Local(
+                            id = id,
+                            path = path,
+                            uri = getExternalVolumeUri(id),
+                        )
                     )
-                )
+                }
             }
         }
         return playlists.toList()
@@ -93,6 +110,7 @@ class PlaylistRepository(private val symphony: Symphony) {
 
         fun sort(playlists: List<Playlist>, by: PlaylistSortBy, reversed: Boolean): List<Playlist> {
             val sorted = when (by) {
+                PlaylistSortBy.CUSTOM -> playlists.toList()
                 PlaylistSortBy.TITLE -> playlists.sortedBy { it.title }
                 PlaylistSortBy.TRACKS_COUNT -> playlists.sortedBy { it.numberOfTracks }
             }
