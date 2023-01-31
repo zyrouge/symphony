@@ -96,6 +96,16 @@ class English : Translations {
     override val noLocalPlaylistsFound = "No local playlists found"
     override val custom = "Custom"
     override val playlist = "Playlist"
+    override val addSongs = "Add songs"
+    override val addToPlaylist = "Add to playlist"
+    override val isLocalPlaylist = "Is local playlist?"
+    override val yes = "Yes"
+    override val no = "No"
+    override val manageSongs = "Manage songs"
+    override val delete = "Delete"
+    override val deletePlaylist = "Delete playlist"
+    override val areYouSureThatYouWantToDeleteThisPlaylist =
+        "Are you sure that you want to delete this playlist?"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

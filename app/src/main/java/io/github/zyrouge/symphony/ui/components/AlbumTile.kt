@@ -146,7 +146,7 @@ fun AlbumDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistAdd, null)
+                Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.addToQueue)

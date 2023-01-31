@@ -18,6 +18,8 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,8 +101,14 @@ fun PlaylistDropdownMenu(
     context: ViewContext,
     playlist: Playlist,
     expanded: Boolean,
-    onDismissRequest: () -> Unit
+    onDelete: (() -> Unit)? = {},
+    onDismissRequest: () -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    var showSongsPicker by remember { mutableStateOf(false) }
+    var showInfoDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
@@ -135,16 +143,93 @@ fun PlaylistDropdownMenu(
                 )
             }
         )
+        if (playlist.isNotLocal()) {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Default.PlaylistAdd, null)
+                },
+                text = {
+                    Text(context.symphony.t.manageSongs)
+                },
+                onClick = {
+                    onDismissRequest()
+                    showSongsPicker = true
+                }
+            )
+        }
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistAdd, null)
+                Icon(Icons.Default.Info, null)
             },
             text = {
-                Text(context.symphony.t.addToQueue)
+                Text(context.symphony.t.details)
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(playlist.songs)
+                showInfoDialog = true
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(
+                    Icons.Default.DeleteForever,
+                    null,
+                    tint = ThemeColors.Red,
+                )
+            },
+            text = {
+                Text(context.symphony.t.delete)
+            },
+            onClick = {
+                onDismissRequest()
+                showDeleteDialog = true
+            }
+        )
+    }
+
+    if (showInfoDialog) {
+        PlaylistInformationDialog(
+            context,
+            playlist = playlist,
+            onDismissRequest = {
+                showInfoDialog = false
+            }
+        )
+    }
+
+    if (showSongsPicker) {
+        PlaylistManageSongsDialog(
+            context,
+            selectedSongs = playlist.songs.toList(),
+            onDone = {
+                coroutineScope.launch {
+                    context.symphony.groove.playlist.updatePlaylistSongs(
+                        playlist = playlist,
+                        songs = it,
+                    )
+                    showSongsPicker = false
+                }
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        ConfirmationDialog(
+            context,
+            title = {
+                Text(context.symphony.t.deletePlaylist)
+            },
+            description = {
+                Text(context.symphony.t.areYouSureThatYouWantToDeleteThisPlaylist)
+            },
+            onResult = { result ->
+                coroutineScope.launch {
+                    showDeleteDialog = false
+                    if (result) {
+                        onDelete?.invoke()
+                        context.symphony.groove.playlist.removePlaylist(playlist)
+                    }
+                }
             }
         )
     }

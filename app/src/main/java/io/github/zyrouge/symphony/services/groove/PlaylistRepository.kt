@@ -8,6 +8,7 @@ import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.getColumnValue
 import java.io.FileNotFoundException
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 enum class PlaylistSortBy {
@@ -46,15 +47,36 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun getAll() = cached.values.toList()
     fun getPlaylistWithId(id: String) = cached[id]
 
-    suspend fun addLocalPlaylist(local: Playlist.Local) {
-        val playlist = Playlist.fromM3U(symphony, local)
+    fun parseLocalPlaylist(local: Playlist.Local) = Playlist.fromM3U(symphony, local)
+    fun createNewPlaylist(title: String, songs: List<Long>) = Playlist(
+        id = UUID.randomUUID().toString(),
+        title = title,
+        songs = songs,
+        numberOfTracks = songs.size,
+        local = null,
+    )
+
+    suspend fun addPlaylist(playlist: Playlist) {
         cached[playlist.id] = playlist
         onUpdate.dispatch(null)
         save()
     }
 
+    suspend fun removePlaylist(playlist: Playlist) = removePlaylist(playlist.id)
     suspend fun removePlaylist(id: String) {
         cached.remove(id)
+        onUpdate.dispatch(null)
+        save()
+    }
+
+    suspend fun updatePlaylistSongs(playlist: Playlist, songs: List<Long>) {
+        cached[playlist.id] = Playlist(
+            id = playlist.id,
+            title = playlist.title,
+            songs = songs,
+            numberOfTracks = songs.size,
+            local = null,
+        )
         onUpdate.dispatch(null)
         save()
     }

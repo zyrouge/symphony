@@ -3,7 +3,6 @@ package io.github.zyrouge.symphony.ui.view
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,16 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -345,60 +340,6 @@ private fun SideHeading(text: String) {
         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
         modifier = Modifier.padding(12.dp, 12.dp, 12.dp, 4.dp)
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GenericGrooveCard(
-    image: ImageRequest?,
-    title: @Composable () -> Unit,
-    subtitle: (@Composable () -> Unit)? = null,
-    options: (@Composable (expanded: Boolean, onDismissRequest: () -> Unit) -> Unit)?,
-    onClick: () -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        onClick = onClick
-    ) {
-        Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                image?.let {
-                    AsyncImage(
-                        it,
-                        null,
-                        modifier = Modifier
-                            .size(45.dp)
-                            .clip(RoundedCornerShape(10.dp)),
-                    )
-                    Spacer(modifier = Modifier.width(15.dp))
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
-                        title()
-                    }
-                    subtitle?.let {
-                        ProvideTextStyle(MaterialTheme.typography.bodySmall) {
-                            it()
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.width(15.dp))
-
-                options?.let {
-                    var showOptionsMenu by remember { mutableStateOf(false) }
-                    IconButton(
-                        onClick = { showOptionsMenu = !showOptionsMenu }
-                    ) {
-                        Icon(Icons.Default.MoreVert, null)
-                        it(showOptionsMenu) {
-                            showOptionsMenu = false
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 private fun GrooveKinds.label(context: ViewContext) = when (this) {

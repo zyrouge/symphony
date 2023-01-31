@@ -49,6 +49,7 @@ data class Playlist(
                 .data(Assets.getPlaceholderUri(symphony.applicationContext))
 
     fun isLocal() = local != null
+    fun isNotLocal() = local == null
 
     fun toJSONObject(): JSONObject {
         val json = JSONObject()

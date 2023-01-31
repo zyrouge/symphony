@@ -140,8 +140,9 @@ class SongRepository(private val symphony: Symphony) {
         getAll { it.additional.albumArtist == artistName }
 
     fun getSongsOfPlaylist(playlistId: String) = symphony.groove.playlist
-        .getPlaylistWithId(playlistId)!!
-        .songs.mapNotNull { cached[it] }
+        .getPlaylistWithId(playlistId)
+        ?.songs?.mapNotNull { cached[it] }
+        ?: listOf()
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

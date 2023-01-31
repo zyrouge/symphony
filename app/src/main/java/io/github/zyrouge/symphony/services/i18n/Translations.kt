@@ -96,6 +96,15 @@ interface Translations {
     val noLocalPlaylistsFound: String
     val custom: String
     val playlist: String
+    val addSongs: String
+    val addToPlaylist: String
+    val isLocalPlaylist: String
+    val yes: String
+    val no: String
+    val manageSongs: String
+    val delete: String
+    val deletePlaylist: String
+    val areYouSureThatYouWantToDeleteThisPlaylist: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
