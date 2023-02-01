@@ -34,6 +34,7 @@ fun SearchView(context: ViewContext) {
     val albums = remember { mutableStateListOf<Album>() }
     val albumArtists = remember { mutableStateListOf<Artist>() }
     val genres = remember { mutableStateListOf<Genre>() }
+    val playlists = remember { mutableStateListOf<Playlist>() }
 
     var selectedChip by rememberSaveable { mutableStateOf<GrooveKinds?>(null) }
     fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
@@ -75,6 +76,11 @@ fun SearchView(context: ViewContext) {
                     if (isChipSelected(GrooveKinds.GENRE)) {
                         genres.addAll(
                             context.symphony.groove.genre.search(terms).map { it.entity }
+                        )
+                    }
+                    if (isChipSelected(GrooveKinds.PLAYLIST)) {
+                        playlists.addAll(
+                            context.symphony.groove.playlist.search(terms).map { it.entity }
                         )
                     }
                 }
@@ -166,9 +172,11 @@ fun SearchView(context: ViewContext) {
             val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albums.isNotEmpty()
             val hasAlbumArtists =
                 isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtists.isNotEmpty()
+            val hasPlaylists =
+                isChipSelected(GrooveKinds.PLAYLIST) && playlists.isNotEmpty()
             val hasGenres = isChipSelected(GrooveKinds.GENRE) && genres.isNotEmpty()
             val hasNoResults =
-                !hasSongs && !hasArtists && !hasAlbums && !hasAlbumArtists && !hasGenres
+                !hasSongs && !hasArtists && !hasAlbums && !hasAlbumArtists && !hasPlaylists && !hasGenres
 
             Box(
                 modifier = Modifier
@@ -295,6 +303,32 @@ fun SearchView(context: ViewContext) {
                                             onClick = {
                                                 context.navController.navigate(
                                                     RoutesBuilder.buildAlbumArtistRoute(artist.name)
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+                                if (hasPlaylists) {
+                                    SideHeading(context, GrooveKinds.PLAYLIST)
+                                    playlists.forEach { playlist ->
+                                        GenericGrooveCard(
+                                            image = playlist
+                                                .createArtworkImageRequest(context.symphony)
+                                                .build(),
+                                            title = {
+                                                Text(playlist.title)
+                                            },
+                                            options = { expanded, onDismissRequest ->
+                                                PlaylistDropdownMenu(
+                                                    context,
+                                                    playlist,
+                                                    expanded = expanded,
+                                                    onDismissRequest = onDismissRequest,
+                                                )
+                                            },
+                                            onClick = {
+                                                context.navController.navigate(
+                                                    RoutesBuilder.buildPlaylistRoute(playlist.id)
                                                 )
                                             }
                                         )

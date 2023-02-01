@@ -155,8 +155,8 @@ private fun PlaylistControlBar(
 @Composable
 private fun SelectPlaylistDialog(
     context: ViewContext,
-    playlists: List<Playlist.Local>,
-    onSelected: (Playlist.Local) -> Unit,
+    playlists: List<Playlist.LocalExtended>,
+    onSelected: (Playlist.LocalExtended) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {

@@ -4,9 +4,7 @@ import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.Logger
-import io.github.zyrouge.symphony.utils.getColumnValue
+import io.github.zyrouge.symphony.utils.*
 import java.io.FileNotFoundException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -22,16 +20,23 @@ class PlaylistRepository(private val symphony: Symphony) {
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
+    private val searcher = FuzzySearcher<Playlist>(
+        options = listOf(FuzzySearchOption({ it.title }))
+    )
+
     fun fetch() {
         if (isUpdating) return
         isUpdating = true
         try {
             val data = symphony.database.playlists.read()
+            val locals = queryAllLocalPlaylistsMap()
             data.custom.forEach { cached[it.id] = it }
             data.local.forEach {
                 try {
-                    val playlist = Playlist.fromM3U(symphony, it)
-                    cached[playlist.id] = playlist
+                    locals[it.path]?.let { extended ->
+                        val playlist = Playlist.fromM3U(symphony, extended)
+                        cached[playlist.id] = playlist
+                    }
                 } catch (err: Exception) {
                     Logger.error("PlaylistRepository", "parsing ${it.path} failed: $err")
                 }
@@ -47,7 +52,9 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun getAll() = cached.values.toList()
     fun getPlaylistWithId(id: String) = cached[id]
 
-    fun parseLocalPlaylist(local: Playlist.Local) = Playlist.fromM3U(symphony, local)
+    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
+
+    fun parseLocalPlaylist(local: Playlist.LocalExtended) = Playlist.fromM3U(symphony, local)
     fun createNewPlaylist(title: String, songs: List<Long>) = Playlist(
         id = UUID.randomUUID().toString(),
         title = title,
@@ -91,8 +98,9 @@ class PlaylistRepository(private val symphony: Symphony) {
         symphony.database.playlists.update(PlaylistsBox.Data(custom = custom, local = local))
     }
 
-    fun queryAllLocalPlaylists(): List<Playlist.Local> {
-        val playlists = mutableListOf<Playlist.Local>()
+    fun queryAllLocalPlaylists() = queryAllLocalPlaylistsMap().values.toList()
+    fun queryAllLocalPlaylistsMap(): Map<String, Playlist.LocalExtended> {
+        val playlists = mutableMapOf<String, Playlist.LocalExtended>()
         symphony.applicationContext.contentResolver.query(
             getExternalVolumeUri(),
             null,
@@ -108,17 +116,15 @@ class PlaylistRepository(private val symphony: Symphony) {
                     cursor.getString(it)
                 }
                 if (!cached.containsKey(path)) {
-                    playlists.add(
-                        Playlist.Local(
-                            id = id,
-                            path = path,
-                            uri = getExternalVolumeUri(id),
-                        )
+                    playlists[path] = Playlist.LocalExtended(
+                        id = id,
+                        uri = getExternalVolumeUri(id),
+                        local = Playlist.Local(path),
                     )
                 }
             }
         }
-        return playlists.toList()
+        return playlists.toMap()
     }
 
     companion object {

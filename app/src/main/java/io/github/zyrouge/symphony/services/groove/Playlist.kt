@@ -18,26 +18,22 @@ data class Playlist(
     val numberOfTracks: Int,
     val local: Local?,
 ) {
-    data class Local(val id: Long, val path: String, val uri: Uri) {
+    data class LocalExtended(val id: Long, val uri: Uri, val local: Local) {
+        val path: String get() = local.path
+    }
+
+    data class Local(val path: String) {
         fun toJSONObject(): JSONObject {
             val json = JSONObject()
-            json.put(PLAYLIST_LOCAL_ID_KEY, id)
             json.put(PLAYLIST_LOCAL_PATH_KEY, path)
-            json.put(PLAYLIST_LOCAL_URI_KEY, uri.toString())
             return json
         }
 
         companion object {
-            const val PLAYLIST_LOCAL_ID_KEY = "l_id"
             const val PLAYLIST_LOCAL_PATH_KEY = "l_path"
-            const val PLAYLIST_LOCAL_URI_KEY = "l_uri"
 
             fun fromJSONObject(serialized: JSONObject): Local {
-                return Local(
-                    id = serialized.getLong(PLAYLIST_LOCAL_ID_KEY),
-                    path = serialized.getString(PLAYLIST_LOCAL_PATH_KEY),
-                    uri = Uri.parse(serialized.getString(PLAYLIST_LOCAL_URI_KEY)),
-                )
+                return Local(serialized.getString(PLAYLIST_LOCAL_PATH_KEY))
             }
         }
     }
@@ -78,7 +74,7 @@ data class Playlist(
             )
         }
 
-        fun fromM3U(symphony: Symphony, local: Local): Playlist {
+        fun fromM3U(symphony: Symphony, local: LocalExtended): Playlist {
             val path = GrooveExplorer.Path(local.path)
             val dir = path.dirname
             val content = symphony.applicationContext.contentResolver
@@ -97,7 +93,7 @@ data class Playlist(
                 title = path.basename.removeSuffix(".m3u"),
                 songs = songs,
                 numberOfTracks = songs.size,
-                local = local,
+                local = local.local,
             )
         }
     }
