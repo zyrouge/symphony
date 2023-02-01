@@ -35,11 +35,17 @@ class PermissionsManager(private val symphony: Symphony) {
         }.launch(state.denied.toTypedArray())
     }
 
-    private fun getState(activity: MainActivity): PermissionsState {
+    private fun getRequiredPermissions(): List<String> {
         val required = mutableListOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             required.add(Manifest.permission.READ_MEDIA_AUDIO)
+            required.add(Manifest.permission.POST_NOTIFICATIONS)
         }
+        return required.toList()
+    }
+
+    private fun getState(activity: MainActivity): PermissionsState {
+        val required = getRequiredPermissions()
         val granted = mutableListOf<String>()
         val denied = mutableListOf<String>()
         required.forEach {
