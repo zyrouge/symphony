@@ -91,7 +91,11 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                     .fillMaxSize()
             ) {
                 when {
-                    isViable -> SongList(context, songs = songs)
+                    isViable -> SongList(
+                        context,
+                        songs = songs,
+                        type = SongListType.Playlist,
+                    )
                     else -> UnknownPlaylist(context, playlistId)
                 }
             }

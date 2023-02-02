@@ -21,14 +21,13 @@ fun SongList(
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
     isLoading: Boolean = false,
+    type: SongListType = SongListType.Default,
 ) {
     var sortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE
-        )
+        mutableStateOf(type.getLastUsedSortBy(context))
     }
     var sortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedSongsSortReverse())
+        mutableStateOf(type.getLastUsedSortReverse(context))
     }
     val sortedSongs by remember {
         derivedStateOf { SongRepository.sort(songs, sortBy, sortReverse) }
@@ -46,13 +45,13 @@ fun SongList(
                 reverse = sortReverse,
                 onReverseChange = {
                     sortReverse = it
-                    context.symphony.settings.setLastUsedSongsSortReverse(it)
+                    type.setLastUsedSortReverse(context, it)
                 },
                 sort = sortBy,
                 sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
                 onSortChange = {
                     sortBy = it
-                    context.symphony.settings.setLastUsedSongsSortBy(it)
+                    type.setLastUsedSortBy(context, it)
                 },
                 label = {
                     Text(context.symphony.t.XSongs(songs.size))
@@ -91,4 +90,36 @@ private fun SongSortBy.label(context: ViewContext) = when (this) {
     SongSortBy.ALBUM_ARTIST -> context.symphony.t.albumArtist
     SongSortBy.YEAR -> context.symphony.t.year
     SongSortBy.FILENAME -> context.symphony.t.filename
+}
+
+enum class SongListType {
+    Default,
+    Playlist;
+
+    fun getLastUsedSortBy(context: ViewContext): SongSortBy {
+        val sort = when (this) {
+            Default -> context.symphony.settings.getLastUsedSongsSortBy()
+            Playlist -> context.symphony.settings.getLastUsedPlaylistSongsSortBy()
+        }
+        return sort ?: SongSortBy.TITLE
+    }
+
+    fun setLastUsedSortBy(context: ViewContext, sort: SongSortBy) {
+        when (this) {
+            Default -> context.symphony.settings.setLastUsedSongsSortBy(sort)
+            Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortBy(sort)
+        }
+    }
+
+    fun getLastUsedSortReverse(context: ViewContext): Boolean = when (this) {
+        Default -> context.symphony.settings.getLastUsedSongsSortReverse()
+        Playlist -> context.symphony.settings.getLastUsedPlaylistSongsSortReverse()
+    }
+
+    fun setLastUsedSortReverse(context: ViewContext, reverse: Boolean) {
+        when (this) {
+            Default -> context.symphony.settings.setLastUsedSongsSortReverse(reverse)
+            Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortReverse(reverse)
+        }
+    }
 }
