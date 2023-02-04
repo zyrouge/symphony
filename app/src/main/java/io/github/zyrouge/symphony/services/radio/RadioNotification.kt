@@ -29,6 +29,7 @@ class RadioNotification(private val symphony: Symphony) {
     private var style =
         androidx.media.app.NotificationCompat.MediaStyle()
             .setMediaSession(session.sessionToken)
+            .setShowActionsInCompactView(0, 1, 2)
     private var builder: NotificationCompat.Builder? = null
     private var manager = RadioNotificationManager(symphony)
     private var receiver = object : BroadcastReceiver() {
