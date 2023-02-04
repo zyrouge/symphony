@@ -215,17 +215,3 @@ fun SongExplorerList(
         }
     }
 }
-
-private fun SongSortBy.label(context: ViewContext) = when (this) {
-    SongSortBy.CUSTOM -> context.symphony.t.custom
-    SongSortBy.TITLE -> context.symphony.t.title
-    SongSortBy.ARTIST -> context.symphony.t.artist
-    SongSortBy.ALBUM -> context.symphony.t.album
-    SongSortBy.DURATION -> context.symphony.t.duration
-    SongSortBy.DATE_ADDED -> context.symphony.t.dateAdded
-    SongSortBy.DATE_MODIFIED -> context.symphony.t.lastModified
-    SongSortBy.COMPOSER -> context.symphony.t.composer
-    SongSortBy.ALBUM_ARTIST -> context.symphony.t.albumArtist
-    SongSortBy.YEAR -> context.symphony.t.year
-    SongSortBy.FILENAME -> context.symphony.t.filename
-}

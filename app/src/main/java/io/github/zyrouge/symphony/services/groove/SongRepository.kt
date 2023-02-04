@@ -19,6 +19,7 @@ enum class SongSortBy {
     ALBUM_ARTIST,
     YEAR,
     FILENAME,
+    TRACK_NUMBER,
 }
 
 class SongRepository(private val symphony: Symphony) {
@@ -160,6 +161,7 @@ class SongRepository(private val symphony: Symphony) {
                 SongSortBy.ALBUM_ARTIST -> songs.sortedBy { it.additional.albumArtist }
                 SongSortBy.YEAR -> songs.sortedBy { it.year }
                 SongSortBy.FILENAME -> songs.sortedBy { it.filename }
+                SongSortBy.TRACK_NUMBER -> songs.sortedBy { it.trackNumber }
             }
             return if (reversed) sorted.reversed() else sorted
         }

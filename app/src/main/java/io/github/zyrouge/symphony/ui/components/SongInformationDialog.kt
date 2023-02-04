@@ -32,6 +32,9 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             song.year?.let {
                 InformationKeyValue(context.symphony.t.year, it.toString())
             }
+            song.trackNumber?.let {
+                InformationKeyValue(context.symphony.t.trackNumber, it.toString())
+            }
             InformationKeyValue(
                 context.symphony.t.duration,
                 DurationFormatter.formatAsMS(song.duration)

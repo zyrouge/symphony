@@ -81,6 +81,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                     SongList(
                         context,
                         songs = songs,
+                        type = SongListType.Album,
                         leadingContent = {
                             item {
                                 AlbumHero(context, album!!)

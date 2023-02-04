@@ -37,6 +37,8 @@ object SettingsKeys {
     const val lastUsedPlaylistsSortReverse = "last_used_playlists_sort_reverse"
     const val lastUsedPlaylistSongsSortBy = "last_used_playlist_songs_sort_by"
     const val lastUsedPlaylistSongsSortReverse = "last_used_playlist_songs_sort_reverse"
+    const val lastUsedAlbumSongsSortBy = "last_used_album_songs_sort_by"
+    const val lastUsedAlbumSongsSortReverse = "last_used_album_songs_sort_reverse"
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_page"
     const val songs_filter_pattern = "songs_filter_pattern"
@@ -294,6 +296,29 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.lastUsedPlaylistSongsSortReverse, reverse)
         }
         onChange.dispatch(SettingsKeys.lastUsedPlaylistSongsSortReverse)
+    }
+
+    fun getLastUsedAlbumSongsSortBy() =
+        getSharedPreferences().getEnum<SongSortBy>(
+            SettingsKeys.lastUsedAlbumSongsSortBy,
+            null
+        )
+
+    fun setLastUsedAlbumSongsSortBy(sortBy: SongSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedAlbumSongsSortBy, sortBy)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedAlbumSongsSortBy)
+    }
+
+    fun getLastUsedAlbumSongsSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedAlbumSongsSortReverse, false)
+
+    fun setLastUsedAlbumSongsSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedAlbumSongsSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedAlbumSongsSortReverse)
     }
 
     fun getPreviousSongQueue() = getSharedPreferences()
