@@ -106,7 +106,7 @@ fun SongTreeList(
                     item {
                         Box(
                             modifier = Modifier
-                                .padding(bottom = if (show) 4.dp else 0.dp)
+                                .padding(0.dp, if (show) 4.dp else 0.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
