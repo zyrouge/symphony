@@ -106,6 +106,9 @@ interface Translations {
     val deletePlaylist: String
     val areYouSureThatYouWantToDeleteThisPlaylist: String
     val trackNumber: String
+    val tree: String
+    val loading: String
+    val name: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

@@ -23,7 +23,6 @@ fun <T : Enum<T>> MediaSortBar(
     onSortChange: (T) -> Unit,
     label: @Composable () -> Unit,
     onShufflePlay: (() -> Unit)? = null,
-    isLoading: Boolean = false,
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
@@ -99,15 +98,6 @@ fun <T : Enum<T>> MediaSortBar(
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .width(16.dp)
-                        .offset(0.dp, 12.dp),
-                    strokeWidth = 2.dp,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-            }
             ProvideTextStyle(currentTextStyle) {
                 label()
             }
@@ -130,3 +120,4 @@ fun <T : Enum<T>> MediaSortBar(
         }
     }
 }
+

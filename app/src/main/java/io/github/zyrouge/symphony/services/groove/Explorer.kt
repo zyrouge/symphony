@@ -2,6 +2,11 @@ package io.github.zyrouge.symphony.services.groove
 
 import java.util.concurrent.ConcurrentHashMap
 
+enum class PathSortBy {
+    CUSTOM,
+    NAME,
+}
+
 object GrooveExplorer {
     abstract class Entity(val basename: String, var parent: Folder? = null) {
         val fullPath: List<String>
@@ -79,5 +84,13 @@ object GrooveExplorer {
             private fun intoParts(path: String) =
                 path.split(intoPartsRegex).filter { it.isNotBlank() }
         }
+    }
+
+    fun sort(paths: List<String>, by: PathSortBy, reversed: Boolean): List<String> {
+        val sorted = when (by) {
+            PathSortBy.CUSTOM -> paths.toList()
+            PathSortBy.NAME -> paths.sorted()
+        }
+        return if (reversed) sorted.reversed() else sorted
     }
 }

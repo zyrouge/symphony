@@ -18,6 +18,7 @@ fun AlbumRow(context: ViewContext, albums: List<Album>) {
     BoxWithConstraints {
         val maxSize = min(maxHeight, maxWidth).div(2f)
         val width = min(maxSize, 200.dp)
+        
         LazyRow {
             items(
                 albums,

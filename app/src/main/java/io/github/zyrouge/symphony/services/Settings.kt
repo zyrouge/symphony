@@ -39,6 +39,9 @@ object SettingsKeys {
     const val lastUsedPlaylistSongsSortReverse = "last_used_playlist_songs_sort_reverse"
     const val lastUsedAlbumSongsSortBy = "last_used_album_songs_sort_by"
     const val lastUsedAlbumSongsSortReverse = "last_used_album_songs_sort_reverse"
+    const val lastUsedTreePathSortBy = "last_used_tree_path_sort_by"
+    const val lastUsedTreePathSortReverse = "last_used_tree_path_sort_reverse"
+    const val lastDisabledTreePaths = "last_disabled_tree_paths"
     const val previousSongQueue = "previous_song_queue"
     const val home_last_tab = "home_last_page"
     const val songs_filter_pattern = "songs_filter_pattern"
@@ -321,6 +324,29 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.lastUsedAlbumSongsSortReverse)
     }
 
+    fun getLastUsedTreePathSortBy() =
+        getSharedPreferences().getEnum<PathSortBy>(
+            SettingsKeys.lastUsedTreePathSortBy,
+            null
+        )
+
+    fun setLastUsedTreePathSortBy(sortBy: PathSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedTreePathSortBy, sortBy)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedTreePathSortBy)
+    }
+
+    fun getLastUsedTreePathSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedTreePathSortReverse, false)
+
+    fun setLastUsedTreePathSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedTreePathSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedTreePathSortReverse)
+    }
+
     fun getPreviousSongQueue() = getSharedPreferences()
         .getString(SettingsKeys.previousSongQueue, null)
         ?.let { RadioQueue.Serialized.parse(it) }
@@ -340,6 +366,18 @@ class SettingsManager(private val symphony: Symphony) {
             putEnum(SettingsKeys.home_last_tab, value)
         }
         onChange.dispatch(SettingsKeys.home_last_tab)
+    }
+
+    fun getLastDisabledTreePaths(): List<String> =
+        getSharedPreferences().getStringSet(SettingsKeys.lastDisabledTreePaths, null)
+            ?.toList()
+            ?: listOf()
+
+    fun setLastDisabledTreePaths(paths: List<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.lastDisabledTreePaths, paths.toSet())
+        }
+        onChange.dispatch(SettingsKeys.lastDisabledTreePaths)
     }
 
     fun getSongsFilterPattern() =

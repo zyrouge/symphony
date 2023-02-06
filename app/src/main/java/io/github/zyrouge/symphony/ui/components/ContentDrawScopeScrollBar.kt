@@ -19,6 +19,7 @@ fun ContentDrawScope.drawScrollBar(
     val scrollPointerWidth = ContentDrawScopeScrollBarDefaults.scrollPointerWidth.toPx()
     val scrollPointerHeight = ContentDrawScopeScrollBarDefaults.scrollPointerHeight.toPx()
     val scrollPointerCorner = CornerRadius(scrollPointerWidth, scrollPointerWidth)
+    
     drawPath(
         color = scrollPointerColor,
         alpha = scrollPointerAlpha,

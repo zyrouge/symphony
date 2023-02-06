@@ -107,6 +107,9 @@ class English : Translations {
     override val areYouSureThatYouWantToDeleteThisPlaylist =
         "Are you sure that you want to delete this playlist?"
     override val trackNumber = "Track number"
+    override val tree = "Tree"
+    override val loading = "Loading..."
+    override val name = "Name"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

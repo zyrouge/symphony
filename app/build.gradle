@@ -66,7 +66,6 @@ dependencies {
     def navigation_version = '2.5.3'
 
     implementation "androidx.compose.material:material-icons-extended:$compose_material_version"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     implementation "androidx.navigation:navigation-compose:$navigation_version"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
     implementation 'androidx.core:core-splashscreen:1.0.0'

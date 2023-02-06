@@ -40,7 +40,6 @@ fun SongExplorerList(
     key: Any?,
     initialPath: List<String>?,
     explorer: GrooveExplorer.Folder,
-    isLoading: Boolean = false,
     onPathChange: (List<String>) -> Unit,
 ) {
     var currentFolder by remember {
@@ -160,7 +159,6 @@ fun SongExplorerList(
                         )
                     )
                 },
-                isLoading = isLoading,
                 onShufflePlay = {
                     context.symphony.radio.shorty.playQueue(
                         sortedEntities.files.keys.toList(),

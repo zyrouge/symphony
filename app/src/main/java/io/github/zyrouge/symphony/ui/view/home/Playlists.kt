@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.components.IconTextBody
+import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.components.PlaylistGrid
 import io.github.zyrouge.symphony.ui.components.PlaylistManageSongsDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -32,48 +33,53 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
     val coroutineScope = rememberCoroutineScope()
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
-    when {
-        data.playlists.isNotEmpty() -> {
-            PlaylistGrid(
-                context,
-                data.playlists,
-                isLoading = data.playlistsIsUpdating,
-                leadingContent = {
-                    PlaylistControlBar(
-                        context,
-                        showPlaylistCreator = {
-                            showPlaylistCreator = true
-                        },
-                        showPlaylistPicker = {
-                            showPlaylistPicker = true
-                        },
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-            )
-        }
-        else -> Column {
-            PlaylistControlBar(
-                context,
-                showPlaylistCreator = {
-                    showPlaylistCreator = true
-                },
-                showPlaylistPicker = {
-                    showPlaylistPicker = true
-                },
-            )
-            IconTextBody(
-                icon = { modifier ->
-                    Icon(
-                        Icons.Default.QueueMusic,
-                        null,
-                        modifier = modifier,
-                    )
-                },
-                content = {
-                    Text(context.symphony.t.damnThisIsSoEmpty)
-                }
-            )
+
+    LoaderScaffold(
+        context,
+        isLoading = data.playlistsIsUpdating,
+    ) {
+        when {
+            data.playlists.isNotEmpty() -> {
+                PlaylistGrid(
+                    context,
+                    data.playlists,
+                    leadingContent = {
+                        PlaylistControlBar(
+                            context,
+                            showPlaylistCreator = {
+                                showPlaylistCreator = true
+                            },
+                            showPlaylistPicker = {
+                                showPlaylistPicker = true
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                )
+            }
+            else -> Column {
+                PlaylistControlBar(
+                    context,
+                    showPlaylistCreator = {
+                        showPlaylistCreator = true
+                    },
+                    showPlaylistPicker = {
+                        showPlaylistPicker = true
+                    },
+                )
+                IconTextBody(
+                    icon = { modifier ->
+                        Icon(
+                            Icons.Default.QueueMusic,
+                            null,
+                            modifier = modifier,
+                        )
+                    },
+                    content = {
+                        Text(context.symphony.t.damnThisIsSoEmpty)
+                    }
+                )
+            }
         }
     }
 

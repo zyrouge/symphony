@@ -20,7 +20,6 @@ fun SongList(
     songs: List<Song>,
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
-    isLoading: Boolean = false,
     type: SongListType = SongListType.Default,
 ) {
     var sortBy by remember {
@@ -33,13 +32,8 @@ fun SongList(
         derivedStateOf { SongRepository.sort(songs, sortBy, sortReverse) }
     }
 
-    val lazyListState = rememberLazyListState()
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier.drawScrollBar(lazyListState)
-    ) {
-        leadingContent?.invoke(this)
-        item {
+    MediaSortBarScaffold(
+        mediaSortBar = {
             MediaSortBar(
                 context,
                 reverse = sortReverse,
@@ -56,26 +50,35 @@ fun SongList(
                 label = {
                     Text(context.symphony.t.XSongs(songs.size))
                 },
-                isLoading = isLoading,
                 onShufflePlay = {
                     context.symphony.radio.shorty.playQueue(sortedSongs, shuffle = true)
                 }
             )
-        }
-        itemsIndexed(
-            sortedSongs,
-            key = { _, x -> x.id },
-            contentType = { _, _ -> GrooveKinds.SONG }
-        ) { i, song ->
-            SongCard(context, song) {
-                context.symphony.radio.shorty.playQueue(
+        },
+        content = {
+            val lazyListState = rememberLazyListState()
+            
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier.drawScrollBar(lazyListState)
+            ) {
+                leadingContent?.invoke(this)
+                itemsIndexed(
                     sortedSongs,
-                    Radio.PlayOptions(index = i)
-                )
+                    key = { _, x -> x.id },
+                    contentType = { _, _ -> GrooveKinds.SONG }
+                ) { i, song ->
+                    SongCard(context, song) {
+                        context.symphony.radio.shorty.playQueue(
+                            sortedSongs,
+                            Radio.PlayOptions(index = i)
+                        )
+                    }
+                }
+                trailingContent?.invoke(this)
             }
         }
-        trailingContent?.invoke(this)
-    }
+    )
 }
 
 fun SongSortBy.label(context: ViewContext) = when (this) {

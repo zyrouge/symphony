@@ -7,26 +7,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
-import io.github.zyrouge.symphony.ui.components.SongExplorerList
+import io.github.zyrouge.symphony.ui.components.SongTreeList
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
-fun FoldersView(context: ViewContext, data: HomeViewData) {
-    val explorer = context.symphony.groove.song.explorer
-
+fun TreeView(context: ViewContext, data: HomeViewData) {
     LoaderScaffold(
         context,
         isLoading = data.songsIsUpdating,
     ) {
         when {
-            !explorer.isEmpty -> SongExplorerList(
+            data.songs.isNotEmpty() -> SongTreeList(
                 context,
-                initialPath = context.symphony.settings.getLastUsedFolderPath(),
-                key = data.songsExplorerId,
-                explorer = explorer,
-                onPathChange = { path ->
-                    context.symphony.settings.setLastUsedFolderPath(path)
-                }
+                songs = data.songs,
+                initialDisabled = context.symphony.settings.getLastDisabledTreePaths(),
+                onDisable = { paths ->
+                    context.symphony.settings.setLastDisabledTreePaths(paths)
+                },
             )
             else -> IconTextBody(
                 icon = { modifier ->

@@ -13,7 +13,6 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun AlbumGrid(
     context: ViewContext,
     albums: List<Album>,
-    isLoading: Boolean = false,
 ) {
     var sortBy by remember {
         mutableStateOf(
@@ -27,8 +26,8 @@ fun AlbumGrid(
         derivedStateOf { AlbumRepository.sort(albums, sortBy, sortReverse) }
     }
 
-    ResponsiveGrid(
-        topBar = {
+    MediaSortBarScaffold(
+        mediaSortBar = {
             MediaSortBar(
                 context,
                 reverse = sortReverse,
@@ -45,16 +44,17 @@ fun AlbumGrid(
                 label = {
                     Text(context.symphony.t.XAlbums(albums.size))
                 },
-                isLoading = isLoading,
             )
         },
         content = {
-            items(
-                sortedAlbums,
-                key = { it.id },
-                contentType = { GrooveKinds.ALBUM }
-            ) { album ->
-                AlbumTile(context, album)
+            ResponsiveGrid {
+                items(
+                    sortedAlbums,
+                    key = { it.id },
+                    contentType = { GrooveKinds.ALBUM }
+                ) { album ->
+                    AlbumTile(context, album)
+                }
             }
         }
     )

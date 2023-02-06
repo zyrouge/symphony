@@ -13,25 +13,22 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun ArtistGrid(
     context: ViewContext,
     artists: List<Artist>,
-    isLoading: Boolean = false,
 ) {
-    ArtistGrid(context, artists, isLoading = isLoading, isAlbumArtist = false)
+    ArtistGrid(context, artists, isAlbumArtist = false)
 }
 
 @Composable
 fun AlbumArtistGrid(
     context: ViewContext,
     artists: List<Artist>,
-    isLoading: Boolean = false,
 ) {
-    ArtistGrid(context, artists, isLoading = isLoading, isAlbumArtist = true)
+    ArtistGrid(context, artists, isAlbumArtist = true)
 }
 
 @Composable
 internal fun ArtistGrid(
     context: ViewContext,
     artists: List<Artist>,
-    isLoading: Boolean = false,
     isAlbumArtist: Boolean,
 ) {
     var sortBy by remember {
@@ -46,8 +43,8 @@ internal fun ArtistGrid(
         derivedStateOf { ArtistRepository.sort(artists, sortBy, sortReverse) }
     }
 
-    ResponsiveGrid(
-        topBar = {
+    MediaSortBarScaffold(
+        mediaSortBar = {
             MediaSortBar(
                 context,
                 reverse = sortReverse,
@@ -64,16 +61,17 @@ internal fun ArtistGrid(
                 label = {
                     Text(context.symphony.t.XArtists(artists.size))
                 },
-                isLoading = isLoading,
             )
         },
         content = {
-            items(
-                sortedArtists,
-                key = { it.name },
-                contentType = { GrooveKinds.ARTIST }
-            ) { artist ->
-                ArtistTile(context, artist, isAlbumArtist)
+            ResponsiveGrid {
+                items(
+                    sortedArtists,
+                    key = { it.name },
+                    contentType = { GrooveKinds.ARTIST }
+                ) { artist ->
+                    ArtistTile(context, artist, isAlbumArtist)
+                }
             }
         }
     )

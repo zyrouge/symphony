@@ -14,7 +14,6 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun PlaylistGrid(
     context: ViewContext,
     playlists: List<Playlist>,
-    isLoading: Boolean = false,
     leadingContent: @Composable () -> Unit = {},
 ) {
     var sortBy by remember {
@@ -29,8 +28,8 @@ fun PlaylistGrid(
         derivedStateOf { PlaylistRepository.sort(playlists, sortBy, sortReverse) }
     }
 
-    ResponsiveGrid(
-        topBar = {
+    MediaSortBarScaffold(
+        mediaSortBar = {
             Column {
                 leadingContent()
                 MediaSortBar(
@@ -49,17 +48,18 @@ fun PlaylistGrid(
                     label = {
                         Text(context.symphony.t.XPlaylists(playlists.size))
                     },
-                    isLoading = isLoading,
                 )
             }
         },
         content = {
-            items(
-                sortedPlaylists,
-                key = { it.id },
-                contentType = { GrooveKinds.PLAYLIST }
-            ) { playlist ->
-                PlaylistTile(context, playlist)
+            ResponsiveGrid {
+                items(
+                    sortedPlaylists,
+                    key = { it.id },
+                    contentType = { GrooveKinds.PLAYLIST }
+                ) { playlist ->
+                    PlaylistTile(context, playlist)
+                }
             }
         }
     )

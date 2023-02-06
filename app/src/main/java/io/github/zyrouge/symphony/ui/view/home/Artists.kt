@@ -7,25 +7,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import io.github.zyrouge.symphony.ui.components.ArtistGrid
 import io.github.zyrouge.symphony.ui.components.IconTextBody
+import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun ArtistsView(context: ViewContext, data: HomeViewData) {
-    when {
-        data.artists.isNotEmpty() -> ArtistGrid(
-            context,
-            data.artists,
-            isLoading = data.artistsIsUpdating,
-        )
-        else -> IconTextBody(
-            icon = { modifier ->
-                Icon(
-                    Icons.Default.Person,
-                    null,
-                    modifier = modifier,
-                )
-            },
-            content = { Text(context.symphony.t.damnThisIsSoEmpty) }
-        )
+    LoaderScaffold(
+        context,
+        isLoading = data.artistsIsUpdating,
+    ) {
+        when {
+            data.artists.isNotEmpty() -> ArtistGrid(
+                context,
+                data.artists,
+            )
+            else -> IconTextBody(
+                icon = { modifier ->
+                    Icon(
+                        Icons.Default.Person,
+                        null,
+                        modifier = modifier,
+                    )
+                },
+                content = { Text(context.symphony.t.damnThisIsSoEmpty) }
+            )
+        }
     }
 }
