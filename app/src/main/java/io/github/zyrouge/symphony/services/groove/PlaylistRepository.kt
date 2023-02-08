@@ -35,8 +35,9 @@ class PlaylistRepository(private val symphony: Symphony) {
             data.local.forEach {
                 try {
                     locals[it.path]?.let { extended ->
-                        val playlist = Playlist.fromM3U(symphony, extended)
-                        cached[playlist.id] = playlist
+                        parseLocalPlaylist(extended)?.let { playlist ->
+                            cached[playlist.id] = playlist
+                        }
                     }
                 } catch (err: Exception) {
                     Logger.error("PlaylistRepository", "parsing ${it.path} failed: $err")
@@ -60,7 +61,10 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 
-    fun parseLocalPlaylist(local: Playlist.LocalExtended) = Playlist.fromM3U(symphony, local)
+    fun parseLocalPlaylist(local: Playlist.LocalExtended) = kotlin.runCatching {
+        Playlist.fromM3U(symphony, local)
+    }.getOrNull()
+
     fun createNewPlaylist(title: String, songs: List<Long>) = Playlist(
         id = UUID.randomUUID().toString(),
         title = title,

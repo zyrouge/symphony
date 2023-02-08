@@ -114,6 +114,7 @@ class English : Translations {
     override val blacklistFolders = "Blacklist folders"
     override val whitelistFolders = "Whitelist folders"
     override val pickFolder = "Pick folder"
+    override val invalidM3UFile = "Invalid M3U file"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

@@ -113,6 +113,7 @@ interface Translations {
     val blacklistFolders: String
     val whitelistFolders: String
     val pickFolder: String
+    val invalidM3UFile: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view.home
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -90,8 +91,15 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
             onSelected = { local ->
                 showPlaylistPicker = false
                 coroutineScope.launch {
-                    val playlist = context.symphony.groove.playlist.parseLocalPlaylist(local)
-                    context.symphony.groove.playlist.addPlaylist(playlist)
+                    context.symphony.groove.playlist.parseLocalPlaylist(local)?.let { playlist ->
+                        context.symphony.groove.playlist.addPlaylist(playlist)
+                    } ?: run {
+                        Toast.makeText(
+                            context.symphony.applicationContext,
+                            context.symphony.t.invalidM3UFile,
+                            Toast.LENGTH_LONG,
+                        )
+                    }
                 }
             },
             onDismissRequest = {
