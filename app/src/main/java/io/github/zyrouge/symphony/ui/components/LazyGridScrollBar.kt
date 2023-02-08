@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
+import io.github.zyrouge.symphony.utils.toSafeFinite
 import kotlin.math.floor
 
 fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = composed {
@@ -20,7 +21,7 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
     }
     val rows by remember {
         derivedStateOf {
-            floor(state.layoutInfo.totalItemsCount.toFloat() / columns)
+            floor(state.layoutInfo.totalItemsCount.toFloat() / columns).toSafeFinite()
         }
     }
     val showScrollPointer by remember {
@@ -37,13 +38,15 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
         if (showScrollPointer) 1f else 0f,
         animationSpec = tween(durationMillis = 50, easing = EaseInOut)
     )
+
     drawWithContent {
         drawContent()
         val scrollBarHeight =
             size.height - ContentDrawScopeScrollBarDefaults.scrollPointerHeight.toPx()
-        scrollPointerOffsetY =
+        val nScrollPointerOffsetY =
             if (isLastItemVisible) scrollBarHeight
             else (scrollBarHeight / rows) * (state.firstVisibleItemIndex / columns)
+        scrollPointerOffsetY = nScrollPointerOffsetY.toSafeFinite()
         drawScrollBar(
             scrollPointerColor = scrollPointerColor,
             scrollPointerOffsetY = scrollPointerOffsetYAnimated.value,

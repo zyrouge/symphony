@@ -83,7 +83,10 @@ data class Playlist(
             val m3u = M3U.parse(content)
             val songs = mutableListOf<Long>()
             m3u.entries.forEach { entry ->
-                val resolvedPath = "/" + dir.resolve(GrooveExplorer.Path(entry.path)).toString()
+                val resolvedPath = when {
+                    GrooveExplorer.Path.isAbsolute(entry.path) -> entry.path
+                    else -> "/" + dir.resolve(GrooveExplorer.Path(entry.path)).toString()
+                }
                 val id = symphony.groove.song.cachedPaths[resolvedPath]
                 id?.let { songs.add(it) }
             }

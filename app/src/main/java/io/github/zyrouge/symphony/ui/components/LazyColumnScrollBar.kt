@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
+import io.github.zyrouge.symphony.utils.toSafeFinite
 
 fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
     val scrollPointerColor = MaterialTheme.colorScheme.surfaceTint
@@ -31,11 +32,13 @@ fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
         if (showScrollPointer) 1f else 0f,
         animationSpec = tween(durationMillis = 500)
     )
+
     drawWithContent {
         drawContent()
-        scrollPointerOffsetY =
+        val nScrollPointerOffsetY =
             if (isLastItemVisible) size.height - ContentDrawScopeScrollBarDefaults.scrollPointerHeight.toPx()
             else (size.height / state.layoutInfo.totalItemsCount) * state.firstVisibleItemIndex
+        scrollPointerOffsetY = nScrollPointerOffsetY.toSafeFinite()
         drawScrollBar(
             scrollPointerColor = scrollPointerColor,
             scrollPointerOffsetY = scrollPointerOffsetYAnimated.value,
