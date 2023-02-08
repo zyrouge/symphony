@@ -30,7 +30,6 @@ class AlbumRepository(private val symphony: Symphony) {
     fun fetch() {
         if (isUpdating) return
         isUpdating = true
-        cached.clear()
         onUpdate.dispatch(null)
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
@@ -58,6 +57,11 @@ class AlbumRepository(private val symphony: Symphony) {
             Logger.error("AlbumRepository", "fetch failed: $err")
         }
         isUpdating = false
+        onUpdate.dispatch(null)
+    }
+
+    fun reset() {
+        cached.clear()
         onUpdate.dispatch(null)
     }
 

@@ -56,6 +56,8 @@ object SettingsKeys {
     const val fade_playback_duration = "fade_playback_duration"
     const val home_tabs = "home_tabs"
     const val home_page_bottom_bar_label_visibility = "home_page_bottom_bar_label_visibility"
+    const val blacklist_folders = "blacklist_folders"
+    const val whitelist_folders = "whitelist_folders"
 }
 
 data class SettingsData(
@@ -74,6 +76,8 @@ data class SettingsData(
     val fadePlaybackDuration: Float,
     val homeTabs: Set<HomePages>,
     val homePageBottomBarLabelVisibility: HomePageBottomBarLabelVisibility,
+    val blacklistFolders: Set<String>,
+    val whitelistFolders: Set<String>,
 )
 
 object SettingsDataDefaults {
@@ -94,6 +98,8 @@ object SettingsDataDefaults {
         HomePages.Artists
     )
     val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
+    val blacklistFolders = setOf<String>()
+    val whitelistFolders = setOf<String>()
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -115,6 +121,8 @@ class SettingsManager(private val symphony: Symphony) {
         fadePlaybackDuration = getFadePlaybackDuration(),
         homeTabs = getHomeTabs(),
         homePageBottomBarLabelVisibility = getHomePageBottomBarLabelVisibility(),
+        blacklistFolders = getBlacklistFolders(),
+        whitelistFolders = getWhitelistFolders(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -528,6 +536,32 @@ class SettingsManager(private val symphony: Symphony) {
             putEnum(SettingsKeys.home_page_bottom_bar_label_visibility, value)
         }
         onChange.dispatch(SettingsKeys.home_page_bottom_bar_label_visibility)
+    }
+
+    fun getBlacklistFolders() =
+        getSharedPreferences()
+            .getStringSet(SettingsKeys.blacklist_folders, null)
+            ?.toSet<String>()
+            ?: SettingsDataDefaults.blacklistFolders
+
+    fun setBlacklistFolders(values: Set<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.blacklist_folders, values)
+        }
+        onChange.dispatch(SettingsKeys.blacklist_folders)
+    }
+
+    fun getWhitelistFolders() =
+        getSharedPreferences()
+            .getStringSet(SettingsKeys.whitelist_folders, null)
+            ?.toSet<String>()
+            ?: SettingsDataDefaults.whitelistFolders
+
+    fun setWhitelistFolders(values: Set<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.whitelist_folders, values)
+        }
+        onChange.dispatch(SettingsKeys.whitelist_folders)
     }
 
     private fun getSharedPreferences() =

@@ -28,12 +28,14 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     init {
         symphony.permission.onUpdate.subscribe {
             when (it) {
-                PermissionEvents.MEDIA_PERMISSION_GRANTED -> fetch()
+                PermissionEvents.MEDIA_PERMISSION_GRANTED -> coroutineScope.launch {
+                    fetch()
+                }
             }
         }
     }
 
-    private fun fetch(postFetch: () -> Unit = {}) {
+    suspend fun fetch() {
         coroutineScope.launch {
             awaitAll(
                 async { song.fetch() },
@@ -41,12 +43,28 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
                 async { artist.fetch() },
             )
             playlist.fetch()
-            postFetch()
-        }
+        }.join()
+    }
+
+    suspend fun reset() {
+        coroutineScope.launch {
+            awaitAll(
+                async { song.reset() },
+                async { album.reset() },
+                async { artist.reset() },
+                async { playlist.reset() },
+            )
+        }.join()
+    }
+
+    suspend fun refetch() {
+        reset()
+        fetch()
     }
 
     override fun onSymphonyReady() {
-        fetch {
+        coroutineScope.launch {
+            fetch()
             readyDeferred.complete(true)
         }
     }

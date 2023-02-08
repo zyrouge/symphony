@@ -30,6 +30,12 @@ fun SettingsView(context: ViewContext) {
     val snackbarHostState = remember { SnackbarHostState() }
     var settings by remember { mutableStateOf(context.symphony.settings.getSettings()) }
 
+    val refetchLibrary = {
+        coroutineScope.launch {
+            context.symphony.groove.refetch()
+        }
+    }
+
     EventerEffect(context.symphony.settings.onChange) {
         settings = context.symphony.settings.getSettings()
     }
@@ -284,6 +290,37 @@ fun SettingsView(context: ViewContext) {
                                     else -> value
                                 }
                             )
+                            refetchLibrary()
+                        }
+                    )
+                    SettingsMultiFolderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.RuleFolder, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.blacklistFolders)
+                        },
+                        explorer = context.symphony.groove.song.foldersExplorer,
+                        initialValues = settings.blacklistFolders,
+                        onChange = { values ->
+                            context.symphony.settings.setBlacklistFolders(values)
+                            refetchLibrary()
+                        }
+                    )
+                    SettingsMultiFolderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.RuleFolder, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.whitelistFolders)
+                        },
+                        explorer = context.symphony.groove.song.foldersExplorer,
+                        initialValues = settings.whitelistFolders,
+                        onChange = { values ->
+                            context.symphony.settings.setWhitelistFolders(values)
+                            refetchLibrary()
                         }
                     )
                     SettingsSimpleTile(
@@ -296,19 +333,15 @@ fun SettingsView(context: ViewContext) {
                         onClick = {
                             coroutineScope.launch {
                                 context.symphony.database.songCache.update(mapOf())
-                                context.symphony.t.run {
-                                    snackbarHostState.showSnackbar(
-                                        "$songCacheCleared ($restartAppForChangesToTakeEffect)",
-                                        withDismissAction = true,
-                                    )
-                                }
+                                refetchLibrary()
                             }
                         }
                     )
                     Divider()
                     SettingsSideHeading(context.symphony.t.about)
-                    val isLatestVersion =
-                        AppMeta.latestVersion?.let { it == AppMeta.version } ?: true
+                    val isLatestVersion = AppMeta.latestVersion
+                        ?.let { it == AppMeta.version }
+                        ?: true
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Default.MusicNote, null)

@@ -109,6 +109,10 @@ interface Translations {
     val tree: String
     val loading: String
     val name: String
+    val addFolder: String
+    val blacklistFolders: String
+    val whitelistFolders: String
+    val pickFolder: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
@@ -126,6 +130,7 @@ interface Translations {
     fun XItems(x: Int): String
     fun XPlaylists(x: Int): String
     fun unknownPlaylistX(x: String): String
+    fun XFolders(x: Int): String
 
     companion object {
         val all = arrayOf<Translations>(English())

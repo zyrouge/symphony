@@ -106,7 +106,7 @@ fun SongTreeList(
                     item {
                         Box(
                             modifier = Modifier
-                                .padding(0.dp, if (show) 4.dp else 0.dp)
+                                .padding(bottom = if (show) 4.dp else 0.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -141,14 +141,14 @@ fun SongTreeList(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
+                                    .clip(RoundedCornerShape(5.dp))
                                     .clickable {
                                         context.symphony.radio.shorty.playQueue(
                                             sortedSongs,
                                             Radio.PlayOptions(index = sortedSongs.indexOf(song))
                                         )
                                     }
-                                    .clip(RoundedCornerShape(5.dp))
+                                    .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
                             ) {
                                 AsyncImage(
                                     song.createArtworkImageRequest(context.symphony).build(),
@@ -200,7 +200,7 @@ fun SongTreeList(
                         }
                     }
                     item {
-                        Divider()
+                        Divider(modifier = Modifier.padding(top = 4.dp))
                     }
                 }
             }

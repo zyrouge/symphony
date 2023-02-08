@@ -99,117 +99,121 @@ fun SongExplorerList(
         currentFolder.parent?.let { currentFolder = it }
     }
 
-    val lazyListState = rememberLazyListState()
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier.drawScrollBar(lazyListState)
-    ) {
-        item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .horizontalScroll(currentPathScrollState)
-                    .padding(12.dp, 0.dp),
-            ) {
-                currentPath.mapIndexed { i, basename ->
-                    Text(
-                        basename,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .clickable {
-                                explorer
-                                    .navigateToFolder(currentPath.subList(1, i + 1))
-                                    ?.let { currentFolder = it }
-                            }
-                            .padding(8.dp, 4.dp),
-                    )
-                    if (i != currentPath.size - 1) {
-                        Text(
-                            "/",
-                            modifier = Modifier
-                                .padding(4.dp, 0.dp)
-                                .alpha(0.3f)
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider()
-        }
-        item {
-            MediaSortBar(
-                context,
-                reverse = sortReverse,
-                onReverseChange = {
-                    sortReverse = it
-                    context.symphony.settings.setLastUsedFolderSortReverse(it)
-                },
-                sort = sortBy,
-                sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
-                onSortChange = {
-                    sortBy = it
-                    context.symphony.settings.setLastUsedFolderSortBy(it)
-                },
-                label = {
-                    Text(
-                        context.symphony.t.XFoldersYFiles(
-                            sortedEntities.folders.size,
-                            sortedEntities.files.size,
-                        )
-                    )
-                },
-                onShufflePlay = {
-                    context.symphony.radio.shorty.playQueue(
-                        sortedEntities.files.keys.toList(),
-                        shuffle = true
-                    )
-                }
-            )
-        }
-        items(
-            sortedEntities.folders,
-            key = { it.basename },
-            contentType = { SongFolderContentType }
-        ) { folder ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                onClick = {
-                    currentFolder = folder
-                }
-            ) {
+    MediaSortBarScaffold(
+        mediaSortBar = {
+            Column(modifier = Modifier.wrapContentHeight()) {
                 Row(
-                    modifier = Modifier.padding(20.dp, 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .horizontalScroll(currentPathScrollState)
+                        .padding(12.dp, 0.dp),
                 ) {
-                    Icon(
-                        Icons.Default.Folder,
-                        null,
-                        modifier = Modifier.size(32.dp),
-                    )
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Column {
-                        Text(folder.basename)
+                    currentPath.mapIndexed { i, basename ->
                         Text(
-                            context.symphony.t.XItems(folder.children.size),
-                            style = MaterialTheme.typography.labelSmall,
+                            basename,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable {
+                                    explorer
+                                        .navigateToFolder(currentPath.subList(1, i + 1))
+                                        ?.let { currentFolder = it }
+                                }
+                                .padding(8.dp, 4.dp),
                         )
+                        if (i != currentPath.size - 1) {
+                            Text(
+                                "/",
+                                modifier = Modifier
+                                    .padding(4.dp, 0.dp)
+                                    .alpha(0.3f)
+                            )
+                        }
                     }
                 }
-            }
-        }
-        itemsIndexed(
-            sortedEntities.files.entries.toList(),
-            key = { _, x -> x.key.id },
-            contentType = { _, _ -> GrooveKinds.SONG }
-        ) { i, entry ->
-            SongCard(context, entry.key) {
-                context.symphony.radio.shorty.playQueue(
-                    sortedEntities.files.keys.toList(),
-                    Radio.PlayOptions(index = i)
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider()
+                MediaSortBar(
+                    context,
+                    reverse = sortReverse,
+                    onReverseChange = {
+                        sortReverse = it
+                        context.symphony.settings.setLastUsedFolderSortReverse(it)
+                    },
+                    sort = sortBy,
+                    sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
+                    onSortChange = {
+                        sortBy = it
+                        context.symphony.settings.setLastUsedFolderSortBy(it)
+                    },
+                    label = {
+                        Text(
+                            context.symphony.t.XFoldersYFiles(
+                                sortedEntities.folders.size,
+                                sortedEntities.files.size,
+                            )
+                        )
+                    },
+                    onShufflePlay = {
+                        context.symphony.radio.shorty.playQueue(
+                            sortedEntities.files.keys.toList(),
+                            shuffle = true
+                        )
+                    }
                 )
             }
-        }
-    }
+        },
+        content = {
+            val lazyListState = rememberLazyListState()
+
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier.drawScrollBar(lazyListState)
+            ) {
+                items(
+                    sortedEntities.folders,
+                    key = { it.basename },
+                    contentType = { SongFolderContentType }
+                ) { folder ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                        onClick = {
+                            currentFolder = folder
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(20.dp, 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.Folder,
+                                null,
+                                modifier = Modifier.size(32.dp),
+                            )
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Column {
+                                Text(folder.basename)
+                                Text(
+                                    context.symphony.t.XItems(folder.children.size),
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                        }
+                    }
+                }
+                itemsIndexed(
+                    sortedEntities.files.entries.toList(),
+                    key = { _, x -> x.key.id },
+                    contentType = { _, _ -> GrooveKinds.SONG }
+                ) { i, entry ->
+                    SongCard(context, entry.key) {
+                        context.symphony.radio.shorty.playQueue(
+                            sortedEntities.files.keys.toList(),
+                            Radio.PlayOptions(index = i)
+                        )
+                    }
+                }
+            }
+        })
 }

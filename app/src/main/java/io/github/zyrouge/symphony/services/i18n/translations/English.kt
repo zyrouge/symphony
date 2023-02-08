@@ -110,6 +110,10 @@ class English : Translations {
     override val tree = "Tree"
     override val loading = "Loading..."
     override val name = "Name"
+    override val addFolder = "Add folder"
+    override val blacklistFolders = "Blacklist folders"
+    override val whitelistFolders = "Whitelist folders"
+    override val pickFolder = "Pick folder"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"
@@ -127,4 +131,5 @@ class English : Translations {
     override fun XItems(x: Int) = "$x items"
     override fun XPlaylists(x: Int) = "$x playlists"
     override fun unknownPlaylistX(x: String) = "Unknown playlist (ID: $x)"
+    override fun XFolders(x: Int) = "$x folders"
 }

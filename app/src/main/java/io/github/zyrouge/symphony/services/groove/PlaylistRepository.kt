@@ -27,6 +27,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun fetch() {
         if (isUpdating) return
         isUpdating = true
+        onUpdate.dispatch(null)
         try {
             val data = symphony.database.playlists.read()
             val locals = queryAllLocalPlaylistsMap()
@@ -46,6 +47,11 @@ class PlaylistRepository(private val symphony: Symphony) {
             Logger.error("PlaylistRepository", "fetch failed: $err")
         }
         isUpdating = false
+        onUpdate.dispatch(null)
+    }
+
+    fun reset() {
+        cached.clear()
         onUpdate.dispatch(null)
     }
 

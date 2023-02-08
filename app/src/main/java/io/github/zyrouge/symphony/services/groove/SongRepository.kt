@@ -30,6 +30,7 @@ class SongRepository(private val symphony: Symphony) {
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
     var explorer = createNewExplorer()
+    var foldersExplorer = createNewExplorer()
 
     private val searcher = FuzzySearcher<Song>(
         options = listOf(
@@ -51,10 +52,6 @@ class SongRepository(private val symphony: Symphony) {
     fun fetch() {
         if (isUpdating) return
         setGlobalUpdateState(true)
-        cached.clear()
-        cachedAlbumArtists.clear()
-        cachedGenres.clear()
-        explorer = createNewExplorer()
         dispatchGlobalUpdate()
         val cursor = symphony.applicationContext.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -66,12 +63,16 @@ class SongRepository(private val symphony: Symphony) {
         try {
             val updateDispatcher = GrooveRepositoryUpdateDispatcher { dispatchGlobalUpdate() }
             cursor?.use {
+                val blacklisted = symphony.settings.getBlacklistFolders().toSortedSet()
+                val whitelisted = symphony.settings.getWhitelistFolders().toSortedSet()
                 val regex = symphony.settings.getSongsFilterPattern()
                     ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
+
                 val additionalMetadataCache = kotlin
                     .runCatching { symphony.database.songCache.read() }
                     .getOrNull()
                 val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
+
                 while (it.moveToNext()) {
                     kotlin
                         .runCatching {
@@ -80,7 +81,21 @@ class SongRepository(private val symphony: Symphony) {
                             }
                         }
                         .getOrNull()
+                        ?.let { song ->
+                            foldersExplorer.addRelativePath(GrooveExplorer.Path(song.path))
+                            song
+                        }
                         ?.takeIf { song -> regex?.containsMatchIn(song.path) != false }
+                        ?.takeIf { song ->
+                            blacklisted
+                                .find { x -> song.path.startsWith(x) }
+                                ?.let { match ->
+                                    whitelisted.any { x ->
+                                        x.startsWith(match) && song.path.startsWith(x)
+                                    }
+                                }
+                                ?: true
+                        }
                         ?.let { song ->
                             cached[song.id] = song
                             nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
@@ -109,6 +124,16 @@ class SongRepository(private val symphony: Symphony) {
             Logger.error("SongRepository", "fetch failed: $err")
         }
         setGlobalUpdateState(false)
+        dispatchGlobalUpdate()
+    }
+
+    fun reset() {
+        cached.clear()
+        cachedAlbumArtists.clear()
+        cachedGenres.clear()
+        cachedPaths.clear()
+        explorer = createNewExplorer()
+        foldersExplorer = createNewExplorer()
         dispatchGlobalUpdate()
     }
 
