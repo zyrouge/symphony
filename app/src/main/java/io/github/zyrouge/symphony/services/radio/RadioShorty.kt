@@ -55,7 +55,6 @@ class RadioShorty(private val symphony: Symphony) {
             }
         )
         symphony.radio.queue.setShuffleMode(shuffle)
-
     }
 
     @JvmName("playQueueFromSongList")
