@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap");
+
+:root {
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    @apply bg-dark-900 text-light-200;
+}
+
+::-webkit-scrollbar {
+    @apply w-1;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-dark-100 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-dark-50;
+}
