@@ -15,11 +15,11 @@
 <p align="center">
     <a href="https://github.com/zyrouge/symphony/releases/latest">Download (latest)</a> |
     <a href="https://github.com/zyrouge/symphony/releases">View all releases</a> |
-    <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony">IzzyOnDroid repo</a> 
+    <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony">IzzyOnDroid repo</a>
 </p>
 
 <p align="center">
-    <a href=""><img src="https://img.shields.io/badge/stage-beta-545DFF"></a>
+    <a href=""><img src="https://img.shields.io/badge/stage-partially%20stable-545DFF"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/v/release/zyrouge/symphony?label=latest"></a>
     <a href=""><img src="https://img.shields.io/badge/supports-Android%209+-AD2A5A"></a>
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/total?color=E08312"></a>
@@ -34,9 +34,15 @@
     <img src="./media/screenshots.png" width="100%">
 </p>
 
-## What & How?
+## Why?
 
 Why was this created? As I was getting into offline music, most of the popular good-looking music players did not support filename/path based sorting, which is what I really needed to keep my music organized. So I must have forked them and added it right? I could have done that but, I felt like trying out Kotlin and Compose, so I ended up making my own.
+
+## Links
+
+- [Github Sponsors](https://github.com/sponsors/zyrouge)
+- [Discord](https://discord.gg/5k9Hdq7ycm)
+- [Reddit](https://reddit.com/r/symphony_app)
 
 ## Contributing
 
@@ -45,3 +51,4 @@ Any kind of contribution including creating issues or making pull requests is we
 ## License
 
 [AGPL-3.0](./LICENSE)
+
