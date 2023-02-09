@@ -10,7 +10,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - if: ${{ github.ref_name != "site" }}
+            - if: ${{ github.ref_name }} != "site"
               run: |
                   echo "Invalid run branch: ${{ github.ref_name }}"
                   exit 1
