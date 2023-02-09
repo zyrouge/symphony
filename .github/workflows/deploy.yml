@@ -1,7 +1,6 @@
 name: Deploy
 
 on:
-    workflow_dispatch:
 
 jobs:
     build:
@@ -10,24 +9,6 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - if: ${{ github.ref_name }} != "site"
-              run: |
-                  echo "Invalid run branch: ${{ github.ref_name }}"
+            - run: |
+                  echo Please run it from the "site" branch.
                   exit 1
-
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: "18.13.0"
-                  cache: npm
-
-            - name: 🏗️  Prerequisites
-              run: npm install
-
-            - name: 🔨 Build
-              run: npm run build
-
-            - name: 🚀 Deploy
-              uses: zyrouge/gh-push-action@v1.0.5
-              with:
-                  directory: dist
-                  branch: gh-pages
