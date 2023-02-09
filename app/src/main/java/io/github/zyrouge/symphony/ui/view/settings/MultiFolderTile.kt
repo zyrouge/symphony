@@ -111,7 +111,10 @@ fun SettingsMultiFolderTile(
                                 onClick = {},
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(12.dp, 0.dp),
+                                    modifier = Modifier.padding(
+                                        start = 20.dp,
+                                        end = 8.dp,
+                                    ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(x, modifier = Modifier.weight(1f))
@@ -355,7 +358,7 @@ private fun SettingsFolderTilePickerDialog(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .padding(12.dp, 0.dp)
+                        .padding(12.dp, 8.dp)
                         .onGloballyPositioned {
                             bottomBarHeight = with(localDensity) {
                                 it.size.height.toDp()

@@ -20,6 +20,9 @@ object AppMeta {
     const val version = "v${BuildConfig.VERSION_NAME}"
     var latestVersion: String? = null
     const val githubLatestReleaseUrl = "$githubRepositoryUrl/releases/latest"
+    const val githubIssuesUrl = "$githubRepositoryUrl/issues"
+    const val discordUrl = "https://discord.gg/5k9Hdq7ycm "
+    const val redditUrl = "https://reddit.com/r/symphony_app"
 
     /**
      * Format: v\[yyyy].\[mm].\[versionCode]

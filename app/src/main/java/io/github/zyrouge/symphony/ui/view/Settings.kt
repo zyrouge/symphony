@@ -407,6 +407,36 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setCheckForUpdates(value)
                         }
                     )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.BugReport, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.reportAnIssue)
+                        },
+                        url = AppMeta.githubIssuesUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Forum, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.discord)
+                        },
+                        url = AppMeta.discordUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Forum, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.reddit)
+                        },
+                        url = AppMeta.redditUrl
+                    )
                 }
             }
         }

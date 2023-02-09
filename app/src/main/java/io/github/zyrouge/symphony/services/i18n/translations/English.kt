@@ -3,6 +3,14 @@ package io.github.zyrouge.symphony.services.i18n.translations
 import io.github.zyrouge.symphony.services.i18n.Translations
 
 class English : Translations {
+    override val helloThere = "Hello there!"
+    override val introductoryMessage =
+        "Thanks for choosing Symphony! If you encounter any technical difficulties, our GitHub Repository is the place to report them.\n" +
+                "\n" +
+                "Join our Discord and Reddit community to connect with other music lovers, get support, and stay up-to-date with the latest updates. Your generosity helps keep the development of Symphony going, so please consider supporting us through donations on GitHub Sponsors.\n" +
+                "\n" +
+                "Once again, enjoy the music!"
+
     override val language = "English"
     override val unk = "?"
     override val songs = "Songs"
@@ -115,6 +123,9 @@ class English : Translations {
     override val whitelistFolders = "Whitelist folders"
     override val pickFolder = "Pick folder"
     override val invalidM3UFile = "Invalid M3U file"
+    override val discord = "Discord"
+    override val reddit = "Reddit"
+    override val reportAnIssue = "Report an issue"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

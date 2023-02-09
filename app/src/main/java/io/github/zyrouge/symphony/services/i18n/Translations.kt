@@ -3,6 +3,9 @@ package io.github.zyrouge.symphony.services.i18n
 import io.github.zyrouge.symphony.services.i18n.translations.English
 
 interface Translations {
+    val helloThere: String
+    val introductoryMessage: String
+
     val language: String
     val unk: String
     val songs: String
@@ -114,6 +117,9 @@ interface Translations {
     val whitelistFolders: String
     val pickFolder: String
     val invalidM3UFile: String
+    val discord: String
+    val reddit: String
+    val reportAnIssue: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

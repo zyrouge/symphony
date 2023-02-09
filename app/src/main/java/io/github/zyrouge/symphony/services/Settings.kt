@@ -43,21 +43,22 @@ object SettingsKeys {
     const val lastUsedTreePathSortReverse = "last_used_tree_path_sort_reverse"
     const val lastDisabledTreePaths = "last_disabled_tree_paths"
     const val previousSongQueue = "previous_song_queue"
-    const val home_last_tab = "home_last_page"
-    const val songs_filter_pattern = "songs_filter_pattern"
-    const val check_for_updates = "check_for_updates"
-    const val mini_player_extended_controls = "mini_player_extended_controls"
-    const val fade_playback = "fade_playback"
-    const val require_audio_focus = "require_audio_focus"
-    const val ignore_audio_focus_loss = "ignore_audio_focus_loss"
-    const val play_on_headphones_connect = "play_on_headphones_connect"
-    const val pause_on_headphones_disconnect = "pause_on_headphones_disconnect"
-    const val primary_color = "primary_color"
-    const val fade_playback_duration = "fade_playback_duration"
-    const val home_tabs = "home_tabs"
-    const val home_page_bottom_bar_label_visibility = "home_page_bottom_bar_label_visibility"
-    const val blacklist_folders = "blacklist_folders"
-    const val whitelist_folders = "whitelist_folders"
+    const val homeLastTab = "home_last_page"
+    const val songsFilterPattern = "songs_filter_pattern"
+    const val checkForUpdates = "check_for_updates"
+    const val miniPlayerExtendedControls = "mini_player_extended_controls"
+    const val fadePlayback = "fade_playback"
+    const val requireAudioFocus = "require_audio_focus"
+    const val ignoreAudioFocusLoss = "ignore_audio_focus_loss"
+    const val playOnHeadphonesConnect = "play_on_headphones_connect"
+    const val pauseOnHeadphonesDisconnect = "pause_on_headphones_disconnect"
+    const val primaryColor = "primary_color"
+    const val fadePlaybackDuration = "fade_playback_duration"
+    const val homeTabs = "home_tabs"
+    const val homePageBottomBarLabelVisibility = "home_page_bottom_bar_label_visibility"
+    const val blacklistFolders = "blacklist_folders"
+    const val whitelistFolders = "whitelist_folders"
+    const val readIntroductoryMessage = "introductory_message"
 }
 
 data class SettingsData(
@@ -100,6 +101,7 @@ object SettingsDataDefaults {
     val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
     val blacklistFolders = setOf<String>()
     val whitelistFolders = setOf<String>()
+    val readIntroductoryMessage = false
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -367,13 +369,13 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getHomeLastTab() =
-        getSharedPreferences().getEnum(SettingsKeys.home_last_tab, null) ?: HomePages.Songs
+        getSharedPreferences().getEnum(SettingsKeys.homeLastTab, null) ?: HomePages.Songs
 
     fun setHomeLastTab(value: HomePages) {
         getSharedPreferences().edit {
-            putEnum(SettingsKeys.home_last_tab, value)
+            putEnum(SettingsKeys.homeLastTab, value)
         }
-        onChange.dispatch(SettingsKeys.home_last_tab)
+        onChange.dispatch(SettingsKeys.homeLastTab)
     }
 
     fun getLastDisabledTreePaths(): List<String> =
@@ -389,131 +391,131 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getSongsFilterPattern() =
-        getSharedPreferences().getString(SettingsKeys.songs_filter_pattern, null)
+        getSharedPreferences().getString(SettingsKeys.songsFilterPattern, null)
 
     fun setSongsFilterPattern(value: String?) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.songs_filter_pattern, value)
+            putString(SettingsKeys.songsFilterPattern, value)
         }
-        onChange.dispatch(SettingsKeys.songs_filter_pattern)
+        onChange.dispatch(SettingsKeys.songsFilterPattern)
     }
 
     fun getCheckForUpdates() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.check_for_updates,
+            SettingsKeys.checkForUpdates,
             SettingsDataDefaults.checkForUpdates,
         )
 
     fun setCheckForUpdates(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.check_for_updates, value)
+            putBoolean(SettingsKeys.checkForUpdates, value)
         }
-        onChange.dispatch(SettingsKeys.check_for_updates)
+        onChange.dispatch(SettingsKeys.checkForUpdates)
     }
 
     fun getMiniPlayerExtendedControls() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.mini_player_extended_controls,
+            SettingsKeys.miniPlayerExtendedControls,
             SettingsDataDefaults.miniPlayerExtendedControls,
         )
 
     fun setMiniPlayerExtendedControls(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.mini_player_extended_controls, value)
+            putBoolean(SettingsKeys.miniPlayerExtendedControls, value)
         }
-        onChange.dispatch(SettingsKeys.mini_player_extended_controls)
+        onChange.dispatch(SettingsKeys.miniPlayerExtendedControls)
     }
 
     fun getFadePlayback() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.fade_playback,
+            SettingsKeys.fadePlayback,
             SettingsDataDefaults.fadePlayback,
         )
 
     fun setFadePlayback(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.fade_playback, value)
+            putBoolean(SettingsKeys.fadePlayback, value)
         }
-        onChange.dispatch(SettingsKeys.fade_playback)
+        onChange.dispatch(SettingsKeys.fadePlayback)
     }
 
     fun getRequireAudioFocus() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.require_audio_focus,
+            SettingsKeys.requireAudioFocus,
             SettingsDataDefaults.requireAudioFocus,
         )
 
     fun setRequireAudioFocus(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.require_audio_focus, value)
+            putBoolean(SettingsKeys.requireAudioFocus, value)
         }
-        onChange.dispatch(SettingsKeys.require_audio_focus)
+        onChange.dispatch(SettingsKeys.requireAudioFocus)
     }
 
     fun getIgnoreAudioFocusLoss() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.ignore_audio_focus_loss,
+            SettingsKeys.ignoreAudioFocusLoss,
             SettingsDataDefaults.ignoreAudioFocusLoss,
         )
 
     fun setIgnoreAudioFocusLoss(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.ignore_audio_focus_loss, value)
+            putBoolean(SettingsKeys.ignoreAudioFocusLoss, value)
         }
-        onChange.dispatch(SettingsKeys.ignore_audio_focus_loss)
+        onChange.dispatch(SettingsKeys.ignoreAudioFocusLoss)
     }
 
     fun getPlayOnHeadphonesConnect() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.play_on_headphones_connect,
+            SettingsKeys.playOnHeadphonesConnect,
             SettingsDataDefaults.playOnHeadphonesConnect,
         )
 
     fun setPlayOnHeadphonesConnect(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.play_on_headphones_connect, value)
+            putBoolean(SettingsKeys.playOnHeadphonesConnect, value)
         }
-        onChange.dispatch(SettingsKeys.play_on_headphones_connect)
+        onChange.dispatch(SettingsKeys.playOnHeadphonesConnect)
     }
 
     fun getPauseOnHeadphonesDisconnect() =
         getSharedPreferences().getBoolean(
-            SettingsKeys.pause_on_headphones_disconnect,
+            SettingsKeys.pauseOnHeadphonesDisconnect,
             SettingsDataDefaults.pauseOnHeadphonesDisconnect,
         )
 
     fun setPauseOnHeadphonesDisconnect(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.pause_on_headphones_disconnect, value)
+            putBoolean(SettingsKeys.pauseOnHeadphonesDisconnect, value)
         }
-        onChange.dispatch(SettingsKeys.pause_on_headphones_disconnect)
+        onChange.dispatch(SettingsKeys.pauseOnHeadphonesDisconnect)
     }
 
     fun getPrimaryColor() =
-        getSharedPreferences().getString(SettingsKeys.primary_color, null)
+        getSharedPreferences().getString(SettingsKeys.primaryColor, null)
 
     fun setPrimaryColor(value: String) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.primary_color, value)
+            putString(SettingsKeys.primaryColor, value)
         }
-        onChange.dispatch(SettingsKeys.primary_color)
+        onChange.dispatch(SettingsKeys.primaryColor)
     }
 
     fun getFadePlaybackDuration() =
         getSharedPreferences().getFloat(
-            SettingsKeys.fade_playback_duration,
+            SettingsKeys.fadePlaybackDuration,
             SettingsDataDefaults.fadePlaybackDuration,
         )
 
     fun setFadePlaybackDuration(value: Float) {
         getSharedPreferences().edit {
-            putFloat(SettingsKeys.fade_playback_duration, value)
+            putFloat(SettingsKeys.fadePlaybackDuration, value)
         }
-        onChange.dispatch(SettingsKeys.fade_playback_duration)
+        onChange.dispatch(SettingsKeys.fadePlaybackDuration)
     }
 
     fun getHomeTabs() = getSharedPreferences()
-        .getString(SettingsKeys.home_tabs, null)
+        .getString(SettingsKeys.homeTabs, null)
         ?.split(",")
         ?.mapNotNull { parseEnumValue<HomePages>(it) }
         ?.toSet()
@@ -521,47 +523,59 @@ class SettingsManager(private val symphony: Symphony) {
 
     fun setHomeTabs(tabs: Set<HomePages>) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.home_tabs, tabs.joinToString(",") { it.name })
+            putString(SettingsKeys.homeTabs, tabs.joinToString(",") { it.name })
         }
-        onChange.dispatch(SettingsKeys.home_tabs)
+        onChange.dispatch(SettingsKeys.homeTabs)
     }
 
     fun getHomePageBottomBarLabelVisibility() =
         getSharedPreferences()
-            .getEnum(SettingsKeys.home_page_bottom_bar_label_visibility, null)
+            .getEnum(SettingsKeys.homePageBottomBarLabelVisibility, null)
             ?: SettingsDataDefaults.homePageBottomBarLabelVisibility
 
     fun setHomePageBottomBarLabelVisibility(value: HomePageBottomBarLabelVisibility) {
         getSharedPreferences().edit {
-            putEnum(SettingsKeys.home_page_bottom_bar_label_visibility, value)
+            putEnum(SettingsKeys.homePageBottomBarLabelVisibility, value)
         }
-        onChange.dispatch(SettingsKeys.home_page_bottom_bar_label_visibility)
+        onChange.dispatch(SettingsKeys.homePageBottomBarLabelVisibility)
     }
 
     fun getBlacklistFolders() =
         getSharedPreferences()
-            .getStringSet(SettingsKeys.blacklist_folders, null)
+            .getStringSet(SettingsKeys.blacklistFolders, null)
             ?.toSet<String>()
             ?: SettingsDataDefaults.blacklistFolders
 
     fun setBlacklistFolders(values: Set<String>) {
         getSharedPreferences().edit {
-            putStringSet(SettingsKeys.blacklist_folders, values)
+            putStringSet(SettingsKeys.blacklistFolders, values)
         }
-        onChange.dispatch(SettingsKeys.blacklist_folders)
+        onChange.dispatch(SettingsKeys.blacklistFolders)
     }
 
     fun getWhitelistFolders() =
         getSharedPreferences()
-            .getStringSet(SettingsKeys.whitelist_folders, null)
+            .getStringSet(SettingsKeys.whitelistFolders, null)
             ?.toSet<String>()
             ?: SettingsDataDefaults.whitelistFolders
 
     fun setWhitelistFolders(values: Set<String>) {
         getSharedPreferences().edit {
-            putStringSet(SettingsKeys.whitelist_folders, values)
+            putStringSet(SettingsKeys.whitelistFolders, values)
         }
-        onChange.dispatch(SettingsKeys.whitelist_folders)
+        onChange.dispatch(SettingsKeys.whitelistFolders)
+    }
+
+    fun getReadIntroductoryMessage() = getSharedPreferences().getBoolean(
+        SettingsKeys.readIntroductoryMessage,
+        SettingsDataDefaults.readIntroductoryMessage,
+    )
+
+    fun setReadIntroductoryMessage(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.readIntroductoryMessage, value)
+        }
+        onChange.dispatch(SettingsKeys.readIntroductoryMessage)
     }
 
     private fun getSharedPreferences() =

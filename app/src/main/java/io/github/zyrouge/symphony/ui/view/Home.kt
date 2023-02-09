@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.*
@@ -84,6 +85,11 @@ enum class HomePageBottomBarLabelVisibility {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
+    var showIntroductoryMessage by remember {
+        mutableStateOf(
+            !context.symphony.settings.getReadIntroductoryMessage()
+        )
+    }
     val tabs = context.symphony.settings.getHomeTabs().toList()
     val labelVisibility = context.symphony.settings.getHomePageBottomBarLabelVisibility()
     var currentPage by remember {
@@ -225,4 +231,14 @@ fun HomeView(context: ViewContext) {
             }
         }
     )
+
+    if (showIntroductoryMessage) {
+        IntroductoryDialog(
+            context,
+            onDismissRequest = {
+                showIntroductoryMessage = false
+                context.symphony.settings.setReadIntroductoryMessage(true)
+            },
+        )
+    }
 }

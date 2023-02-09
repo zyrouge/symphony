@@ -43,7 +43,7 @@ class SongRepository(private val symphony: Symphony) {
 
     init {
         symphony.settings.onChange.subscribe { event ->
-            if (event == SettingsKeys.songs_filter_pattern) {
+            if (event == SettingsKeys.songsFilterPattern) {
                 fetch()
             }
         }

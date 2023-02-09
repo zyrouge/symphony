@@ -36,7 +36,7 @@ fun SymphonyTheme(
             SettingsKeys.themeMode -> themeMode = context.symphony.settings.getThemeMode()
             SettingsKeys.materialYou -> useMaterialYou =
                 context.symphony.settings.getUseMaterialYou()
-            SettingsKeys.primary_color -> primaryColorName =
+            SettingsKeys.primaryColor -> primaryColorName =
                 context.symphony.settings.getPrimaryColor()
         }
     }
