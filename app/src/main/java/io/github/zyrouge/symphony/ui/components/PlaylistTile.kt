@@ -200,7 +200,7 @@ fun PlaylistDropdownMenu(
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
             context,
-            selectedSongs = playlist.songs.toList(),
+            selectedSongs = playlist.songs,
             onDone = {
                 coroutineScope.launch {
                     context.symphony.groove.playlist.updatePlaylistSongs(

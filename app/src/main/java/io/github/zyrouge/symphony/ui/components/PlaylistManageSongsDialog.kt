@@ -41,7 +41,7 @@ fun PlaylistManageSongsDialog(
 
     Dialog(
         onDismissRequest = {
-            onDone(allSelectedSongs)
+            onDone(allSelectedSongs.toList())
         }
     ) {
         Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
@@ -80,7 +80,7 @@ fun PlaylistManageSongsDialog(
                             .align(Alignment.CenterEnd)
                             .clip(CircleShape)
                             .clickable {
-                                onDone(allSelectedSongs)
+                                onDone(allSelectedSongs.toList())
                             },
                     ) {
                         Icon(

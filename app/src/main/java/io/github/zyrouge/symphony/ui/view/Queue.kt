@@ -104,7 +104,7 @@ fun QueueView(context: ViewContext) {
                 } else {
                     LazyColumn(state = listState) {
                         itemsIndexed(
-                            queue,
+                            queue.toList(),
                             key = { _, id -> id },
                             contentType = { _, _ -> GrooveKinds.SONG },
                         ) { i, _ ->

@@ -19,7 +19,7 @@ fun ArtistsView(context: ViewContext, data: HomeViewData) {
         when {
             data.artists.isNotEmpty() -> ArtistGrid(
                 context,
-                data.artists,
+                data.artists.toList(),
             )
             else -> IconTextBody(
                 icon = { modifier ->

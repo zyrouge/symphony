@@ -43,7 +43,7 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
             data.playlists.isNotEmpty() -> {
                 PlaylistGrid(
                     context,
-                    data.playlists,
+                    data.playlists.toList(),
                     leadingContent = {
                         PlaylistControlBar(
                             context,
@@ -85,9 +85,13 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
     }
 
     if (showPlaylistPicker) {
+        val localPlaylists = remember {
+            context.symphony.groove.playlist.queryAllLocalPlaylists()
+        }
+
         SelectPlaylistDialog(
             context,
-            playlists = context.symphony.groove.playlist.queryAllLocalPlaylists(),
+            playlists = localPlaylists,
             onSelected = { local ->
                 showPlaylistPicker = false
                 coroutineScope.launch {

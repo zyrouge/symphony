@@ -19,7 +19,7 @@ fun TreeView(context: ViewContext, data: HomeViewData) {
         when {
             data.songs.isNotEmpty() -> SongTreeList(
                 context,
-                songs = data.songs,
+                songs = data.songs.toList(),
                 initialDisabled = context.symphony.settings.getLastDisabledTreePaths(),
                 onDisable = { paths ->
                     context.symphony.settings.setLastDisabledTreePaths(paths)

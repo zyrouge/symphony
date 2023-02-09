@@ -46,8 +46,8 @@ fun AlbumArtistView(context: ViewContext, artistName: String) {
         isViable = isViable,
         artistName = artistName,
         artist = artist,
-        songs = songs,
-        albums = albums,
+        songs = songs.toList(),
+        albums = albums.toList(),
         titlePrefix = context.symphony.t.albumArtist,
     )
 }

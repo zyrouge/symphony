@@ -59,7 +59,10 @@ fun GenreView(context: ViewContext, genre: String) {
                     .fillMaxSize()
             ) {
                 when {
-                    isViable -> SongList(context, songs = songs)
+                    isViable -> SongList(
+                        context,
+                        songs = songs.toList()
+                    )
                     else -> UnknownGenre(context, genre)
                 }
             }

@@ -93,7 +93,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 when {
                     isViable -> SongList(
                         context,
-                        songs = songs,
+                        songs = songs.toList(),
                         type = SongListType.Playlist,
                     )
                     else -> UnknownPlaylist(context, playlistId)

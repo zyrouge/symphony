@@ -80,7 +80,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                 if (isViable) {
                     SongList(
                         context,
-                        songs = songs,
+                        songs = songs.toList(),
                         type = SongListType.Album,
                         leadingContent = {
                             item {
