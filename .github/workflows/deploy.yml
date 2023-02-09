@@ -10,11 +10,6 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - if: ${{ github.ref_name }} != "site"
-              run: |
-                  echo "Invalid run branch: ${{ github.ref_name }}"
-                  exit 1
-
             - uses: actions/setup-node@v3
               with:
                   node-version: "18.13.0"
