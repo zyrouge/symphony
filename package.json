@@ -7,7 +7,7 @@
         "dev": "vite",
         "build": "vue-tsc && vite build",
         "preview": "vite preview",
-        "deploy": "gh workflow run deploy"
+        "deploy": "gh workflow run deploy -r site"
     },
     "dependencies": {
         "vue": "^3.2.45"
