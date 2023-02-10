@@ -332,6 +332,11 @@ fun SettingsView(context: ViewContext) {
                         },
                         onClick = {
                             coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.symphony.t.songCacheCleared,
+                                    withDismissAction = true,
+                                )
+                                
                                 context.symphony.database.songCache.update(mapOf())
                                 refetchLibrary()
                             }

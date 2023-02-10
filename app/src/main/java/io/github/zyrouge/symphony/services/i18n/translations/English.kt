@@ -86,7 +86,6 @@ class English : Translations {
     override val recentlyAddedSongs = "Recently added songs"
     override val sponsorViaGitHub = "Sponsor via GitHub"
     override val clearSongCache = "Clear song cache"
-    override val restartAppForChangesToTakeEffect = "Restart app for changes to take effect"
     override val songCacheCleared = "Song cache cleared"
     override val albumArtists = "Album artists"
     override val genres = "Genres"
