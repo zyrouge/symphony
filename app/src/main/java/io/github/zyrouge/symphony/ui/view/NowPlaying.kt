@@ -63,8 +63,8 @@ fun NowPlayingView(context: ViewContext) {
         isViable = song != null
     }
 
-    if (isViable) {
-        NowPlayingBody(
+    when {
+        isViable -> NowPlayingBody(
             context,
             PlayerStateData(
                 song = song!!,
@@ -75,7 +75,8 @@ fun NowPlayingView(context: ViewContext) {
                 currentShuffleMode = currentShuffleMode,
             )
         )
-    } else NothingPlaying(context)
+        else -> NothingPlaying(context)
+    }
 }
 
 private val defaultHorizontalPadding = 20.dp
@@ -204,7 +205,7 @@ private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
 @Composable
 private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
     data.run {
-        Column(modifier = Modifier.padding(0.dp, 12.dp)) {
+        Column(modifier = Modifier.padding(0.dp, 0.dp)) {
             Row {
                 Column(
                     modifier = Modifier
@@ -348,62 +349,66 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData) {
     data.run {
-        ElevatedCard(
+        Row(
             modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
-            onClick = {
-                context.navController.navigate(Routes.Queue)
-            }
+                .fillMaxWidth()
+                .padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = 4.dp,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.padding(16.dp, 4.dp, 4.dp, 4.dp)) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        context.symphony.t.playingXofY(
-                            currentSongIndex + 1,
-                            queueSize
-                        )
-                    )
-                    Row {
-                        IconButton(
-                            onClick = {
-                                context.symphony.radio.queue.toggleLoopMode()
-                            }
-                        ) {
-                            Icon(
-                                when (currentLoopMode) {
-                                    RadioLoopMode.Song -> Icons.Default.RepeatOne
-                                    else -> Icons.Default.Repeat
-                                },
-                                null,
-                                tint = when (currentLoopMode) {
-                                    RadioLoopMode.None -> LocalContentColor.current
-                                    else -> MaterialTheme.colorScheme.primary
-                                }
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                context.symphony.radio.queue.toggleShuffleMode()
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.Shuffle,
-                                null,
-                                tint = if (!currentShuffleMode) LocalContentColor.current
-                                else MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
+            TextButton(
+                onClick = {
+                    context.navController.navigate(Routes.Queue)
                 }
+            ) {
+                Icon(
+                    Icons.Default.Sort,
+                    null,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    context.symphony.t.playingXofY(
+                        currentSongIndex + 1,
+                        queueSize
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(
+                onClick = {
+                    context.symphony.radio.queue.toggleLoopMode()
+                }
+            ) {
+                Icon(
+                    when (currentLoopMode) {
+                        RadioLoopMode.Song -> Icons.Default.RepeatOne
+                        else -> Icons.Default.Repeat
+                    },
+                    null,
+                    tint = when (currentLoopMode) {
+                        RadioLoopMode.None -> LocalContentColor.current
+                        else -> MaterialTheme.colorScheme.primary
+                    }
+                )
+            }
+            IconButton(
+                onClick = {
+                    context.symphony.radio.queue.toggleShuffleMode()
+                }
+            ) {
+                Icon(
+                    Icons.Default.Shuffle,
+                    null,
+                    tint = if (!currentShuffleMode) LocalContentColor.current
+                    else MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
