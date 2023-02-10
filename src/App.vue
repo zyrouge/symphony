@@ -27,19 +27,36 @@ const links = {
 
     <div>
         <div class="px-10 pt-14 pb-12">
-            <p class="font-black text-3xl text-center leading-tight">
-                Offline playback is now a breeze.
-            </p>
-            <div class="pt-12 text-center">
-                <div>
-                    <GradientLink :href="links.releases">
-                        Download from <b>GitHub</b>
-                    </GradientLink>
+            <div class="relative">
+                <div
+                    :class="[
+                        'absolute inset-0 -z-1 flex justify-center',
+                        'filter blur opacity-20',
+                    ]"
+                >
+                    <div
+                        :class="[
+                            'mt-2 sm:mt-0 w-full max-w-80 h-1/3 rounded-1/2',
+                            'bg-gradient-to-r from-red-600 via-purple-600 to-blue-600',
+                        ]"
+                    ></div>
                 </div>
-                <div class="pt-3">
-                    <GradientLink :href="links.izzyOnDroid">
-                        Download from <b>IzzyOnDroid</b>
-                    </GradientLink>
+                <div>
+                    <p class="font-black text-3xl text-center leading-tight">
+                        Offline playback is now a breeze.
+                    </p>
+                    <div class="pt-12 text-center">
+                        <div>
+                            <GradientLink :href="links.releases">
+                                Download from <b>GitHub</b>
+                            </GradientLink>
+                        </div>
+                        <div class="pt-3">
+                            <GradientLink :href="links.izzyOnDroid">
+                                Download from <b>IzzyOnDroid</b>
+                            </GradientLink>
+                        </div>
+                    </div>
                 </div>
             </div>
             <img class="pt-16 w-full" :src="images.screenshots" />
