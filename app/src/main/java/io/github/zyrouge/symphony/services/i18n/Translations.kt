@@ -81,7 +81,6 @@ interface Translations {
     val recentlyAddedSongs: String
     val sponsorViaGitHub: String
     val clearSongCache: String
-    val restartAppForChangesToTakeEffect: String
     val songCacheCleared: String
     val albumArtists: String
     val genres: String
