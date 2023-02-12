@@ -75,7 +75,7 @@ fun <T> SettingsMultiOptionTile(
                 note?.let {
                     Box(
                         modifier = Modifier
-                            .padding(start = 24.dp, end = 24.dp, bottom = 8.dp)
+                            .padding(start = 24.dp, end = 24.dp, top = 16.dp)
                             .alpha(0.7f)
                     ) {
                         ProvideTextStyle(MaterialTheme.typography.labelMedium) {
@@ -87,7 +87,7 @@ fun <T> SettingsMultiOptionTile(
             content = {
                 Column(
                     modifier = Modifier
-                        .padding(0.dp, 8.dp)
+                        .padding(0.dp, 12.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
                     sortedValues.mapIndexed { i, key ->
