@@ -19,7 +19,7 @@ fun SongsView(context: ViewContext, data: HomeViewData) {
         when {
             data.songs.isNotEmpty() -> SongList(
                 context,
-                data.songs.toList(),
+                data.songs,
             )
             else -> IconTextBody(
                 icon = { modifier ->

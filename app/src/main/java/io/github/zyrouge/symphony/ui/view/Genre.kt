@@ -8,23 +8,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenreView(context: ViewContext, genre: String) {
-    val songs = remember {
-        mutableStateListOf<Song>().apply {
-            swap(context.symphony.groove.song.getSongsOfGenre(genre))
-        }
+    var songs by remember {
+        mutableStateOf(context.symphony.groove.song.getSongsOfGenre(genre))
     }
     var isViable by remember { mutableStateOf(songs.isNotEmpty()) }
 
     val onGenreUpdate = {
-        songs.swap(context.symphony.groove.song.getSongsOfGenre(genre))
+        songs = context.symphony.groove.song.getSongsOfGenre(genre)
         isViable = songs.isNotEmpty()
     }
 
@@ -61,7 +57,7 @@ fun GenreView(context: ViewContext, genre: String) {
                 when {
                     isViable -> SongList(
                         context,
-                        songs = songs.toList()
+                        songs = songs
                     )
                     else -> UnknownGenre(context, genre)
                 }

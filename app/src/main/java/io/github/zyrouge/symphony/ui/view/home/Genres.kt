@@ -19,7 +19,7 @@ fun GenresView(context: ViewContext, data: HomeViewData) {
         when {
             data.songs.isNotEmpty() -> GenreGrid(
                 context,
-                data.genres.toList(),
+                data.genres,
             )
             else -> IconTextBody(
                 icon = { modifier ->

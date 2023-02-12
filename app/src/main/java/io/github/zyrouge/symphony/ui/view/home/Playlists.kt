@@ -19,6 +19,7 @@ import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
+import io.github.zyrouge.symphony.utils.toImmutableDerivedState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -35,7 +36,7 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
             data.playlists.isNotEmpty() -> {
                 PlaylistGrid(
                     context,
-                    data.playlists.toList(),
+                    data.playlists,
                     leadingContent = {
                         PlaylistControlBar(
                             context,
@@ -225,6 +226,7 @@ private fun NewPlaylistDialog(
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
     val songs = remember { mutableStateListOf<Long>() }
+    val songsImmutable by remember { songs.toImmutableDerivedState() }
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(LocalContext.current) {
@@ -283,7 +285,7 @@ private fun NewPlaylistDialog(
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
             context,
-            selectedSongs = songs.toList(),
+            selectedSongs = songsImmutable,
             onDone = {
                 showSongsPicker = false
                 songs.swap(it)

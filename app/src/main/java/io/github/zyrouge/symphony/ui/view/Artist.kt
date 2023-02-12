@@ -23,37 +23,32 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
 
 @Composable
 fun ArtistView(context: ViewContext, artistName: String) {
     var artist by remember {
         mutableStateOf(context.symphony.groove.artist.getArtistFromName(artistName))
     }
-    val songs = remember {
-        mutableStateListOf<Song>().apply {
-            swap(context.symphony.groove.song.getSongsOfArtist(artistName))
-        }
+    var songs by remember {
+        mutableStateOf(context.symphony.groove.song.getSongsOfArtist(artistName))
     }
-    val albums = remember {
-        mutableStateListOf<Album>().apply {
-            swap(context.symphony.groove.album.getAlbumsOfArtist(artistName))
-        }
+    var albums by remember {
+        mutableStateOf(context.symphony.groove.album.getAlbumsOfArtist(artistName))
     }
     var isViable by remember { mutableStateOf(artist != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
         artist = context.symphony.groove.artist.getArtistFromName(artistName)
-        songs.swap(context.symphony.groove.song.getSongsOfArtist(artistName))
+        songs = context.symphony.groove.song.getSongsOfArtist(artistName)
         isViable = artist != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.swap(context.symphony.groove.song.getSongsOfArtist(artistName))
+        songs = context.symphony.groove.song.getSongsOfArtist(artistName)
     }
 
     EventerEffect(context.symphony.groove.album.onUpdate) {
-        albums.swap(context.symphony.groove.album.getAlbumsOfArtist(artistName))
+        albums = context.symphony.groove.album.getAlbumsOfArtist(artistName)
     }
 
     ArtistViewScaffold(
@@ -61,8 +56,8 @@ fun ArtistView(context: ViewContext, artistName: String) {
         isViable = isViable,
         artistName = artistName,
         artist = artist,
-        songs = songs.toList(),
-        albums = albums.toList(),
+        songs = songs,
+        albums = albums,
         titlePrefix = context.symphony.t.artist,
     )
 }

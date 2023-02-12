@@ -9,10 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,22 +18,20 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
     var playlist by remember {
         mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
     }
-    val songs = remember {
-        mutableStateListOf<Song>().apply {
-            swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
-        }
+    var songs by remember {
+        mutableStateOf(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
     }
     var isViable by remember { mutableStateOf(playlist != null) }
     var showOptionsMenu by remember { mutableStateOf(false) }
 
     EventerEffect(context.symphony.groove.playlist.onUpdate) {
         playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
-        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
+        songs = context.symphony.groove.song.getSongsOfPlaylist(playlistId)
         isViable = playlist != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
+        songs = context.symphony.groove.song.getSongsOfPlaylist(playlistId)
     }
 
     Scaffold(
@@ -93,7 +89,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 when {
                     isViable -> SongList(
                         context,
-                        songs = songs.toList(),
+                        songs = songs,
                         type = SongListType.Playlist,
                     )
                     else -> UnknownPlaylist(context, playlistId)

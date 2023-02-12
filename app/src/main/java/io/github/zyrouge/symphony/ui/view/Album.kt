@@ -18,11 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Album
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,21 +28,19 @@ fun AlbumView(context: ViewContext, albumId: Long) {
     var album by remember {
         mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
     }
-    val songs = remember {
-        mutableStateListOf<Song>().apply {
-            swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
-        }
+    var songs by remember {
+        mutableStateOf(context.symphony.groove.song.getSongsOfAlbum(albumId))
     }
     var isViable by remember { mutableStateOf(album != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
         album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        songs = context.symphony.groove.song.getSongsOfAlbum(albumId)
         isViable = album != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        songs = context.symphony.groove.song.getSongsOfAlbum(albumId)
     }
 
     Scaffold(
@@ -80,7 +76,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                 if (isViable) {
                     SongList(
                         context,
-                        songs = songs.toList(),
+                        songs = songs,
                         type = SongListType.Album,
                         leadingContent = {
                             item {
