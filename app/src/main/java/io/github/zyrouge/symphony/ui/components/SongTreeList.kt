@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +25,7 @@ import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SongTreeList(
     context: ViewContext,
@@ -103,7 +105,7 @@ fun SongTreeList(
                 sortedTree.forEach { (dirname, children) ->
                     val show = !disabled.contains(dirname)
 
-                    item {
+                    stickyHeader {
                         Box(
                             modifier = Modifier
                                 .padding(bottom = if (show) 4.dp else 0.dp)
@@ -132,6 +134,7 @@ fun SongTreeList(
                             }
                         }
                     }
+
                     if (show) {
                         items(children) { song ->
                             var showOptionsMenu by remember { mutableStateOf(false) }

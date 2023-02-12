@@ -2,18 +2,14 @@ package io.github.zyrouge.symphony.ui.view.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,31 +37,17 @@ fun <T> SettingsOptionTile(
     }
 
     if (isOpen) {
-        Dialog(onDismissRequest = { isOpen = false }) {
-            Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
+        ScaffoldDialog(
+            onDismissRequest = {
+                isOpen = false
+            },
+            title = title,
+            content = {
                 Column(
                     modifier = Modifier
+                        .padding(0.dp, 8.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .padding(20.dp, 0.dp)
-                            .fillMaxWidth()
-                    ) {
-                        ProvideTextStyle(
-                            value = MaterialTheme.typography.bodyLarge.copy(
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold
-                            )
-                        ) {
-                            title()
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Divider()
-                    Spacer(modifier = Modifier.height(8.dp))
                     values.map { entry ->
                         Card(
                             colors = SettingsTileDefaults.cardColors(),
@@ -92,9 +74,8 @@ fun <T> SettingsOptionTile(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
-            }
-        }
+            },
+        )
     }
 }

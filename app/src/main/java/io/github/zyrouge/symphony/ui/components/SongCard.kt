@@ -13,10 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.RadioEvents
@@ -270,70 +267,45 @@ private fun AddToPlaylistDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
-            Column {
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(20.dp, 0.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        context.symphony.t.addToPlaylist,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Divider()
-
-                when {
-                    playlists.isEmpty() -> Text(
-                        context.symphony.t.noLocalPlaylistsFound,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 20.dp),
-                    )
-                    else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
-                        items(playlists) { playlist ->
-                            GenericGrooveCard(
-                                image = playlist.createArtworkImageRequest(context.symphony)
-                                    .build(),
-                                title = {
-                                    Text(playlist.title)
-                                },
-                                options = { expanded, onDismissRequest ->
-                                    PlaylistDropdownMenu(
-                                        context,
-                                        playlist,
-                                        expanded = expanded,
-                                        onDismissRequest = onDismissRequest,
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.addToPlaylist)
+        },
+        content = {
+            when {
+                playlists.isEmpty() -> SubtleCaptionText(context.symphony.t.noInAppPlaylistsFound)
+                else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
+                    items(playlists) { playlist ->
+                        GenericGrooveCard(
+                            image = playlist.createArtworkImageRequest(context.symphony)
+                                .build(),
+                            title = {
+                                Text(playlist.title)
+                            },
+                            options = { expanded, onDismissRequest ->
+                                PlaylistDropdownMenu(
+                                    context,
+                                    playlist,
+                                    expanded = expanded,
+                                    onDismissRequest = onDismissRequest,
+                                )
+                            },
+                            onClick = {
+                                coroutineScope.launch {
+                                    context.symphony.groove.playlist.updatePlaylistSongs(
+                                        playlist = playlist,
+                                        songs = playlist.songs.toMutableList().apply {
+                                            add(song.id)
+                                        }
                                     )
-                                },
-                                onClick = {
-                                    coroutineScope.launch {
-                                        context.symphony.groove.playlist.updatePlaylistSongs(
-                                            playlist = playlist,
-                                            songs = playlist.songs.toMutableList().apply {
-                                                add(song.id)
-                                            }
-                                        )
-                                        onDismissRequest()
-                                    }
+                                    onDismissRequest()
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
-        }
-    }
+        },
+    )
 }

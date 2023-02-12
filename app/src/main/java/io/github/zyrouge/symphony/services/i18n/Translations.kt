@@ -95,6 +95,7 @@ interface Translations {
     val playlists: String
     val newPlaylist: String
     val importPlaylist: String
+    val noInAppPlaylistsFound: String
     val noLocalPlaylistsFound: String
     val custom: String
     val playlist: String
@@ -119,6 +120,7 @@ interface Translations {
     val discord: String
     val reddit: String
     val reportAnIssue: String
+    val noFoldersFound: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

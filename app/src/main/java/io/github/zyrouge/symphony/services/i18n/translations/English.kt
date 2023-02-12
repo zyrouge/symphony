@@ -100,6 +100,7 @@ class English : Translations {
     override val playlists = "Playlists"
     override val newPlaylist = "New playlist"
     override val importPlaylist = "Import playlist"
+    override val noInAppPlaylistsFound = "No in-app playlists found"
     override val noLocalPlaylistsFound = "No local playlists found"
     override val custom = "Custom"
     override val playlist = "Playlist"
@@ -125,6 +126,7 @@ class English : Translations {
     override val discord = "Discord"
     override val reddit = "Reddit"
     override val reportAnIssue = "Report an issue"
+    override val noFoldersFound = "No folders found"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

@@ -9,14 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.RangeUtils
 
@@ -52,34 +48,21 @@ fun SettingsSliderTile(
     }
 
     if (isOpen) {
-        Dialog(onDismissRequest = { isOpen = false }) {
-            Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
+        ScaffoldDialog(
+            onDismissRequest = {
+                isOpen = false
+            },
+            title = title,
+            content = {
                 Column(
                     modifier = Modifier
+                        .padding(top = 16.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .padding(20.dp, 0.dp)
-                            .fillMaxWidth()
-                    ) {
-                        ProvideTextStyle(
-                            value = MaterialTheme.typography.bodyLarge.copy(
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold
-                            )
-                        ) {
-                            title()
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Divider()
-                    Spacer(modifier = Modifier.height(16.dp))
                     BoxWithConstraints(modifier = Modifier.padding(20.dp, 0.dp)) {
                         val height = 12.dp
                         val shape = RoundedCornerShape(height.div(2))
+
                         Box(
                             modifier = Modifier
                                 .background(
@@ -131,35 +114,28 @@ fun SettingsSliderTile(
                             label(range.endInclusive)
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp, 0.dp),
-                        horizontalArrangement = Arrangement.End,
-                    ) {
-                        onReset?.let {
-                            TextButton(
-                                onClick = {
-                                    it()
-                                    isOpen = false
-                                }
-                            ) {
-                                Text(context.symphony.t.reset)
-                            }
-                        }
-                        TextButton(
-                            onClick = {
-                                onChange(value)
-                                isOpen = false
-                            }
-                        ) {
-                            Text(context.symphony.t.done)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
-            }
-        }
+            },
+            actions = {
+                onReset?.let {
+                    TextButton(
+                        onClick = {
+                            it()
+                            isOpen = false
+                        }
+                    ) {
+                        Text(context.symphony.t.reset)
+                    }
+                }
+                TextButton(
+                    onClick = {
+                        onChange(value)
+                        isOpen = false
+                    }
+                ) {
+                    Text(context.symphony.t.done)
+                }
+            },
+        )
     }
 }

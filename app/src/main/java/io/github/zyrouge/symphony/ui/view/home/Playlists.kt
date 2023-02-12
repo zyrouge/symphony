@@ -4,27 +4,19 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import io.github.zyrouge.symphony.services.groove.Playlist
-import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.components.LoaderScaffold
-import io.github.zyrouge.symphony.ui.components.PlaylistGrid
-import io.github.zyrouge.symphony.ui.components.PlaylistManageSongsDialog
+import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
@@ -177,73 +169,50 @@ private fun SelectPlaylistDialog(
     onSelected: (Playlist.LocalExtended) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
-            Column {
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(20.dp, 0.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        context.symphony.t.importPlaylist,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.importPlaylist)
+        },
+        content = {
+            when {
+                playlists.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
+                    SubtleCaptionText(context.symphony.t.noLocalPlaylistsFound)
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Divider()
-
-                when {
-                    playlists.isEmpty() -> Text(
-                        context.symphony.t.noLocalPlaylistsFound,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 20.dp),
-                    )
-                    else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
-                        items(playlists) { playlist ->
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                                onClick = {
-                                    onSelected(playlist)
-                                },
+                else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
+                    items(playlists) { playlist ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                            onClick = {
+                                onSelected(playlist)
+                            },
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(20.dp, 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(20.dp, 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Description,
-                                        null,
-                                        modifier = Modifier.size(32.dp),
+                                Icon(
+                                    Icons.Filled.Description,
+                                    null,
+                                    modifier = Modifier.size(32.dp),
+                                )
+                                Spacer(modifier = Modifier.width(20.dp))
+                                Column {
+                                    val path = playlist.path.split("/")
+                                    Text(path.last())
+                                    Text(
+                                        path.subList(0, path.size - 1).joinToString("/"),
+                                        style = MaterialTheme.typography.labelSmall,
                                     )
-                                    Spacer(modifier = Modifier.width(20.dp))
-                                    Column {
-                                        val path = playlist.path.split("/")
-                                        Text(path.last())
-                                        Text(
-                                            path.subList(0, path.size - 1).joinToString("/"),
-                                            style = MaterialTheme.typography.labelSmall,
-                                        )
-                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-    }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -262,73 +231,54 @@ private fun NewPlaylistDialog(
         focusRequester.requestFocus()
     }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
-            Column {
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(20.dp, 0.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        context.symphony.t.newPlaylist,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold
-                        ),
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Divider()
-                Spacer(modifier = Modifier.height(16.dp))
-                Box(modifier = Modifier.padding(20.dp, 0.dp)) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester),
-                        singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            unfocusedBorderColor = DividerDefaults.color,
-                        ),
-                        value = input,
-                        onValueChange = {
-                            input = it
-                        }
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.newPlaylist)
+        },
+        content = {
+            Box(
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp, top = 12.dp)
+            ) {
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp, 0.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    TextButton(
-                        onClick = {
-                            showSongsPicker = true
-                        }
-                    ) {
-                        Text(context.symphony.t.addSongs + " (${songs.size})")
+                        .focusRequester(focusRequester),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = DividerDefaults.color,
+                    ),
+                    value = input,
+                    onValueChange = {
+                        input = it
                     }
-                    TextButton(
-                        enabled = input.isNotBlank(),
-                        onClick = {
-                            val playlist = context.symphony.groove.playlist.createNewPlaylist(
-                                title = input,
-                                songs = songs,
-                            )
-                            onDone(playlist)
-                        }
-                    ) {
-                        Text(context.symphony.t.done)
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
+                )
             }
-        }
-    }
+        },
+        actions = {
+            TextButton(
+                onClick = {
+                    showSongsPicker = true
+                }
+            ) {
+                Text(context.symphony.t.addSongs + " (${songs.size})")
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                enabled = input.isNotBlank(),
+                onClick = {
+                    val playlist = context.symphony.groove.playlist.createNewPlaylist(
+                        title = input,
+                        songs = songs,
+                    )
+                    onDone(playlist)
+                }
+            ) {
+                Text(context.symphony.t.done)
+            }
+        },
+    )
 
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
