@@ -121,6 +121,10 @@ interface Translations {
     val reddit: String
     val reportAnIssue: String
     val noFoldersFound: String
+    val sleepTimer: String
+    val hours: String
+    val minutes: String
+    val quitAppOnEnd: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

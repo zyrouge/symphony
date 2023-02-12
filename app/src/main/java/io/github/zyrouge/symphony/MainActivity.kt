@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         symphony.permission.handle(this)
         gSymphony = symphony
         symphony.ready()
-        handleBackPressed()
+        attachHandlers()
 
         // NOTE: disables action bar on orientation changes (esp. in miui)
         actionBar?.hide()
@@ -65,9 +65,12 @@ class MainActivity : ComponentActivity() {
         gSymphony?.destroy()
     }
 
-    private fun handleBackPressed() {
+    private fun attachHandlers() {
         onBackPressedDispatcher.addCallback {
             moveTaskToBack(true)
+        }
+        gSymphony?.closeApp = {
+            finish()
         }
     }
 }

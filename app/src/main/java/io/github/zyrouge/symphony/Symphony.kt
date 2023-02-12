@@ -38,6 +38,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
 
     val applicationContext: Context
         get() = getApplication<Application>().applicationContext
+    var closeApp: (() -> Unit)? = null
     private var isReady = false
     private var hooks = listOf(this, radio, groove)
 

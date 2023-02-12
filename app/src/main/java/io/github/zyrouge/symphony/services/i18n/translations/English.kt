@@ -127,6 +127,10 @@ class English : Translations {
     override val reddit = "Reddit"
     override val reportAnIssue = "Report an issue"
     override val noFoldersFound = "No folders found"
+    override val sleepTimer = "Sleep timer"
+    override val hours = "Hours"
+    override val minutes = "Minutes"
+    override val quitAppOnEnd = "Quit app at end"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

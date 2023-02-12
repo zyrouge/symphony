@@ -37,7 +37,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             }
             InformationKeyValue(
                 context.symphony.t.duration,
-                DurationFormatter.formatAsMS(song.duration)
+                DurationFormatter.formatMs(song.duration)
             )
             song.additional.genre?.let {
                 InformationKeyValue(context.symphony.t.genre, it)

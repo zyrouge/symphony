@@ -5,6 +5,8 @@ import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.util.*
 import kotlin.math.max
 
 enum class RadioEvents {
@@ -22,7 +24,16 @@ enum class RadioEvents {
     SongStaged,
     QueueCleared,
     QueueEnded,
+    SleepTimerSet,
+    SleepTimerRemoved,
 }
+
+data class RadioSleepTimer(
+    val duration: Long,
+    val endsAt: Long,
+    val timer: Timer,
+    var quitOnEnd: Boolean,
+)
 
 class Radio(private val symphony: Symphony) : SymphonyHooks {
     val onUpdate = Eventer<RadioEvents>()
@@ -35,6 +46,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     private var player: RadioPlayer? = null
     private var notification = RadioNotification(symphony)
     private var focusCounter = 0
+    private var sleepTimer: RadioSleepTimer? = null
 
     val hasPlayer: Boolean
         get() = player?.usable ?: false
@@ -115,9 +127,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     fun pause() = pause {}
-    private fun pause(onFinish: () -> Unit) {
+    private fun pause(forceFade: Boolean = false, onFinish: () -> Unit) {
         player?.let {
-            it.setVolume(RadioPlayer.MIN_VOLUME) { _ ->
+            it.setVolume(
+                to = RadioPlayer.MIN_VOLUME,
+                forceFade = forceFade,
+            ) { _ ->
                 it.pause()
                 abandonFocus()
                 onFinish()
@@ -136,6 +151,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun stop(ended: Boolean = true) {
         stopCurrentSong()
         queue.reset()
+        clearSleepTimer()
         if (ended) onUpdate.dispatch(RadioEvents.QueueEnded)
     }
 
@@ -162,6 +178,43 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         player?.let {
             it.setVolume(RadioPlayer.MAX_VOLUME) {}
         }
+    }
+
+    fun getSleepTimer() = sleepTimer
+    fun hasSleepTimer() = sleepTimer != null
+
+    fun setSleepTimer(
+        duration: Long,
+        quitOnEnd: Boolean,
+    ) {
+        val endsAt = System.currentTimeMillis() + duration
+        val timer = Timer()
+        timer.schedule(
+            kotlin.concurrent.timerTask {
+                val shouldQuit = getSleepTimer()?.quitOnEnd ?: quitOnEnd
+                clearSleepTimer()
+                pause(forceFade = true) {
+                    if (shouldQuit) {
+                        symphony.closeApp?.invoke()
+                    }
+                }
+            },
+            Date.from(Instant.ofEpochMilli(endsAt)),
+        )
+        clearSleepTimer()
+        sleepTimer = RadioSleepTimer(
+            duration = duration,
+            endsAt = endsAt,
+            timer = timer,
+            quitOnEnd = quitOnEnd,
+        )
+        onUpdate.dispatch(RadioEvents.SleepTimerSet)
+    }
+
+    fun clearSleepTimer() {
+        sleepTimer?.timer?.cancel()
+        sleepTimer = null
+        onUpdate.dispatch(RadioEvents.SleepTimerRemoved)
     }
 
     private fun stopCurrentSong() {

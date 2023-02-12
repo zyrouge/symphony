@@ -88,11 +88,15 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     fun seek(to: Int) = mediaPlayer?.seekTo(to)
 
     @JvmName("setVolumeTo")
-    fun setVolume(to: Float, onFinish: (Boolean) -> Unit) {
+    fun setVolume(
+        to: Float,
+        forceFade: Boolean = false,
+        onFinish: (Boolean) -> Unit,
+    ) {
         fader?.stop()
         when {
             to == volume -> onFinish(true)
-            fadePlayback -> {
+            forceFade || fadePlayback -> {
                 fader = RadioEffects.Fader(
                     RadioEffects.Fader.Options(volume, to, fadePlaybackDuration),
                     onUpdate = {

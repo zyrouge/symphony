@@ -2,12 +2,15 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,7 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -24,11 +30,12 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
-import io.github.zyrouge.symphony.ui.components.EventerEffect
-import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
-import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
+import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.*
 import io.github.zyrouge.symphony.utils.DurationFormatter
+import java.time.Duration
+import java.util.*
 
 private data class PlayerStateData(
     val song: Song,
@@ -37,6 +44,7 @@ private data class PlayerStateData(
     val queueSize: Int,
     val currentLoopMode: RadioLoopMode,
     val currentShuffleMode: Boolean,
+    val hasSleepTimer: Boolean,
 )
 
 @Composable
@@ -47,6 +55,7 @@ fun NowPlayingView(context: ViewContext) {
     var queueSize by remember { mutableStateOf(context.symphony.radio.queue.originalQueue.size) }
     var currentLoopMode by remember { mutableStateOf(context.symphony.radio.queue.currentLoopMode) }
     var currentShuffleMode by remember { mutableStateOf(context.symphony.radio.queue.currentShuffleMode) }
+    var hasSleepTimer by remember { mutableStateOf(context.symphony.radio.hasSleepTimer()) }
     var isViable by remember { mutableStateOf(song != null) }
 
     BackHandler {
@@ -60,6 +69,7 @@ fun NowPlayingView(context: ViewContext) {
         queueSize = context.symphony.radio.queue.originalQueue.size
         currentLoopMode = context.symphony.radio.queue.currentLoopMode
         currentShuffleMode = context.symphony.radio.queue.currentShuffleMode
+        hasSleepTimer = context.symphony.radio.hasSleepTimer()
         isViable = song != null
     }
 
@@ -73,6 +83,7 @@ fun NowPlayingView(context: ViewContext) {
                 queueSize = queueSize,
                 currentLoopMode = currentLoopMode,
                 currentShuffleMode = currentShuffleMode,
+                hasSleepTimer = hasSleepTimer,
             )
         )
         else -> NothingPlaying(context)
@@ -313,7 +324,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                     duration = it
                 }
                 Text(
-                    DurationFormatter.formatAsMS(sliderPosition ?: duration.played),
+                    DurationFormatter.formatMs(sliderPosition ?: duration.played),
                     style = MaterialTheme.typography.labelMedium
                 )
                 BoxWithConstraints(modifier = Modifier.weight(1f)) {
@@ -341,7 +352,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                     )
                 }
                 Text(
-                    DurationFormatter.formatAsMS(duration.total),
+                    DurationFormatter.formatMs(duration.total),
                     style = MaterialTheme.typography.labelMedium
                 )
             }
@@ -351,6 +362,8 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
 
 @Composable
 private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData) {
+    var showSleepTimer by remember { mutableStateOf(false) }
+
     data.run {
         Row(
             modifier = Modifier
@@ -383,6 +396,20 @@ private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData)
             Spacer(modifier = Modifier.weight(1f))
             IconButton(
                 onClick = {
+                    showSleepTimer = !showSleepTimer
+                }
+            ) {
+                Icon(
+                    Icons.Outlined.Timer,
+                    null,
+                    tint = when {
+                        hasSleepTimer -> MaterialTheme.colorScheme.primary
+                        else -> LocalContentColor.current
+                    }
+                )
+            }
+            IconButton(
+                onClick = {
                     context.symphony.radio.queue.toggleLoopMode()
                 }
             ) {
@@ -411,5 +438,230 @@ private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData)
                 )
             }
         }
+
+        if (showSleepTimer) {
+            when {
+                hasSleepTimer -> context.symphony.radio.getSleepTimer()?.let {
+                    NowPlayingSleepTimerDialog(
+                        context,
+                        sleepTimer = it,
+                        onDismissRequest = {
+                            showSleepTimer = false
+                        }
+                    )
+                }
+                else -> NowPlayingSleepTimerSetDialog(
+                    context,
+                    onDismissRequest = {
+                        showSleepTimer = false
+                    }
+                )
+            }
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NowPlayingSleepTimerDialog(
+    context: ViewContext,
+    sleepTimer: RadioSleepTimer,
+    onDismissRequest: () -> Unit,
+) {
+    var updateTimer by remember { mutableStateOf<Timer?>(null) }
+    val endsAtMs by remember { mutableStateOf(sleepTimer.endsAt) }
+    var endsIn by remember { mutableStateOf(0L) }
+
+    LaunchedEffect(LocalContext.current) {
+        updateTimer = kotlin.concurrent.timer(period = 500L) {
+            endsIn = endsAtMs - System.currentTimeMillis()
+        }
+    }
+
+    DisposableEffect(LocalContext.current) {
+        onDispose {
+            updateTimer?.cancel()
+            updateTimer = null
+        }
+    }
+
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.sleepTimer)
+        },
+        content = {
+            Text(
+                DurationFormatter.formatMs(endsIn),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 20.dp,
+                        end = 20.dp,
+                        top = 20.dp,
+                        bottom = 12.dp,
+                    ),
+            )
+        },
+        actions = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                var quitOnEnd by remember { mutableStateOf(sleepTimer.quitOnEnd) }
+
+                Checkbox(
+                    checked = quitOnEnd,
+                    onCheckedChange = {
+                        quitOnEnd = it
+                        sleepTimer.quitOnEnd = it
+                    }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    context.symphony.t.quitAppOnEnd,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                onClick = {
+                    context.symphony.radio.clearSleepTimer()
+                    onDismissRequest()
+                }
+            ) {
+                Text(context.symphony.t.stop)
+            }
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NowPlayingSleepTimerSetDialog(
+    context: ViewContext,
+    onDismissRequest: () -> Unit,
+) {
+    val minDurationMs = Duration.ofMinutes(1).toMillis()
+    val presetDurations = remember {
+        listOf(0L to 15L, 0L to 30L, 1L to 0L, 2L to 0L, 3L to 0L)
+    }
+    var inputHours by remember { mutableStateOf(0L) }
+    var inputMinutes by remember { mutableStateOf(10L) }
+    var quitOnEnd by remember { mutableStateOf(false) }
+    val inputDuration by remember {
+        derivedStateOf {
+            Duration
+                .ofHours(inputHours)
+                .plusMinutes(inputMinutes)
+                .toMillis()
+        }
+    }
+    val isValidDuration by remember {
+        derivedStateOf { inputDuration >= minDurationMs }
+    }
+
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.sleepTimer)
+        },
+        content = {
+            Column(modifier = Modifier.padding(top = 12.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(
+                        4.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    presetDurations.forEach { x ->
+                        val hours = x.first
+                        val minutes = x.second
+                        val shape = RoundedCornerShape(4.dp)
+
+                        Text(
+                            DurationFormatter.formatMinSec(hours, minutes),
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    shape,
+                                )
+                                .clip(shape)
+                                .clickable {
+                                    inputHours = hours
+                                    inputMinutes = minutes
+                                }
+                                .padding(8.dp, 4.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.padding(20.dp, 0.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = DividerDefaults.color,
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = {
+                            Text(context.symphony.t.hours)
+                        },
+                        value = inputHours.toString(),
+                        onValueChange = {
+                            inputHours = it.toLongOrNull() ?: 0
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = DividerDefaults.color,
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = {
+                            Text(context.symphony.t.minutes)
+                        },
+                        value = inputMinutes.toString(),
+                        onValueChange = {
+                            inputMinutes = it.toLongOrNull() ?: 0
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(8.dp, 0.dp),
+                ) {
+                    Checkbox(
+                        checked = quitOnEnd,
+                        onCheckedChange = {
+                            quitOnEnd = it
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(context.symphony.t.quitAppOnEnd)
+                }
+            }
+        },
+        actions = {
+            TextButton(onClick = onDismissRequest) {
+                Text(context.symphony.t.cancel)
+            }
+            TextButton(
+                enabled = isValidDuration,
+                onClick = {
+                    context.symphony.radio.setSleepTimer(
+                        duration = inputDuration,
+                        quitOnEnd = quitOnEnd,
+                    )
+                    onDismissRequest()
+                }
+            ) {
+                Text(context.symphony.t.done)
+            }
+        },
+    )
 }
