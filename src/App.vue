@@ -36,7 +36,7 @@ const links = {
                 >
                     <div
                         :class="[
-                            'w-full max-w-92 h-1/4 rounded-1/2',
+                            'mt-2 sm:mt-0 w-full max-w-92 h-1/4 rounded-1/2',
                             'bg-gradient-to-r from-red-600 via-purple-600 to-blue-600',
                         ]"
                     ></div>
