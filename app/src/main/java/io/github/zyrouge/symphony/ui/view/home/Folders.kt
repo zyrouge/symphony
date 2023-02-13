@@ -14,10 +14,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun FoldersView(context: ViewContext, data: HomeViewData) {
     val explorer = context.symphony.groove.song.explorer
 
-    LoaderScaffold(
-        context,
-        isLoading = data.songsIsUpdating,
-    ) {
+    LoaderScaffold(context, isLoading = data.songsIsUpdating) {
         when {
             !explorer.isEmpty -> SongExplorerList(
                 context,

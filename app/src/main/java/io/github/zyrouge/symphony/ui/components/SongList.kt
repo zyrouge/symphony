@@ -57,7 +57,7 @@ fun SongList(
         },
         content = {
             val lazyListState = rememberLazyListState()
-            
+
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier.drawScrollBar(lazyListState)
@@ -65,7 +65,7 @@ fun SongList(
                 leadingContent?.invoke(this)
                 itemsIndexed(
                     sortedSongs,
-                    key = { _, x -> x.id },
+                    key = { i, x -> "$i-${x.id}" },
                     contentType = { _, _ -> GrooveKinds.SONG }
                 ) { i, song ->
                     SongCard(context, song) {

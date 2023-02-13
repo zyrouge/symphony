@@ -1,6 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.Album
@@ -48,11 +48,11 @@ fun AlbumGrid(
         },
         content = {
             ResponsiveGrid {
-                items(
+                itemsIndexed(
                     sortedAlbums,
-                    key = { it.id },
-                    contentType = { GrooveKinds.ALBUM }
-                ) { album ->
+                    key = { i, x -> "$i-${x.id}" },
+                    contentType = { _, _ -> GrooveKinds.ALBUM }
+                ) { _, album ->
                     AlbumTile(context, album)
                 }
             }

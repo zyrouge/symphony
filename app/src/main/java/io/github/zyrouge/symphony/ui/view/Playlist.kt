@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,20 +19,20 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
     var playlist by remember {
         mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
     }
-    var songs by remember {
-        mutableStateOf(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
+    val songs = remember {
+        context.symphony.groove.song.getSongsOfPlaylist(playlistId).toMutableStateList()
     }
     var isViable by remember { mutableStateOf(playlist != null) }
     var showOptionsMenu by remember { mutableStateOf(false) }
 
     EventerEffect(context.symphony.groove.playlist.onUpdate) {
         playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
-        songs = context.symphony.groove.song.getSongsOfPlaylist(playlistId)
+        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
         isViable = playlist != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs = context.symphony.groove.song.getSongsOfPlaylist(playlistId)
+        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
     }
 
     Scaffold(

@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
@@ -53,11 +53,11 @@ fun PlaylistGrid(
         },
         content = {
             ResponsiveGrid {
-                items(
+                itemsIndexed(
                     sortedPlaylists,
-                    key = { it.id },
-                    contentType = { GrooveKinds.PLAYLIST }
-                ) { playlist ->
+                    key = { i, x -> "$i-${x.id}" },
+                    contentType = { _, _ -> GrooveKinds.PLAYLIST }
+                ) { _, playlist ->
                     PlaylistTile(context, playlist)
                 }
             }

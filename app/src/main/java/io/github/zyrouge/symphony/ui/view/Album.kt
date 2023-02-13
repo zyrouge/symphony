@@ -21,6 +21,7 @@ import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,19 +29,19 @@ fun AlbumView(context: ViewContext, albumId: Long) {
     var album by remember {
         mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
     }
-    var songs by remember {
-        mutableStateOf(context.symphony.groove.song.getSongsOfAlbum(albumId))
+    val songs = remember {
+        context.symphony.groove.song.getSongsOfAlbum(albumId).toMutableStateList()
     }
     var isViable by remember { mutableStateOf(album != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
         album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songs = context.symphony.groove.song.getSongsOfAlbum(albumId)
+        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
         isViable = album != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs = context.symphony.groove.song.getSongsOfAlbum(albumId)
+        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
     }
 
     Scaffold(

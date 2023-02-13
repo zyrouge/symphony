@@ -65,7 +65,6 @@ dependencies {
     def accompanist_version = '0.27.0'
     def navigation_version = '2.5.3'
 
-    implementation 'androidx.core:core-ktx:1.9.0'
     implementation "androidx.compose.material:material-icons-extended:$compose_material_version"
     implementation "androidx.navigation:navigation-compose:$navigation_version"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
@@ -73,7 +72,7 @@ dependencies {
     implementation 'androidx.media:media:1.6.0'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation 'io.coil-kt:coil-compose:2.2.2'
-
+    
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.activity:activity-compose:1.6.1'

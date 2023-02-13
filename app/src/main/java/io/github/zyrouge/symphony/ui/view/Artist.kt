@@ -23,32 +23,33 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.swap
 
 @Composable
 fun ArtistView(context: ViewContext, artistName: String) {
     var artist by remember {
         mutableStateOf(context.symphony.groove.artist.getArtistFromName(artistName))
     }
-    var songs by remember {
-        mutableStateOf(context.symphony.groove.song.getSongsOfArtist(artistName))
+    val songs = remember {
+        context.symphony.groove.song.getSongsOfArtist(artistName).toMutableStateList()
     }
-    var albums by remember {
-        mutableStateOf(context.symphony.groove.album.getAlbumsOfArtist(artistName))
+    val albums = remember {
+        context.symphony.groove.album.getAlbumsOfArtist(artistName).toMutableStateList()
     }
     var isViable by remember { mutableStateOf(artist != null) }
 
     EventerEffect(context.symphony.groove.artist.onUpdate) {
         artist = context.symphony.groove.artist.getArtistFromName(artistName)
-        songs = context.symphony.groove.song.getSongsOfArtist(artistName)
+        songs.swap(context.symphony.groove.song.getSongsOfArtist(artistName))
         isViable = artist != null
     }
 
     EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs = context.symphony.groove.song.getSongsOfArtist(artistName)
+        songs.swap(context.symphony.groove.song.getSongsOfArtist(artistName))
     }
 
     EventerEffect(context.symphony.groove.album.onUpdate) {
-        albums = context.symphony.groove.album.getAlbumsOfArtist(artistName)
+        albums.swap(context.symphony.groove.album.getAlbumsOfArtist(artistName))
     }
 
     ArtistViewScaffold(

@@ -86,7 +86,7 @@ fun GenreGrid(
             ResponsiveGrid { gridData ->
                 itemsIndexed(
                     sortedGenres,
-                    key = { _, x -> x.name },
+                    key = { i, x -> "$i-${x.name}" },
                     contentType = { _, _ -> GrooveKinds.GENRE }
                 ) { i, genre ->
                     Card(

@@ -20,16 +20,19 @@ import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    var queue by remember {
-        mutableStateOf(context.symphony.radio.queue.currentQueue.toList())
+    val queue = remember {
+        context.symphony.radio.queue.currentQueue.toMutableStateList()
     }
-    var currentSongIndex by remember { mutableStateOf(context.symphony.radio.queue.currentSongIndex) }
+    var currentSongIndex by remember {
+        mutableStateOf(context.symphony.radio.queue.currentSongIndex)
+    }
     val selectedSongIndices = remember { mutableStateListOf<Int>() }
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = currentSongIndex,
@@ -40,7 +43,7 @@ fun QueueView(context: ViewContext) {
     }
 
     EventerEffect(context.symphony.radio.onUpdate) {
-        queue = context.symphony.radio.queue.currentQueue.toList()
+        queue.swap(context.symphony.radio.queue.currentQueue)
         currentSongIndex = context.symphony.radio.queue.currentSongIndex
     }
 
@@ -101,8 +104,8 @@ fun QueueView(context: ViewContext) {
                 } else {
                     LazyColumn(state = listState) {
                         itemsIndexed(
-                            queue,
-                            key = { _, id -> id },
+                            queue.toList(),
+                            key = { i, id -> "$i-$id" },
                             contentType = { _, _ -> GrooveKinds.SONG },
                         ) { i, _ ->
                             val song = context.symphony.radio.queue.getSongAt(i)!!

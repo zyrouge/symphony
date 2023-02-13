@@ -28,15 +28,12 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
 
-    LoaderScaffold(
-        context,
-        isLoading = data.playlistsIsUpdating,
-    ) {
+    LoaderScaffold(context, isLoading = data.playlistsIsUpdating) {
         when {
             data.playlists.isNotEmpty() -> {
                 PlaylistGrid(
                     context,
-                    data.playlists,
+                    playlists = data.playlists,
                     leadingContent = {
                         PlaylistControlBar(
                             context,

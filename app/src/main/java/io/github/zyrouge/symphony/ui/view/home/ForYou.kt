@@ -12,10 +12,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +56,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
             val randomArtists by remember {
                 derivedStateOf { data.artists.randomSubList(6) }
             }
+
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())

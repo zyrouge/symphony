@@ -204,7 +204,7 @@ fun SongExplorerList(
                 }
                 itemsIndexed(
                     sortedEntities.files.entries.toList(),
-                    key = { _, x -> x.key.id },
+                    key = { i, x -> "$i-${x.key.id}" },
                     contentType = { _, _ -> GrooveKinds.SONG }
                 ) { i, entry ->
                     SongCard(context, entry.key) {

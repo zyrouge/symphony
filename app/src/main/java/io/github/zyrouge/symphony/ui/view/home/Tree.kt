@@ -12,10 +12,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun TreeView(context: ViewContext, data: HomeViewData) {
-    LoaderScaffold(
-        context,
-        isLoading = data.songsIsUpdating,
-    ) {
+    LoaderScaffold(context, isLoading = data.songsIsUpdating) {
         when {
             data.songs.isNotEmpty() -> SongTreeList(
                 context,
