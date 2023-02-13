@@ -31,12 +31,12 @@ const links = {
                 <div
                     :class="[
                         'absolute inset-0 -z-1 flex justify-center',
-                        'filter blur opacity-20',
+                        'filter blur-md opacity-20',
                     ]"
                 >
                     <div
                         :class="[
-                            'mt-2 sm:mt-0 w-full max-w-80 h-1/3 rounded-1/2',
+                            'w-full max-w-92 h-1/4 rounded-1/2',
                             'bg-gradient-to-r from-red-600 via-purple-600 to-blue-600',
                         ]"
                     ></div>
