@@ -299,7 +299,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     currentSongIndex = currentSongIndex,
                     playedDuration = playedDuration,
                     originalQueue = originalQueue,
-                    currentQueue = currentQueue
+                    currentQueue = currentQueue,
+                    shuffled = previous.shuffled,
                 )
             )
         }

@@ -159,13 +159,15 @@ class RadioQueue(private val symphony: Symphony) {
         val playedDuration: Int,
         val originalQueue: List<Long>,
         val currentQueue: List<Long>,
+        val shuffled: Boolean,
     ) {
         fun serialize() =
             listOf(
                 currentSongIndex.toString(),
                 playedDuration.toString(),
                 originalQueue.joinToString(","),
-                currentQueue.joinToString(",")
+                currentQueue.joinToString(","),
+                shuffled.toString(),
             ).joinToString(";")
 
         companion object {
@@ -175,6 +177,7 @@ class RadioQueue(private val symphony: Symphony) {
                     playedDuration = playbackPosition.played,
                     originalQueue = queue.originalQueue,
                     currentQueue = queue.currentQueue,
+                    shuffled = queue.currentShuffleMode,
                 )
 
             fun parse(data: String): Serialized? {
@@ -185,6 +188,7 @@ class RadioQueue(private val symphony: Symphony) {
                         playedDuration = semi[1].toInt(),
                         originalQueue = semi[2].split(",").map { it.toLong() },
                         currentQueue = semi[3].split(",").map { it.toLong() },
+                        shuffled = semi[4].toBoolean(),
                     )
                 } catch (_: Exception) {
                 }
@@ -198,6 +202,7 @@ class RadioQueue(private val symphony: Symphony) {
             symphony.radio.stop(ended = false)
             originalQueue.swap(serialized.originalQueue)
             currentQueue.swap(serialized.currentQueue)
+            currentShuffleMode = serialized.shuffled
             afterAdd(
                 Radio.PlayOptions(
                     index = serialized.currentSongIndex,
