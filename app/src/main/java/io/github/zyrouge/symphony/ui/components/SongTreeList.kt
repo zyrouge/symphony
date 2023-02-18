@@ -104,12 +104,10 @@ fun SongTreeList(
             ) {
                 sortedTree.forEach { (dirname, children) ->
                     val show = !disabled.contains(dirname)
+                    val sepPadding = if (show) 4.dp else 0.dp
 
                     stickyHeader {
-                        Box(
-                            modifier = Modifier
-                                .padding(bottom = if (show) 4.dp else 0.dp)
-                        ) {
+                        Box(modifier = Modifier.padding(bottom = sepPadding)) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
@@ -202,8 +200,9 @@ fun SongTreeList(
                             }
                         }
                     }
+
                     item {
-                        Divider(modifier = Modifier.padding(top = 4.dp))
+                        Divider(modifier = Modifier.padding(top = sepPadding))
                     }
                 }
             }
