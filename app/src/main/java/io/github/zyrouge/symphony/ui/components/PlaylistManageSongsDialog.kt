@@ -99,6 +99,7 @@ fun PlaylistManageSongsDialog(
                                     })
                                     else -> null
                                 },
+                                disableHeartIcon = true,
                             ) {
                                 when {
                                     allSelectedSongs.contains(song.id) -> allSelectedSongs.remove(

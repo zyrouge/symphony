@@ -28,12 +28,16 @@ fun SongCard(
     song: Song,
     highlighted: Boolean = false,
     autoHighlight: Boolean = true,
+    disableHeartIcon: Boolean = false,
     leading: @Composable () -> Unit = {},
     thumbnailLabel: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     var isCurrentPlaying by remember {
         mutableStateOf(autoHighlight && song.id == context.symphony.radio.queue.currentPlayingSong?.id)
+    }
+    var isInFavorites by remember {
+        mutableStateOf(context.symphony.groove.playlist.isInFavorites(song.id))
     }
 
     if (autoHighlight) {
@@ -42,6 +46,10 @@ fun SongCard(
                 isCurrentPlaying = song.id == context.symphony.radio.queue.currentPlayingSong?.id
             }
         }
+    }
+
+    EventerEffect(context.symphony.groove.playlist.onFavoritesUpdate) { favorites ->
+        isInFavorites = favorites.contains(song.id)
     }
 
     Card(
@@ -88,8 +96,10 @@ fun SongCard(
                     Text(
                         song.title,
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = if (highlighted || isCurrentPlaying) MaterialTheme.colorScheme.primary
-                            else LocalTextStyle.current.color
+                            color = when {
+                                highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
+                                else -> LocalTextStyle.current.color
+                            }
                         )
                     )
                     song.artistName?.let { artistName ->
@@ -101,19 +111,41 @@ fun SongCard(
                 }
                 Spacer(modifier = Modifier.width(15.dp))
 
-                var showOptionsMenu by remember { mutableStateOf(false) }
-                IconButton(
-                    onClick = { showOptionsMenu = !showOptionsMenu }
-                ) {
-                    Icon(Icons.Default.MoreVert, null)
-                    SongDropdownMenu(
-                        context,
-                        song,
-                        expanded = showOptionsMenu,
-                        onDismissRequest = {
-                            showOptionsMenu = false
+                Row {
+                    if (!disableHeartIcon && isInFavorites) {
+                        IconButton(
+                            modifier = Modifier.offset(4.dp, 0.dp),
+                            onClick = {
+                                context.symphony.groove.playlist.removeFromFavorites(song.id)
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Favorite,
+                                null,
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
-                    )
+                    }
+
+                    var showOptionsMenu by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { showOptionsMenu = !showOptionsMenu }
+                    ) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            null,
+                            modifier = Modifier.size(24.dp),
+                        )
+                        SongDropdownMenu(
+                            context,
+                            song,
+                            expanded = showOptionsMenu,
+                            onDismissRequest = {
+                                showOptionsMenu = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -129,6 +161,7 @@ fun SongDropdownMenu(
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+    val isInFavorite = context.symphony.groove.playlist.isInFavorites(song.id)
 
     DropdownMenu(
         expanded = expanded,
@@ -159,6 +192,26 @@ fun SongDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(song)
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.Favorite, null)
+            },
+            text = {
+                Text(
+                    if (isInFavorite) context.symphony.t.unfavorite
+                    else context.symphony.t.favorite
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                context.symphony.groove.playlist.run {
+                    when {
+                        isInFavorite -> removeFromFavorites(song.id)
+                        else -> addToFavorites(song.id)
+                    }
+                }
             }
         )
         DropdownMenuItem(

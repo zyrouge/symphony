@@ -215,6 +215,14 @@ private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
+    var isInFavorites by remember(data.song.id) {
+        mutableStateOf(context.symphony.groove.playlist.isInFavorites(data.song.id))
+    }
+
+    EventerEffect(context.symphony.groove.playlist.onFavoritesUpdate) { favorites ->
+        isInFavorites = favorites.contains(data.song.id)
+    }
+
     data.run {
         Column(modifier = Modifier.padding(0.dp, 0.dp)) {
             Row {
@@ -287,7 +295,28 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                         }
                     }
                 }
-                Column {
+                Row {
+                    IconButton(
+                        modifier = Modifier.offset(4.dp),
+                        onClick = {
+                            context.symphony.groove.playlist.run {
+                                when {
+                                    isInFavorites -> removeFromFavorites(song.id)
+                                    else -> addToFavorites(song.id)
+                                }
+                            }
+                        }
+                    ) {
+                        when {
+                            isInFavorites -> Icon(
+                                Icons.Default.Favorite,
+                                null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            else -> Icon(Icons.Default.FavoriteBorder, null)
+                        }
+                    }
+
                     var showOptionsMenu by remember { mutableStateOf(false) }
                     IconButton(
                         onClick = {

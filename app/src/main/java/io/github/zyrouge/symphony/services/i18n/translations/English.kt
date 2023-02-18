@@ -131,6 +131,8 @@ class English : Translations {
     override val hours = "Hours"
     override val minutes = "Minutes"
     override val quitAppOnEnd = "Quit app on end"
+    override val favorite = "Favorite"
+    override val unfavorite = "Unfavorite"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"

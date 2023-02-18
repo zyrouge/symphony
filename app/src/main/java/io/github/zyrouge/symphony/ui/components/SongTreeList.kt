@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
+import io.github.zyrouge.symphony.services.radio.RadioEvents
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 
@@ -135,7 +136,26 @@ fun SongTreeList(
 
                     if (show) {
                         items(children) { song ->
+                            var isCurrentPlaying by remember {
+                                mutableStateOf(
+                                    song.id == context.symphony.radio.queue.currentPlayingSong?.id
+                                )
+                            }
+                            var isInFavorites by remember {
+                                mutableStateOf(context.symphony.groove.playlist.isInFavorites(song.id))
+                            }
                             var showOptionsMenu by remember { mutableStateOf(false) }
+
+                            EventerEffect(context.symphony.radio.onUpdate) {
+                                if (it == RadioEvents.StartPlaying || it == RadioEvents.StopPlaying) {
+                                    isCurrentPlaying =
+                                        song.id == context.symphony.radio.queue.currentPlayingSong?.id
+                                }
+                            }
+
+                            EventerEffect(context.symphony.groove.playlist.onFavoritesUpdate) { favorites ->
+                                isInFavorites = favorites.contains(song.id)
+                            }
 
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -159,10 +179,15 @@ fun SongTreeList(
                                         .size(30.dp)
                                         .clip(RoundedCornerShape(5.dp)),
                                 )
-                                Column {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         song.title,
-                                        style = MaterialTheme.typography.labelLarge,
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            color = when {
+                                                isCurrentPlaying -> MaterialTheme.colorScheme.primary
+                                                else -> LocalTextStyle.current.color
+                                            }
+                                        ),
                                     )
                                     song.artistName?.let {
                                         Text(
@@ -171,29 +196,42 @@ fun SongTreeList(
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
-                                Box(
-                                    modifier = Modifier
-                                        .size(25.dp)
-                                        .clip(CircleShape)
-                                        .align(Alignment.CenterVertically)
-                                        .clickable {
+                                Row {
+                                    if (isInFavorites) {
+                                        SongTreeListSongCardIconButton(
+                                            icon = { modifier ->
+                                                Icon(
+                                                    Icons.Default.Favorite,
+                                                    null,
+                                                    modifier = modifier,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                )
+                                            },
+                                            onClick = {
+                                                context.symphony.groove.playlist
+                                                    .removeFromFavorites(song.id)
+                                            }
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    SongTreeListSongCardIconButton(
+                                        icon = { modifier ->
+                                            Icon(
+                                                Icons.Default.MoreVert,
+                                                null,
+                                                modifier = modifier,
+                                            )
+                                            SongDropdownMenu(
+                                                context,
+                                                song,
+                                                expanded = showOptionsMenu,
+                                                onDismissRequest = {
+                                                    showOptionsMenu = false
+                                                }
+                                            )
+                                        },
+                                        onClick = {
                                             showOptionsMenu = !showOptionsMenu
-                                        }
-                                ) {
-                                    Icon(
-                                        Icons.Default.MoreVert,
-                                        null,
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .padding(start = 5.dp, top = 5.dp),
-                                    )
-                                    SongDropdownMenu(
-                                        context,
-                                        song,
-                                        expanded = showOptionsMenu,
-                                        onDismissRequest = {
-                                            showOptionsMenu = false
                                         }
                                     )
                                 }
@@ -208,6 +246,25 @@ fun SongTreeList(
             }
         }
     )
+}
+
+@Composable
+fun SongTreeListSongCardIconButton(
+    icon: @Composable (Modifier) -> Unit,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .size(25.dp)
+            .clip(CircleShape)
+            .clickable { onClick() }
+    ) {
+        icon(
+            Modifier
+                .size(20.dp)
+                .padding(start = 5.dp, top = 5.dp),
+        )
+    }
 }
 
 @Composable

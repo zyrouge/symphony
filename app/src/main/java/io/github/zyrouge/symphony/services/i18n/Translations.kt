@@ -125,6 +125,8 @@ interface Translations {
     val hours: String
     val minutes: String
     val quitAppOnEnd: String
+    val favorite: String
+    val unfavorite: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
