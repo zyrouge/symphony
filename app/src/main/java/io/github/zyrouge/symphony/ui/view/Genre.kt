@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.view
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,6 +43,25 @@ fun GenreView(context: ViewContext, genre: String) {
                 title = {
                     TopAppBarMinimalTitle {
                         Text("${context.symphony.t.genre} - $genre")
+                    }
+                },
+                actions = {
+                    var showOptionsMenu by remember { mutableStateOf(false) }
+
+                    IconButton(
+                        onClick = {
+                            showOptionsMenu = !showOptionsMenu
+                        }
+                    ) {
+                        Icon(Icons.Default.MoreVert, null)
+                        GenericSongListDropdown(
+                            context,
+                            songs = songs,
+                            expanded = showOptionsMenu,
+                            onDismissRequest = {
+                                showOptionsMenu = false
+                            }
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

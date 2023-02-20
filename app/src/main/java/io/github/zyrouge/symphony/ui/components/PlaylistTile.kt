@@ -108,6 +108,7 @@ fun PlaylistDropdownMenu(
     var showSongsPicker by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showAddToPlaylistDialog by remember { mutableStateOf(false) }
 
     DropdownMenu(
         expanded = expanded,
@@ -143,6 +144,18 @@ fun PlaylistDropdownMenu(
                 )
             }
         )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.PlaylistAdd, null)
+            },
+            text = {
+                Text(context.symphony.t.addToPlaylist)
+            },
+            onClick = {
+                onDismissRequest()
+                showAddToPlaylistDialog = true
+            }
+        )
         if (playlist.isNotLocal()) {
             DropdownMenuItem(
                 leadingIcon = {
@@ -169,22 +182,24 @@ fun PlaylistDropdownMenu(
                 showInfoDialog = true
             }
         )
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(
-                    Icons.Default.DeleteForever,
-                    null,
-                    tint = ThemeColors.Red,
-                )
-            },
-            text = {
-                Text(context.symphony.t.delete)
-            },
-            onClick = {
-                onDismissRequest()
-                showDeleteDialog = true
-            }
-        )
+        if (!context.symphony.groove.playlist.isBuiltInPlaylist(playlist)) {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.DeleteForever,
+                        null,
+                        tint = ThemeColors.Red,
+                    )
+                },
+                text = {
+                    Text(context.symphony.t.delete)
+                },
+                onClick = {
+                    onDismissRequest()
+                    showDeleteDialog = true
+                }
+            )
+        }
     }
 
     if (showInfoDialog) {
@@ -230,6 +245,16 @@ fun PlaylistDropdownMenu(
                         context.symphony.groove.playlist.removePlaylist(playlist)
                     }
                 }
+            }
+        )
+    }
+
+    if (showAddToPlaylistDialog) {
+        AddToPlaylistDialog(
+            context,
+            songs = playlist.songs,
+            onDismissRequest = {
+                showAddToPlaylistDialog = false
             }
         )
     }

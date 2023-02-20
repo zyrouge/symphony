@@ -2,8 +2,6 @@ package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,7 +17,6 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.RadioEvents
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,6 +166,26 @@ fun SongDropdownMenu(
     ) {
         DropdownMenuItem(
             leadingIcon = {
+                Icon(Icons.Default.Favorite, null)
+            },
+            text = {
+                Text(
+                    if (isInFavorite) context.symphony.t.unfavorite
+                    else context.symphony.t.favorite
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                context.symphony.groove.playlist.run {
+                    when {
+                        isInFavorite -> removeFromFavorites(song.id)
+                        else -> addToFavorites(song.id)
+                    }
+                }
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = {
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
@@ -192,26 +209,6 @@ fun SongDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(song)
-            }
-        )
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Default.Favorite, null)
-            },
-            text = {
-                Text(
-                    if (isInFavorite) context.symphony.t.unfavorite
-                    else context.symphony.t.favorite
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                context.symphony.groove.playlist.run {
-                    when {
-                        isInFavorite -> removeFromFavorites(song.id)
-                        else -> addToFavorites(song.id)
-                    }
-                }
             }
         )
         DropdownMenuItem(
@@ -299,7 +296,7 @@ fun SongDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            song = song,
+            songs = listOf(song.id),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }
@@ -307,58 +304,3 @@ fun SongDropdownMenu(
     }
 }
 
-@Composable
-private fun AddToPlaylistDialog(
-    context: ViewContext,
-    song: Song,
-    onDismissRequest: () -> Unit,
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val playlists = remember {
-        context.symphony.groove.playlist.getAll().filter {
-            it.isNotLocal()
-        }
-    }
-
-    ScaffoldDialog(
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(context.symphony.t.addToPlaylist)
-        },
-        content = {
-            when {
-                playlists.isEmpty() -> SubtleCaptionText(context.symphony.t.noInAppPlaylistsFound)
-                else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
-                    items(playlists) { playlist ->
-                        GenericGrooveCard(
-                            image = playlist.createArtworkImageRequest(context.symphony)
-                                .build(),
-                            title = {
-                                Text(playlist.title)
-                            },
-                            options = { expanded, onDismissRequest ->
-                                PlaylistDropdownMenu(
-                                    context,
-                                    playlist,
-                                    expanded = expanded,
-                                    onDismissRequest = onDismissRequest,
-                                )
-                            },
-                            onClick = {
-                                coroutineScope.launch {
-                                    context.symphony.groove.playlist.updatePlaylistSongs(
-                                        playlist = playlist,
-                                        songs = playlist.songs.toMutableList().apply {
-                                            add(song.id)
-                                        }
-                                    )
-                                    onDismissRequest()
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        },
-    )
-}

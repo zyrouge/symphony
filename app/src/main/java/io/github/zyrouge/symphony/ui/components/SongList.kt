@@ -21,6 +21,7 @@ fun SongList(
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
     type: SongListType = SongListType.Default,
+    disableHeartIcon: Boolean = false,
 ) {
     var sortBy by remember {
         mutableStateOf(type.getLastUsedSortBy(context))
@@ -68,7 +69,7 @@ fun SongList(
                     key = { i, x -> "$i-${x.id}" },
                     contentType = { _, _ -> GrooveKinds.SONG }
                 ) { i, song ->
-                    SongCard(context, song) {
+                    SongCard(context, song, disableHeartIcon = disableHeartIcon) {
                         context.symphony.radio.shorty.playQueue(
                             sortedSongs,
                             Radio.PlayOptions(index = i)

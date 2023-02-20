@@ -34,6 +34,14 @@ fun <T> List<T>.indexOfOrNull(predicate: (T) -> Boolean): Int? {
     return null
 }
 
+fun <T> List<T>.distinctList() = distinct().toList()
+
+fun <T> List<T>.mutate(fn: MutableList<T>.() -> Unit): List<T> {
+    val out = toMutableList()
+    fn.invoke(out)
+    return out.toList()
+}
+
 class ConcurrentList<T> : MutableList<T> {
     private val list = mutableListOf<T>()
     private val lock = ReentrantReadWriteLock()

@@ -110,6 +110,8 @@ fun AlbumDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit
 ) {
+    var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
@@ -158,6 +160,18 @@ fun AlbumDropdownMenu(
                 )
             }
         )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.PlaylistAdd, null)
+            },
+            text = {
+                Text(context.symphony.t.addToPlaylist)
+            },
+            onClick = {
+                onDismissRequest()
+                showAddToPlaylistDialog = true
+            }
+        )
         album.artist?.let { artistName ->
             DropdownMenuItem(
                 leadingIcon = {
@@ -174,5 +188,15 @@ fun AlbumDropdownMenu(
                 }
             )
         }
+    }
+
+    if (showAddToPlaylistDialog) {
+        AddToPlaylistDialog(
+            context,
+            songs = context.symphony.groove.song.getSongsOfAlbum(album.id).map { it.id },
+            onDismissRequest = {
+                showAddToPlaylistDialog = false
+            }
+        )
     }
 }

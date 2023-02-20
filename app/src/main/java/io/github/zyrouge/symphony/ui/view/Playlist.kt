@@ -24,6 +24,13 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
     }
     var isViable by remember { mutableStateOf(playlist != null) }
     var showOptionsMenu by remember { mutableStateOf(false) }
+    val isFavoritesPlaylist by remember {
+        derivedStateOf {
+            playlist?.let {
+                context.symphony.groove.playlist.isFavoritesPlaylist(it)
+            } ?: false
+        }
+    }
 
     EventerEffect(context.symphony.groove.playlist.onUpdate) {
         playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
@@ -92,6 +99,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                         context,
                         songs = songs,
                         type = SongListType.Playlist,
+                        disableHeartIcon = isFavoritesPlaylist,
                     )
                     else -> UnknownPlaylist(context, playlistId)
                 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -130,6 +131,8 @@ private fun ArtistDropdownMenu(
     onDismissRequest: () -> Unit,
     isAlbumArtist: Boolean,
 ) {
+    var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+
     fun getSongs(): List<Song> {
         return when {
             isAlbumArtist -> context.symphony.groove.song.getSongsOfArtist(artist.name)
@@ -178,6 +181,28 @@ private fun ArtistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(getSongs())
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.PlaylistAdd, null)
+            },
+            text = {
+                Text(context.symphony.t.addToPlaylist)
+            },
+            onClick = {
+                onDismissRequest()
+                showAddToPlaylistDialog = true
+            }
+        )
+    }
+
+    if (showAddToPlaylistDialog) {
+        AddToPlaylistDialog(
+            context,
+            songs = context.symphony.groove.song.getSongsOfArtist(artist.name).map { it.id },
+            onDismissRequest = {
+                showAddToPlaylistDialog = false
             }
         )
     }

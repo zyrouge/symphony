@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -59,29 +61,19 @@ fun SongExplorerList(
     }
     val sortedEntities by remember(key) {
         derivedStateOf {
-            val folders = mutableListOf<GrooveExplorer.Folder>()
-            val files = mutableMapOf<Song, GrooveExplorer.File>()
-            currentFolder.children.values.forEach { entity ->
-                when (entity) {
-                    is GrooveExplorer.Folder -> folders.add(entity)
-                    is GrooveExplorer.File -> {
-                        context.symphony.groove.song
-                            .getSongWithId(entity.data as Long)
-                            ?.let { song -> files[song] = entity }
-                    }
-                }
-            }
+            val categorized = currentFolder.categorizedChildren(context.symphony)
+
             SongExplorerResult(
                 folders = run {
                     val sorted = when (sortBy) {
-                        SongSortBy.TITLE, SongSortBy.FILENAME -> folders.sortedBy { it.basename }
-                        else -> folders
+                        SongSortBy.TITLE, SongSortBy.FILENAME -> categorized.folders.sortedBy { it.basename }
+                        else -> categorized.folders
                     }
                     if (sortReverse) sorted.reversed() else sorted
                 },
                 files = SongRepository
-                    .sort(files.keys.toList(), sortBy, sortReverse)
-                    .associateWith { files[it]!! },
+                    .sort(categorized.files.keys.toList(), sortBy, sortReverse)
+                    .associateWith { categorized.files[it]!! },
             )
         }
     }
@@ -183,7 +175,12 @@ fun SongExplorerList(
                         }
                     ) {
                         Row(
-                            modifier = Modifier.padding(20.dp, 12.dp),
+                            modifier = Modifier.padding(
+                                start = 20.dp,
+                                end = 4.dp,
+                                top = 12.dp,
+                                bottom = 12.dp,
+                            ),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
@@ -197,6 +194,24 @@ fun SongExplorerList(
                                 Text(
                                     context.symphony.t.XItems(folder.children.size),
                                     style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            var showOptionsMenu by remember { mutableStateOf(false) }
+                            IconButton(
+                                onClick = {
+                                    showOptionsMenu = !showOptionsMenu
+                                }
+                            ) {
+                                Icon(Icons.Default.MoreVert, null)
+                                GenericSongListDropdown(
+                                    context,
+                                    songs = folder.childrenAsSongs(context.symphony),
+                                    expanded = showOptionsMenu,
+                                    onDismissRequest = {
+                                        showOptionsMenu = false
+                                    }
                                 )
                             }
                         }
@@ -216,4 +231,36 @@ fun SongExplorerList(
                 }
             }
         })
+}
+
+private data class GrooveExplorerCategorizedData(
+    val folders: List<GrooveExplorer.Folder>,
+    val files: Map<Song, GrooveExplorer.File>,
+)
+
+private fun GrooveExplorer.Folder.categorizedChildren(
+    symphony: Symphony
+): GrooveExplorerCategorizedData {
+    val folders = mutableListOf<GrooveExplorer.Folder>()
+    val files = mutableMapOf<Song, GrooveExplorer.File>()
+    children.values.forEach { entity ->
+        when (entity) {
+            is GrooveExplorer.Folder -> folders.add(entity)
+            is GrooveExplorer.File -> {
+                symphony.groove.song
+                    .getSongWithId(entity.data as Long)
+                    ?.let { song -> files[song] = entity }
+            }
+        }
+    }
+    return GrooveExplorerCategorizedData(folders = folders, files = files)
+}
+
+private fun GrooveExplorer.Folder.childrenAsSongs(
+    symphony: Symphony,
+) = children.values.mapNotNull { entity ->
+    when (entity) {
+        is GrooveExplorer.File -> symphony.groove.song.getSongWithId(entity.data as Long)
+        else -> null
+    }
 }

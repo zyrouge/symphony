@@ -121,14 +121,38 @@ fun SongTreeList(
                                         }
                                         onDisable(disabled)
                                     }
-                                    .padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
+                                    .padding(start = 12.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
                             ) {
+                                Icon(
+                                    if (show) Icons.Default.ExpandMore
+                                    else Icons.Default.ChevronRight,
+                                    null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(dirname, style = MaterialTheme.typography.labelMedium)
                                 Spacer(modifier = Modifier.weight(1f))
-                                Icon(
-                                    if (show) Icons.Default.ExpandMore else Icons.Default.ChevronLeft,
-                                    null,
-                                    modifier = Modifier.size(16.dp),
+
+                                var showOptionsMenu by remember { mutableStateOf(false) }
+                                SongTreeListSongCardIconButton(
+                                    icon = { modifier ->
+                                        Icon(
+                                            Icons.Default.MoreVert,
+                                            null,
+                                            modifier = modifier,
+                                        )
+                                        GenericSongListDropdown(
+                                            context,
+                                            songs = children,
+                                            expanded = showOptionsMenu,
+                                            onDismissRequest = {
+                                                showOptionsMenu = false
+                                            }
+                                        )
+                                    },
+                                    onClick = {
+                                        showOptionsMenu = !showOptionsMenu
+                                    }
                                 )
                             }
                         }
@@ -144,7 +168,6 @@ fun SongTreeList(
                             var isInFavorites by remember {
                                 mutableStateOf(context.symphony.groove.playlist.isInFavorites(song.id))
                             }
-                            var showOptionsMenu by remember { mutableStateOf(false) }
 
                             EventerEffect(context.symphony.radio.onUpdate) {
                                 if (it == RadioEvents.StartPlaying || it == RadioEvents.StopPlaying) {
@@ -214,6 +237,8 @@ fun SongTreeList(
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(4.dp))
+
+                                    var showOptionsMenu by remember { mutableStateOf(false) }
                                     SongTreeListSongCardIconButton(
                                         icon = { modifier ->
                                             Icon(
@@ -255,7 +280,7 @@ fun SongTreeListSongCardIconButton(
 ) {
     Box(
         modifier = Modifier
-            .size(25.dp)
+            .size(24.dp)
             .clip(CircleShape)
             .clickable { onClick() }
     ) {
