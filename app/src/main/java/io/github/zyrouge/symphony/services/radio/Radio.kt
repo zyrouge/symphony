@@ -39,12 +39,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val onUpdate = Eventer<RadioEvents>()
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
+    val session = RadioSession(symphony)
 
     private val focus = RadioFocus(symphony)
     private val nativeReceiver = RadioNativeReceiver(symphony)
 
     private var player: RadioPlayer? = null
-    private var notification = RadioNotification(symphony)
     private var focusCounter = 0
     private var sleepTimer: RadioSleepTimer? = null
 
@@ -62,7 +62,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     fun destroy() {
         stop()
-        notification.destroy()
+        session.destroy()
         nativeReceiver.destroy()
     }
 
@@ -307,8 +307,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     override fun onSymphonyReady() {
-        notification.start()
         attachGrooveListener()
+        session.start()
     }
 
     override fun onSymphonyPause() {
