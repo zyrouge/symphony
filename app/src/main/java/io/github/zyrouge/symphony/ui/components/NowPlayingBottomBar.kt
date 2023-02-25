@@ -183,6 +183,13 @@ fun NowPlayingBottomBar(context: ViewContext) {
                             }
                         }
                         Spacer(modifier = Modifier.width(15.dp))
+                        if (showTrackControls) {
+                            IconButton(
+                                onClick = { context.symphony.radio.shorty.previous() }
+                            ) {
+                                Icon(Icons.Default.SkipPrevious, null)
+                            }
+                        }
                         if (showSeekControls) {
                             IconButton(
                                 onClick = {
@@ -190,13 +197,6 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                 }
                             ) {
                                 Icon(Icons.Default.FastRewind, null)
-                            }
-                        }
-                        if (showTrackControls) {
-                            IconButton(
-                                onClick = { context.symphony.radio.shorty.previous() }
-                            ) {
-                                Icon(Icons.Default.SkipPrevious, null)
                             }
                         }
                         IconButton(
@@ -210,13 +210,6 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                 null
                             )
                         }
-                        if (showTrackControls) {
-                            IconButton(
-                                onClick = { context.symphony.radio.shorty.skip() }
-                            ) {
-                                Icon(Icons.Default.SkipNext, null)
-                            }
-                        }
                         if (showSeekControls) {
                             IconButton(
                                 onClick = {
@@ -224,6 +217,13 @@ fun NowPlayingBottomBar(context: ViewContext) {
                                 }
                             ) {
                                 Icon(Icons.Default.FastForward, null)
+                            }
+                        }
+                        if (showTrackControls) {
+                            IconButton(
+                                onClick = { context.symphony.radio.shorty.skip() }
+                            ) {
+                                Icon(Icons.Default.SkipNext, null)
                             }
                         }
                         Spacer(modifier = Modifier.width(8.dp))

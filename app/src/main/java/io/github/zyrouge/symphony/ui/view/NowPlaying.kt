@@ -353,6 +353,12 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                         context.symphony.radio.shorty.playPause()
                     }
                 )
+                NowPlayingControlButton(
+                    icon = Icons.Default.SkipPrevious,
+                    onClick = {
+                        context.symphony.radio.shorty.previous()
+                    }
+                )
                 if (enableSeekControls) {
                     NowPlayingControlButton(
                         icon = Icons.Default.FastRewind,
@@ -361,20 +367,6 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                                 .seekFromCurrent(-seekBackDuration)
                         }
                     )
-                }
-                NowPlayingControlButton(
-                    icon = Icons.Default.SkipPrevious,
-                    onClick = {
-                        context.symphony.radio.shorty.previous()
-                    }
-                )
-                NowPlayingControlButton(
-                    icon = Icons.Default.SkipNext,
-                    onClick = {
-                        context.symphony.radio.shorty.skip()
-                    }
-                )
-                if (enableSeekControls) {
                     NowPlayingControlButton(
                         icon = Icons.Default.FastForward,
                         onClick = {
@@ -383,6 +375,12 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                         }
                     )
                 }
+                NowPlayingControlButton(
+                    icon = Icons.Default.SkipNext,
+                    onClick = {
+                        context.symphony.radio.shorty.skip()
+                    }
+                )
             }
             Spacer(modifier = Modifier.height(defaultHorizontalPadding))
             Row(
