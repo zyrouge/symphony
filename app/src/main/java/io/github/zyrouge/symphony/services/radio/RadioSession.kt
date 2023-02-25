@@ -71,6 +71,18 @@ class RadioSession(val symphony: Symphony) {
                     symphony.radio.seek(pos.toInt())
                 }
 
+                override fun onRewind() {
+                    super.onRewind()
+                    val duration = symphony.settings.getSeekBackDuration()
+                    symphony.radio.shorty.seekFromCurrent(-duration)
+                }
+
+                override fun onFastForward() {
+                    super.onFastForward()
+                    val duration = symphony.settings.getSeekForwardDuration()
+                    symphony.radio.shorty.seekFromCurrent(duration)
+                }
+
                 override fun onMediaButtonEvent(intent: Intent?): Boolean {
                     val handled = super.onMediaButtonEvent(intent)
                     if (handled) return true
@@ -172,6 +184,11 @@ class RadioSession(val symphony: Symphony) {
                         PlaybackStateCompat.ACTION_PLAY
                                 or PlaybackStateCompat.ACTION_PAUSE
                                 or PlaybackStateCompat.ACTION_PLAY_PAUSE
+                                or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                                or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                                or PlaybackStateCompat.ACTION_STOP
+                                or PlaybackStateCompat.ACTION_REWIND
+                                or PlaybackStateCompat.ACTION_FAST_FORWARD
                                 or PlaybackStateCompat.ACTION_SEEK_TO
                     )
                     build()

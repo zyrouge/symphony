@@ -50,11 +50,6 @@ class RadioNotification(private val symphony: Symphony) {
             ).run {
                 setSmallIcon(R.drawable.material_icon_music_note)
                 setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                setStyle(
-                    androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(symphony.radio.session.mediaSession.sessionToken)
-                        .setShowActionsInCompactView(0, 1, 2)
-                )
                 setContentIntent(
                     PendingIntent.getActivity(
                         symphony.applicationContext,
@@ -64,7 +59,6 @@ class RadioNotification(private val symphony: Symphony) {
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                     )
                 )
-
                 setContentTitle(song.title)
                 setContentText(song.artistName)
                 setLargeIcon(cover)
@@ -103,6 +97,11 @@ class RadioNotification(private val symphony: Symphony) {
                         symphony.t.stop,
                         RadioSession.ACTION_STOP
                     )
+                )
+                setStyle(
+                    androidx.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(symphony.radio.session.mediaSession.sessionToken)
+                        .setShowActionsInCompactView(0, 1, 2)
                 )
                 // NOTE: final check before notifying and excessive prevention
                 //       since android sucks at concurrency
