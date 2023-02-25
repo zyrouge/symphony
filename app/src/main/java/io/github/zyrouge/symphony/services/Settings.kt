@@ -46,7 +46,6 @@ object SettingsKeys {
     const val homeLastTab = "home_last_page"
     const val songsFilterPattern = "songs_filter_pattern"
     const val checkForUpdates = "check_for_updates"
-    const val miniPlayerExtendedControls = "mini_player_extended_controls"
     const val fadePlayback = "fade_playback"
     const val requireAudioFocus = "require_audio_focus"
     const val ignoreAudioFocusLoss = "ignore_audio_focus_loss"
@@ -60,6 +59,11 @@ object SettingsKeys {
     const val whitelistFolders = "whitelist_folders"
     const val readIntroductoryMessage = "introductory_message"
     const val showNowPlayingAdditionalInfo = "show_now_playing_additional_info"
+    const val enableSeekControls = "enable_seek_controls"
+    const val seekBackDuration = "seek_back_duration"
+    const val seekForwardDuration = "seek_forward_duration"
+    const val miniPlayerTrackControls = "mini_player_extended_controls"
+    const val miniPlayerSeekControls = "mini_player_seek_controls"
 }
 
 data class SettingsData(
@@ -68,7 +72,6 @@ data class SettingsData(
     val useMaterialYou: Boolean,
     val songsFilterPattern: String?,
     val checkForUpdates: Boolean,
-    val miniPlayerExtendedControls: Boolean,
     val fadePlayback: Boolean,
     val requireAudioFocus: Boolean,
     val ignoreAudioFocusLoss: Boolean,
@@ -81,13 +84,17 @@ data class SettingsData(
     val blacklistFolders: Set<String>,
     val whitelistFolders: Set<String>,
     val showNowPlayingAdditionalInfo: Boolean,
+    val enableSeekControls: Boolean,
+    val seekBackDuration: Int,
+    val seekForwardDuration: Int,
+    val miniPlayerTrackControls: Boolean,
+    val miniPlayerSeekControls: Boolean,
 )
 
 object SettingsDataDefaults {
     val themeMode = ThemeMode.SYSTEM
     const val useMaterialYou = true
     const val checkForUpdates = true
-    const val miniPlayerExtendedControls = false
     const val fadePlayback = false
     const val requireAudioFocus = true
     const val ignoreAudioFocusLoss = false
@@ -103,8 +110,13 @@ object SettingsDataDefaults {
     val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
     val blacklistFolders = setOf<String>()
     val whitelistFolders = setOf<String>()
-    val readIntroductoryMessage = false
-    val showNowPlayingAdditionalInfo = true
+    const val readIntroductoryMessage = false
+    const val showNowPlayingAdditionalInfo = true
+    const val enableSeekControls = false
+    const val seekBackDuration = 15
+    const val seekForwardDuration = 30
+    const val miniPlayerTrackControls = false
+    const val miniPlayerSeekControls = false
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -116,7 +128,6 @@ class SettingsManager(private val symphony: Symphony) {
         useMaterialYou = getUseMaterialYou(),
         songsFilterPattern = getSongsFilterPattern(),
         checkForUpdates = getCheckForUpdates(),
-        miniPlayerExtendedControls = getMiniPlayerExtendedControls(),
         fadePlayback = getFadePlayback(),
         requireAudioFocus = getRequireAudioFocus(),
         ignoreAudioFocusLoss = getIgnoreAudioFocusLoss(),
@@ -129,6 +140,11 @@ class SettingsManager(private val symphony: Symphony) {
         blacklistFolders = getBlacklistFolders(),
         whitelistFolders = getWhitelistFolders(),
         showNowPlayingAdditionalInfo = getShowNowPlayingAdditionalInfo(),
+        enableSeekControls = getEnableSeekControls(),
+        seekBackDuration = getSeekBackDuration(),
+        seekForwardDuration = getSeekForwardDuration(),
+        miniPlayerTrackControls = getMiniPlayerTrackControls(),
+        miniPlayerSeekControls = getMiniPlayerSeekControls(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -417,19 +433,6 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.checkForUpdates)
     }
 
-    fun getMiniPlayerExtendedControls() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.miniPlayerExtendedControls,
-            SettingsDataDefaults.miniPlayerExtendedControls,
-        )
-
-    fun setMiniPlayerExtendedControls(value: Boolean) {
-        getSharedPreferences().edit {
-            putBoolean(SettingsKeys.miniPlayerExtendedControls, value)
-        }
-        onChange.dispatch(SettingsKeys.miniPlayerExtendedControls)
-    }
-
     fun getFadePlayback() =
         getSharedPreferences().getBoolean(
             SettingsKeys.fadePlayback,
@@ -592,6 +595,69 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.showNowPlayingAdditionalInfo, value)
         }
         onChange.dispatch(SettingsKeys.showNowPlayingAdditionalInfo)
+    }
+
+    fun getEnableSeekControls() = getSharedPreferences().getBoolean(
+        SettingsKeys.enableSeekControls,
+        SettingsDataDefaults.enableSeekControls,
+    )
+
+    fun setEnableSeekControls(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.enableSeekControls, value)
+        }
+        onChange.dispatch(SettingsKeys.enableSeekControls)
+    }
+
+    fun getSeekBackDuration() =
+        getSharedPreferences().getInt(
+            SettingsKeys.seekBackDuration,
+            SettingsDataDefaults.seekBackDuration,
+        )
+
+    fun setSeekBackDuration(value: Int) {
+        getSharedPreferences().edit {
+            putInt(SettingsKeys.seekBackDuration, value)
+        }
+        onChange.dispatch(SettingsKeys.seekBackDuration)
+    }
+
+    fun getSeekForwardDuration() =
+        getSharedPreferences().getInt(
+            SettingsKeys.seekForwardDuration,
+            SettingsDataDefaults.seekForwardDuration,
+        )
+
+    fun setSeekForwardDuration(value: Int) {
+        getSharedPreferences().edit {
+            putInt(SettingsKeys.seekForwardDuration, value)
+        }
+        onChange.dispatch(SettingsKeys.seekForwardDuration)
+    }
+
+    fun getMiniPlayerTrackControls() =
+        getSharedPreferences().getBoolean(
+            SettingsKeys.miniPlayerTrackControls,
+            SettingsDataDefaults.miniPlayerTrackControls,
+        )
+
+    fun setMiniPlayerTrackControls(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.miniPlayerTrackControls, value)
+        }
+        onChange.dispatch(SettingsKeys.miniPlayerTrackControls)
+    }
+
+    fun getMiniPlayerSeekControls() = getSharedPreferences().getBoolean(
+        SettingsKeys.miniPlayerSeekControls,
+        SettingsDataDefaults.miniPlayerSeekControls,
+    )
+
+    fun setMiniPlayerSeekControls(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.miniPlayerSeekControls, value)
+        }
+        onChange.dispatch(SettingsKeys.miniPlayerSeekControls)
     }
 
     private fun getSharedPreferences() =

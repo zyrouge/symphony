@@ -9,10 +9,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.Routes
@@ -38,11 +36,40 @@ fun NowPlayingBottomBar(context: ViewContext) {
         mutableStateOf(context.symphony.radio.queue.currentPlayingSong)
     }
     var isPlaying by remember { mutableStateOf(context.symphony.radio.isPlaying) }
-    val showMiniPlayerExtendedControls = context.symphony.settings.getMiniPlayerExtendedControls()
+    var showTrackControls by remember {
+        mutableStateOf(context.symphony.settings.getMiniPlayerTrackControls())
+    }
+    var showSeekControls by remember {
+        mutableStateOf(context.symphony.settings.getMiniPlayerSeekControls())
+    }
+    var seekBackDuration by remember {
+        mutableStateOf(context.symphony.settings.getSeekBackDuration())
+    }
+    var seekForwardDuration by remember {
+        mutableStateOf(context.symphony.settings.getSeekForwardDuration())
+    }
 
     EventerEffect(context.symphony.radio.onUpdate) {
         currentPlayingSong = context.symphony.radio.queue.currentPlayingSong
         isPlaying = context.symphony.radio.isPlaying
+    }
+
+    EventerEffect(context.symphony.settings.onChange) { key ->
+        when (key) {
+            SettingsKeys.miniPlayerTrackControls -> {
+                showTrackControls = context.symphony.settings.getMiniPlayerTrackControls()
+            }
+            SettingsKeys.miniPlayerSeekControls -> {
+                showSeekControls = context.symphony.settings.getMiniPlayerSeekControls()
+            }
+            SettingsKeys.seekBackDuration -> {
+                seekBackDuration = context.symphony.settings.getSeekBackDuration()
+            }
+            SettingsKeys.seekForwardDuration -> {
+                seekForwardDuration = context.symphony.settings.getSeekForwardDuration()
+            }
+            else -> {}
+        }
     }
 
     AnimatedVisibility(
@@ -156,7 +183,16 @@ fun NowPlayingBottomBar(context: ViewContext) {
                             }
                         }
                         Spacer(modifier = Modifier.width(15.dp))
-                        if (showMiniPlayerExtendedControls) {
+                        if (showSeekControls) {
+                            IconButton(
+                                onClick = {
+                                    context.symphony.radio.shorty.seekFromCurrent(-seekBackDuration)
+                                }
+                            ) {
+                                Icon(Icons.Default.FastRewind, null)
+                            }
+                        }
+                        if (showTrackControls) {
                             IconButton(
                                 onClick = { context.symphony.radio.shorty.previous() }
                             ) {
@@ -167,16 +203,27 @@ fun NowPlayingBottomBar(context: ViewContext) {
                             onClick = { context.symphony.radio.shorty.playPause() }
                         ) {
                             Icon(
-                                if (!isPlaying) Icons.Default.PlayArrow
-                                else Icons.Default.Pause,
+                                when {
+                                    !isPlaying -> Icons.Default.PlayArrow
+                                    else -> Icons.Default.Pause
+                                },
                                 null
                             )
                         }
-                        if (showMiniPlayerExtendedControls) {
+                        if (showTrackControls) {
                             IconButton(
                                 onClick = { context.symphony.radio.shorty.skip() }
                             ) {
                                 Icon(Icons.Default.SkipNext, null)
+                            }
+                        }
+                        if (showSeekControls) {
+                            IconButton(
+                                onClick = {
+                                    context.symphony.radio.shorty.seekFromCurrent(seekBackDuration)
+                                }
+                            ) {
+                                Icon(Icons.Default.FastForward, null)
                             }
                         }
                         Spacer(modifier = Modifier.width(8.dp))

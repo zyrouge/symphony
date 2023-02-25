@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +48,9 @@ private data class PlayerStateData(
     val currentShuffleMode: Boolean,
     val hasSleepTimer: Boolean,
     val showSongAdditionalInfo: Boolean,
+    val enableSeekControls: Boolean,
+    val seekBackDuration: Int,
+    val seekForwardDuration: Int,
 )
 
 @Composable
@@ -60,6 +64,15 @@ fun NowPlayingView(context: ViewContext) {
     var hasSleepTimer by remember { mutableStateOf(context.symphony.radio.hasSleepTimer()) }
     var showSongAdditionalInfo by remember {
         mutableStateOf(context.symphony.settings.getShowNowPlayingAdditionalInfo())
+    }
+    var enableSeekControls by remember {
+        mutableStateOf(context.symphony.settings.getEnableSeekControls())
+    }
+    var seekBackDuration by remember {
+        mutableStateOf(context.symphony.settings.getSeekBackDuration())
+    }
+    var seekForwardDuration by remember {
+        mutableStateOf(context.symphony.settings.getSeekForwardDuration())
     }
     var isViable by remember { mutableStateOf(song != null) }
 
@@ -83,6 +96,15 @@ fun NowPlayingView(context: ViewContext) {
             SettingsKeys.showNowPlayingAdditionalInfo -> {
                 showSongAdditionalInfo = context.symphony.settings.getShowNowPlayingAdditionalInfo()
             }
+            SettingsKeys.enableSeekControls -> {
+                enableSeekControls = context.symphony.settings.getEnableSeekControls()
+            }
+            SettingsKeys.seekBackDuration -> {
+                seekBackDuration = context.symphony.settings.getSeekBackDuration()
+            }
+            SettingsKeys.seekForwardDuration -> {
+                seekForwardDuration = context.symphony.settings.getSeekForwardDuration()
+            }
             else -> {}
         }
     }
@@ -99,6 +121,9 @@ fun NowPlayingView(context: ViewContext) {
                 currentShuffleMode = currentShuffleMode,
                 hasSleepTimer = hasSleepTimer,
                 showSongAdditionalInfo = showSongAdditionalInfo,
+                enableSeekControls = enableSeekControls,
+                seekBackDuration = seekBackDuration,
+                seekForwardDuration = seekForwardDuration,
             )
         )
         else -> NothingPlaying(context)
@@ -239,7 +264,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
     }
 
     data.run {
-        Column(modifier = Modifier.padding(0.dp, 0.dp)) {
+        Column {
             Row {
                 Column(
                     modifier = Modifier
@@ -268,53 +293,6 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                                 style = MaterialTheme.typography.labelSmall
                                     .copy(color = localContentColor.copy(alpha = 0.7f)),
                                 modifier = Modifier.padding(top = 4.dp),
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        IconButton(
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.primary,
-                                CircleShape
-                            ),
-                            onClick = {
-                                context.symphony.radio.shorty.playPause()
-                            }
-                        ) {
-                            Icon(
-                                if (!isPlaying) Icons.Default.PlayArrow
-                                else Icons.Default.Pause,
-                                null,
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                        IconButton(
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                CircleShape
-                            ),
-                            onClick = {
-                                context.symphony.radio.shorty.previous()
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.SkipPrevious,
-                                null
-                            )
-                        }
-                        IconButton(
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                CircleShape
-                            ),
-                            onClick = {
-                                context.symphony.radio.shorty.skip()
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.SkipNext,
-                                null,
                             )
                         }
                     }
@@ -357,6 +335,53 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                             }
                         )
                     }
+                }
+            }
+            Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
+            Row(
+                modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                NowPlayingControlButton(
+                    backgroundColor = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    icon = when {
+                        !isPlaying -> Icons.Default.PlayArrow
+                        else -> Icons.Default.Pause
+                    },
+                    onClick = {
+                        context.symphony.radio.shorty.playPause()
+                    }
+                )
+                if (enableSeekControls) {
+                    NowPlayingControlButton(
+                        icon = Icons.Default.FastRewind,
+                        onClick = {
+                            context.symphony.radio.shorty
+                                .seekFromCurrent(-seekBackDuration)
+                        }
+                    )
+                }
+                NowPlayingControlButton(
+                    icon = Icons.Default.SkipPrevious,
+                    onClick = {
+                        context.symphony.radio.shorty.previous()
+                    }
+                )
+                NowPlayingControlButton(
+                    icon = Icons.Default.SkipNext,
+                    onClick = {
+                        context.symphony.radio.shorty.skip()
+                    }
+                )
+                if (enableSeekControls) {
+                    NowPlayingControlButton(
+                        icon = Icons.Default.FastForward,
+                        onClick = {
+                            context.symphony.radio.shorty
+                                .seekFromCurrent(seekForwardDuration)
+                        }
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(defaultHorizontalPadding))
@@ -410,6 +435,24 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NowPlayingControlButton(
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    color: Color = LocalContentColor.current,
+    icon: ImageVector,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        modifier = Modifier.background(
+            backgroundColor,
+            CircleShape
+        ),
+        onClick = onClick,
+    ) {
+        Icon(icon, null, tint = color)
     }
 }
 

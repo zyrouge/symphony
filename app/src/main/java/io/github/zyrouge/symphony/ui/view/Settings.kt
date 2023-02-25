@@ -174,11 +174,23 @@ fun SettingsView(context: ViewContext) {
                             Icon(Icons.Default.SkipNext, null)
                         },
                         title = {
-                            Text(context.symphony.t.miniPlayerExtendedControls)
+                            Text(context.symphony.t.miniPlayerTrackControls)
                         },
-                        value = settings.miniPlayerExtendedControls,
+                        value = settings.miniPlayerTrackControls,
                         onChange = { value ->
-                            context.symphony.settings.setMiniPlayerExtendedControls(value)
+                            context.symphony.settings.setMiniPlayerTrackControls(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Forward30, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.miniPlayerSeekControls)
+                        },
+                        value = settings.miniPlayerSeekControls,
+                        onChange = { value ->
+                            context.symphony.settings.setMiniPlayerSeekControls(value)
                         }
                     )
                     Divider()
@@ -279,6 +291,69 @@ fun SettingsView(context: ViewContext) {
                         onChange = { value ->
                             context.symphony.settings.setShowNowPlayingAdditionalInfo(value)
                         }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Forward30, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.enableSeekControls)
+                        },
+                        value = settings.enableSeekControls,
+                        onChange = { value ->
+                            context.symphony.settings.setEnableSeekControls(value)
+                        }
+                    )
+                    val seekDurationRange = 3f..60f
+                    SettingsSliderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.FastRewind, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.fastRewindDuration)
+                        },
+                        label = { value ->
+                            Text(context.symphony.t.XSecs(value))
+                        },
+                        range = seekDurationRange,
+                        initialValue = settings.seekBackDuration.toFloat(),
+                        onValue = { value ->
+                            value.roundToInt().toFloat()
+                        },
+                        onChange = { value ->
+                            context.symphony.settings.setSeekBackDuration(value.toInt())
+                        },
+                        onReset = {
+                            context.symphony.settings.setSeekBackDuration(
+                                SettingsDataDefaults.seekBackDuration
+                            )
+                        },
+                    )
+                    SettingsSliderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.FastRewind, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.fastForwardDuration)
+                        },
+                        label = { value ->
+                            Text(context.symphony.t.XSecs(value))
+                        },
+                        range = seekDurationRange,
+                        initialValue = settings.seekForwardDuration.toFloat(),
+                        onValue = { value ->
+                            value.roundToInt().toFloat()
+                        },
+                        onChange = { value ->
+                            context.symphony.settings.setSeekForwardDuration(value.toInt())
+                        },
+                        onReset = {
+                            context.symphony.settings.setSeekForwardDuration(
+                                SettingsDataDefaults.seekForwardDuration
+                            )
+                        },
                     )
                     Divider()
                     SettingsSideHeading(context.symphony.t.groove)

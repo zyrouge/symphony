@@ -64,7 +64,6 @@ interface Translations {
     val viewAlbumArtist: String
     val stop: String
     val all: String
-    val miniPlayerExtendedControls: String
     val fadePlaybackInOut: String
     val requireAudioFocus: String
     val ignoreAudioFocusLoss: String
@@ -130,6 +129,11 @@ interface Translations {
     val bitDepth: String
     val samplingRate: String
     val showAudioInformation: String
+    val fastRewindDuration: String
+    val fastForwardDuration: String
+    val enableSeekControls: String
+    val miniPlayerTrackControls: String
+    val miniPlayerSeekControls: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String

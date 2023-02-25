@@ -13,6 +13,14 @@ class RadioShorty(private val symphony: Symphony) {
         }
     }
 
+    fun seekFromCurrent(offsetSecs: Int) {
+        if (!symphony.radio.hasPlayer) return
+        symphony.radio.currentPlaybackPosition?.run {
+            val to = (played + (offsetSecs * 1000)).coerceIn(0..total)
+            symphony.radio.seek(to)
+        }
+    }
+
     fun previous(): Boolean {
         return when {
             !symphony.radio.hasPlayer -> false
