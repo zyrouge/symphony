@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.*
@@ -189,14 +190,17 @@ fun SongExplorerList(
                                 modifier = Modifier.size(32.dp),
                             )
                             Spacer(modifier = Modifier.width(20.dp))
-                            Column {
-                                Text(folder.basename)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    folder.basename,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                                 Text(
                                     context.symphony.t.XItems(folder.children.size),
                                     style = MaterialTheme.typography.labelSmall,
                                 )
                             }
-                            Spacer(modifier = Modifier.weight(1f))
 
                             var showOptionsMenu by remember { mutableStateOf(false) }
                             IconButton(
