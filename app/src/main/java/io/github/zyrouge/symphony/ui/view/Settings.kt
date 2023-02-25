@@ -268,6 +268,18 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setPauseOnHeadphonesDisconnect(value)
                         }
                     )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Wysiwyg, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.showAudioInformation)
+                        },
+                        value = settings.showNowPlayingAdditionalInfo,
+                        onChange = { value ->
+                            context.symphony.settings.setShowNowPlayingAdditionalInfo(value)
+                        }
+                    )
                     Divider()
                     SettingsSideHeading(context.symphony.t.groove)
                     val defaultSongsFilterPattern = ".*"
@@ -332,7 +344,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         onClick = {
                             coroutineScope.launch {
-                            	context.symphony.database.songCache.update(mapOf())
+                                context.symphony.database.songCache.update(mapOf())
                                 refetchLibrary()
                                 snackbarHostState.showSnackbar(
                                     context.symphony.t.songCacheCleared,

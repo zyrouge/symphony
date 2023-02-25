@@ -14,12 +14,16 @@ class SongCache(val symphony: Symphony) {
         val albumArtist: String?,
         val bitrate: Int?,
         val genre: String?,
+        val bitsPerSample: Int?,
+        val samplingRate: Int?,
     ) {
         fun toJSONObject() = JSONObject().apply {
             put(LAST_MODIFIED, lastModified)
             put(ALBUM_ARTIST, albumArtist)
             put(BITRATE, bitrate)
             put(GENRE, genre)
+            put(BITS_PER_SAMPLE, bitsPerSample)
+            put(SAMPLING_RATE, samplingRate)
         }
 
         companion object {
@@ -27,6 +31,8 @@ class SongCache(val symphony: Symphony) {
             private const val ALBUM_ARTIST = "1"
             private const val BITRATE = "2"
             private const val GENRE = "3"
+            private const val BITS_PER_SAMPLE = "4"
+            private const val SAMPLING_RATE = "5"
 
             fun fromJSONObject(json: JSONObject) = json.run {
                 Attributes(
@@ -34,6 +40,8 @@ class SongCache(val symphony: Symphony) {
                     albumArtist = getStringOrNull(ALBUM_ARTIST),
                     bitrate = getIntOrNull(BITRATE),
                     genre = getStringOrNull(GENRE),
+                    bitsPerSample = getIntOrNull(BITS_PER_SAMPLE),
+                    samplingRate = getIntOrNull(SAMPLING_RATE),
                 )
             }
 
@@ -42,6 +50,8 @@ class SongCache(val symphony: Symphony) {
                 albumArtist = song.additional.albumArtist,
                 bitrate = song.additional.bitrate,
                 genre = song.additional.genre,
+                bitsPerSample = song.additional.bitsPerSample,
+                samplingRate = song.additional.samplingRate,
             )
         }
     }

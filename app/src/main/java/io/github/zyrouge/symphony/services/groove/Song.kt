@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.services.groove
 import android.database.Cursor
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AudioColumns
 import androidx.compose.runtime.Immutable
@@ -12,6 +13,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.getColumnValue
 import io.github.zyrouge.symphony.utils.getColumnValueNullable
+import java.math.RoundingMode
 import kotlin.io.path.Path
 
 @Immutable
@@ -37,18 +39,50 @@ data class Song(
         val albumArtist: String?,
         val genre: String?,
         val bitrate: Int?,
+        val bitsPerSample: Int?,
+        val samplingRate: Int?,
     ) {
+        val bitrateK: Int? get() = bitrate?.let { it / 1000 }
+        val samplingRateK: Float?
+            get() = samplingRate?.let {
+                (it.toFloat() / 1000)
+                    .toBigDecimal()
+                    .setScale(1, RoundingMode.CEILING)
+                    .toFloat()
+            }
+
+        fun toSamplingInfoString(symphony: Symphony): String? {
+            val values = mutableListOf<String>()
+            bitsPerSample?.let {
+                values.add(symphony.t.XBit(it))
+            }
+            bitrateK?.let {
+                values.add(symphony.t.XKbps(it))
+            }
+            samplingRateK?.let {
+                values.add(symphony.t.XKHz(it))
+            }
+            return when {
+                values.isNotEmpty() -> values.joinToString(", ")
+                else -> null
+            }
+        }
+
         companion object {
             fun fromSongCacheAttributes(attributes: SongCache.Attributes) = AdditionalMetadata(
                 albumArtist = attributes.albumArtist,
                 bitrate = attributes.bitrate,
                 genre = attributes.genre,
+                bitsPerSample = attributes.bitsPerSample,
+                samplingRate = attributes.samplingRate,
             )
 
             fun fetch(symphony: Symphony, id: Long): AdditionalMetadata {
                 var albumArtist: String? = null
                 var bitrate: Int? = null
                 var genre: String? = null
+                var bitsPerSample: Int? = null
+                var samplingRate: Int? = null
                 kotlin.runCatching {
                     val retriever = MediaMetadataRetriever()
                     retriever.runCatching {
@@ -58,6 +92,14 @@ data class Song(
                         bitrate = extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
                             ?.toInt()
                         genre = extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            bitsPerSample =
+                                extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITS_PER_SAMPLE)
+                                    ?.toInt()
+                            samplingRate =
+                                extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
+                                    ?.toInt()
+                        }
                     }
                     retriever.close()
                 }
@@ -65,6 +107,8 @@ data class Song(
                     albumArtist = albumArtist,
                     bitrate = bitrate,
                     genre = genre,
+                    bitsPerSample = bitsPerSample,
+                    samplingRate = samplingRate,
                 )
             }
         }
@@ -132,7 +176,8 @@ data class Song(
                 },
                 additional = fetchCachedAttributes(id)
                     ?.takeIf { it.lastModified == dateModified }
-                    ?.let { AdditionalMetadata.fromSongCacheAttributes(it) }
+                    ?.runCatching { AdditionalMetadata.fromSongCacheAttributes(this) }
+                    ?.getOrNull()
                     ?: AdditionalMetadata.fetch(symphony, id),
             )
         }

@@ -127,6 +127,9 @@ interface Translations {
     val quitAppOnEnd: String
     val favorite: String
     val unfavorite: String
+    val bitDepth: String
+    val samplingRate: String
+    val showAudioInformation: String
 
     fun XSongs(x: Int): String
     fun playingXofY(x: Int, y: Int): String
@@ -145,6 +148,8 @@ interface Translations {
     fun XPlaylists(x: Int): String
     fun unknownPlaylistX(x: String): String
     fun XFolders(x: Int): String
+    fun XBit(x: Int): String
+    fun XKHz(x: Float): String
 
     companion object {
         val all = arrayOf<Translations>(English())

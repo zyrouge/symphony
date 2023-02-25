@@ -8,7 +8,7 @@ object RoutesParameters {
     const val AlbumRouteAlbumId = "albumId"
     const val AlbumArtistRouteArtistName = "albumArtistName"
     const val GenreRouteGenre = "genre"
-    const val PlaylistRoutePlaylistId = "genre"
+    const val PlaylistRoutePlaylistId = "playlistId"
 }
 
 object RoutesBuilder {

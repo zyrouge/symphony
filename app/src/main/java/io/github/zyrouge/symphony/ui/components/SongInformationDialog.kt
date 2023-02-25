@@ -42,10 +42,22 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             song.additional.genre?.let {
                 InformationKeyValue(context.symphony.t.genre, it)
             }
-            song.additional.bitrate?.let {
+            song.additional.bitrateK?.let {
                 InformationKeyValue(
                     context.symphony.t.bitrate,
-                    context.symphony.t.XKbps(it / 1000)
+                    context.symphony.t.XKbps(it)
+                )
+            }
+            song.additional.bitsPerSample?.let {
+                InformationKeyValue(
+                    context.symphony.t.bitDepth,
+                    context.symphony.t.XBit(it)
+                )
+            }
+            song.additional.samplingRateK?.let {
+                InformationKeyValue(
+                    context.symphony.t.samplingRate,
+                    context.symphony.t.XKHz(it)
                 )
             }
             InformationKeyValue(

@@ -59,6 +59,7 @@ object SettingsKeys {
     const val blacklistFolders = "blacklist_folders"
     const val whitelistFolders = "whitelist_folders"
     const val readIntroductoryMessage = "introductory_message"
+    const val showNowPlayingAdditionalInfo = "show_now_playing_additional_info"
 }
 
 data class SettingsData(
@@ -79,6 +80,7 @@ data class SettingsData(
     val homePageBottomBarLabelVisibility: HomePageBottomBarLabelVisibility,
     val blacklistFolders: Set<String>,
     val whitelistFolders: Set<String>,
+    val showNowPlayingAdditionalInfo: Boolean,
 )
 
 object SettingsDataDefaults {
@@ -102,6 +104,7 @@ object SettingsDataDefaults {
     val blacklistFolders = setOf<String>()
     val whitelistFolders = setOf<String>()
     val readIntroductoryMessage = false
+    val showNowPlayingAdditionalInfo = true
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -125,6 +128,7 @@ class SettingsManager(private val symphony: Symphony) {
         homePageBottomBarLabelVisibility = getHomePageBottomBarLabelVisibility(),
         blacklistFolders = getBlacklistFolders(),
         whitelistFolders = getWhitelistFolders(),
+        showNowPlayingAdditionalInfo = getShowNowPlayingAdditionalInfo(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -576,6 +580,18 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.readIntroductoryMessage, value)
         }
         onChange.dispatch(SettingsKeys.readIntroductoryMessage)
+    }
+
+    fun getShowNowPlayingAdditionalInfo() = getSharedPreferences().getBoolean(
+        SettingsKeys.showNowPlayingAdditionalInfo,
+        SettingsDataDefaults.showNowPlayingAdditionalInfo,
+    )
+
+    fun setShowNowPlayingAdditionalInfo(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.showNowPlayingAdditionalInfo, value)
+        }
+        onChange.dispatch(SettingsKeys.showNowPlayingAdditionalInfo)
     }
 
     private fun getSharedPreferences() =

@@ -133,6 +133,9 @@ class English : Translations {
     override val quitAppOnEnd = "Quit app on end"
     override val favorite = "Favorite"
     override val unfavorite = "Unfavorite"
+    override val bitDepth = "Bit depth"
+    override val samplingRate = "Sampling rate"
+    override val showAudioInformation = "Show audio information"
 
     override fun playingXofY(x: Int, y: Int) = "Playing $x of $y"
     override fun unknownArtistX(name: String) = "Unknown artist ($name)"
@@ -142,7 +145,7 @@ class English : Translations {
     override fun XAlbums(x: Int) = "$x albums"
     override fun madeByX(x: String) = "Made by $x"
     override fun newVersionAvailableX(x: String) = "New version available! ($x)"
-    override fun XKbps(x: Int) = "${x}kbps"
+    override fun XKbps(x: Int) = "$x kbps"
     override fun XSecs(x: Float) = "${x}s"
     override fun unknownGenreX(x: String) = "Unknown genre $x"
     override fun XGenres(x: Int) = "$x genres"
@@ -151,4 +154,6 @@ class English : Translations {
     override fun XPlaylists(x: Int) = "$x playlists"
     override fun unknownPlaylistX(x: String) = "Unknown playlist (ID: $x)"
     override fun XFolders(x: Int) = "$x folders"
+    override fun XBit(x: Int) = "$x-bit"
+    override fun XKHz(x: Float) = "$x kHz"
 }

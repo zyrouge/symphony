@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
@@ -45,6 +46,7 @@ private data class PlayerStateData(
     val currentLoopMode: RadioLoopMode,
     val currentShuffleMode: Boolean,
     val hasSleepTimer: Boolean,
+    val showSongAdditionalInfo: Boolean,
 )
 
 @Composable
@@ -56,6 +58,9 @@ fun NowPlayingView(context: ViewContext) {
     var currentLoopMode by remember { mutableStateOf(context.symphony.radio.queue.currentLoopMode) }
     var currentShuffleMode by remember { mutableStateOf(context.symphony.radio.queue.currentShuffleMode) }
     var hasSleepTimer by remember { mutableStateOf(context.symphony.radio.hasSleepTimer()) }
+    var showSongAdditionalInfo by remember {
+        mutableStateOf(context.symphony.settings.getShowNowPlayingAdditionalInfo())
+    }
     var isViable by remember { mutableStateOf(song != null) }
 
     BackHandler {
@@ -73,6 +78,15 @@ fun NowPlayingView(context: ViewContext) {
         isViable = song != null
     }
 
+    EventerEffect(context.symphony.settings.onChange) { key ->
+        when (key) {
+            SettingsKeys.showNowPlayingAdditionalInfo -> {
+                showSongAdditionalInfo = context.symphony.settings.getShowNowPlayingAdditionalInfo()
+            }
+            else -> {}
+        }
+    }
+
     when {
         isViable -> NowPlayingBody(
             context,
@@ -84,6 +98,7 @@ fun NowPlayingView(context: ViewContext) {
                 currentLoopMode = currentLoopMode,
                 currentShuffleMode = currentShuffleMode,
                 hasSleepTimer = hasSleepTimer,
+                showSongAdditionalInfo = showSongAdditionalInfo,
             )
         )
         else -> NothingPlaying(context)
@@ -245,10 +260,19 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
+                    if (data.showSongAdditionalInfo) {
+                        song.additional.toSamplingInfoString(context.symphony)?.let {
+                            val localContentColor = LocalContentColor.current
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.labelSmall
+                                    .copy(color = localContentColor.copy(alpha = 0.7f)),
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         IconButton(
                             modifier = Modifier.background(
                                 MaterialTheme.colorScheme.primary,
