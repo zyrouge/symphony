@@ -127,7 +127,7 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun removeFromFavorites(song: Long) {
         getFavoritesPlaylist()?.let { favorites ->
-            if (favorites.songs.contains(song)) return@let
+            if (!favorites.songs.contains(song)) return@let
             symphony.groove.coroutineScope.launch {
                 updatePlaylistSongs(
                     favorites,
