@@ -24,6 +24,20 @@ object AppMeta {
     const val discordUrl = "https://discord.gg/5k9Hdq7ycm "
     const val redditUrl = "https://reddit.com/r/symphony_app"
 
+    enum class Variant {
+        Official,
+        FDroid,
+        Unknown,
+    }
+
+    val defaultVariant = Variant.Unknown
+    val variantsMap = mapOf(
+        "official" to Variant.Official,
+        "fdroid" to Variant.FDroid,
+    )
+
+    val variant: Variant get() = variantsMap[BuildConfig.FLAVOR] ?: defaultVariant
+
     /**
      * Format: v\[yyyy].\[mm].\[versionCode]
      */

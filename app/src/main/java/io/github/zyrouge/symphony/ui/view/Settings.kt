@@ -438,7 +438,7 @@ fun SettingsView(context: ViewContext) {
                             Icon(Icons.Default.MusicNote, null)
                         },
                         title = {
-                            Text("${AppMeta.appName} ${AppMeta.version}")
+                            Text("${AppMeta.appName} ${AppMeta.version} (${AppMeta.variant.name})")
                         },
                         subtitle = when {
                             !isLatestVersion -> ({
