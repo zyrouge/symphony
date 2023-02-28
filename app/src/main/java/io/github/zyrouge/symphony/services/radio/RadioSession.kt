@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -12,14 +14,27 @@ import android.util.Log
 import android.view.KeyEvent
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.Song
+import kotlinx.coroutines.launch
+
+data class RadioSessionUpdateRequest(
+    val song: Song,
+    val artworkUri: Uri,
+    val artworkUriString: String,
+    val artworkBitmap: Bitmap,
+    val playbackPosition: PlaybackPosition,
+    val isPlaying: Boolean,
+)
 
 class RadioSession(val symphony: Symphony) {
+    val artworkCacher = RadioArtworkCacher(symphony)
     val mediaSession = MediaSessionCompat(
         symphony.applicationContext,
         MEDIA_SESSION_ID
     )
     val notification = RadioNotification(symphony)
 
+    private var currentSongId: Long? = null
     private var receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.action?.let { action ->
@@ -147,27 +162,57 @@ class RadioSession(val symphony: Symphony) {
         symphony.applicationContext.unregisterReceiver(receiver)
     }
 
-    fun update() {
+    private fun update() {
+        symphony.groove.coroutineScope.launch {
+            updateAsync()
+        }
+    }
+
+    private suspend fun updateAsync() {
         val song = symphony.radio.queue.currentPlayingSong ?: return
+        currentSongId = song.id
+
+        val artworkUri = symphony.groove.album.getAlbumArtworkUri(song.albumId)
+        val artworkUriString = artworkUri.toString()
+        val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
         val isPlaying = symphony.radio.isPlaying
 
+        val req = RadioSessionUpdateRequest(
+            song = song,
+            artworkUri = artworkUri,
+            artworkUriString = artworkUriString,
+            artworkBitmap = artworkBitmap,
+            playbackPosition = playbackPosition,
+            isPlaying = isPlaying,
+        )
+        if (currentSongId != song.id) return
+
+        updateSession(req)
+        notification.update(req)
+    }
+
+    private fun updateSession(req: RadioSessionUpdateRequest) {
         ensureEnabled()
         mediaSession.run {
             setMetadata(
                 MediaMetadataCompat.Builder().run {
-                    putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
-                    putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artistName)
-                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
-                    putString(
-                        MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                        symphony.groove.album
-                            .getAlbumArtworkUri(song.albumId)
-                            .toString()
-                    )
+                    putString(MediaMetadataCompat.METADATA_KEY_TITLE, req.song.title)
+                    putString(MediaMetadataCompat.METADATA_KEY_ARTIST, req.song.artistName)
+                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.albumName)
+                    req.artworkUriString.let {
+                        putString(MediaMetadataCompat.METADATA_KEY_ART_URI, it)
+                        putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, it)
+                        putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, it)
+                    }
+                    req.artworkBitmap.let {
+                        putBitmap(MediaMetadataCompat.METADATA_KEY_ART, it)
+                        putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, it)
+                        putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, it)
+                    }
                     putLong(
                         MediaMetadataCompat.METADATA_KEY_DURATION,
-                        playbackPosition.total.toLong()
+                        req.playbackPosition.total.toLong()
                     )
                     build()
                 }
@@ -175,9 +220,11 @@ class RadioSession(val symphony: Symphony) {
             setPlaybackState(
                 PlaybackStateCompat.Builder().run {
                     setState(
-                        if (isPlaying) PlaybackStateCompat.STATE_PLAYING
-                        else PlaybackStateCompat.STATE_PAUSED,
-                        playbackPosition.played.toLong(),
+                        when {
+                            req.isPlaying -> PlaybackStateCompat.STATE_PLAYING
+                            else -> PlaybackStateCompat.STATE_PAUSED
+                        },
+                        req.playbackPosition.played.toLong(),
                         1f
                     )
                     setActions(
@@ -195,7 +242,6 @@ class RadioSession(val symphony: Symphony) {
                 }
             )
         }
-        notification.update()
     }
 
     private fun ensureEnabled() {
