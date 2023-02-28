@@ -1,0 +1,2 @@
+Symphony is a lightweight, elegant music player that enhances your offline music experience. Supports Android 9 and later.
+
