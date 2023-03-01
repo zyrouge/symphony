@@ -5,7 +5,7 @@ on:
 
 env:
     SIGNING_KEYSTORE_FILENAME: signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
+    BUILD_APK_FILE: ./app/build/outputs/apk/official/release/app-official-release.apk
 
 jobs:
     build:
@@ -50,12 +50,12 @@ jobs:
               run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE: ./${{ env.SIGNING_KEYSTORE_FILENAME }}
-                  SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }} 
+                  SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
             - name: 🔨 Build apk
               run: |
                   chmod +x ./gradlew
-                  ./gradlew build
+                  ./gradlew assembleOfficialRelease
               env:
                   SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILENAME }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
