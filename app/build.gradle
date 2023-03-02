@@ -12,8 +12,8 @@ android {
         minSdk 28
         targetSdk 33
 
-        versionCode 72
-        versionName "2023.3.72"
+        versionCode 73
+        versionName "2023.3.73"
 
         vectorDrawables {
             useSupportLibrary true
@@ -38,19 +38,6 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-        }
-    }
-    flavorDimensions 'variant'
-    productFlavors {
-        unknown {
-            dimension 'variant'
-            isDefault true
-        }
-        official {
-            dimension 'variant'
-        }
-        fdroid {
-            dimension 'variant'
         }
     }
     compileOptions {

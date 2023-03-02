@@ -30,14 +30,6 @@ object AppMeta {
         Unknown,
     }
 
-    val defaultVariant = Variant.Unknown
-    val variantsMap = mapOf(
-        "official" to Variant.Official,
-        "fdroid" to Variant.FDroid,
-    )
-
-    val variant: Variant get() = variantsMap[BuildConfig.FLAVOR] ?: defaultVariant
-
     /**
      * Format: v\[yyyy].\[mm].\[versionCode]
      */
