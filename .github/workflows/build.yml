@@ -5,7 +5,7 @@ on:
 
 env:
     SIGNING_KEYSTORE_FILENAME: signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/official/release/app-official-release.apk
+    BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
 
 jobs:
     build:
@@ -23,7 +23,7 @@ jobs:
             - name: 🔨 Build apk
               run: |
                   chmod +x ./gradlew
-                  ./gradlew assembleOfficialRelease
+                  ./gradlew build
               env:
                   SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILENAME }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
