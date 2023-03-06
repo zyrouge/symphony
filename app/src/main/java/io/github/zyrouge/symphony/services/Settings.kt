@@ -541,6 +541,10 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.homeTabs, tabs.joinToString(",") { it.name })
         }
         onChange.dispatch(SettingsKeys.homeTabs)
+        if (getHomeLastTab() !in tabs) {
+            setHomeLastTab(tabs.first())
+            onChange.dispatch(SettingsKeys.homeLastTab)
+        }
     }
 
     fun getHomePageBottomBarLabelVisibility() =
