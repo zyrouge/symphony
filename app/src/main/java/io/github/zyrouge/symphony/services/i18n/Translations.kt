@@ -77,6 +77,7 @@ interface Translations {
     val forYou: String
     val suggestedAlbums: String
     val suggestedArtists: String
+    val suggestedAlbumArtists: String
     val recentlyAddedSongs: String
     val sponsorViaGitHub: String
     val clearSongCache: String

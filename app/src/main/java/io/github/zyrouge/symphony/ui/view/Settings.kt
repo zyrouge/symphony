@@ -19,6 +19,7 @@ import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.ui.view.settings.*
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -153,6 +154,20 @@ fun SettingsView(context: ViewContext) {
                         satisfies = { it.size in 2..5 },
                         onChange = { value ->
                             context.symphony.settings.setHomeTabs(value)
+                        }
+                    )
+                    SettingsMultiOptionTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Recommend, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.forYou)
+                        },
+                        value = settings.forYouContents,
+                        values = ForYou.values().associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.setForYouContents(value)
                         }
                     )
                     SettingsOptionTile(

@@ -8,6 +8,7 @@ import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
+import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.utils.Eventer
 
 enum class ThemeMode {
@@ -55,6 +56,7 @@ object SettingsKeys {
     const val fadePlaybackDuration = "fade_playback_duration"
     const val homeTabs = "home_tabs"
     const val homePageBottomBarLabelVisibility = "home_page_bottom_bar_label_visibility"
+    const val forYouContents = "for_you_contents"
     const val blacklistFolders = "blacklist_folders"
     const val whitelistFolders = "whitelist_folders"
     const val readIntroductoryMessage = "introductory_message"
@@ -81,6 +83,7 @@ data class SettingsData(
     val fadePlaybackDuration: Float,
     val homeTabs: Set<HomePages>,
     val homePageBottomBarLabelVisibility: HomePageBottomBarLabelVisibility,
+    val forYouContents: Set<ForYou>,
     val blacklistFolders: Set<String>,
     val whitelistFolders: Set<String>,
     val showNowPlayingAdditionalInfo: Boolean,
@@ -108,6 +111,10 @@ object SettingsDataDefaults {
         HomePages.Artists
     )
     val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
+    val forYouContents = setOf(
+        ForYou.Albums,
+        ForYou.Artists
+    )
     val blacklistFolders = setOf<String>()
     val whitelistFolders = setOf<String>()
     const val readIntroductoryMessage = false
@@ -137,6 +144,7 @@ class SettingsManager(private val symphony: Symphony) {
         fadePlaybackDuration = getFadePlaybackDuration(),
         homeTabs = getHomeTabs(),
         homePageBottomBarLabelVisibility = getHomePageBottomBarLabelVisibility(),
+        forYouContents = getForYouContents(),
         blacklistFolders = getBlacklistFolders(),
         whitelistFolders = getWhitelistFolders(),
         showNowPlayingAdditionalInfo = getShowNowPlayingAdditionalInfo(),
@@ -545,6 +553,20 @@ class SettingsManager(private val symphony: Symphony) {
             putEnum(SettingsKeys.homePageBottomBarLabelVisibility, value)
         }
         onChange.dispatch(SettingsKeys.homePageBottomBarLabelVisibility)
+    }
+
+    fun getForYouContents() = getSharedPreferences()
+        .getString(SettingsKeys.forYouContents, null)
+        ?.split(",")
+        ?.mapNotNull { parseEnumValue<ForYou>(it) }
+        ?.toSet()
+        ?: SettingsDataDefaults.forYouContents
+
+    fun setForYouContents(forYouContents: Set<ForYou>) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.forYouContents, forYouContents.joinToString(",") { it.name })
+        }
+        onChange.dispatch(SettingsKeys.forYouContents)
     }
 
     fun getBlacklistFolders() =

@@ -82,6 +82,7 @@ class English : Translations {
     override val forYou = "For you"
     override val suggestedAlbums = "Suggested albums"
     override val suggestedArtists = "Suggested artists"
+    override val suggestedAlbumArtists = "Suggested album artists"
     override val recentlyAddedSongs = "Recently added songs"
     override val sponsorViaGitHub = "Sponsor via GitHub"
     override val clearSongCache = "Clear song cache"

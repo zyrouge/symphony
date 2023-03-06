@@ -22,6 +22,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.groove.Album
+import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
@@ -30,6 +32,12 @@ import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.randomSubList
 import io.github.zyrouge.symphony.utils.subListNonStrict
+
+enum class ForYou(val label: (context: ViewContext) -> String) {
+    Albums(label = { it.symphony.t.suggestedAlbums }),
+    Artists(label = { it.symphony.t.suggestedArtists }),
+    AlbumArtists(label = { it.symphony.t.suggestedAlbumArtists })
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +63,9 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
             }
             val randomArtists by remember {
                 derivedStateOf { data.artists.randomSubList(6) }
+            }
+            val randomAlbumArtists by remember {
+                derivedStateOf { data.albumArtists.randomSubList(6) }
             }
 
             Column(
@@ -194,51 +205,22 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         Spacer(modifier = Modifier.width(12.dp))
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                SideHeading {
-                    Text(context.symphony.t.suggestedAlbums)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                SixGrid(randomAlbums) { album ->
-                    Card(
-                        onClick = {
-                            context.navController.navigate(
-                                RoutesBuilder.buildAlbumRoute(album.id)
-                            )
-                        }
-                    ) {
-                        AsyncImage(
-                            album.createArtworkImageRequest(context.symphony).build(),
-                            null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(4.dp)),
+                val contents = context.symphony.settings.getForYouContents().toList()
+                contents.forEach {
+                    when (it) {
+                        ForYou.Albums -> SuggestedAlbums(
+                            context = context,
+                            randomAlbums = randomAlbums
                         )
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                SideHeading {
-                    Text(context.symphony.t.suggestedArtists)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                SixGrid(randomArtists) { artist ->
-                    Card(
-                        onClick = {
-                            context.navController.navigate(
-                                RoutesBuilder.buildArtistRoute(artist.name)
-                            )
-                        }
-                    ) {
-                        AsyncImage(
-                            artist.createArtworkImageRequest(context.symphony).build(),
-                            null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(4.dp)),
+                        ForYou.Artists -> SuggestedArtists(
+                            context = context,
+                            label = context.symphony.t.suggestedArtists,
+                            randomArtists = randomArtists
+                        )
+                        ForYou.AlbumArtists -> SuggestedArtists(
+                            context = context,
+                            label = context.symphony.t.suggestedAlbumArtists,
+                            randomArtists = randomAlbumArtists
                         )
                     }
                 }
@@ -316,6 +298,64 @@ private fun <T> SixGrid(
                     content(it)
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SuggestedAlbums(context: ViewContext, randomAlbums: List<Album>) {
+    Spacer(modifier = Modifier.height(24.dp))
+    SideHeading {
+        Text(context.symphony.t.suggestedAlbums)
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+    SixGrid(randomAlbums) { album ->
+        Card(
+            onClick = {
+                context.navController.navigate(
+                    RoutesBuilder.buildAlbumRoute(album.id)
+                )
+            }
+        ) {
+            AsyncImage(
+                album.createArtworkImageRequest(context.symphony).build(),
+                null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(4.dp)),
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SuggestedArtists(context: ViewContext, label: String, randomArtists: List<Artist>) {
+    Spacer(modifier = Modifier.height(24.dp))
+    SideHeading {
+        Text(label)
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+    SixGrid(randomArtists) { artist ->
+        Card(
+            onClick = {
+                context.navController.navigate(
+                    RoutesBuilder.buildArtistRoute(artist.name)
+                )
+            }
+        ) {
+            AsyncImage(
+                artist.createArtworkImageRequest(context.symphony).build(),
+                null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(4.dp)),
+            )
         }
     }
 }
