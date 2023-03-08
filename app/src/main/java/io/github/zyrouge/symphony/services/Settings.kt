@@ -543,7 +543,6 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.homeTabs)
         if (getHomeLastTab() !in tabs) {
             setHomeLastTab(tabs.first())
-            onChange.dispatch(SettingsKeys.homeLastTab)
         }
     }
 
