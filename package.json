@@ -1,15 +1,24 @@
 {
-  "name": "@zyrouge/symphony-cli",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "bump": "node ./cli/increment-version",
-    "release": "gh workflow run release"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zyrouge/symphony.git"
-  },
-  "author": "Zyrouge",
-  "license": "AGPL-3.0"
+    "name": "@zyrouge/symphony-cli",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "i18n:build": "ts-node ./cli/i18n/build.ts",
+        "bump": "ts-node ./cli/increment-version",
+        "release": "gh workflow run release"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zyrouge/symphony.git"
+    },
+    "author": "Zyrouge",
+    "license": "AGPL-3.0",
+    "devDependencies": {
+        "@types/node": "^18.14.6",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.5"
+    },
+    "dependencies": {
+        "phrasey": "^1.0.0"
+    }
 }
