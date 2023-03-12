@@ -3,8 +3,8 @@ package io.github.zyrouge.symphony.services.i18n.translations
 import io.github.zyrouge.symphony.services.i18n.Translations
 
 class English : Translations {
-    override val language = "English"
-    override val locale = "en"
+  override val language = "English"
+  override val locale = "en"
 
 	override val UnknownSymbol = "?"
 	override val HelloThere = "Hello there!"
@@ -134,6 +134,7 @@ class English : Translations {
 	override val EnableSeekControls = "Enable seek controls"
 	override val MiniPlayerTrackControls = "Mini-player track controls"
 	override val MiniPlayerSeekControls = "Mini-player seek controls"
+  override val SuggestedAlbumArtists = "Suggested album artists"
 
 	override fun PlayingXofY(x: String, y: String) = "Playing $x of $y"
 	override fun UnknownArtistX(x: String) = "Unknown artist ($name)"
