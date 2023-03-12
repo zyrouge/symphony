@@ -1,0 +1,159 @@
+Locale: en
+Language: English
+
+Translations:
+    # Static
+    UnknownSymbol: "?"
+    HelloThere: Hello there!
+    IntroductoryMessage: |
+        Thanks for choosing Symphony! If you encounter any technical difficulties, our GitHub Repository is the place to report them.
+
+        Join our Discord and Reddit community to connect with other music lovers, get support, and stay up-to-date with the latest updates. Your generosity helps keep the development of Symphony going, so please consider supporting us through donations on GitHub Sponsors.
+
+        Once again, enjoy the music!
+    Songs: Songs
+    Artists: Artists
+    Albums: Albums
+    Settings: Settings
+    Details: Details
+    Path: Path
+    Filename: Filename
+    Size: Size
+    DateAdded: Date Added
+    LastModified: Last Modified
+    Length: Length
+    Bitrate: Bitrate
+    TrackName: Track Name
+    Artist: Artist
+    Album: Album
+    AlbumArtist: Album Artist
+    Composer: Composer
+    NothingIsBeingPlayedRightNow: Nothing is being played right now
+    AddToQueue: Add to queue
+    Queue: Queue
+    PlayNext: Play next
+    NowPlaying: Now Playing
+    Language_: Language
+    MaterialYou: Material You
+    System: System
+    Light: Light
+    Dark: Dark
+    Black: Black
+    ViewArtist: View artist
+    Title: Title
+    Duration: Duration
+    Year: Year
+    ViewAlbum: View album
+    SearchYourMusic: Search your music
+    NoResultsFound: No results found
+    AlbumCount: Album count
+    TrackCount: Track count
+    FilteringResults: Filtering results...
+    Appearance: Appearance
+    About: About
+    Github: Github
+    Play: Play
+    Previous: Previous
+    Next: Next
+    Pause: Pause
+    Done: Done
+    Groove: Groove
+    SongsFilterPattern: Songs filter pattern
+    Reset: Reset
+    Theme: Theme
+    CheckForUpdates: Check for updates
+    Version: Version
+    ShufflePlay: Shuffle play
+    ViewAlbumArtist: View album artist
+    Stop: Stop
+    All: All
+    FadePlaybackInOut: Fade playback in-out
+    RequireAudioFocus: Require audio focus
+    IgnoreAudioFocusLoss: Ignore audio focus loss
+    Player: Player
+    PlayOnHeadphonesConnect: Play on headphones connect
+    PauseOnHeadphonesDisconnect: Pause on headphones disconnect
+    Genre: Genre
+    DamnThisIsSoEmpty: Damn, this is so empty!
+    PrimaryColor: Primary Color
+    PlayAll: Play all
+    ForYou: For you
+    SuggestedAlbums: Suggested albums
+    SuggestedArtists: Suggested artists
+    RecentlyAddedSongs: Recently added songs
+    SponsorViaGitHub: Sponsor via GitHub
+    ClearSongCache: Clear song cache
+    SongCacheCleared: Song cache cleared
+    AlbumArtists: Album artists
+    Genres: Genres
+    Cancel: Cancel
+    HomeTabs: Home tabs
+    SelectAtleast2orAtmost5Tabs: Select at least 2 or at most 5 tabs
+    Folders: Folders
+    Invisible: Invisible
+    AlwaysVisible: Always visible
+    VisibleWhenActive: Visible when active
+    BottomBarLabelVisibility: Bottom bar label visibility
+    Playlists: Playlists
+    NewPlaylist: New playlist
+    ImportPlaylist: Import playlist
+    NoInAppPlaylistsFound: No in-app playlists found
+    NoLocalPlaylistsFound: No local playlists found
+    Custom: Custom
+    Playlist: Playlist
+    AddSongs: Add songs
+    AddToPlaylist: Add to playlist
+    IsLocalPlaylist: Is local playlist?
+    "Yes": "Yes"
+    "No": "No"
+    ManageSongs: Manage songs
+    Delete: Delete
+    DeletePlaylist: Delete playlist
+    TrackNumber: Track number
+    Tree: Tree
+    Loading: Loading...
+    Name: Name
+    AddFolder: Add folder
+    BlacklistFolders: Blacklist folders
+    WhitelistFolders: Whitelist folders
+    PickFolder: Pick folder
+    InvalidM3UFile: Invalid M3U file
+    Discord: Discord
+    Reddit: Reddit
+    ReportAnIssue: Report an issue
+    NoFoldersFound: No folders found
+    SleepTimer: Sleep timer
+    Hours: Hours
+    Minutes: Minutes
+    QuitAppOnEnd: Quit app on end
+    Favorite: Favorite
+    Unfavorite: Unfavorite
+    BitDepth: Bit depth
+    SamplingRate: Sampling rate
+    ShowAudioInformation: Show audio information
+    FastRewindDuration: Fast-rewind duration
+    FastForwardDuration: Fast-forward duration
+    EnableSeekControls: Enable seek controls
+    MiniPlayerTrackControls: Mini-player track controls
+    MiniPlayerSeekControls: Mini-player seek controls
+
+    # Dynamic
+    PlayingXofY: Playing $x of $y
+    UnknownArtistX: Unknown artist ($name)
+    XSongs: $x songs
+    UnknownAlbumX: "Unknown album (ID: ${id})"
+    XArtists: $x artists
+    XAlbums: $x albums
+    MadeByX: Made by $x
+    NewVersionAvailableX: New version available! ($x)
+    XKbps: $x kbps
+    XSecs: ${x}s
+    UnknownGenreX: Unknown genre $x
+    XGenres: $x genres
+    XFoldersYFiles: $x folders, $y files
+    XItems: $x items
+    XPlaylists: $x playlists
+    UnknownPlaylistX: "Unknown playlist (ID: $x)"
+    XFolders: $x folders
+    XBit: $x-bit
+    XKHz: $x kHz
