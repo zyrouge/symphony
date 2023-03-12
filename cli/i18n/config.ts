@@ -25,7 +25,7 @@ package io.github.zyrouge.symphony.services.i18n.translations
 
 import io.github.zyrouge.symphony.services.i18n.Translations
 
-class English : Translations {
+class Translation${capitalize(translation.language)} : Translations {
     override val language = "${escapeText(translation.language)}"
     override val locale = "${escapeText(translation.locale)}"
 
@@ -50,4 +50,11 @@ ${Object.entries(keys.dynamic)
 
 function escapeText(text: String) {
     return text.replace(/"/g, '\\"').replace(/\n/g, "\\n").trim();
+}
+
+function capitalize(text: String) {
+    return text
+        .replace(/^(\w)/, (match) => match[1]!.toUpperCase())
+        .replace(/-(\w)/, (match) => match[1]!.toUpperCase())
+        .trim();
 }
