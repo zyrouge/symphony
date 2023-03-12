@@ -39,7 +39,7 @@ ${Object.values(summary.summary)
         path.join(outputDir, `badge-translated.json`),
         JSON.stringify({
             schemaVersion: 1,
-            label: "Translated",
+            label: "i18n",
             message: `${Math.floor(summary.keys.percents.set)}%`,
             color: "#328fa8",
         })
@@ -49,8 +49,17 @@ ${Object.values(summary.summary)
         JSON.stringify({
             schemaVersion: 1,
             label: "Languages",
-            message: `${summary.keys.total}`,
+            message: `${circuit.client.translations.size}`,
             color: "#3279a8",
+        })
+    );
+    await fs.writeFile(
+        path.join(outputDir, `badge-strings.json`),
+        JSON.stringify({
+            schemaVersion: 1,
+            label: "Strings",
+            message: `${config.keys.length}`,
+            color: "#3265a8",
         })
     );
 };
