@@ -4,8 +4,8 @@ on:
     push:
         branches:
             - main
-    paths:
-        - i18n/**
+        paths:
+            - i18n/**
     workflow_dispatch:
 
 jobs:
