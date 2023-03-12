@@ -15,13 +15,17 @@
 <p align="center">
     <a href="https://github.com/zyrouge/symphony/releases/latest">Download (latest)</a> |
     <a href="https://github.com/zyrouge/symphony/releases">View all releases</a> |
-    <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony">IzzyOnDroid repo</a>
+    <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony">IzzyOnDroid</a> |
+    <a href="https://f-droid.org/en/packages/io.github.zyrouge.symphony/">F-Droid</a>
 </p>
 
 <p align="center">
     <a href=""><img src="https://img.shields.io/badge/stage-partially%20stable-545DFF"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/v/release/zyrouge/symphony?label=latest"></a>
     <a href=""><img src="https://img.shields.io/badge/supports-Android%209+-AD2A5A"></a>
+    <a href=""><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-translated.json"></a>
+    <a href=""><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-languages.json"></a>
+    <a href=""><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-strings.json"></a>
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/actions/workflows/release.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg"></a>
@@ -40,9 +44,9 @@ Why was this created? As I was getting into offline music, most of the popular g
 
 ## Links
 
-- [Github Sponsors](https://github.com/sponsors/zyrouge)
-- [Discord](https://discord.gg/5k9Hdq7ycm)
-- [Reddit](https://reddit.com/r/symphony_app)
+-   [Github Sponsors](https://github.com/sponsors/zyrouge)
+-   [Discord](https://discord.gg/5k9Hdq7ycm)
+-   [Reddit](https://reddit.com/r/symphony_app)
 
 ## Contributing
 
@@ -51,4 +55,3 @@ Any kind of contribution including creating issues or making pull requests is we
 ## License
 
 [AGPL-3.0](./LICENSE)
-
