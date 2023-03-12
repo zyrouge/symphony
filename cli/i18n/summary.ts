@@ -48,7 +48,7 @@ ${Object.values(summary.summary)
         path.join(outputDir, `badge-languages.json`),
         JSON.stringify({
             schemaVersion: 1,
-            label: "Languages",
+            label: "i18n languages",
             message: `${circuit.client.translations.size}`,
             color: "#3279a8",
         })
@@ -57,7 +57,7 @@ ${Object.values(summary.summary)
         path.join(outputDir, `badge-strings.json`),
         JSON.stringify({
             schemaVersion: 1,
-            label: "Strings",
+            label: "i18n strings",
             message: `${config.keys.length}`,
             color: "#3265a8",
         })
