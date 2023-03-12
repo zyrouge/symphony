@@ -136,6 +136,7 @@ Translations:
     EnableSeekControls: Enable seek controls
     MiniPlayerTrackControls: Mini-player track controls
     MiniPlayerSeekControls: Mini-player seek controls
+    SuggestedAlbumArtists: Suggested album artists
 
     # Dynamic
     PlayingXofY: Playing $x of $y

@@ -30,13 +30,13 @@ class English : Translations {
     override val locale = "${escapeText(translation.locale)}"
 
 ${keys.static
-    .map((x) => `\toverride val ${x} = "${escapeText(t[x]!)}"`)
+    .map((x) => `    override val ${x} = "${escapeText(t[x]!)}"`)
     .join("\n")}
 
 ${Object.entries(keys.dynamic)
     .map(
         ([x, args]) =>
-            `\toverride fun ${x}(${args
+            `    override fun ${x}(${args
                 .map((x) => `${x}: String`)
                 .join(", ")}) = "${escapeText(t[x]!)}"`
     )

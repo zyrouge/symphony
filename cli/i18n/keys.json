@@ -127,7 +127,8 @@
         "FastForwardDuration",
         "EnableSeekControls",
         "MiniPlayerTrackControls",
-        "MiniPlayerSeekControls"
+        "MiniPlayerSeekControls",
+        "SuggestedAlbumArtists"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],
