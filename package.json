@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "i18n:build": "ts-node ./cli/i18n/build.ts",
+        "i18n:summary": "ts-node ./cli/i18n/summary.ts",
         "bump": "ts-node ./cli/increment-version",
         "release": "gh workflow run release"
     },

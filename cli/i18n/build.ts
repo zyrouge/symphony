@@ -1,4 +1,4 @@
-import { phrasey } from "phrasey";
+import { PhraseyCircuit } from "phrasey";
 import { config } from "./config";
 
-phrasey(config);
+PhraseyCircuit.create(config).build();

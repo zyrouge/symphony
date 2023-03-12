@@ -1,0 +1,33 @@
+name: i18n Summary
+
+on:
+    push:
+        branches:
+            - main
+    paths:
+        - i18n/**
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18.13.0"
+                  cache: npm
+
+            - name: 🏗️  Prerequisites
+              run: npm install
+
+            - name: 🔨 Build
+              run: npm run i18n:summary
+
+            - name: 🚀 Push summary files
+              uses: zyrouge/gh-push-action@v1.0.5
+              with:
+                  directory: build-data/i18n-summary
+                  branch: i18n-summary

@@ -10,7 +10,7 @@ export const config = definePhraseyConfig({
         include: [path.join(Paths.rootDir, "i18n/**.yaml")],
     },
     defaultLocale: "en",
-    keys: [...keys.static, ...Object.keys(keys.dynamic)],
+    keys: [...keys.static, ...Object.keys(keys.dynamic)] as const,
     transpile: {
         output: async (translation) => {
             const t = translation.translations;
