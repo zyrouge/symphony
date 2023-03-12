@@ -18,7 +18,7 @@ export const config = definePhraseyConfig({
                 path: path.join(
                     Paths.appDir,
                     "src/main/java/io/github/zyrouge/symphony/services/i18n/translations",
-                    `${translation.language}.kt`
+                    `${translation.locale}.g.kt`
                 ),
                 content: `
 package io.github.zyrouge.symphony.services.i18n.translations
