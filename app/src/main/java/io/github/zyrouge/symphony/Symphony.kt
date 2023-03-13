@@ -10,8 +10,8 @@ import io.github.zyrouge.symphony.services.PermissionsManager
 import io.github.zyrouge.symphony.services.SettingsManager
 import io.github.zyrouge.symphony.services.database.Database
 import io.github.zyrouge.symphony.services.groove.GrooveManager
-import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.services.i18n.Translator
+import io.github.zyrouge.symphony.services.i18n.translations.ITranslations
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.utils.AndroidXShorty
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +33,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     val radio = Radio(this)
 
     val translator = Translator(this)
-    val t: Translations
+    val t: ITranslations
         get() = translator.t
 
     val applicationContext: Context
@@ -73,7 +73,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
                         Toast
                             .makeText(
                                 applicationContext,
-                                t.newVersionAvailableX(it),
+                                t.NewVersionAvailableX(it),
                                 Toast.LENGTH_SHORT
                             )
                             .show()

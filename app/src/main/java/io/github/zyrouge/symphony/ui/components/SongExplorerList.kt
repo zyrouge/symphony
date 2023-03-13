@@ -142,8 +142,8 @@ fun SongExplorerList(
                     label = {
                         Text(
                             context.symphony.t.XFoldersYFiles(
-                                sortedEntities.folders.size,
-                                sortedEntities.files.size,
+                                sortedEntities.folders.size.toString(),
+                                sortedEntities.files.size.toString(),
                             )
                         )
                     },
@@ -197,7 +197,7 @@ fun SongExplorerList(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
-                                    context.symphony.t.XItems(folder.children.size),
+                                    context.symphony.t.XItems(folder.children.size.toString()),
                                     style = MaterialTheme.typography.labelSmall,
                                 )
                             }

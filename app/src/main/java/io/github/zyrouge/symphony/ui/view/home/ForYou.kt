@@ -34,9 +34,9 @@ import io.github.zyrouge.symphony.utils.randomSubList
 import io.github.zyrouge.symphony.utils.subListNonStrict
 
 enum class ForYou(val label: (context: ViewContext) -> String) {
-    Albums(label = { it.symphony.t.suggestedAlbums }),
-    Artists(label = { it.symphony.t.suggestedArtists }),
-    AlbumArtists(label = { it.symphony.t.suggestedAlbumArtists })
+    Albums(label = { it.symphony.t.SuggestedAlbums }),
+    Artists(label = { it.symphony.t.SuggestedArtists }),
+    AlbumArtists(label = { it.symphony.t.SuggestedAlbumArtists })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +77,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         ForYouButton(
                             icon = Icons.Default.PlayArrow,
                             text = {
-                                Text(context.symphony.t.playAll)
+                                Text(context.symphony.t.PlayAll)
                             },
                             onClick = {
                                 context.symphony.radio.shorty.playQueue(allSongs)
@@ -89,7 +89,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         ForYouButton(
                             icon = Icons.Default.Shuffle,
                             text = {
-                                Text(context.symphony.t.shufflePlay)
+                                Text(context.symphony.t.ShufflePlay)
                             },
                             onClick = {
                                 context.symphony.radio.shorty.playQueue(
@@ -102,7 +102,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 SideHeading {
-                    Text(context.symphony.t.recentlyAddedSongs)
+                    Text(context.symphony.t.RecentlyAddedSongs)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 BoxWithConstraints {
@@ -214,12 +214,12 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                         )
                         ForYou.Artists -> SuggestedArtists(
                             context = context,
-                            label = context.symphony.t.suggestedArtists,
+                            label = context.symphony.t.SuggestedArtists,
                             randomArtists = randomArtists
                         )
                         ForYou.AlbumArtists -> SuggestedArtists(
                             context = context,
-                            label = context.symphony.t.suggestedAlbumArtists,
+                            label = context.symphony.t.SuggestedAlbumArtists,
                             randomArtists = randomAlbumArtists
                         )
                     }
@@ -235,7 +235,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                     modifier = modifier,
                 )
             },
-            content = { Text(context.symphony.t.damnThisIsSoEmpty) },
+            content = { Text(context.symphony.t.DamnThisIsSoEmpty) },
         )
     }
 }
@@ -307,7 +307,7 @@ private fun <T> SixGrid(
 private fun SuggestedAlbums(context: ViewContext, randomAlbums: List<Album>) {
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
-        Text(context.symphony.t.suggestedAlbums)
+        Text(context.symphony.t.SuggestedAlbums)
     }
     Spacer(modifier = Modifier.height(12.dp))
     SixGrid(randomAlbums) { album ->

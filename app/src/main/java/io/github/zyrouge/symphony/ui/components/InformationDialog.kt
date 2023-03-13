@@ -22,7 +22,7 @@ fun InformationDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(context.symphony.t.details)
+            Text(context.symphony.t.Details)
         },
         content = {
             Column(

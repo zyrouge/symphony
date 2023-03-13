@@ -53,7 +53,7 @@ fun SettingsMultiFolderTile(
             leadingContent = { icon() },
             headlineText = { title() },
             supportingText = {
-                Text(context.symphony.t.XFolders(initialValues.size))
+                Text(context.symphony.t.XFolders(initialValues.size.toString()))
             },
         )
     }
@@ -112,7 +112,7 @@ fun SettingsMultiFolderTile(
                             showPicker = true
                         }
                     ) {
-                        Text(context.symphony.t.addFolder)
+                        Text(context.symphony.t.AddFolder)
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
@@ -120,7 +120,7 @@ fun SettingsMultiFolderTile(
                             showDialog = false
                         }
                     ) {
-                        Text(context.symphony.t.cancel)
+                        Text(context.symphony.t.Cancel)
                     }
                     TextButton(
                         onClick = {
@@ -128,7 +128,7 @@ fun SettingsMultiFolderTile(
                             showDialog = false
                         }
                     ) {
-                        Text(context.symphony.t.done)
+                        Text(context.symphony.t.Done)
                     }
                 }
             )
@@ -187,7 +187,7 @@ private fun SettingsFolderTilePickerDialog(
             }
         },
         title = {
-            Text(context.symphony.t.pickFolder)
+            Text(context.symphony.t.PickFolder)
         },
         topBar = {
             Row(
@@ -227,7 +227,7 @@ private fun SettingsFolderTilePickerDialog(
                 sortedEntities.isEmpty() -> Box(
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    SubtleCaptionText(context.symphony.t.noFoldersFound)
+                    SubtleCaptionText(context.symphony.t.NoFoldersFound)
                 }
                 else -> {
                     val lazyListState = rememberLazyListState()
@@ -262,7 +262,7 @@ private fun SettingsFolderTilePickerDialog(
                                         Text(folder.basename)
                                         Text(
                                             context.symphony.t.XFolders(
-                                                folder.countChildrenFolders()
+                                                folder.countChildrenFolders().toString()
                                             ),
                                             style = MaterialTheme.typography.labelSmall,
                                         )
@@ -276,10 +276,10 @@ private fun SettingsFolderTilePickerDialog(
         },
         actions = {
             TextButton(onClick = { onSelect(null) }) {
-                Text(context.symphony.t.cancel)
+                Text(context.symphony.t.Cancel)
             }
             TextButton(onClick = { onSelect(currentPath) }) {
-                Text(context.symphony.t.done)
+                Text(context.symphony.t.Done)
             }
         },
     )

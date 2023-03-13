@@ -59,7 +59,7 @@ internal fun ArtistGrid(
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XArtists(artists.size))
+                    Text(context.symphony.t.XArtists(artists.size.toString()))
                 },
             )
         },
@@ -78,8 +78,8 @@ internal fun ArtistGrid(
 }
 
 private fun ArtistSortBy.label(context: ViewContext) = when (this) {
-    ArtistSortBy.CUSTOM -> context.symphony.t.custom
-    ArtistSortBy.ARTIST_NAME -> context.symphony.t.artist
-    ArtistSortBy.ALBUMS_COUNT -> context.symphony.t.albumCount
-    ArtistSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
+    ArtistSortBy.CUSTOM -> context.symphony.t.Custom
+    ArtistSortBy.ARTIST_NAME -> context.symphony.t.Artist
+    ArtistSortBy.ALBUMS_COUNT -> context.symphony.t.AlbumCount
+    ArtistSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

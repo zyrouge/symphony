@@ -32,10 +32,10 @@ fun ConfirmationDialog(
         },
         actions = {
             TextButton(onClick = { onResult(false) }) {
-                Text(context.symphony.t.no)
+                Text(context.symphony.t.No)
             }
             TextButton(onClick = { onResult(true) }) {
-                Text(context.symphony.t.yes)
+                Text(context.symphony.t.Yes)
             }
         }
     )

@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.zyrouge.symphony.services.i18n.CommonTranslations
+import io.github.zyrouge.symphony.services.i18n.translations.CommonTranslations
 
 @Composable
 fun ErrorComp(message: String, stackTrace: String) {
@@ -37,14 +37,14 @@ fun ErrorComp(message: String, stackTrace: String) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                CommonTranslations.somethingWentHorriblyWrong,
+                CommonTranslations.SomethingWentHorriblyWrong,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = boldTextStyle,
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                CommonTranslations.errorX(message),
+                CommonTranslations.ErrorX(message),
                 style = boldTextStyle,
             )
             Text(stackTrace)

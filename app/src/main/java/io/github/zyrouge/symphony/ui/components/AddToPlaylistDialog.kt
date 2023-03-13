@@ -29,11 +29,11 @@ fun AddToPlaylistDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(context.symphony.t.addToPlaylist)
+            Text(context.symphony.t.AddToPlaylist)
         },
         content = {
             when {
-                playlists.isEmpty() -> SubtleCaptionText(context.symphony.t.noInAppPlaylistsFound)
+                playlists.isEmpty() -> SubtleCaptionText(context.symphony.t.NoInAppPlaylistsFound)
                 else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
                     items(playlists) { playlist ->
                         GenericGrooveCard(

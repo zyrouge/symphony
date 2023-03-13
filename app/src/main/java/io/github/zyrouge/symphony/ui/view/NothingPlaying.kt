@@ -45,7 +45,7 @@ fun NothingPlayingBody(context: ViewContext) {
             )
         },
         content = {
-            Text(context.symphony.t.nothingIsBeingPlayedRightNow)
+            Text(context.symphony.t.NothingIsBeingPlayedRightNow)
         }
     )
 }

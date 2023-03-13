@@ -46,7 +46,7 @@ fun PlaylistGrid(
                         context.symphony.settings.setLastUsedPlaylistsSortBy(it)
                     },
                     label = {
-                        Text(context.symphony.t.XPlaylists(playlists.size))
+                        Text(context.symphony.t.XPlaylists(playlists.size.toString()))
                     },
                 )
             }
@@ -66,7 +66,7 @@ fun PlaylistGrid(
 }
 
 private fun PlaylistSortBy.label(context: ViewContext) = when (this) {
-    PlaylistSortBy.CUSTOM -> context.symphony.t.custom
-    PlaylistSortBy.TITLE -> context.symphony.t.title
-    PlaylistSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
+    PlaylistSortBy.CUSTOM -> context.symphony.t.Custom
+    PlaylistSortBy.TITLE -> context.symphony.t.Title
+    PlaylistSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

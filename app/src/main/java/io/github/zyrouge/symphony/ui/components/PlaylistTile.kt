@@ -119,7 +119,7 @@ fun PlaylistDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.shufflePlay)
+                Text(context.symphony.t.ShufflePlay)
             },
             onClick = {
                 onDismissRequest()
@@ -134,7 +134,7 @@ fun PlaylistDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.playNext)
+                Text(context.symphony.t.PlayNext)
             },
             onClick = {
                 onDismissRequest()
@@ -149,7 +149,7 @@ fun PlaylistDropdownMenu(
                 Icon(Icons.Default.PlaylistAdd, null)
             },
             text = {
-                Text(context.symphony.t.addToPlaylist)
+                Text(context.symphony.t.AddToPlaylist)
             },
             onClick = {
                 onDismissRequest()
@@ -162,7 +162,7 @@ fun PlaylistDropdownMenu(
                     Icon(Icons.Default.PlaylistAdd, null)
                 },
                 text = {
-                    Text(context.symphony.t.manageSongs)
+                    Text(context.symphony.t.ManageSongs)
                 },
                 onClick = {
                     onDismissRequest()
@@ -175,7 +175,7 @@ fun PlaylistDropdownMenu(
                 Icon(Icons.Default.Info, null)
             },
             text = {
-                Text(context.symphony.t.details)
+                Text(context.symphony.t.Details)
             },
             onClick = {
                 onDismissRequest()
@@ -192,7 +192,7 @@ fun PlaylistDropdownMenu(
                     )
                 },
                 text = {
-                    Text(context.symphony.t.delete)
+                    Text(context.symphony.t.Delete)
                 },
                 onClick = {
                     onDismissRequest()
@@ -232,10 +232,10 @@ fun PlaylistDropdownMenu(
         ConfirmationDialog(
             context,
             title = {
-                Text(context.symphony.t.deletePlaylist)
+                Text(context.symphony.t.DeletePlaylist)
             },
             description = {
-                Text(context.symphony.t.areYouSureThatYouWantToDeleteThisPlaylist)
+                Text(context.symphony.t.AreYouSureThatYouWantToDeleteThisPlaylist)
             },
             onResult = { result ->
                 coroutineScope.launch {

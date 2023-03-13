@@ -170,8 +170,8 @@ fun SongDropdownMenu(
             },
             text = {
                 Text(
-                    if (isInFavorite) context.symphony.t.unfavorite
-                    else context.symphony.t.favorite
+                    if (isInFavorite) context.symphony.t.Unfavorite
+                    else context.symphony.t.Favorite
                 )
             },
             onClick = {
@@ -189,7 +189,7 @@ fun SongDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.playNext)
+                Text(context.symphony.t.PlayNext)
             },
             onClick = {
                 onDismissRequest()
@@ -204,7 +204,7 @@ fun SongDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.addToQueue)
+                Text(context.symphony.t.AddToQueue)
             },
             onClick = {
                 onDismissRequest()
@@ -216,7 +216,7 @@ fun SongDropdownMenu(
                 Icon(Icons.Default.PlaylistAdd, null)
             },
             text = {
-                Text(context.symphony.t.addToPlaylist)
+                Text(context.symphony.t.AddToPlaylist)
             },
             onClick = {
                 onDismissRequest()
@@ -229,7 +229,7 @@ fun SongDropdownMenu(
                     Icon(Icons.Default.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.viewArtist)
+                    Text(context.symphony.t.ViewArtist)
                 },
                 onClick = {
                     onDismissRequest()
@@ -245,7 +245,7 @@ fun SongDropdownMenu(
                     Icon(Icons.Default.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.viewAlbumArtist)
+                    Text(context.symphony.t.ViewAlbumArtist)
                 },
                 onClick = {
                     onDismissRequest()
@@ -260,7 +260,7 @@ fun SongDropdownMenu(
                 Icon(Icons.Default.Album, null)
             },
             text = {
-                Text(context.symphony.t.viewAlbum)
+                Text(context.symphony.t.ViewAlbum)
             },
             onClick = {
                 onDismissRequest()
@@ -274,7 +274,7 @@ fun SongDropdownMenu(
                 Icon(Icons.Default.Info, null)
             },
             text = {
-                Text(context.symphony.t.details)
+                Text(context.symphony.t.Details)
             },
             onClick = {
                 onDismissRequest()

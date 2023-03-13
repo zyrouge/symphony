@@ -26,7 +26,7 @@ fun AlbumsView(context: ViewContext, data: HomeViewData) {
                         modifier = modifier,
                     )
                 },
-                content = { Text(context.symphony.t.damnThisIsSoEmpty) }
+                content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
             )
         }
     }

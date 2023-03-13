@@ -77,7 +77,7 @@ fun GenreGrid(
                         context.symphony.settings.setLastUsedGenresSortBy(it)
                     },
                     label = {
-                        Text(context.symphony.t.XGenres(genres.size))
+                        Text(context.symphony.t.XGenres(genres.size.toString()))
                     },
                 )
             }
@@ -135,7 +135,7 @@ fun GenreGrid(
                                         .copy(fontWeight = FontWeight.Bold),
                                 )
                                 Text(
-                                    context.symphony.t.XSongs(genre.numberOfTracks),
+                                    context.symphony.t.XSongs(genre.numberOfTracks.toString()),
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.labelSmall,
                                 )
@@ -149,7 +149,7 @@ fun GenreGrid(
 }
 
 private fun GenreSortBy.label(context: ViewContext) = when (this) {
-    GenreSortBy.CUSTOM -> context.symphony.t.custom
-    GenreSortBy.GENRE -> context.symphony.t.genre
-    GenreSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
+    GenreSortBy.CUSTOM -> context.symphony.t.Custom
+    GenreSortBy.GENRE -> context.symphony.t.Genre
+    GenreSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

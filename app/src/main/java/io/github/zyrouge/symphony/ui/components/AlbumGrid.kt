@@ -42,7 +42,7 @@ fun AlbumGrid(
                     context.symphony.settings.setLastUsedAlbumsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XAlbums(albums.size))
+                    Text(context.symphony.t.XAlbums(albums.size.toString()))
                 },
             )
         },
@@ -61,8 +61,8 @@ fun AlbumGrid(
 }
 
 private fun AlbumSortBy.label(context: ViewContext) = when (this) {
-    AlbumSortBy.CUSTOM -> context.symphony.t.custom
-    AlbumSortBy.ALBUM_NAME -> context.symphony.t.album
-    AlbumSortBy.ARTIST_NAME -> context.symphony.t.artist
-    AlbumSortBy.TRACKS_COUNT -> context.symphony.t.trackCount
+    AlbumSortBy.CUSTOM -> context.symphony.t.Custom
+    AlbumSortBy.ALBUM_NAME -> context.symphony.t.Album
+    AlbumSortBy.ARTIST_NAME -> context.symphony.t.Artist
+    AlbumSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

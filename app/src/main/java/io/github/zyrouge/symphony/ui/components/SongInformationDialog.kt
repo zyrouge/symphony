@@ -14,71 +14,71 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
         context,
         content = {
             InformationKeyValue(
-                context.symphony.t.trackName,
+                context.symphony.t.TrackName,
                 song.title
             )
             InformationKeyValue(
-                context.symphony.t.artist,
-                song.artistName ?: context.symphony.t.unk
+                context.symphony.t.Artist,
+                song.artistName ?: context.symphony.t.UnknownSymbol
             )
             InformationKeyValue(
-                context.symphony.t.albumArtist,
-                song.additional.albumArtist ?: context.symphony.t.unk
+                context.symphony.t.AlbumArtist,
+                song.additional.albumArtist ?: context.symphony.t.UnknownSymbol
             )
             InformationKeyValue(
-                context.symphony.t.composer,
-                song.composer ?: context.symphony.t.unk
+                context.symphony.t.Composer,
+                song.composer ?: context.symphony.t.UnknownSymbol
             )
             song.year?.let {
-                InformationKeyValue(context.symphony.t.year, it.toString())
+                InformationKeyValue(context.symphony.t.Year, it.toString())
             }
             song.trackNumber?.let {
-                InformationKeyValue(context.symphony.t.trackNumber, it.toString())
+                InformationKeyValue(context.symphony.t.TrackNumber, it.toString())
             }
             InformationKeyValue(
-                context.symphony.t.duration,
+                context.symphony.t.Duration,
                 DurationFormatter.formatMs(song.duration)
             )
             song.additional.genre?.let {
-                InformationKeyValue(context.symphony.t.genre, it)
+                InformationKeyValue(context.symphony.t.Genre, it)
             }
             song.additional.bitrateK?.let {
                 InformationKeyValue(
-                    context.symphony.t.bitrate,
-                    context.symphony.t.XKbps(it)
+                    context.symphony.t.Bitrate,
+                    context.symphony.t.XKbps(it.toString())
                 )
             }
             song.additional.bitsPerSample?.let {
                 InformationKeyValue(
-                    context.symphony.t.bitDepth,
-                    context.symphony.t.XBit(it)
+                    context.symphony.t.BitDepth,
+                    context.symphony.t.XBit(it.toString())
                 )
             }
             song.additional.samplingRateK?.let {
                 InformationKeyValue(
-                    context.symphony.t.samplingRate,
-                    context.symphony.t.XKHz(it)
+                    context.symphony.t.SamplingRate,
+                    context.symphony.t.XKHz(it.toString())
                 )
             }
             InformationKeyValue(
-                context.symphony.t.filename,
+                context.symphony.t.Filename,
                 song.filename
             )
             InformationKeyValue(
-                context.symphony.t.path,
+                context.symphony.t.Path,
                 song.path
             )
             InformationKeyValue(
-                context.symphony.t.size,
+                context.symphony.t.Size,
                 "${round((song.size / 1024 / 1024).toDouble())} MB"
             )
             InformationKeyValue(
-                context.symphony.t.dateAdded,
+                context.symphony.t.DateAdded,
                 SimpleDateFormat.getInstance()
                     .format(Date(song.dateAdded))
             )
             InformationKeyValue(
-                context.symphony.t.lastModified,
+                context.symphony.t.LastModified,
                 SimpleDateFormat.getInstance()
                     .format(Date(song.dateModified))
             )

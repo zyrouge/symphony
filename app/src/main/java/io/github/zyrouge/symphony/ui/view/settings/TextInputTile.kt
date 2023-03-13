@@ -72,7 +72,7 @@ fun SettingsTextInputTile(
                             isOpen = false
                         }
                     ) {
-                        Text(context.symphony.t.reset)
+                        Text(context.symphony.t.Reset)
                     }
                 }
                 TextButton(
@@ -80,7 +80,7 @@ fun SettingsTextInputTile(
                         isOpen = false
                     }
                 ) {
-                    Text(context.symphony.t.cancel)
+                    Text(context.symphony.t.Cancel)
                 }
                 TextButton(
                     enabled = modified,
@@ -89,7 +89,7 @@ fun SettingsTextInputTile(
                         isOpen = false
                     }
                 ) {
-                    Text(context.symphony.t.done)
+                    Text(context.symphony.t.Done)
                 }
             },
         )

@@ -360,7 +360,7 @@ private fun SongTreeListMediaSortBar(
                 Row {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            context.symphony.t.folders,
+                            context.symphony.t.Folders,
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
@@ -380,7 +380,7 @@ private fun SongTreeListMediaSortBar(
                     }
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            context.symphony.t.songs,
+                            context.symphony.t.Songs,
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
@@ -402,7 +402,7 @@ private fun SongTreeListMediaSortBar(
             }
         }
         Text(
-            context.symphony.t.XSongs(songsCount),
+            context.symphony.t.XSongs(songsCount.toString()),
             style = currentTextStyle,
             modifier = Modifier.padding(16.dp, 0.dp),
         )
@@ -449,8 +449,8 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
 }
 
 private fun PathSortBy.label(context: ViewContext) = when (this) {
-    PathSortBy.CUSTOM -> context.symphony.t.custom
-    PathSortBy.NAME -> context.symphony.t.name
+    PathSortBy.CUSTOM -> context.symphony.t.Custom
+    PathSortBy.NAME -> context.symphony.t.Name
 }
 
 private fun createLinearTree(songs: List<Song>): Map<String, List<Song>> {

@@ -20,12 +20,15 @@ object ThemeColorSchemes {
     private const val BackgroundBlendRatio = 0.03f
     private const val SurfaceBlendRatio = 0.02f
     private const val SurfaceVariantBlendRatio = 0.01f
+    private const val BlackSurfaceBlendRatio = 0f
+    private const val BlackSurfaceVariantBlendRatio = 0f
     private const val DarkOnPrimaryLightness = -0.3f
     private const val DarkOnSecondaryLightness = -0.4f
     private const val DarkOnTertiaryLightness = -0.5f
     private const val LightOnBackgroundLightness = -0.5f
     private const val LightOnSurfaceLightness = -0.5f
     private const val LightOnSurfaceVariantLightness = -0.45f
+    private const val DarkToBlackBlendRatio = 0.4f
 
     fun createLightColorScheme(PrimaryColor: Color) = lightColorScheme(
         primary = PrimaryColor,
@@ -88,14 +91,34 @@ object ThemeColorSchemes {
         onTertiaryContainer = LightContrastColor,
         background = BlackContrastColor,
         onBackground = LightContrastColor,
-        surface = blendColors(BlackContrastColor, PrimaryColor, SurfaceBlendRatio),
+        surface = blendColors(BlackContrastColor, PrimaryColor, BlackSurfaceBlendRatio),
         onSurface = LightContrastColor,
-        surfaceVariant = blendColors(BlackContrastColor, PrimaryColor, SurfaceVariantBlendRatio),
+        surfaceVariant = blendColors(
+            BlackContrastColor,
+            PrimaryColor,
+            BlackSurfaceVariantBlendRatio
+        ),
         onSurfaceVariant = LightContrastColor,
     )
 
-    fun toBlackColorScheme(colorScheme: ColorScheme) =
-        colorScheme.copy(background = BlackContrastColor)
+    fun toBlackColorScheme(colorScheme: ColorScheme) = colorScheme.copy(
+        primaryContainer = convertDarkToBlack(colorScheme.primaryContainer),
+        secondaryContainer = convertDarkToBlack(colorScheme.secondaryContainer),
+        tertiaryContainer = convertDarkToBlack(colorScheme.tertiaryContainer),
+        background = BlackContrastColor,
+        surface = convertDarkToBlack(colorScheme.surface),
+        surfaceVariant = convertDarkToBlack(colorScheme.surfaceVariant),
+        surfaceTint = convertDarkToBlack(colorScheme.surfaceTint),
+    )
+
+    private fun convertDarkToBlack(color: Color): Color {
+        val argb = ColorUtils.blendARGB(
+            BlackContrastColor.toArgb(),
+            color.toArgb(),
+            DarkToBlackBlendRatio,
+        )
+        return Color(argb)
+    }
 
     private fun blendColors(color1: Color, color2: Color, ratio: Float) =
         Color(ColorUtils.blendARGB(color1.toArgb(), color2.toArgb(), ratio))

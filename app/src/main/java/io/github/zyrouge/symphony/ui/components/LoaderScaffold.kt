@@ -64,7 +64,7 @@ fun LoaderScaffold(
                         modifier = Modifier.size(16.dp),
                     )
                     Text(
-                        context.symphony.t.loading,
+                        context.symphony.t.Loading,
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }

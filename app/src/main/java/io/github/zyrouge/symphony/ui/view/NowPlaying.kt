@@ -138,7 +138,7 @@ fun NowPlayingAppBar(context: ViewContext) {
     CenterAlignedTopAppBar(
         title = {
             TopAppBarMinimalTitle {
-                Text(context.symphony.t.nowPlaying)
+                Text(context.symphony.t.NowPlaying)
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -167,7 +167,7 @@ fun NowPlayingLandscapeAppBar(context: ViewContext) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TopAppBarMinimalTitle {
-            Text(context.symphony.t.nowPlaying)
+            Text(context.symphony.t.NowPlaying)
         }
         Box(modifier = Modifier.weight(1f))
         IconButton(
@@ -481,9 +481,9 @@ private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    context.symphony.t.playingXofY(
-                        currentSongIndex + 1,
-                        queueSize
+                    context.symphony.t.PlayingXofY(
+                        (currentSongIndex + 1).toString(),
+                        queueSize.toString(),
                     )
                 )
             }
@@ -582,7 +582,7 @@ private fun NowPlayingSleepTimerDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(context.symphony.t.sleepTimer)
+            Text(context.symphony.t.SleepTimer)
         },
         content = {
             Text(
@@ -612,7 +612,7 @@ private fun NowPlayingSleepTimerDialog(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    context.symphony.t.quitAppOnEnd,
+                    context.symphony.t.QuitAppOnEnd,
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
@@ -623,7 +623,7 @@ private fun NowPlayingSleepTimerDialog(
                     onDismissRequest()
                 }
             ) {
-                Text(context.symphony.t.stop)
+                Text(context.symphony.t.Stop)
             }
         },
     )
@@ -657,7 +657,7 @@ private fun NowPlayingSleepTimerSetDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(context.symphony.t.sleepTimer)
+            Text(context.symphony.t.SleepTimer)
         },
         content = {
             Column(modifier = Modifier.padding(top = 12.dp)) {
@@ -700,7 +700,7 @@ private fun NowPlayingSleepTimerSetDialog(
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = {
-                            Text(context.symphony.t.hours)
+                            Text(context.symphony.t.Hours)
                         },
                         value = inputHours.toString(),
                         onValueChange = {
@@ -716,7 +716,7 @@ private fun NowPlayingSleepTimerSetDialog(
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = {
-                            Text(context.symphony.t.minutes)
+                            Text(context.symphony.t.Minutes)
                         },
                         value = inputMinutes.toString(),
                         onValueChange = {
@@ -736,13 +736,13 @@ private fun NowPlayingSleepTimerSetDialog(
                         }
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(context.symphony.t.quitAppOnEnd)
+                    Text(context.symphony.t.QuitAppOnEnd)
                 }
             }
         },
         actions = {
             TextButton(onClick = onDismissRequest) {
-                Text(context.symphony.t.cancel)
+                Text(context.symphony.t.Cancel)
             }
             TextButton(
                 enabled = isValidDuration,
@@ -754,7 +754,7 @@ private fun NowPlayingSleepTimerSetDialog(
                     onDismissRequest()
                 }
             ) {
-                Text(context.symphony.t.done)
+                Text(context.symphony.t.Done)
             }
         },
     )

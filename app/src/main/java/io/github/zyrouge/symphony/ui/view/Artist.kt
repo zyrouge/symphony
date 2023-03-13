@@ -59,7 +59,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
         artist = artist,
         songs = songs,
         albums = albums,
-        titlePrefix = context.symphony.t.artist,
+        titlePrefix = context.symphony.t.Artist,
     )
 }
 
@@ -206,7 +206,7 @@ private fun UnknownArtist(context: ViewContext, artistName: String) {
             )
         },
         content = {
-            Text(context.symphony.t.unknownArtistX(artistName))
+            Text(context.symphony.t.UnknownArtistX(artistName))
         }
     )
 }

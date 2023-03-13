@@ -14,23 +14,23 @@ fun PlaylistInformationDialog(
         context,
         content = {
             InformationKeyValue(
-                context.symphony.t.title,
+                context.symphony.t.Title,
                 playlist.title
             )
             InformationKeyValue(
-                context.symphony.t.trackCount,
+                context.symphony.t.TrackCount,
                 playlist.numberOfTracks.toString()
             )
             InformationKeyValue(
-                context.symphony.t.isLocalPlaylist,
+                context.symphony.t.IsLocalPlaylist,
                 when {
-                    playlist.isLocal() -> context.symphony.t.yes
-                    else -> context.symphony.t.no
+                    playlist.isLocal() -> context.symphony.t.Yes
+                    else -> context.symphony.t.No
                 },
             )
             playlist.local?.let { local ->
                 InformationKeyValue(
-                    context.symphony.t.path,
+                    context.symphony.t.Path,
                     local.path,
                 )
             }

@@ -149,7 +149,7 @@ private fun ArtistDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.shufflePlay)
+                Text(context.symphony.t.ShufflePlay)
             },
             onClick = {
                 onDismissRequest()
@@ -161,7 +161,7 @@ private fun ArtistDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.playNext)
+                Text(context.symphony.t.PlayNext)
             },
             onClick = {
                 onDismissRequest()
@@ -176,7 +176,7 @@ private fun ArtistDropdownMenu(
                 Icon(Icons.Default.PlaylistPlay, null)
             },
             text = {
-                Text(context.symphony.t.addToQueue)
+                Text(context.symphony.t.AddToQueue)
             },
             onClick = {
                 onDismissRequest()
@@ -188,7 +188,7 @@ private fun ArtistDropdownMenu(
                 Icon(Icons.Default.PlaylistAdd, null)
             },
             text = {
-                Text(context.symphony.t.addToPlaylist)
+                Text(context.symphony.t.AddToPlaylist)
             },
             onClick = {
                 onDismissRequest()

@@ -49,7 +49,7 @@ fun SongList(
                     type.setLastUsedSortBy(context, it)
                 },
                 label = {
-                    Text(context.symphony.t.XSongs(songs.size))
+                    Text(context.symphony.t.XSongs(songs.size.toString()))
                 },
                 onShufflePlay = {
                     context.symphony.radio.shorty.playQueue(sortedSongs, shuffle = true)
@@ -83,18 +83,18 @@ fun SongList(
 }
 
 fun SongSortBy.label(context: ViewContext) = when (this) {
-    SongSortBy.CUSTOM -> context.symphony.t.custom
-    SongSortBy.TITLE -> context.symphony.t.title
-    SongSortBy.ARTIST -> context.symphony.t.artist
-    SongSortBy.ALBUM -> context.symphony.t.album
-    SongSortBy.DURATION -> context.symphony.t.duration
-    SongSortBy.DATE_ADDED -> context.symphony.t.dateAdded
-    SongSortBy.DATE_MODIFIED -> context.symphony.t.lastModified
-    SongSortBy.COMPOSER -> context.symphony.t.composer
-    SongSortBy.ALBUM_ARTIST -> context.symphony.t.albumArtist
-    SongSortBy.YEAR -> context.symphony.t.year
-    SongSortBy.FILENAME -> context.symphony.t.filename
-    SongSortBy.TRACK_NUMBER -> context.symphony.t.trackNumber
+    SongSortBy.CUSTOM -> context.symphony.t.Custom
+    SongSortBy.TITLE -> context.symphony.t.Title
+    SongSortBy.ARTIST -> context.symphony.t.Artist
+    SongSortBy.ALBUM -> context.symphony.t.Album
+    SongSortBy.DURATION -> context.symphony.t.Duration
+    SongSortBy.DATE_ADDED -> context.symphony.t.DateAdded
+    SongSortBy.DATE_MODIFIED -> context.symphony.t.LastModified
+    SongSortBy.COMPOSER -> context.symphony.t.Composer
+    SongSortBy.ALBUM_ARTIST -> context.symphony.t.AlbumArtist
+    SongSortBy.YEAR -> context.symphony.t.Year
+    SongSortBy.FILENAME -> context.symphony.t.Filename
+    SongSortBy.TRACK_NUMBER -> context.symphony.t.TrackNumber
 }
 
 enum class SongListType {

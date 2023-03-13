@@ -30,47 +30,47 @@ enum class HomePages(
     val unselectedIcon: @Composable () -> ImageVector,
 ) {
     ForYou(
-        label = { it.symphony.t.forYou },
+        label = { it.symphony.t.ForYou },
         selectedIcon = { Icons.Filled.Face },
         unselectedIcon = { Icons.Outlined.Face }
     ),
     Songs(
-        label = { it.symphony.t.songs },
+        label = { it.symphony.t.Songs },
         selectedIcon = { Icons.Filled.MusicNote },
         unselectedIcon = { Icons.Outlined.MusicNote }
     ),
     Artists(
-        label = { it.symphony.t.artists },
+        label = { it.symphony.t.Artists },
         selectedIcon = { Icons.Filled.Group },
         unselectedIcon = { Icons.Outlined.Group }
     ),
     Albums(
-        label = { it.symphony.t.albums },
+        label = { it.symphony.t.Albums },
         selectedIcon = { Icons.Filled.Album },
         unselectedIcon = { Icons.Outlined.Album }
     ),
     AlbumArtists(
-        label = { it.symphony.t.albumArtists },
+        label = { it.symphony.t.AlbumArtists },
         selectedIcon = { Icons.Filled.SupervisorAccount },
         unselectedIcon = { Icons.Outlined.SupervisorAccount }
     ),
     Genres(
-        label = { it.symphony.t.genres },
+        label = { it.symphony.t.Genres },
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
     ),
     Folders(
-        label = { it.symphony.t.folders },
+        label = { it.symphony.t.Folders },
         selectedIcon = { Icons.Filled.Folder },
         unselectedIcon = { Icons.Outlined.Folder }
     ),
     Playlists(
-        label = { it.symphony.t.playlists },
+        label = { it.symphony.t.Playlists },
         selectedIcon = { Icons.Filled.QueueMusic },
         unselectedIcon = { Icons.Outlined.QueueMusic }
     ),
     Tree(
-        label = { it.symphony.t.tree },
+        label = { it.symphony.t.Tree },
         selectedIcon = { Icons.Filled.AccountTree },
         unselectedIcon = { Icons.Outlined.AccountTree }
     );
@@ -145,11 +145,11 @@ fun HomeView(context: ViewContext) {
                                     leadingIcon = {
                                         Icon(
                                             Icons.Default.Settings,
-                                            context.symphony.t.settings
+                                            context.symphony.t.Settings
                                         )
                                     },
                                     text = {
-                                        Text(context.symphony.t.settings)
+                                        Text(context.symphony.t.Settings)
                                     },
                                     onClick = {
                                         showOptionsDropdown = false

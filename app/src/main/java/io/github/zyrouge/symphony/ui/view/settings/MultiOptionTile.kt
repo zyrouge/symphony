@@ -151,7 +151,7 @@ fun <T> SettingsMultiOptionTile(
                         isOpen = false
                     }
                 ) {
-                    Text(context.symphony.t.cancel)
+                    Text(context.symphony.t.Cancel)
                 }
                 TextButton(
                     enabled = modified && satisfied,
@@ -160,7 +160,7 @@ fun <T> SettingsMultiOptionTile(
                         isOpen = false
                     }
                 ) {
-                    Text(context.symphony.t.done)
+                    Text(context.symphony.t.Done)
                 }
             },
         )

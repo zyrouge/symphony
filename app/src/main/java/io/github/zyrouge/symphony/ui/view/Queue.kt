@@ -53,7 +53,7 @@ fun QueueView(context: ViewContext) {
             CenterAlignedTopAppBar(
                 title = {
                     TopAppBarMinimalTitle {
-                        Text(context.symphony.t.queue)
+                        Text(context.symphony.t.Queue)
                     }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(

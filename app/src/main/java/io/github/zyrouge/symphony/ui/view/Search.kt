@@ -112,7 +112,7 @@ fun SearchView(context: ViewContext) {
                     value = terms,
                     onValueChange = { setTerms(it) },
                     placeholder = {
-                        Text(context.symphony.t.searchYourMusic)
+                        Text(context.symphony.t.SearchYourMusic)
                     },
                     leadingIcon = {
                         IconButton(
@@ -142,7 +142,7 @@ fun SearchView(context: ViewContext) {
                     FilterChip(
                         selected = selectedChip == null,
                         label = {
-                            Text(context.symphony.t.all)
+                            Text(context.symphony.t.All)
                         },
                         onClick = {
                             selectedChip = null
@@ -196,7 +196,7 @@ fun SearchView(context: ViewContext) {
                                         )
                                     },
                                     content = {
-                                        Text(context.symphony.t.filteringResults)
+                                        Text(context.symphony.t.FilteringResults)
                                     }
                                 )
                             }
@@ -212,7 +212,7 @@ fun SearchView(context: ViewContext) {
                                         )
                                     },
                                     content = {
-                                        Text(context.symphony.t.noResultsFound)
+                                        Text(context.symphony.t.NoResultsFound)
                                     }
                                 )
                             }
@@ -341,7 +341,11 @@ fun SearchView(context: ViewContext) {
                                             image = null,
                                             title = { Text(genre.name) },
                                             subtitle = {
-                                                Text(context.symphony.t.XSongs(genre.numberOfTracks))
+                                                Text(
+                                                    context.symphony.t.XSongs(
+                                                        genre.numberOfTracks.toString()
+                                                    )
+                                                )
                                             },
                                             options = null,
                                             onClick = {
@@ -377,10 +381,10 @@ private fun SideHeading(text: String) {
 }
 
 private fun GrooveKinds.label(context: ViewContext) = when (this) {
-    GrooveKinds.SONG -> context.symphony.t.songs
-    GrooveKinds.ALBUM -> context.symphony.t.albums
-    GrooveKinds.ARTIST -> context.symphony.t.artists
-    GrooveKinds.ALBUM_ARTIST -> context.symphony.t.albumArtists
-    GrooveKinds.GENRE -> context.symphony.t.genres
-    GrooveKinds.PLAYLIST -> context.symphony.t.playlists
+    GrooveKinds.SONG -> context.symphony.t.Songs
+    GrooveKinds.ALBUM -> context.symphony.t.Albums
+    GrooveKinds.ARTIST -> context.symphony.t.Artists
+    GrooveKinds.ALBUM_ARTIST -> context.symphony.t.AlbumArtists
+    GrooveKinds.GENRE -> context.symphony.t.Genres
+    GrooveKinds.PLAYLIST -> context.symphony.t.Playlists
 }

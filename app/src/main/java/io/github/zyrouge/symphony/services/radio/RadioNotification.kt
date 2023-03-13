@@ -46,7 +46,7 @@ class RadioNotification(private val symphony: Symphony) {
             addAction(
                 createAction(
                     R.drawable.material_icon_skip_previous,
-                    symphony.t.previous,
+                    symphony.t.Previous,
                     RadioSession.ACTION_PREVIOUS
                 )
             )
@@ -54,12 +54,12 @@ class RadioNotification(private val symphony: Symphony) {
                 when {
                     req.isPlaying -> createAction(
                         R.drawable.material_icon_pause,
-                        symphony.t.play,
+                        symphony.t.Play,
                         RadioSession.ACTION_PLAY_PAUSE
                     )
                     else -> createAction(
                         R.drawable.material_icon_play,
-                        symphony.t.pause,
+                        symphony.t.Pause,
                         RadioSession.ACTION_PLAY_PAUSE
                     )
                 }
@@ -67,14 +67,14 @@ class RadioNotification(private val symphony: Symphony) {
             addAction(
                 createAction(
                     R.drawable.material_icon_skip_next,
-                    symphony.t.next,
+                    symphony.t.Next,
                     RadioSession.ACTION_NEXT
                 )
             )
             addAction(
                 createAction(
                     R.drawable.material_icon_stop,
-                    symphony.t.stop,
+                    symphony.t.Stop,
                     RadioSession.ACTION_STOP
                 )
             )

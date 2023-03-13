@@ -16,11 +16,11 @@ fun IntroductoryDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text("\uD83D\uDC4B " + context.symphony.t.helloThere)
+            Text("\uD83D\uDC4B " + context.symphony.t.HelloThere)
         },
         content = {
             Box(modifier = Modifier.padding(16.dp, 12.dp)) {
-                Text(context.symphony.t.introductoryMessage)
+                Text(context.symphony.t.IntroductoryMessage)
             }
         }
     )

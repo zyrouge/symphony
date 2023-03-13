@@ -54,13 +54,13 @@ data class Song(
         fun toSamplingInfoString(symphony: Symphony): String? {
             val values = mutableListOf<String>()
             bitsPerSample?.let {
-                values.add(symphony.t.XBit(it))
+                values.add(symphony.t.XBit(it.toString()))
             }
             bitrateK?.let {
-                values.add(symphony.t.XKbps(it))
+                values.add(symphony.t.XKbps(it.toString()))
             }
             samplingRateK?.let {
-                values.add(symphony.t.XKHz(it))
+                values.add(symphony.t.XKHz(it.toString()))
             }
             return when {
                 values.isNotEmpty() -> values.joinToString(", ")

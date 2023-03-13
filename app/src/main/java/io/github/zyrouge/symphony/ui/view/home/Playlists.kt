@@ -67,7 +67,7 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
                         )
                     },
                     content = {
-                        Text(context.symphony.t.damnThisIsSoEmpty)
+                        Text(context.symphony.t.DamnThisIsSoEmpty)
                     }
                 )
             }
@@ -90,7 +90,7 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
                     } ?: run {
                         Toast.makeText(
                             context.symphony.applicationContext,
-                            context.symphony.t.invalidM3UFile,
+                            context.symphony.t.InvalidM3UFile,
                             Toast.LENGTH_LONG,
                         )
                     }
@@ -139,7 +139,7 @@ private fun PlaylistControlBar(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(context.symphony.t.newPlaylist)
+                Text(context.symphony.t.NewPlaylist)
             }
         }
         ElevatedButton(
@@ -153,7 +153,7 @@ private fun PlaylistControlBar(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(context.symphony.t.importPlaylist)
+                Text(context.symphony.t.ImportPlaylist)
             }
         }
     }
@@ -170,12 +170,12 @@ private fun SelectPlaylistDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(context.symphony.t.importPlaylist)
+            Text(context.symphony.t.ImportPlaylist)
         },
         content = {
             when {
                 playlists.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
-                    SubtleCaptionText(context.symphony.t.noLocalPlaylistsFound)
+                    SubtleCaptionText(context.symphony.t.NoLocalPlaylistsFound)
                 }
                 else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
                     items(playlists) { playlist ->
@@ -233,7 +233,7 @@ private fun NewPlaylistDialog(
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(context.symphony.t.newPlaylist)
+            Text(context.symphony.t.NewPlaylist)
         },
         content = {
             Box(
@@ -261,7 +261,7 @@ private fun NewPlaylistDialog(
                     showSongsPicker = true
                 }
             ) {
-                Text(context.symphony.t.addSongs + " (${songs.size})")
+                Text(context.symphony.t.AddSongs + " (${songs.size})")
             }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
@@ -274,7 +274,7 @@ private fun NewPlaylistDialog(
                     onDone(playlist)
                 }
             ) {
-                Text(context.symphony.t.done)
+                Text(context.symphony.t.Done)
             }
         },
     )

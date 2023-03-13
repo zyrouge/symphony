@@ -58,7 +58,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                 title = {
                     TopAppBarMinimalTitle {
                         Text(
-                            context.symphony.t.album
+                            context.symphony.t.Album
                                     + (album?.let { " - ${it.name}" } ?: "")
                         )
                     }
@@ -175,7 +175,7 @@ private fun UnknownAlbum(context: ViewContext, albumId: Long) {
             )
         },
         content = {
-            Text(context.symphony.t.unknownAlbumX(albumId))
+            Text(context.symphony.t.UnknownAlbumId(albumId.toString()))
         }
     )
 }

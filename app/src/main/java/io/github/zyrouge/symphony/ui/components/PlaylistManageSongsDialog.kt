@@ -40,7 +40,7 @@ fun PlaylistManageSongsDialog(
             onDone(allSelectedSongs.toList())
         },
         title = {
-            Text(context.symphony.t.manageSongs)
+            Text(context.symphony.t.ManageSongs)
         },
         titleLeading = {
             Box(
@@ -77,7 +77,7 @@ fun PlaylistManageSongsDialog(
         content = {
             when {
                 allSongs.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
-                    SubtleCaptionText(context.symphony.t.damnThisIsSoEmpty)
+                    SubtleCaptionText(context.symphony.t.DamnThisIsSoEmpty)
                 }
                 else -> BoxWithConstraints {
                     LazyColumn(

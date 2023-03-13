@@ -124,7 +124,7 @@ fun SettingsSliderTile(
                             isOpen = false
                         }
                     ) {
-                        Text(context.symphony.t.reset)
+                        Text(context.symphony.t.Reset)
                     }
                 }
                 TextButton(
@@ -133,7 +133,7 @@ fun SettingsSliderTile(
                         isOpen = false
                     }
                 ) {
-                    Text(context.symphony.t.done)
+                    Text(context.symphony.t.Done)
                 }
             },
         )
