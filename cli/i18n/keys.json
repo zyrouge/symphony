@@ -128,13 +128,14 @@
         "EnableSeekControls",
         "MiniPlayerTrackControls",
         "MiniPlayerSeekControls",
-        "SuggestedAlbumArtists"
+        "SuggestedAlbumArtists",
+        "AreYouSureThatYouWantToDeleteThisPlaylist"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],
         "UnknownArtistX": ["x"],
         "XSongs": ["x"],
-        "UnknownAlbumX": ["id"],
+        "UnknownAlbumId": ["id"],
         "XArtists": ["x"],
         "XAlbums": ["x"],
         "MadeByX": ["x"],
