@@ -75,12 +75,12 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(
                 context.symphony.t.DateAdded,
                 SimpleDateFormat.getInstance()
-                    .format(Date(song.dateAdded))
+                    .format(Date(song.dateAdded * 1000))
             )
             InformationKeyValue(
                 context.symphony.t.LastModified,
                 SimpleDateFormat.getInstance()
-                    .format(Date(song.dateModified))
+                    .format(Date(song.dateModified * 1000))
             )
         },
         onDismissRequest = onDismissRequest,
