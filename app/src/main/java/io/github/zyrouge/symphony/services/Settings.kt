@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.services
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.*
@@ -117,7 +118,11 @@ object SettingsDataDefaults {
         ForYou.Albums,
         ForYou.Artists
     )
-    val blacklistFolders = setOf<String>()
+    val blacklistFolders = setOf<String>(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS).path,
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS).path,
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES).path,
+    )
     val whitelistFolders = setOf<String>()
     const val readIntroductoryMessage = false
     const val showNowPlayingAdditionalInfo = true
