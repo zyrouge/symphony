@@ -129,7 +129,8 @@
         "MiniPlayerTrackControls",
         "MiniPlayerSeekControls",
         "SuggestedAlbumArtists",
-        "AreYouSureThatYouWantToDeleteThisPlaylist"
+        "AreYouSureThatYouWantToDeleteThisPlaylist",
+        "RemoveFromPlaylist"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

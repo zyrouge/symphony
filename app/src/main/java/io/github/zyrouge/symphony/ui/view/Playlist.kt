@@ -2,20 +2,21 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.swap
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistView(context: ViewContext, playlistId: String) {
+    val coroutineScope = rememberCoroutineScope()
     var playlist by remember {
         mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
     }
@@ -100,6 +101,33 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                         songs = songs,
                         type = SongListType.Playlist,
                         disableHeartIcon = isFavoritesPlaylist,
+                        trailingOptionsContent = { _, song, onDismissRequest ->
+                            playlist?.takeIf { it.isNotLocal() }?.let {
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.DeleteForever,
+                                            null,
+                                            tint = ThemeColors.Red,
+                                        )
+                                    },
+                                    text = {
+                                        Text(context.symphony.t.RemoveFromPlaylist)
+                                    },
+                                    onClick = {
+                                        onDismissRequest()
+                                        coroutineScope.launch {
+                                            context.symphony.groove.playlist.updatePlaylistSongs(
+                                                it,
+                                                it.songs.toMutableList().apply {
+                                                    remove(song.id)
+                                                },
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        },
                     )
                     else -> UnknownPlaylist(context, playlistId)
                 }

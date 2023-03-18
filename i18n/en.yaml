@@ -138,6 +138,7 @@ Translations:
     MiniPlayerSeekControls: Mini-player seek controls
     SuggestedAlbumArtists: Suggested album artists
     AreYouSureThatYouWantToDeleteThisPlaylist: Are you sure that you want to delete this playlist?
+    RemoveFromPlaylist: Remove from playlist
 
     # Dynamic
     PlayingXofY: Playing $x of $y

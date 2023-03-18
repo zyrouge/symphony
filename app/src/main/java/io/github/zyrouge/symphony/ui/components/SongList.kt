@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -20,6 +21,7 @@ fun SongList(
     songs: List<Song>,
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
+    trailingOptionsContent: (@Composable ColumnScope.(Int, Song, () -> Unit) -> Unit)? = null,
     type: SongListType = SongListType.Default,
     disableHeartIcon: Boolean = false,
 ) {
@@ -69,7 +71,14 @@ fun SongList(
                     key = { i, x -> "$i-${x.id}" },
                     contentType = { _, _ -> GrooveKinds.SONG }
                 ) { i, song ->
-                    SongCard(context, song, disableHeartIcon = disableHeartIcon) {
+                    SongCard(
+                        context,
+                        song = song,
+                        disableHeartIcon = disableHeartIcon,
+                        trailingOptionsContent = trailingOptionsContent?.let {
+                            { onDismissRequest -> it(i, song, onDismissRequest) }
+                        },
+                    ) {
                         context.symphony.radio.shorty.playQueue(
                             sortedSongs,
                             Radio.PlayOptions(index = i)

@@ -29,6 +29,7 @@ fun SongCard(
     disableHeartIcon: Boolean = false,
     leading: @Composable () -> Unit = {},
     thumbnailLabel: (@Composable () -> Unit)? = null,
+    trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     var isCurrentPlaying by remember {
@@ -142,6 +143,7 @@ fun SongCard(
                         SongDropdownMenu(
                             context,
                             song,
+                            trailingContent = trailingOptionsContent,
                             expanded = showOptionsMenu,
                             onDismissRequest = {
                                 showOptionsMenu = false
@@ -158,6 +160,7 @@ fun SongCard(
 fun SongDropdownMenu(
     context: ViewContext,
     song: Song,
+    trailingContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
 ) {
@@ -286,6 +289,7 @@ fun SongDropdownMenu(
                 showInfoDialog = true
             }
         )
+        trailingContent?.invoke(this, onDismissRequest)
     }
 
     if (showInfoDialog) {
