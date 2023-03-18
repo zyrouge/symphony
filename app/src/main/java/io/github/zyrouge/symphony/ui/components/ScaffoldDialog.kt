@@ -29,6 +29,7 @@ fun ScaffoldDialog(
     content: @Composable () -> Unit,
     actions: (@Composable RowScope.() -> Unit)? = null,
     contentHeight: Float? = null,
+    removeActionsHorizontalPadding: Boolean = false,
     onDismissRequest: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -80,7 +81,9 @@ fun ScaffoldDialog(
                     content()
                 }
                 actions?.let {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    if (!removeActionsHorizontalPadding) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                     Row(
                         horizontalArrangement = Arrangement.End,
                         modifier = Modifier
@@ -89,7 +92,9 @@ fun ScaffoldDialog(
                     ) {
                         actions()
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    if (!removeActionsHorizontalPadding) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }

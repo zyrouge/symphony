@@ -215,7 +215,7 @@ private fun SelectPlaylistDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NewPlaylistDialog(
+fun NewPlaylistDialog(
     context: ViewContext,
     onDone: (Playlist) -> Unit,
     onDismissRequest: () -> Unit,
