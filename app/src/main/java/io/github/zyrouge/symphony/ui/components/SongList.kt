@@ -102,13 +102,10 @@ enum class SongListType {
     Playlist,
     Album;
 
-    fun getLastUsedSortBy(context: ViewContext): SongSortBy {
-        val sort = when (this) {
-            Default -> context.symphony.settings.getLastUsedSongsSortBy()
-            Playlist -> context.symphony.settings.getLastUsedPlaylistSongsSortBy()
-            Album -> context.symphony.settings.getLastUsedAlbumSongsSortBy()
-        }
-        return sort ?: SongSortBy.TITLE
+    fun getLastUsedSortBy(context: ViewContext) = when (this) {
+        Default -> context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE
+        Album -> context.symphony.settings.getLastUsedAlbumSongsSortBy() ?: SongSortBy.TITLE
+        Playlist -> context.symphony.settings.getLastUsedPlaylistSongsSortBy() ?: SongSortBy.CUSTOM
     }
 
     fun setLastUsedSortBy(context: ViewContext, sort: SongSortBy) {
