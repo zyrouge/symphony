@@ -89,9 +89,16 @@ class AlbumRepository(private val symphony: Symphony) {
         it.artist == artistName
     }
 
-    fun getAlbumsOfAlbumArtist(artistName: String) =
-        symphony.groove.song.getAlbumIdsOfAlbumArtist(artistName)
-            .mapNotNull { getAlbumWithId(it) }
+    fun getAlbumsOfAlbumArtist(artistName: String): List<Album> {
+        val albums = mutableListOf<Album>()
+        val albumArtist = symphony.groove.albumArtist.getAlbumArtistFromName(artistName)
+        albumArtist?.albumIdsSet?.forEach { albumId ->
+            getAlbumWithId(albumId)?.let {
+                albums.add(it)
+            }
+        }
+        return albums.toList()
+    }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

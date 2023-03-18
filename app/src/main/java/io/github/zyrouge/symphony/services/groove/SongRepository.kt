@@ -24,7 +24,6 @@ enum class SongSortBy {
 
 class SongRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<Long, Song>()
-    private var cachedAlbumArtists = ConcurrentHashMap<String, MutableSet<Long>>()
     internal var cachedGenres = ConcurrentHashMap<String, Genre>()
     internal var cachedPaths = ConcurrentHashMap<String, Long>()
     var isUpdating = false
@@ -100,8 +99,16 @@ class SongRepository(private val symphony: Symphony) {
                             cached[song.id] = song
                             nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
                             song.additional.albumArtist?.let { albumArtist ->
-                                cachedAlbumArtists.compute(albumArtist) { _, value ->
-                                    value?.apply { add(song.albumId) } ?: mutableSetOf(song.albumId)
+                                symphony.groove.albumArtist.cached.compute(albumArtist) { _, value ->
+                                    value
+                                        ?.apply {
+                                            albumIdsSet.add(song.albumId)
+                                            numberOfTracks++
+                                        } ?: AlbumArtist(
+                                        name = albumArtist,
+                                        albumIdsSet = mutableSetOf(song.albumId),
+                                        numberOfTracks = 1,
+                                    )
                                 }
                             }
                             song.additional.genre?.let { genre ->
@@ -129,7 +136,6 @@ class SongRepository(private val symphony: Symphony) {
 
     fun reset() {
         cached.clear()
-        cachedAlbumArtists.clear()
         cachedGenres.clear()
         cachedPaths.clear()
         explorer = createNewExplorer()
@@ -154,10 +160,6 @@ class SongRepository(private val symphony: Symphony) {
 
     fun getSongWithId(songId: Long) = cached[songId]
     fun hasSongWithId(songId: Long) = getSongWithId(songId) != null
-
-    fun getAlbumArtistNames() = cachedAlbumArtists.keys.toList()
-    fun getAlbumIdsOfAlbumArtist(artistName: String) =
-        cachedAlbumArtists[artistName]?.toList() ?: listOf()
 
     fun getSongsOfArtist(artistName: String) = getAll { it.artistName == artistName }
     fun getSongsOfAlbum(albumId: Long) = getAll { it.albumId == albumId }

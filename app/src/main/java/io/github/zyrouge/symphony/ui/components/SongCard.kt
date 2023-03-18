@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
@@ -97,12 +98,16 @@ fun SongCard(
                                 highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
                                 else -> LocalTextStyle.current.color
                             }
-                        )
+                        ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     song.artistName?.let { artistName ->
                         Text(
                             artistName,
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
@@ -250,7 +255,7 @@ fun SongDropdownMenu(
                 onClick = {
                     onDismissRequest()
                     context.navController.navigate(
-                        RoutesBuilder.buildArtistRoute(albumArtist)
+                        RoutesBuilder.buildAlbumArtistRoute(albumArtist)
                     )
                 }
             )

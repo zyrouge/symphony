@@ -14,23 +14,6 @@ fun ArtistGrid(
     context: ViewContext,
     artists: List<Artist>,
 ) {
-    ArtistGrid(context, artists, isAlbumArtist = false)
-}
-
-@Composable
-fun AlbumArtistGrid(
-    context: ViewContext,
-    artists: List<Artist>,
-) {
-    ArtistGrid(context, artists, isAlbumArtist = true)
-}
-
-@Composable
-internal fun ArtistGrid(
-    context: ViewContext,
-    artists: List<Artist>,
-    isAlbumArtist: Boolean,
-) {
     var sortBy by remember {
         mutableStateOf(
             context.symphony.settings.getLastUsedArtistsSortBy() ?: ArtistSortBy.ARTIST_NAME
@@ -70,7 +53,7 @@ internal fun ArtistGrid(
                     key = { i, x -> "$i-${x.name}" },
                     contentType = { _, _ -> GrooveKinds.ARTIST }
                 ) { _, artist ->
-                    ArtistTile(context, artist, isAlbumArtist)
+                    ArtistTile(context, artist)
                 }
             }
         }

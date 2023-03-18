@@ -32,7 +32,7 @@ fun SearchView(context: ViewContext) {
     val songs = remember { mutableStateListOf<Song>() }
     val artists = remember { mutableStateListOf<Artist>() }
     val albums = remember { mutableStateListOf<Album>() }
-    val albumArtists = remember { mutableStateListOf<Artist>() }
+    val albumArtists = remember { mutableStateListOf<AlbumArtist>() }
     val genres = remember { mutableStateListOf<Genre>() }
     val playlists = remember { mutableStateListOf<Playlist>() }
 
@@ -284,25 +284,25 @@ fun SearchView(context: ViewContext) {
                                 }
                                 if (hasAlbumArtists) {
                                     SideHeading(context, GrooveKinds.ALBUM_ARTIST)
-                                    albumArtists.forEach { artist ->
+                                    albumArtists.forEach { albumArtist ->
                                         GenericGrooveCard(
-                                            image = artist
+                                            image = albumArtist
                                                 .createArtworkImageRequest(context.symphony)
                                                 .build(),
                                             title = {
-                                                Text(artist.name)
+                                                Text(albumArtist.name)
                                             },
                                             options = { expanded, onDismissRequest ->
                                                 AlbumArtistDropdownMenu(
                                                     context,
-                                                    artist,
+                                                    albumArtist,
                                                     expanded = expanded,
                                                     onDismissRequest = onDismissRequest,
                                                 )
                                             },
                                             onClick = {
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildAlbumArtistRoute(artist.name)
+                                                    RoutesBuilder.buildAlbumArtistRoute(albumArtist.name)
                                                 )
                                             }
                                         )

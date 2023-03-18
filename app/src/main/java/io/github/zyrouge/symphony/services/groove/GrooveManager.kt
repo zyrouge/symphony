@@ -52,6 +52,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
                 async { song.reset() },
                 async { album.reset() },
                 async { artist.reset() },
+                async { albumArtist.reset() },
                 async { playlist.reset() },
             )
         }.join()

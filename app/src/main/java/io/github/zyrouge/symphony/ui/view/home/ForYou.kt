@@ -22,10 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.Album
-import io.github.zyrouge.symphony.services.groove.Artist
-import io.github.zyrouge.symphony.services.groove.SongRepository
-import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -217,10 +214,10 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                             label = context.symphony.t.SuggestedArtists,
                             randomArtists = randomArtists
                         )
-                        ForYou.AlbumArtists -> SuggestedArtists(
+                        ForYou.AlbumArtists -> SuggestedAlbumArtists(
                             context = context,
                             label = context.symphony.t.SuggestedAlbumArtists,
-                            randomArtists = randomAlbumArtists
+                            randomAlbumArtists = randomAlbumArtists
                         )
                     }
                 }
@@ -349,6 +346,39 @@ private fun SuggestedArtists(context: ViewContext, label: String, randomArtists:
         ) {
             AsyncImage(
                 artist.createArtworkImageRequest(context.symphony).build(),
+                null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(4.dp)),
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SuggestedAlbumArtists(
+    context: ViewContext,
+    label: String,
+    randomAlbumArtists: List<AlbumArtist>,
+) {
+    Spacer(modifier = Modifier.height(24.dp))
+    SideHeading {
+        Text(label)
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+    SixGrid(randomAlbumArtists) { albumArtist ->
+        Card(
+            onClick = {
+                context.navController.navigate(
+                    RoutesBuilder.buildAlbumArtistRoute(albumArtist.name)
+                )
+            }
+        ) {
+            AsyncImage(
+                albumArtist.createArtworkImageRequest(context.symphony).build(),
                 null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

@@ -19,7 +19,7 @@ class ArtistRepository(private val symphony: Symphony) {
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
 
-    internal val searcher = FuzzySearcher<Artist>(
+    private val searcher = FuzzySearcher<Artist>(
         options = listOf(
             FuzzySearchOption({ it.name })
         )

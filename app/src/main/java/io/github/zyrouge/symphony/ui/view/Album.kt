@@ -1,25 +1,17 @@
 package io.github.zyrouge.symphony.ui.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import androidx.compose.ui.text.style.TextOverflow
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.*
-import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 
@@ -58,8 +50,9 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                 title = {
                     TopAppBarMinimalTitle {
                         Text(
-                            context.symphony.t.Album
-                                    + (album?.let { " - ${it.name}" } ?: "")
+                            context.symphony.t.Album + (album?.let { " - ${it.name}" } ?: ""),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 },
@@ -96,72 +89,27 @@ fun AlbumView(context: ViewContext, albumId: Long) {
 
 @Composable
 private fun AlbumHero(context: ViewContext, album: Album) {
-    val defaultHorizontalPadding = 20.dp
-    BoxWithConstraints {
-        AsyncImage(
-            album.createArtworkImageRequest(context.symphony).build(),
-            null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(
-                    when (ScreenOrientation.fromConfiguration(LocalConfiguration.current)) {
-                        ScreenOrientation.PORTRAIT -> maxWidth.times(0.7f)
-                        ScreenOrientation.LANDSCAPE -> maxWidth.times(0.25f)
-                    }
-                )
-        )
-        Row(
-            modifier = Modifier
-                .background(
-                    brush = Brush.Companion.verticalGradient(
-                        0f to Color.Transparent,
-                        1f to MaterialTheme.colorScheme.surface.copy(
-                            alpha = 0.7f
-                        )
-                    )
-                )
-                .align(Alignment.BottomStart)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(defaultHorizontalPadding, 32.dp, defaultHorizontalPadding, 12.dp)
-                    .weight(1f)
-            ) {
+    GenericGrooveBanner(
+        image = album.createArtworkImageRequest(context.symphony).build(),
+        options = { expanded, onDismissRequest ->
+            AlbumDropdownMenu(
+                context,
+                album,
+                expanded = expanded,
+                onDismissRequest = onDismissRequest
+            )
+        },
+        content = {
+            Text(album.name)
+            album.artist?.let { artistName ->
                 Text(
-                    album.name,
-                    style = MaterialTheme.typography.headlineSmall
+                    artistName,
+                    style = MaterialTheme.typography.bodyMedium
                         .copy(fontWeight = FontWeight.Bold)
                 )
-                album.artist?.let { artistName ->
-                    Text(artistName)
-                }
-            }
-
-            Box(modifier = Modifier.padding(4.dp)) {
-                var showOptionsMenu by remember {
-                    mutableStateOf(false)
-                }
-                IconButton(
-                    onClick = {
-                        showOptionsMenu = !showOptionsMenu
-                    }
-                ) {
-                    Icon(Icons.Default.MoreVert, null)
-                    AlbumDropdownMenu(
-                        context,
-                        album,
-                        expanded = showOptionsMenu,
-                        onDismissRequest = {
-                            showOptionsMenu = false
-                        }
-                    )
-                }
             }
         }
-    }
+    )
 }
 
 @Composable

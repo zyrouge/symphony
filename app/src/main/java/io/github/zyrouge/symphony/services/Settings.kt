@@ -27,6 +27,8 @@ object SettingsKeys {
     const val lastUsedSongsSortReverse = "last_used_song_sort_reverse"
     const val lastUsedArtistsSortBy = "last_used_artists_sort_by"
     const val lastUsedArtistsSortReverse = "last_used_artists_sort_reverse"
+    const val lastUsedAlbumArtistsSortBy = "last_used_album_artists_sort_by"
+    const val lastUsedAlbumArtistsSortReverse = "last_used_album_artists_sort_reverse"
     const val lastUsedAlbumsSortBy = "last_used_albums_sort_by"
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
     const val lastUsedGenresSortBy = "last_used_genres_sort_by"
@@ -224,6 +226,29 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.lastUsedArtistsSortReverse, reverse)
         }
         onChange.dispatch(SettingsKeys.lastUsedArtistsSortReverse)
+    }
+
+    fun getLastUsedAlbumArtistsSortBy() =
+        getSharedPreferences().getEnum<AlbumArtistSortBy>(
+            SettingsKeys.lastUsedAlbumArtistsSortBy,
+            null
+        )
+
+    fun setLastUsedAlbumArtistsSortBy(sortBy: AlbumArtistSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedAlbumArtistsSortBy, sortBy)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedAlbumArtistsSortBy)
+    }
+
+    fun getLastUsedAlbumArtistsSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedAlbumArtistsSortReverse, false)
+
+    fun setLastUsedAlbumArtistsSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedAlbumArtistsSortReverse, reverse)
+        }
+        onChange.dispatch(SettingsKeys.lastUsedAlbumArtistsSortReverse)
     }
 
     fun getLastUsedAlbumsSortBy() =

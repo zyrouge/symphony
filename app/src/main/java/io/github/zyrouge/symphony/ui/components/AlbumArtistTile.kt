@@ -1,64 +1,54 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import io.github.zyrouge.symphony.services.groove.Album
+import io.github.zyrouge.symphony.services.groove.AlbumArtist
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
-fun AlbumTile(context: ViewContext, album: Album) {
+fun AlbumArtistTile(context: ViewContext, albumArtist: AlbumArtist) {
     SquareGrooveTile(
-        image = album.createArtworkImageRequest(context.symphony).build(),
+        image = albumArtist.createArtworkImageRequest(context.symphony).build(),
         options = { expanded, onDismissRequest ->
-            AlbumDropdownMenu(
+            AlbumArtistDropdownMenu(
                 context,
-                album,
+                albumArtist,
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
             )
         },
         content = {
             Text(
-                album.name,
+                albumArtist.name,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            album.artist?.let { artistName ->
-                Text(
-                    artistName,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         },
         onPlay = {
             context.symphony.radio.shorty.playQueue(
-                context.symphony.groove.song.getSongsOfAlbum(album.id)
+                context.symphony.groove.song.getSongsOfAlbumArtist(albumArtist.name)
             )
         },
         onClick = {
-            context.navController.navigate(RoutesBuilder.buildAlbumRoute(album.id))
+            context.navController.navigate(RoutesBuilder.buildAlbumArtistRoute(albumArtist.name))
         }
     )
 }
 
 @Composable
-fun AlbumDropdownMenu(
+fun AlbumArtistDropdownMenu(
     context: ViewContext,
-    album: Album,
+    albumArtist: AlbumArtist,
     expanded: Boolean,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
 
@@ -76,8 +66,8 @@ fun AlbumDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    context.symphony.groove.song.getSongsOfAlbum(album.id),
-                    shuffle = true,
+                    context.symphony.groove.song.getSongsOfAlbumArtist(albumArtist.name),
+                    shuffle = true
                 )
             }
         )
@@ -91,7 +81,7 @@ fun AlbumDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.song.getSongsOfAlbum(album.id),
+                    context.symphony.groove.song.getSongsOfAlbumArtist(albumArtist.name),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -106,7 +96,7 @@ fun AlbumDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.song.getSongsOfAlbum(album.id)
+                    context.symphony.groove.song.getSongsOfAlbumArtist(albumArtist.name)
                 )
             }
         )
@@ -122,28 +112,12 @@ fun AlbumDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        album.artist?.let { artistName ->
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Default.Person, null)
-                },
-                text = {
-                    Text(context.symphony.t.ViewArtist)
-                },
-                onClick = {
-                    onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildArtistRoute(artistName)
-                    )
-                }
-            )
-        }
     }
 
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songs = context.symphony.groove.song.getSongsOfAlbum(album.id).map { it.id },
+            songs = context.symphony.groove.song.getSongsOfArtist(albumArtist.name).map { it.id },
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }
