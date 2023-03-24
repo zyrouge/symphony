@@ -20,8 +20,8 @@ fun SettingsSimpleTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = { subtitle?.let { it() } }
+            headlineContent = { title() },
+            supportingContent = { subtitle?.let { it() } }
         )
     }
 }

@@ -1,8 +1,8 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Article
+import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,6 +38,8 @@ import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.*
 import io.github.zyrouge.symphony.utils.DurationFormatter
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.*
 
@@ -51,6 +55,10 @@ private data class PlayerStateData(
     val enableSeekControls: Boolean,
     val seekBackDuration: Int,
     val seekForwardDuration: Int,
+)
+
+private data class NowPlayingStates(
+    val showLyrics: MutableStateFlow<Boolean>,
 )
 
 @Composable
@@ -166,10 +174,12 @@ fun NowPlayingLandscapeAppBar(context: ViewContext) {
         modifier = Modifier.padding(defaultHorizontalPadding, 4.dp, 12.dp, 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TopAppBarMinimalTitle {
+        TopAppBarMinimalTitle(
+            modifier = Modifier.weight(1f),
+            fillMaxWidth = false,
+        ) {
             Text(context.symphony.t.NowPlaying)
         }
-        Box(modifier = Modifier.weight(1f))
         IconButton(
             onClick = {
                 context.navController.popBackStack()
@@ -184,9 +194,14 @@ fun NowPlayingLandscapeAppBar(context: ViewContext) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
+    val states = remember {
+        NowPlayingStates(
+            showLyrics = MutableStateFlow(false),
+        )
+    }
+
     data.run {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val orientation = ScreenOrientation.fromConstraints(this@BoxWithConstraints)
@@ -202,27 +217,27 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                         when (orientation) {
                             ScreenOrientation.PORTRAIT -> Column(modifier = Modifier.fillMaxSize()) {
                                 Box(modifier = Modifier.weight(1f))
-                                NowPlayingBodyCover(context, data)
+                                NowPlayingBodyCover(context, data, states)
                                 Box(modifier = Modifier.weight(1f))
                                 Column {
                                     NowPlayingBodyContent(context, data)
-                                    NowPlayingBodyBottomBar(context, data)
+                                    NowPlayingBodyBottomBar(context, data, states)
                                 }
                             }
                             ScreenOrientation.LANDSCAPE -> Row(modifier = Modifier.fillMaxSize()) {
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .padding(0.dp, 12.dp)
+                                        .padding(top = 12.dp, bottom = 20.dp)
                                 ) {
-                                    NowPlayingBodyCover(context, data)
+                                    NowPlayingBodyCover(context, data, states)
                                 }
                                 Box(modifier = Modifier.weight(1f)) {
                                     Column {
                                         NowPlayingLandscapeAppBar(context)
                                         Box(modifier = Modifier.weight(1f))
                                         NowPlayingBodyContent(context, data)
-                                        NowPlayingBodyBottomBar(context, data)
+                                        NowPlayingBodyBottomBar(context, data, states)
                                     }
                                 }
                             }
@@ -234,20 +249,75 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun NowPlayingBodyCover(context: ViewContext, data: PlayerStateData) {
+private fun NowPlayingBodyCover(
+    context: ViewContext,
+    data: PlayerStateData,
+    states: NowPlayingStates,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val showLyrics by states.showLyrics.collectAsState()
+    var lyricsState by remember { mutableStateOf(0) }
+    var lyrics by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(LocalContext.current) {
+        snapshotFlow { showLyrics }.collect {
+            if (it && lyricsState == 0) {
+                lyricsState = 1
+                coroutineScope.launch {
+                    lyrics = context.symphony.groove.song.getLyrics(data.song)
+                    lyricsState = 2
+                }
+            }
+        }
+    }
+
     data.run {
         BoxWithConstraints(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
             val dimension = min(maxHeight, maxWidth)
-            AsyncImage(
-                song.createArtworkImageRequest(context.symphony).build(),
-                null,
-                contentScale = ContentScale.Crop,
+
+            Box(
                 modifier = Modifier
                     .size(dimension)
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(12.dp))
-            )
+            ) {
+                AnimatedContent(
+                    targetState = showLyrics,
+                    modifier = Modifier.matchParentSize(),
+                    transitionSpec = { fadeIn() with fadeOut() },
+                ) {
+                    when {
+                        it -> Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    RoundedCornerShape(12.dp),
+                                )
+                                .padding(16.dp, 12.dp)
+                        ) {
+                            Text(
+                                lyrics ?: "",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
+                            )
+                        }
+                        else -> AsyncImage(
+                            song.createArtworkImageRequest(context.symphony).build(),
+                            null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(12.dp))
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -454,9 +524,15 @@ private fun NowPlayingControlButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData) {
-    var showSleepTimer by remember { mutableStateOf(false) }
+private fun NowPlayingBodyBottomBar(
+    context: ViewContext,
+    data: PlayerStateData,
+    states: NowPlayingStates,
+) {
+    var showSleepTimerDialog by remember { mutableStateOf(false) }
+    var showExtraOptions by remember { mutableStateOf(false) }
 
     data.run {
         Row(
@@ -488,19 +564,23 @@ private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData)
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(
-                onClick = {
-                    showSleepTimer = !showSleepTimer
-                }
-            ) {
-                Icon(
-                    Icons.Outlined.Timer,
-                    null,
-                    tint = when {
-                        hasSleepTimer -> MaterialTheme.colorScheme.primary
-                        else -> LocalContentColor.current
+            states.showLyrics.let { showLyricsState ->
+                val showLyrics by showLyricsState.collectAsState()
+
+                IconButton(
+                    onClick = {
+                        showLyricsState.value = !showLyricsState.value
                     }
-                )
+                ) {
+                    Icon(
+                        Icons.Outlined.Article,
+                        null,
+                        tint = when {
+                            showLyrics -> MaterialTheme.colorScheme.primary
+                            else -> LocalContentColor.current
+                        }
+                    )
+                }
             }
             IconButton(
                 onClick = {
@@ -531,31 +611,69 @@ private fun NowPlayingBodyBottomBar(context: ViewContext, data: PlayerStateData)
                     else MaterialTheme.colorScheme.primary
                 )
             }
+            IconButton(
+                onClick = {
+                    showExtraOptions = !showExtraOptions
+                }
+            ) {
+                Icon(Icons.Outlined.MoreHoriz, null)
+            }
         }
 
-        if (showSleepTimer) {
+        if (showSleepTimerDialog) {
             when {
                 hasSleepTimer -> context.symphony.radio.getSleepTimer()?.let {
                     NowPlayingSleepTimerDialog(
                         context,
                         sleepTimer = it,
                         onDismissRequest = {
-                            showSleepTimer = false
+                            showSleepTimerDialog = false
                         }
                     )
                 }
                 else -> NowPlayingSleepTimerSetDialog(
                     context,
                     onDismissRequest = {
-                        showSleepTimer = false
+                        showSleepTimerDialog = false
                     }
                 )
+            }
+        }
+
+        if (showExtraOptions) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showExtraOptions = false
+                }
+            ) {
+                Card(
+                    onClick = {
+                        showExtraOptions = false
+                        showSleepTimerDialog = !showSleepTimerDialog
+                    }
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                Icons.Outlined.Timer,
+                                null,
+                                tint = when {
+                                    hasSleepTimer -> MaterialTheme.colorScheme.primary
+                                    else -> LocalContentColor.current
+                                }
+                            )
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.SleepTimer)
+                        },
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NowPlayingSleepTimerDialog(
     context: ViewContext,

@@ -22,7 +22,7 @@ fun SettingsSwitchTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
+            headlineContent = { title() },
             trailingContent = {
                 Switch(
                     checked = value,

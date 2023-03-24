@@ -10,7 +10,6 @@ import android.os.Build
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import android.view.KeyEvent
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
@@ -38,7 +37,6 @@ class RadioSession(val symphony: Symphony) {
     private var receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.action?.let { action ->
-                Log.i("SymLog", action)
                 handleAction(action)
             }
         }

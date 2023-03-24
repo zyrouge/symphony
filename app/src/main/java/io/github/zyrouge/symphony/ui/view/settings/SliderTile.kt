@@ -42,8 +42,8 @@ fun SettingsSliderTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = { label(initialValue) },
+            headlineContent = { title() },
+            supportingContent = { label(initialValue) },
         )
     }
 

@@ -28,8 +28,8 @@ fun SettingsTextInputTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = { Text(value) },
+            headlineContent = { title() },
+            supportingContent = { Text(value) },
         )
     }
 

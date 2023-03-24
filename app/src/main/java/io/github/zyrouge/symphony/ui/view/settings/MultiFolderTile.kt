@@ -51,8 +51,8 @@ fun SettingsMultiFolderTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = {
+            headlineContent = { title() },
+            supportingContent = {
                 Text(context.symphony.t.XFolders(initialValues.size.toString()))
             },
         )

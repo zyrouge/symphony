@@ -40,8 +40,8 @@ fun <T> SettingsMultiOptionTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = { Text(value.joinToString { values[it]!! }) },
+            headlineContent = { title() },
+            supportingContent = { Text(value.joinToString { values[it]!! }) },
         )
     }
 

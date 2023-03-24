@@ -31,8 +31,8 @@ fun <T> SettingsOptionTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = { Text(values[value]!!) },
+            headlineContent = { title() },
+            supportingContent = { Text(values[value]!!) },
         )
     }
 

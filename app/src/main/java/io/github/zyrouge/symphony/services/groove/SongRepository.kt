@@ -6,6 +6,7 @@ import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.max
 
 enum class SongSortBy {
     CUSTOM,
@@ -26,6 +27,7 @@ class SongRepository(private val symphony: Symphony) {
     private val cached = ConcurrentHashMap<Long, Song>()
     internal var cachedGenres = ConcurrentHashMap<String, Genre>()
     internal var cachedPaths = ConcurrentHashMap<String, Long>()
+    internal var cachedLyrics = ConcurrentHashMap<Long, String>()
     var isUpdating = false
     val onUpdate = Eventer<Nothing?>()
     var explorer = createNewExplorer()
@@ -70,7 +72,11 @@ class SongRepository(private val symphony: Symphony) {
                 val additionalMetadataCache = kotlin
                     .runCatching { symphony.database.songCache.read() }
                     .getOrNull()
+                val lyricsCache = kotlin
+                    .runCatching { symphony.database.lyricsCache.read() }
+                    .getOrNull()
                 val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
+                val nLyrics = mutableMapOf<String, String>()
 
                 while (it.moveToNext()) {
                     kotlin
@@ -118,6 +124,11 @@ class SongRepository(private val symphony: Symphony) {
                                         ?: Genre(name = genre, numberOfTracks = 1)
                                 }
                             }
+                            val lyricsCacheKey = "${song.id}-${song.dateModified}"
+                            lyricsCache?.get(lyricsCacheKey)?.let { lyrics ->
+                                cachedLyrics[song.id] = lyrics
+                                nLyrics[lyricsCacheKey] = lyrics
+                            }
                             cachedPaths[song.path] = song.id
                             val entity = explorer
                                 .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
@@ -126,6 +137,7 @@ class SongRepository(private val symphony: Symphony) {
                         }
                 }
                 symphony.database.songCache.update(nAdditionalMetadata)
+                symphony.database.lyricsCache.update(nLyrics)
             }
         } catch (err: Exception) {
             Logger.error("SongRepository", "fetch failed: $err")
@@ -138,6 +150,7 @@ class SongRepository(private val symphony: Symphony) {
         cached.clear()
         cachedGenres.clear()
         cachedPaths.clear()
+        cachedLyrics.clear()
         explorer = createNewExplorer()
         foldersExplorer = createNewExplorer()
         dispatchGlobalUpdate()
@@ -171,6 +184,41 @@ class SongRepository(private val symphony: Symphony) {
         .getPlaylistWithId(playlistId)
         ?.songs?.mapNotNull { cached[it] }
         ?: listOf()
+
+    suspend fun getLyrics(song: Song): String? = run {
+        try {
+            val outputFile = symphony.applicationContext.cacheDir
+                .toPath()
+                .resolve(song.filename)
+                .toFile()
+            FileX.ensureFile(outputFile)
+            symphony.applicationContext.contentResolver.openInputStream(song.uri)
+                ?.use { inputStream ->
+                    outputFile.outputStream().use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+            val lyrics = AudioTaggerX.getLyrics(outputFile)
+            outputFile.delete()
+            lyrics?.let {
+                cachedLyrics[song.id] = lyrics
+                symphony.database.lyricsCache.read().let { lyricsCache ->
+                    val mLyricsCache = lyricsCache.entries.toMutableList().let { entries ->
+                        entries
+                            .subList(max(0, entries.size - 50), entries.size)
+                            .associate { it.toPair() }
+                            .toMutableMap()
+                    }
+                    mLyricsCache["${song.id}-${song.dateModified}"] = lyrics
+                    symphony.database.lyricsCache.update(mLyricsCache.toMap())
+                }
+            }
+            return lyrics
+        } catch (err: Exception) {
+            Logger.error("SongRepository", "fetch lyrics failed: $err")
+        }
+        return null
+    }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

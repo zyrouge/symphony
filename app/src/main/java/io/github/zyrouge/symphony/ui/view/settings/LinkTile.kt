@@ -24,8 +24,8 @@ fun SettingsLinkTile(
         ListItem(
             colors = SettingsTileDefaults.listItemColors(),
             leadingContent = { icon() },
-            headlineText = { title() },
-            supportingText = { Text(url) }
+            headlineContent = { title() },
+            supportingContent = { Text(url) }
         )
     }
 }
