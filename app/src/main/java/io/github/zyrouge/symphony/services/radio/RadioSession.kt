@@ -173,7 +173,8 @@ class RadioSession(val symphony: Symphony) {
         val artworkUri = symphony.groove.album.getAlbumArtworkUri(song.albumId)
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
-        val playbackPosition = symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
+        val playbackPosition = symphony.radio.currentPlaybackPosition
+            ?: PlaybackPosition(played = 0, total = song.duration.toInt())
         val isPlaying = symphony.radio.isPlaying
 
         val req = RadioSessionUpdateRequest(
