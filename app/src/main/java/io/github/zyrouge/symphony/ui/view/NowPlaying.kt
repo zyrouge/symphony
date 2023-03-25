@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,6 +38,7 @@ import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.*
+import io.github.zyrouge.symphony.ui.view.settings.SettingsTileDefaults
 import io.github.zyrouge.symphony.utils.DurationFormatter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -50,6 +52,10 @@ private data class PlayerStateData(
     val queueSize: Int,
     val currentLoopMode: RadioLoopMode,
     val currentShuffleMode: Boolean,
+    val currentSpeed: Float,
+    val currentPitch: Float,
+    val persistedSpeed: Float,
+    val persistedPitch: Float,
     val hasSleepTimer: Boolean,
     val showSongAdditionalInfo: Boolean,
     val enableSeekControls: Boolean,
@@ -69,6 +75,10 @@ fun NowPlayingView(context: ViewContext) {
     var queueSize by remember { mutableStateOf(context.symphony.radio.queue.originalQueue.size) }
     var currentLoopMode by remember { mutableStateOf(context.symphony.radio.queue.currentLoopMode) }
     var currentShuffleMode by remember { mutableStateOf(context.symphony.radio.queue.currentShuffleMode) }
+    var currentSpeed by remember { mutableStateOf(context.symphony.radio.currentSpeed) }
+    var currentPitch by remember { mutableStateOf(context.symphony.radio.currentPitch) }
+    var persistedSpeed by remember { mutableStateOf(context.symphony.radio.persistedSpeed) }
+    var persistedPitch by remember { mutableStateOf(context.symphony.radio.persistedPitch) }
     var hasSleepTimer by remember { mutableStateOf(context.symphony.radio.hasSleepTimer()) }
     var showSongAdditionalInfo by remember {
         mutableStateOf(context.symphony.settings.getShowNowPlayingAdditionalInfo())
@@ -95,6 +105,10 @@ fun NowPlayingView(context: ViewContext) {
         queueSize = context.symphony.radio.queue.originalQueue.size
         currentLoopMode = context.symphony.radio.queue.currentLoopMode
         currentShuffleMode = context.symphony.radio.queue.currentShuffleMode
+        currentSpeed = context.symphony.radio.currentSpeed
+        currentPitch = context.symphony.radio.currentPitch
+        persistedSpeed = context.symphony.radio.persistedSpeed
+        persistedPitch = context.symphony.radio.persistedPitch
         hasSleepTimer = context.symphony.radio.hasSleepTimer()
         isViable = song != null
     }
@@ -127,6 +141,10 @@ fun NowPlayingView(context: ViewContext) {
                 queueSize = queueSize,
                 currentLoopMode = currentLoopMode,
                 currentShuffleMode = currentShuffleMode,
+                currentSpeed = currentSpeed,
+                currentPitch = currentPitch,
+                persistedSpeed = persistedSpeed,
+                persistedPitch = persistedPitch,
                 hasSleepTimer = hasSleepTimer,
                 showSongAdditionalInfo = showSongAdditionalInfo,
                 enableSeekControls = enableSeekControls,
@@ -532,6 +550,8 @@ private fun NowPlayingBodyBottomBar(
     states: NowPlayingStates,
 ) {
     var showSleepTimerDialog by remember { mutableStateOf(false) }
+    var showSpeedDialog by remember { mutableStateOf(false) }
+    var showPitchDialog by remember { mutableStateOf(false) }
     var showExtraOptions by remember { mutableStateOf(false) }
 
     data.run {
@@ -640,6 +660,28 @@ private fun NowPlayingBodyBottomBar(
             }
         }
 
+        if (showSpeedDialog) {
+            NowPlayingSpeedDialog(
+                context,
+                currentSpeed = data.currentSpeed,
+                persistedSpeed = data.persistedSpeed,
+                onDismissRequest = {
+                    showSpeedDialog = false
+                }
+            )
+        }
+
+        if (showPitchDialog) {
+            NowPlayingPitchDialog(
+                context,
+                currentPitch = data.currentPitch,
+                persistedPitch = data.persistedPitch,
+                onDismissRequest = {
+                    showPitchDialog = false
+                }
+            )
+        }
+
         if (showExtraOptions) {
             ModalBottomSheet(
                 onDismissRequest = {
@@ -665,6 +707,42 @@ private fun NowPlayingBodyBottomBar(
                         },
                         headlineContent = {
                             Text(context.symphony.t.SleepTimer)
+                        },
+                    )
+                }
+                Card(
+                    onClick = {
+                        showExtraOptions = false
+                        showSpeedDialog = !showSpeedDialog
+                    }
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Outlined.Speed, null)
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.Speed)
+                        },
+                        supportingContent = {
+                            Text("x${data.currentSpeed}")
+                        },
+                    )
+                }
+                Card(
+                    onClick = {
+                        showExtraOptions = false
+                        showPitchDialog = !showPitchDialog
+                    }
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Outlined.Speed, null)
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.Pitch)
+                        },
+                        supportingContent = {
+                            Text("x${data.currentPitch}")
                         },
                     )
                 }
@@ -873,6 +951,138 @@ private fun NowPlayingSleepTimerSetDialog(
                 }
             ) {
                 Text(context.symphony.t.Done)
+            }
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NowPlayingSpeedDialog(
+    context: ViewContext,
+    currentSpeed: Float,
+    persistedSpeed: Float,
+    onDismissRequest: () -> Unit,
+) {
+    val allowedSpeeds = listOf(0.5f, 1f, 1.5f, 2f, 3f, 4f, 5f)
+    var isPersistent by remember {
+        mutableStateOf(currentSpeed == persistedSpeed)
+    }
+
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.Speed)
+        },
+        content = {
+            Column(modifier = Modifier.padding(0.dp, 8.dp)) {
+                allowedSpeeds.map { speed ->
+                    val onClick = {
+                        onDismissRequest()
+                        context.symphony.radio.setSpeed(speed, isPersistent)
+                    }
+
+                    Card(
+                        colors = SettingsTileDefaults.cardColors(),
+                        shape = MaterialTheme.shapes.small,
+                        onClick = onClick,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp, 0.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = currentSpeed == speed,
+                                onClick = onClick,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("x${speed}")
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.padding(12.dp, 0.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = isPersistent,
+                        onCheckedChange = {
+                            isPersistent = !isPersistent
+                            context.symphony.radio.setSpeed(currentSpeed, isPersistent)
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(context.symphony.t.PersistUntilQueueEnd)
+                }
+            }
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NowPlayingPitchDialog(
+    context: ViewContext,
+    currentPitch: Float,
+    persistedPitch: Float,
+    onDismissRequest: () -> Unit,
+) {
+    val allowedPitches = listOf(0.5f, 1f, 1.5f, 2f, 3f, 4f, 5f)
+    var isPersistent by remember {
+        mutableStateOf(currentPitch == persistedPitch)
+    }
+
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(context.symphony.t.Pitch)
+        },
+        content = {
+            Column(modifier = Modifier.padding(0.dp, 8.dp)) {
+                allowedPitches.map { pitch ->
+                    val onClick = {
+                        onDismissRequest()
+                        context.symphony.radio.setPitch(pitch, isPersistent)
+                    }
+
+                    Card(
+                        colors = SettingsTileDefaults.cardColors(),
+                        shape = MaterialTheme.shapes.small,
+                        onClick = onClick,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp, 0.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = currentPitch == pitch,
+                                onClick = onClick,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("x${pitch}")
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.padding(12.dp, 0.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = isPersistent,
+                        onCheckedChange = {
+                            isPersistent = !isPersistent
+                            context.symphony.radio.setPitch(currentPitch, isPersistent)
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(context.symphony.t.PersistUntilQueueEnd)
+                }
             }
         },
     )

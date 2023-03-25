@@ -26,6 +26,8 @@ enum class RadioEvents {
     QueueEnded,
     SleepTimerSet,
     SleepTimerRemoved,
+    SpeedChanged,
+    PitchChanged,
 }
 
 data class RadioSleepTimer(
@@ -54,7 +56,14 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         get() = player?.isPlaying ?: false
     val currentPlaybackPosition: PlaybackPosition?
         get() = player?.playbackPosition
+    val currentSpeed: Float
+        get() = player?.speed ?: RadioPlayer.DEFAULT_SPEED
+    val currentPitch: Float
+        get() = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
     val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
+
+    var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED
+    var persistedPitch: Float = RadioPlayer.DEFAULT_PITCH
 
     init {
         nativeReceiver.start()
@@ -92,6 +101,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             onUpdate.dispatch(RadioEvents.SongStaged)
             player!!.prepare {
                 options.startPosition?.let { seek(it) }
+                player!!.setSpeed(persistedSpeed)
+                player!!.setPitch(persistedPitch)
                 if (options.autostart) {
                     start(0)
                     onUpdate.dispatch(RadioEvents.StartPlaying)
@@ -152,6 +163,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         stopCurrentSong()
         queue.reset()
         clearSleepTimer()
+        persistedSpeed = RadioPlayer.DEFAULT_SPEED
+        persistedPitch = RadioPlayer.DEFAULT_PITCH
         if (ended) onUpdate.dispatch(RadioEvents.QueueEnded)
     }
 
@@ -177,6 +190,26 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun restoreVolume() {
         player?.let {
             it.setVolume(RadioPlayer.MAX_VOLUME) {}
+        }
+    }
+
+    fun setSpeed(speed: Float, persist: Boolean) {
+        player?.let {
+            it.setSpeed(speed)
+            if (persist) {
+                persistedSpeed = speed
+            }
+            onUpdate.dispatch(RadioEvents.SpeedChanged)
+        }
+    }
+
+    fun setPitch(pitch: Float, persist: Boolean) {
+        player?.let {
+            it.setPitch(pitch)
+            if (persist) {
+                persistedPitch = pitch
+            }
+            onUpdate.dispatch(RadioEvents.PitchChanged)
         }
     }
 

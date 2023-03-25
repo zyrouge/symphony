@@ -139,6 +139,9 @@ Translations:
     SuggestedAlbumArtists: Suggested album artists
     AreYouSureThatYouWantToDeleteThisPlaylist: Are you sure that you want to delete this playlist?
     RemoveFromPlaylist: Remove from playlist
+    Speed: Speed
+    Pitch: Pitch
+    PersistUntilQueueEnd: Persist until queue end
 
     # Dynamic
     PlayingXofY: Playing $x of $y
