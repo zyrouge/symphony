@@ -142,6 +142,7 @@ Translations:
     Speed: Speed
     Pitch: Pitch
     PersistUntilQueueEnd: Persist until queue end
+    NoLyrics: No lyrics
 
     # Dynamic
     PlayingXofY: Playing $x of $y

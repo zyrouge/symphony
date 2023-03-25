@@ -133,7 +133,8 @@
         "RemoveFromPlaylist",
         "Speed",
         "Pitch",
-        "PersistUntilQueueEnd"
+        "PersistUntilQueueEnd",
+        "NoLyrics"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

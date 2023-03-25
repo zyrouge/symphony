@@ -40,11 +40,14 @@ import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.*
 import io.github.zyrouge.symphony.ui.view.settings.SettingsTileDefaults
 import io.github.zyrouge.symphony.utils.DurationFormatter
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.*
 
+@Immutable
 private data class PlayerStateData(
     val song: Song,
     val isPlaying: Boolean,
@@ -66,6 +69,10 @@ private data class PlayerStateData(
 private data class NowPlayingStates(
     val showLyrics: MutableStateFlow<Boolean>,
 )
+
+private object NowPlayingDefaults {
+    var showLyrics = false
+}
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
@@ -216,7 +223,7 @@ fun NowPlayingLandscapeAppBar(context: ViewContext) {
 private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
     val states = remember {
         NowPlayingStates(
-            showLyrics = MutableStateFlow(false),
+            showLyrics = MutableStateFlow(NowPlayingDefaults.showLyrics),
         )
     }
 
@@ -276,19 +283,27 @@ private fun NowPlayingBodyCover(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showLyrics by states.showLyrics.collectAsState()
+    val currentSong by rememberUpdatedState(data.song)
     var lyricsState by remember { mutableStateOf(0) }
+    var lyricsSongId by remember { mutableStateOf<Long?>(null) }
     var lyrics by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(LocalContext.current) {
-        snapshotFlow { showLyrics }.collect {
-            if (it && lyricsState == 0) {
-                lyricsState = 1
-                coroutineScope.launch {
-                    lyrics = context.symphony.groove.song.getLyrics(data.song)
-                    lyricsState = 2
-                }
+    val fetchLyrics = { check: Boolean ->
+        if (check && (lyricsSongId != currentSong.id || lyricsState == 0)) {
+            lyricsState = 1
+            coroutineScope.launch {
+                lyricsSongId = currentSong.id
+                lyrics = context.symphony.groove.song.getLyrics(currentSong)
+                lyricsState = 2
             }
         }
+    }
+
+    LaunchedEffect(LocalContext.current) {
+        awaitAll(
+            async { snapshotFlow { currentSong }.collect { fetchLyrics(showLyrics) } },
+            async { snapshotFlow { showLyrics }.collect { fetchLyrics(it) } },
+        )
     }
 
     data.run {
@@ -301,12 +316,15 @@ private fun NowPlayingBodyCover(
                     .aspectRatio(1f)
             ) {
                 AnimatedContent(
-                    targetState = showLyrics,
                     modifier = Modifier.matchParentSize(),
-                    transitionSpec = { fadeIn() with fadeOut() },
-                ) {
+                    targetState = showLyrics,
+                    transitionSpec = {
+                        FadeTransition.enterTransition()
+                            .with(FadeTransition.exitTransition())
+                    },
+                ) { targetStateShowLyrics ->
                     when {
-                        it -> Box(
+                        targetStateShowLyrics -> Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(
@@ -315,24 +333,54 @@ private fun NowPlayingBodyCover(
                                 )
                                 .padding(16.dp, 12.dp)
                         ) {
-                            Text(
-                                lyrics ?: "",
+                            ProvideTextStyle(
+                                MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            ) {
+                                if (lyricsState == 2 && lyrics != null) {
+                                    AnimatedContent(
+                                        targetState = lyrics ?: "",
+                                        transitionSpec = {
+                                            FadeTransition.enterTransition()
+                                                .with(FadeTransition.exitTransition())
+                                        },
+                                    ) {
+                                        Text(
+                                            it,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .verticalScroll(rememberScrollState()),
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        if (lyricsState == 1) context.symphony.t.Loading
+                                        else context.symphony.t.NoLyrics,
+                                        modifier = Modifier.align(Alignment.Center),
+                                    )
+                                }
+                            }
+                        }
+                        else -> AnimatedContent(
+                            modifier = Modifier.matchParentSize(),
+                            targetState = song,
+                            transitionSpec = {
+                                FadeTransition.enterTransition()
+                                    .with(FadeTransition.exitTransition())
+                            },
+                        ) { targetStateSong ->
+                            AsyncImage(
+                                targetStateSong
+                                    .createArtworkImageRequest(context.symphony)
+                                    .build(),
+                                null,
+                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .verticalScroll(rememberScrollState()),
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                ),
+                                    .clip(RoundedCornerShape(12.dp))
                             )
                         }
-                        else -> AsyncImage(
-                            song.createArtworkImageRequest(context.symphony).build(),
-                            null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(12.dp))
-                        )
                     }
                 }
             }
@@ -340,7 +388,7 @@ private fun NowPlayingBodyCover(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
     var isInFavorites by remember(data.song.id) {
@@ -354,34 +402,39 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
     data.run {
         Column {
             Row {
-                Column(
-                    modifier = Modifier
-                        .padding(defaultHorizontalPadding, 0.dp)
-                        .weight(1f)
-                ) {
-                    Text(
-                        song.title,
-                        style = MaterialTheme.typography.headlineSmall
-                            .copy(fontWeight = FontWeight.Bold),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    song.artistName?.let {
+                AnimatedContent(
+                    modifier = Modifier.weight(1f),
+                    targetState = song,
+                    transitionSpec = {
+                        FadeTransition.enterTransition()
+                            .with(FadeTransition.exitTransition())
+                    },
+                ) { targetStateSong ->
+                    Column(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
                         Text(
-                            it,
-                            maxLines = 2,
+                            targetStateSong.title,
+                            style = MaterialTheme.typography.headlineSmall
+                                .copy(fontWeight = FontWeight.Bold),
+                            maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
-                    }
-                    if (data.showSongAdditionalInfo) {
-                        song.additional.toSamplingInfoString(context.symphony)?.let {
-                            val localContentColor = LocalContentColor.current
+                        targetStateSong.artistName?.let {
                             Text(
                                 it,
-                                style = MaterialTheme.typography.labelSmall
-                                    .copy(color = localContentColor.copy(alpha = 0.7f)),
-                                modifier = Modifier.padding(top = 4.dp),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
                             )
+                        }
+                        if (data.showSongAdditionalInfo) {
+                            targetStateSong.additional.toSamplingInfoString(context.symphony)?.let {
+                                val localContentColor = LocalContentColor.current
+                                Text(
+                                    it,
+                                    style = MaterialTheme.typography.labelSmall
+                                        .copy(color = localContentColor.copy(alpha = 0.7f)),
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                            }
                         }
                     }
                 }
@@ -589,7 +642,9 @@ private fun NowPlayingBodyBottomBar(
 
                 IconButton(
                     onClick = {
-                        showLyricsState.value = !showLyricsState.value
+                        val nShowLyrics = !showLyricsState.value
+                        showLyricsState.value = nShowLyrics
+                        NowPlayingDefaults.showLyrics = nShowLyrics
                     }
                 ) {
                     Icon(

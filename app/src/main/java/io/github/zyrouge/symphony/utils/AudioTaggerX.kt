@@ -8,7 +8,9 @@ import java.io.File
 object AudioTaggerX {
     fun <T> read(file: File, use: (AudioFile) -> T) = use(AudioFileIO.read(file))
 
-    fun getLyrics(file: File) = read(file) {
-        it.tagOrCreateDefault.getFirst(FieldKey.LYRICS)
+    fun getLyrics(file: File) = read(file) { audioFile ->
+        audioFile.tagOrCreateDefault.getFirst(FieldKey.LYRICS)
+            .trim()
+            .takeIf { it.isNotEmpty() }
     }
 }
