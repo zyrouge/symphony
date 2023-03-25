@@ -24,7 +24,7 @@ jobs:
 
             - name: 🔢 Get version
               id: app_version
-              run: npm run version:print
+              run: npm run version:print --silent
 
             - name: 🔎 Check for release
               uses: actions/github-script@v6
