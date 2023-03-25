@@ -19,7 +19,8 @@ jobs:
                   node-version: 18.x
                   cache: npm
 
-            - run: npm install
+            - name: 🚧 Do prerequisites
+              run: npm ci
 
             - name: 🔢 Get version
               id: app_version
@@ -52,6 +53,9 @@ jobs:
               env:
                   SIGNING_KEYSTORE_FILE: ./${{ env.SIGNING_KEYSTORE_FILENAME }}
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
+
+            - name: 🔨 Generate required files
+              run: npm i18n:build
 
             - name: 🔨 Build apk
               run: |
