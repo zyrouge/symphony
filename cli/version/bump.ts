@@ -1,4 +1,4 @@
-import { Versioner } from "./helpers/version";
+import { Versioner } from "../helpers/version";
 
 const main = async () => {
     const currentVersion = await Versioner.getVersion();

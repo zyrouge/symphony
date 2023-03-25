@@ -15,14 +15,8 @@ jobs:
             - uses: actions/checkout@v3
 
             - name: 🔢 Get version
-              uses: actions/github-script@v6
               id: app_version
-              with:
-                  result-encoding: string
-                  script: |
-                      const versioner = require("./cli/helpers/version");
-                      const { versionName } = await versioner.getVersion();
-                      return versionName;
+              run: npm run version:print
 
             - name: 🔎 Check for release
               uses: actions/github-script@v6
