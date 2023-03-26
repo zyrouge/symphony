@@ -338,8 +338,8 @@ private fun NowPlayingBodyCover(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             ) {
-                                if (lyricsState == 2 && lyrics != null) {
-                                    AnimatedContent(
+                                when {
+                                    lyricsState == 2 && lyrics != null -> AnimatedContent(
                                         targetState = lyrics ?: "",
                                         transitionSpec = {
                                             FadeTransition.enterTransition()
@@ -353,8 +353,7 @@ private fun NowPlayingBodyCover(
                                                 .verticalScroll(rememberScrollState()),
                                         )
                                     }
-                                } else {
-                                    Text(
+                                    else -> Text(
                                         if (lyricsState == 1) context.symphony.t.Loading
                                         else context.symphony.t.NoLyrics,
                                         modifier = Modifier.align(Alignment.Center),
