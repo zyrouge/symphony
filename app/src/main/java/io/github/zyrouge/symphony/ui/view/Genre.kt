@@ -17,17 +17,14 @@ import io.github.zyrouge.symphony.utils.swap
 @Composable
 fun GenreView(context: ViewContext, genre: String) {
     val songs = remember {
-        context.symphony.groove.song.getSongsOfGenre(genre).toMutableStateList()
+        context.symphony.groove.genre.getSongsOfGenre(genre).toMutableStateList()
     }
     var isViable by remember { mutableStateOf(songs.isNotEmpty()) }
 
-    val onGenreUpdate = {
-        songs.swap(context.symphony.groove.song.getSongsOfGenre(genre))
+    EventerEffect(context.symphony.groove.genre.onUpdate) {
+        songs.swap(context.symphony.groove.genre.getSongsOfGenre(genre))
         isViable = songs.isNotEmpty()
     }
-
-    EventerEffect(context.symphony.groove.genre.onUpdate) { onGenreUpdate() }
-    EventerEffect(context.symphony.groove.song.onUpdate) { onGenreUpdate() }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

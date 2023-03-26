@@ -21,7 +21,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
         mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
     }
     val songs = remember {
-        context.symphony.groove.song.getSongsOfPlaylist(playlistId).toMutableStateList()
+        context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId).toMutableStateList()
     }
     var isViable by remember { mutableStateOf(playlist != null) }
     var showOptionsMenu by remember { mutableStateOf(false) }
@@ -35,12 +35,8 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
 
     EventerEffect(context.symphony.groove.playlist.onUpdate) {
         playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
-        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
+        songs.swap(context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId))
         isViable = playlist != null
-    }
-
-    EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.swap(context.symphony.groove.song.getSongsOfPlaylist(playlistId))
     }
 
     Scaffold(

@@ -1,12 +1,8 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.SettingsKeys
-import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.max
 
 enum class SongSortBy {
     CUSTOM,
@@ -24,14 +20,11 @@ enum class SongSortBy {
 }
 
 class SongRepository(private val symphony: Symphony) {
-    private val cached = ConcurrentHashMap<Long, Song>()
-    internal var cachedGenres = ConcurrentHashMap<String, Genre>()
-    internal var cachedPaths = ConcurrentHashMap<String, Long>()
-    internal var cachedLyrics = ConcurrentHashMap<Long, String>()
+    val cache = ConcurrentHashMap<Long, Song>()
+    val pathCache = ConcurrentHashMap<String, Long>()
+    var explorer = MediaStoreExposer.createExplorer()
     var isUpdating = false
-    val onUpdate = Eventer<Nothing?>()
-    var explorer = createNewExplorer()
-    var foldersExplorer = createNewExplorer()
+    val onUpdate = Eventer.nothing()
 
     private val searcher = FuzzySearcher<Song>(
         options = listOf(
@@ -42,183 +35,40 @@ class SongRepository(private val symphony: Symphony) {
         )
     )
 
-    init {
-        symphony.settings.onChange.subscribe { event ->
-            if (event == SettingsKeys.songsFilterPattern) {
-                fetch()
-            }
-        }
+    fun ready() {
+        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
+        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
+        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
     }
 
-    fun fetch() {
-        if (isUpdating) return
-        setGlobalUpdateState(true)
-        dispatchGlobalUpdate()
-        val cursor = symphony.applicationContext.contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            null,
-            MediaStore.Audio.Media.IS_MUSIC + " != 0",
-            null,
-            MediaStore.Audio.Media.TITLE + " ASC"
-        )
-        try {
-            val updateDispatcher = GrooveRepositoryUpdateDispatcher { dispatchGlobalUpdate() }
-            cursor?.use {
-                val blacklisted = symphony.settings.getBlacklistFolders().toSortedSet()
-                val whitelisted = symphony.settings.getWhitelistFolders().toSortedSet()
-                val regex = symphony.settings.getSongsFilterPattern()
-                    ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
+    private fun onFetchStart() {
+        isUpdating = true
+    }
 
-                val additionalMetadataCache = kotlin
-                    .runCatching { symphony.database.songCache.read() }
-                    .getOrNull()
-                val lyricsCache = kotlin
-                    .runCatching { symphony.database.lyricsCache.read() }
-                    .getOrNull()
-                val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
-                val nLyrics = mutableMapOf<String, String>()
+    private fun onFetchEnd() {
+        isUpdating = false
+    }
 
-                while (it.moveToNext()) {
-                    kotlin
-                        .runCatching {
-                            Song.fromCursor(symphony, it) { id ->
-                                additionalMetadataCache?.get(id)
-                            }
-                        }
-                        .getOrNull()
-                        ?.let { song ->
-                            foldersExplorer.addRelativePath(GrooveExplorer.Path(song.path))
-                            song
-                        }
-                        ?.takeIf { song -> regex?.containsMatchIn(song.path) != false }
-                        ?.takeIf { song ->
-                            blacklisted
-                                .find { x -> song.path.startsWith(x) }
-                                ?.let { match ->
-                                    whitelisted.any { x ->
-                                        x.startsWith(match) && song.path.startsWith(x)
-                                    }
-                                }
-                                ?: true
-                        }
-                        ?.let { song ->
-                            cached[song.id] = song
-                            nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
-                            song.additional.albumArtist?.let { albumArtist ->
-                                symphony.groove.albumArtist.cached.compute(albumArtist) { _, value ->
-                                    value
-                                        ?.apply {
-                                            albumIdsSet.add(song.albumId)
-                                            numberOfTracks++
-                                        } ?: AlbumArtist(
-                                        name = albumArtist,
-                                        albumIdsSet = mutableSetOf(song.albumId),
-                                        numberOfTracks = 1,
-                                    )
-                                }
-                            }
-                            song.additional.genre?.let { genre ->
-                                cachedGenres.compute(genre) { _, value ->
-                                    value
-                                        ?.apply { numberOfTracks++ }
-                                        ?: Genre(name = genre, numberOfTracks = 1)
-                                }
-                            }
-                            val lyricsCacheKey = "${song.id}-${song.dateModified}"
-                            lyricsCache?.get(lyricsCacheKey)?.let { lyrics ->
-                                cachedLyrics[song.id] = lyrics
-                                nLyrics[lyricsCacheKey] = lyrics
-                            }
-                            cachedPaths[song.path] = song.id
-                            val entity = explorer
-                                .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
-                            entity.data = song.id
-                            updateDispatcher.increment()
-                        }
-                }
-                symphony.database.songCache.update(nAdditionalMetadata)
-                symphony.database.lyricsCache.update(nLyrics)
-            }
-        } catch (err: Exception) {
-            Logger.error("SongRepository", "fetch failed: $err")
-        }
-        setGlobalUpdateState(false)
-        dispatchGlobalUpdate()
+    private fun onSong(song: Song) {
+        cache[song.id] = song
+        pathCache[song.path] = song.id
+        val entity = explorer
+            .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
+        entity.data = song.id
+        onUpdate.dispatch()
     }
 
     fun reset() {
-        cached.clear()
-        cachedGenres.clear()
-        cachedPaths.clear()
-        cachedLyrics.clear()
-        explorer = createNewExplorer()
-        foldersExplorer = createNewExplorer()
-        dispatchGlobalUpdate()
+        cache.clear()
+        pathCache.clear()
+        explorer = MediaStoreExposer.createExplorer()
+        onUpdate.dispatch()
     }
 
-    private fun setGlobalUpdateState(to: Boolean) {
-        isUpdating = to
-        symphony.groove.albumArtist.isUpdating = to
-        symphony.groove.genre.isUpdating = to
-    }
+    fun getAll() = cache.values.toList()
 
-    private fun dispatchGlobalUpdate() {
-        onUpdate.dispatch(null)
-        symphony.groove.albumArtist.onUpdate.dispatch(null)
-        symphony.groove.genre.onUpdate.dispatch(null)
-    }
-
-    fun getAll() = cached.values.toList()
-    private fun getAll(filter: (Song) -> Boolean) = getAll().filter(filter)
-
-    fun getSongWithId(songId: Long) = cached[songId]
+    fun getSongWithId(songId: Long) = cache[songId]
     fun hasSongWithId(songId: Long) = getSongWithId(songId) != null
-
-    fun getSongsOfArtist(artistName: String) = getAll { it.artistName == artistName }
-    fun getSongsOfAlbum(albumId: Long) = getAll { it.albumId == albumId }
-    fun getSongsOfGenre(genre: String) = getAll { it.additional.genre == genre }
-    fun getSongsOfAlbumArtist(artistName: String) =
-        getAll { it.additional.albumArtist == artistName }
-
-    fun getSongsOfPlaylist(playlistId: String) = symphony.groove.playlist
-        .getPlaylistWithId(playlistId)
-        ?.songs?.mapNotNull { cached[it] }
-        ?: listOf()
-
-    suspend fun getLyrics(song: Song): String? = run {
-        try {
-            val outputFile = symphony.applicationContext.cacheDir
-                .toPath()
-                .resolve(song.filename)
-                .toFile()
-            FileX.ensureFile(outputFile)
-            symphony.applicationContext.contentResolver.openInputStream(song.uri)
-                ?.use { inputStream ->
-                    outputFile.outputStream().use { outputStream ->
-                        inputStream.copyTo(outputStream)
-                    }
-                }
-            val lyrics = AudioTaggerX.getLyrics(outputFile)
-            outputFile.delete()
-            lyrics?.let {
-                cachedLyrics[song.id] = lyrics
-                symphony.database.lyricsCache.read().let { lyricsCache ->
-                    val mLyricsCache = lyricsCache.entries.toMutableList().let { entries ->
-                        entries
-                            .subList(max(0, entries.size - 50), entries.size)
-                            .associate { it.toPair() }
-                            .toMutableMap()
-                    }
-                    mLyricsCache["${song.id}-${song.dateModified}"] = lyrics
-                    symphony.database.lyricsCache.update(mLyricsCache.toMap())
-                }
-            }
-            return lyrics
-        } catch (err: Exception) {
-            Logger.error("SongRepository", "fetch lyrics failed: $err")
-        }
-        return null
-    }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 
@@ -240,7 +90,5 @@ class SongRepository(private val symphony: Symphony) {
             }
             return if (reversed) sorted.reversed() else sorted
         }
-
-        fun createNewExplorer() = GrooveExplorer.Folder("root")
     }
 }

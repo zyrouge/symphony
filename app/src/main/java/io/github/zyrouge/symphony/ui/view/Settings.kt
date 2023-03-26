@@ -403,7 +403,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.BlacklistFolders)
                         },
-                        explorer = context.symphony.groove.song.foldersExplorer,
+                        explorer = context.symphony.groove.mediaStore.explorer,
                         initialValues = settings.blacklistFolders,
                         onChange = { values ->
                             context.symphony.settings.setBlacklistFolders(values)
@@ -418,7 +418,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.WhitelistFolders)
                         },
-                        explorer = context.symphony.groove.song.foldersExplorer,
+                        explorer = context.symphony.groove.mediaStore.explorer,
                         initialValues = settings.whitelistFolders,
                         onChange = { values ->
                             context.symphony.settings.setWhitelistFolders(values)

@@ -22,6 +22,7 @@ data class Playlist(
         val path: String get() = local.path
     }
 
+    @Immutable
     data class Local(val path: String) {
         fun toJSONObject(): JSONObject {
             val json = JSONObject()
@@ -87,7 +88,7 @@ data class Playlist(
                     GrooveExplorer.Path.isAbsolute(entry.path) -> entry.path
                     else -> "/" + dir.resolve(GrooveExplorer.Path(entry.path)).toString()
                 }
-                val id = symphony.groove.song.cachedPaths[resolvedPath]
+                val id = symphony.groove.song.pathCache[resolvedPath]
                 id?.let { songs.add(it) }
             }
             return Playlist(

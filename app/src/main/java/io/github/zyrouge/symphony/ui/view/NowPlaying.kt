@@ -293,7 +293,7 @@ private fun NowPlayingBodyCover(
             lyricsState = 1
             coroutineScope.launch {
                 lyricsSongId = currentSong.id
-                lyrics = context.symphony.groove.song.getLyrics(currentSong)
+                lyrics = context.symphony.groove.lyrics.getLyrics(currentSong)
                 lyricsState = 2
             }
         }

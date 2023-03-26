@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
@@ -15,9 +14,11 @@ enum class ArtistSortBy {
 }
 
 class ArtistRepository(private val symphony: Symphony) {
-    private val cached = ConcurrentHashMap<String, Artist>()
+    val cache = ConcurrentHashMap<String, Artist>()
+    val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
     var isUpdating = false
-    val onUpdate = Eventer<Nothing?>()
+    val onUpdate = Eventer.nothing()
 
     private val searcher = FuzzySearcher<Artist>(
         options = listOf(
@@ -25,48 +26,53 @@ class ArtistRepository(private val symphony: Symphony) {
         )
     )
 
-    fun fetch() {
-        if (isUpdating) return
+    fun ready() {
+        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
+        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
+        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
+    }
+
+    private fun onFetchStart() {
         isUpdating = true
-        onUpdate.dispatch(null)
-        val cursor = symphony.applicationContext.contentResolver.query(
-            MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
-            null,
-            null,
-            null,
-            MediaStore.Audio.Artists.ARTIST + " ASC"
-        )
-        try {
-            val updateDispatcher = GrooveRepositoryUpdateDispatcher {
-                onUpdate.dispatch(null)
-            }
-            cursor?.use {
-                while (it.moveToNext()) {
-                    kotlin
-                        .runCatching { Artist.fromCursor(it) }
-                        .getOrNull()
-                        ?.let { artist ->
-                            cached[artist.name] = artist
-                            updateDispatcher.increment()
-                        }
-                }
-            }
-        } catch (err: Exception) {
-            Logger.error("ArtistRepository", "fetch failed: $err")
-        }
+    }
+
+    private fun onFetchEnd() {
         isUpdating = false
-        onUpdate.dispatch(null)
+    }
+
+    private fun onSong(song: Song) {
+        if (song.artistName == null) return
+        songIdsCache.compute(song.artistName) { _, value ->
+            value?.apply { add(song.id) }
+                ?: ConcurrentSet(song.id)
+        }
+        var nNumberOfAlbums = 0
+        albumIdsCache.compute(song.artistName) { _, value ->
+            nNumberOfAlbums = (value?.size ?: 0) + 1
+            value?.apply { add(song.albumId) }
+                ?: ConcurrentSet(song.albumId)
+        }
+        cache.compute(song.artistName) { _, value ->
+            value?.apply {
+                numberOfAlbums = nNumberOfAlbums
+                numberOfTracks++
+            } ?: Artist(
+                name = song.artistName,
+                numberOfAlbums = 1,
+                numberOfTracks = 1,
+            )
+        }
+        onUpdate.dispatch()
     }
 
     fun reset() {
-        cached.clear()
-        onUpdate.dispatch(null)
+        cache.clear()
+        onUpdate.dispatch()
     }
 
-    fun getArtistArtworkUri(artistName: String) =
-        symphony.groove.album.getAlbumOfArtist(artistName)?.let {
-            symphony.groove.album.getAlbumArtworkUri(it.id)
-        } ?: symphony.groove.album.getDefaultAlbumArtworkUri()
+    fun getArtistArtworkUri(artistName: String) = albumIdsCache[artistName]?.firstOrNull()
+        ?.let { symphony.groove.album.getAlbumArtworkUri(it) }
+        ?: symphony.groove.album.getDefaultAlbumArtworkUri()
 
     fun createArtistArtworkImageRequest(artistName: String) = createHandyImageRequest(
         symphony.applicationContext,
@@ -74,8 +80,16 @@ class ArtistRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
-    fun getAll() = cached.values.toList()
-    fun getArtistFromName(artistName: String) = cached[artistName]
+    fun getAll() = cache.values.toList()
+    fun getArtistFromArtistName(artistName: String) = cache[artistName]
+
+    fun getAlbumIdsOfArtistName(artistName: String) = albumIdsCache[artistName] ?: listOf()
+    fun getAlbumsOfArtistName(artistName: String) = getAlbumIdsOfArtistName(artistName)
+        .mapNotNull { symphony.groove.album.getAlbumWithId(it) }
+
+    fun getSongIdsOfArtistName(artistName: String) = songIdsCache[artistName]?.toList() ?: listOf()
+    fun getSongsOfArtistName(artistName: String) = getSongIdsOfArtistName(artistName)
+        .mapNotNull { symphony.groove.song.getSongWithId(it) }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

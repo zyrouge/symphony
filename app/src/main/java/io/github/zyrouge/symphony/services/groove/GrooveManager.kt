@@ -18,7 +18,9 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     val coroutineScope = CoroutineScope(Dispatchers.Default)
     var readyDeferred = CompletableDeferred<Boolean>()
 
+    val mediaStore = MediaStoreExposer(symphony)
     val song = SongRepository(symphony)
+    val lyrics = LyricsRepository(symphony)
     val album = AlbumRepository(symphony)
     val artist = ArtistRepository(symphony)
     val albumArtist = AlbumArtistRepository(symphony)
@@ -35,25 +37,33 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    suspend fun fetch() {
+    private fun ready() {
+        song.ready()
+        lyrics.ready()
+        album.ready()
+        artist.ready()
+        albumArtist.ready()
+        genre.ready()
+    }
+
+    private suspend fun fetch() {
         coroutineScope.launch {
-            awaitAll(
-                async { song.fetch() },
-                async { album.fetch() },
-                async { artist.fetch() },
-            )
+            mediaStore.fetch()
             playlist.fetch()
         }.join()
     }
 
-    suspend fun reset() {
+    private suspend fun reset() {
         coroutineScope.launch {
             awaitAll(
-                async { song.reset() },
+                async { mediaStore.reset() },
+                async { albumArtist.reset() },
                 async { album.reset() },
                 async { artist.reset() },
-                async { albumArtist.reset() },
+                async { genre.reset() },
+                async { lyrics.reset() },
                 async { playlist.reset() },
+                async { song.reset() },
             )
         }.join()
     }
@@ -64,6 +74,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     }
 
     override fun onSymphonyReady() {
+        ready()
         coroutineScope.launch {
             fetch()
             readyDeferred.complete(true)

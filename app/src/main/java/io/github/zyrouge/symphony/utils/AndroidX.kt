@@ -13,4 +13,3 @@ class AndroidXShorty(val symphony: Symphony) {
         activity.startActivity(Intent(Intent.ACTION_VIEW).setData(uri))
     }
 }
-

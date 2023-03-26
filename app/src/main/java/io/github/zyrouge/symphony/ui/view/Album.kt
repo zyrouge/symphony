@@ -22,18 +22,14 @@ fun AlbumView(context: ViewContext, albumId: Long) {
         mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
     }
     val songs = remember {
-        context.symphony.groove.song.getSongsOfAlbum(albumId).toMutableStateList()
+        context.symphony.groove.album.getSongsOfAlbumId(albumId).toMutableStateList()
     }
     var isViable by remember { mutableStateOf(album != null) }
 
-    EventerEffect(context.symphony.groove.artist.onUpdate) {
+    EventerEffect(context.symphony.groove.album.onUpdate) {
         album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
+        songs.swap(context.symphony.groove.album.getSongsOfAlbumId(albumId))
         isViable = album != null
-    }
-
-    EventerEffect(context.symphony.groove.song.onUpdate) {
-        songs.swap(context.symphony.groove.song.getSongsOfAlbum(albumId))
     }
 
     Scaffold(

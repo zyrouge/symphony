@@ -18,4 +18,10 @@ class Eventer<T> {
     fun dispatch(event: T) {
         subscribers.forEach { it(event) }
     }
+
+    companion object {
+        fun nothing() = Eventer<Nothing?>()
+    }
 }
+
+fun Eventer<Nothing?>.dispatch() = dispatch(null)

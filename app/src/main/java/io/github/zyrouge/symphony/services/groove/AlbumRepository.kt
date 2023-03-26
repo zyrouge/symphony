@@ -16,9 +16,10 @@ enum class AlbumSortBy {
 }
 
 class AlbumRepository(private val symphony: Symphony) {
-    private val cached = ConcurrentHashMap<Long, Album>()
+    val cache = ConcurrentHashMap<Long, Album>()
+    val songIdsCache = ConcurrentHashMap<Long, ConcurrentSet<Long>>()
     var isUpdating = false
-    val onUpdate = Eventer<Nothing?>()
+    val onUpdate = Eventer.nothing()
 
     private val searcher = FuzzySearcher<Album>(
         options = listOf(
@@ -27,42 +28,42 @@ class AlbumRepository(private val symphony: Symphony) {
         )
     )
 
-    fun fetch() {
-        if (isUpdating) return
+    fun ready() {
+        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
+        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
+        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
+    }
+
+    private fun onFetchStart() {
         isUpdating = true
-        onUpdate.dispatch(null)
-        val cursor = symphony.applicationContext.contentResolver.query(
-            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-            null,
-            null,
-            null,
-            MediaStore.Audio.Albums.ALBUM + " ASC"
-        )
-        try {
-            val updateDispatcher = GrooveRepositoryUpdateDispatcher {
-                onUpdate.dispatch(null)
-            }
-            cursor?.use {
-                while (it.moveToNext()) {
-                    kotlin
-                        .runCatching { Album.fromCursor(it) }
-                        .getOrNull()
-                        ?.let { album ->
-                            cached[album.id] = album
-                            updateDispatcher.increment()
-                        }
-                }
-            }
-        } catch (err: Exception) {
-            Logger.error("AlbumRepository", "fetch failed: $err")
-        }
+    }
+
+    private fun onFetchEnd() {
         isUpdating = false
-        onUpdate.dispatch(null)
+    }
+
+    private fun onSong(song: Song) {
+        if (song.albumName == null || song.artistName == null) return
+        songIdsCache.compute(song.albumId) { _, value ->
+            value?.apply { add(song.id) } ?: ConcurrentSet(song.id)
+        }
+        cache.compute(song.albumId) { _, value ->
+            value?.apply {
+                numberOfTracks++
+            } ?: Album(
+                id = song.albumId,
+                name = song.albumName,
+                artist = song.artistName,
+                numberOfTracks = 1,
+            )
+        }
+        onUpdate.dispatch()
     }
 
     fun reset() {
-        cached.clear()
-        onUpdate.dispatch(null)
+        cache.clear()
+        songIdsCache.clear()
+        onUpdate.dispatch()
     }
 
     fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
@@ -78,27 +79,12 @@ class AlbumRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
-    fun getAll() = cached.values.toList()
-    fun getAlbumWithId(albumId: Long) = cached[albumId]
+    fun getAll() = cache.values.toList()
+    fun getAlbumWithId(albumId: Long) = cache[albumId]
 
-    fun getAlbumOfArtist(artistName: String) = cached.values.find {
-        it.artist == artistName
-    }
-
-    fun getAlbumsOfArtist(artistName: String) = cached.values.filter {
-        it.artist == artistName
-    }
-
-    fun getAlbumsOfAlbumArtist(artistName: String): List<Album> {
-        val albums = mutableListOf<Album>()
-        val albumArtist = symphony.groove.albumArtist.getAlbumArtistFromName(artistName)
-        albumArtist?.albumIdsSet?.forEach { albumId ->
-            getAlbumWithId(albumId)?.let {
-                albums.add(it)
-            }
-        }
-        return albums.toList()
-    }
+    fun getSongIdsOfAlbumId(albumId: Long) = songIdsCache[albumId]?.toList() ?: listOf()
+    fun getSongsOfAlbumId(albumId: Long) = getSongIdsOfAlbumId(albumId)
+        .mapNotNull { symphony.groove.song.getSongWithId(it) }
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 

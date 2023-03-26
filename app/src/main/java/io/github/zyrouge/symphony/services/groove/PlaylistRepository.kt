@@ -17,10 +17,10 @@ enum class PlaylistSortBy {
 }
 
 class PlaylistRepository(private val symphony: Symphony) {
-    private val cached = ConcurrentHashMap<String, Playlist>()
-    private var favoritesId: String? = null
+    val cache = ConcurrentHashMap<String, Playlist>()
+    var favoritesId: String? = null
     var isUpdating = false
-    val onUpdate = Eventer<Nothing?>()
+    val onUpdate = Eventer.nothing()
     val onFavoritesUpdate = Eventer<List<Long>>()
 
     private val searcher = FuzzySearcher<Playlist>(
@@ -30,16 +30,16 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun fetch() {
         if (isUpdating) return
         isUpdating = true
-        onUpdate.dispatch(null)
+        onUpdate.dispatch()
         try {
             val data = symphony.database.playlists.read()
             val locals = queryAllLocalPlaylistsMap()
-            data.custom.forEach { cached[it.id] = it }
+            data.custom.forEach { cache[it.id] = it }
             data.local.forEach {
                 try {
                     locals[it.path]?.let { extended ->
                         parseLocalPlaylist(extended)?.let { playlist ->
-                            cached[playlist.id] = playlist
+                            cache[playlist.id] = playlist
                         }
                     }
                 } catch (err: Exception) {
@@ -47,23 +47,31 @@ class PlaylistRepository(private val symphony: Symphony) {
                 }
             }
             favoritesId = data.favorites.id
-            cached[data.favorites.id] = data.favorites
+            cache[data.favorites.id] = data.favorites
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed: $err")
         }
         isUpdating = false
-        onUpdate.dispatch(null)
+        onUpdate.dispatch()
     }
 
     fun reset() {
-        cached.clear()
-        onUpdate.dispatch(null)
+        cache.clear()
+        onUpdate.dispatch()
     }
 
-    fun getAll() = cached.values.toList()
-    fun getPlaylistWithId(id: String) = cached[id]
-    fun getFavoritesPlaylist() = favoritesId?.let { cached[it] }
+    fun getAll() = cache.values.toList()
+    fun getPlaylistWithId(id: String) = cache[id]
+    fun getFavoritesPlaylist() = favoritesId?.let { cache[it] }
+
+    fun getSongsOfPlaylist(playlist: Playlist) = playlist.songs.mapNotNull {
+        symphony.groove.song.getSongWithId(it)
+    }
+
+    fun getSongsOfPlaylistId(playlistId: String) = cache[playlistId]
+        ?.let { getSongsOfPlaylist(it) }
+        ?: listOf()
 
     fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 
@@ -80,27 +88,27 @@ class PlaylistRepository(private val symphony: Symphony) {
     )
 
     suspend fun addPlaylist(playlist: Playlist) {
-        cached[playlist.id] = playlist
-        onUpdate.dispatch(null)
+        cache[playlist.id] = playlist
+        onUpdate.dispatch()
         save()
     }
 
     suspend fun removePlaylist(playlist: Playlist) = removePlaylist(playlist.id)
     suspend fun removePlaylist(id: String) {
-        cached.remove(id)
-        onUpdate.dispatch(null)
+        cache.remove(id)
+        onUpdate.dispatch()
         save()
     }
 
     suspend fun updatePlaylistSongs(playlist: Playlist, songs: List<Long>) {
-        cached[playlist.id] = Playlist(
+        cache[playlist.id] = Playlist(
             id = playlist.id,
             title = playlist.title,
             songs = songs.distinctList(),
             numberOfTracks = songs.size,
             local = null,
         )
-        onUpdate.dispatch(null)
+        onUpdate.dispatch()
         if (playlist.id == favoritesId) {
             onFavoritesUpdate.dispatch(songs)
         }
@@ -144,7 +152,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         val custom = mutableListOf<Playlist>()
         val local = mutableListOf<Playlist.Local>()
         val favorites = getFavoritesPlaylist() ?: PlaylistsBox.Data.createFavoritesPlaylist()
-        cached.values.forEach { playlist ->
+        cache.values.forEach { playlist ->
             when {
                 playlist.id == favorites.id -> return@forEach
                 playlist.isLocal() -> playlist.local!!.let { local.add(it) }
@@ -177,7 +185,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 val path = cursor.getColumnValue(MediaStore.Files.FileColumns.DATA) {
                     cursor.getString(it)
                 }
-                if (!cached.containsKey(path)) {
+                if (!cache.containsKey(path)) {
                     playlists[path] = Playlist.LocalExtended(
                         id = id,
                         uri = getExternalVolumeUri(id),
