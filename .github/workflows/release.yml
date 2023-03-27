@@ -24,7 +24,7 @@ jobs:
 
             - name: 🔢 Get version
               id: app_version
-              run: echo "version=$(npm run version:print --silent) >> $GITHUB_OUTPUT
+              run: echo "version=$(npm run version:print --silent)" >> $GITHUB_OUTPUT
 
             - name: 🔎 Check for release
               uses: actions/github-script@v6
