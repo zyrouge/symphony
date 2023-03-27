@@ -24,12 +24,12 @@ jobs:
 
             - name: 🔢 Get version
               id: app_version
-              run: npm run version:print --silent
+              run: echo "version=$(npm run version:print --silent) >> $GITHUB_OUTPUT
 
             - name: 🔎 Check for release
               uses: actions/github-script@v6
               env:
-                  APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
+                  APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
               with:
                   script: |
                       const tagName = `v${process.env["APP_VERSION_NAME"]}`;
@@ -71,7 +71,7 @@ jobs:
               uses: actions/github-script@v6
               id: app_binary
               env:
-                  APP_VERSION_NAME: ${{ steps.app_version.outputs.result }}
+                  APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
               with:
                   result-encoding: string
                   script: |
