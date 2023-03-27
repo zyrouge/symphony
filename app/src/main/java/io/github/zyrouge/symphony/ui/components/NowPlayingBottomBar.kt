@@ -4,7 +4,9 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,18 +18,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
+import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -247,19 +255,70 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
         )
         Spacer(modifier = Modifier.width(15.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(
+            NowPlayingBottomBarContentText(
                 song.title,
                 style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
             )
             song.artistName?.let { artistName ->
-                Text(
+                NowPlayingBottomBarContentText(
                     artistName,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun NowPlayingBottomBarContentText(
+    text: String,
+    style: TextStyle,
+) {
+    var showOverlay by remember { mutableStateOf(false) }
+
+    Box {
+        Text(
+            text,
+            style = style,
+            maxLines = 1,
+            modifier = Modifier
+                .basicMarquee(iterations = Int.MAX_VALUE)
+                .onGloballyPositioned {
+                    val offsetX = it.boundsInParent().centerLeft.x
+                    showOverlay = offsetX.absoluteValue != 0f
+                },
+        )
+        AnimatedVisibility(
+            visible = showOverlay,
+            modifier = Modifier.matchParentSize(),
+            enter = FadeTransition.enterTransition(),
+            exit = FadeTransition.exitTransition(),
+        ) {
+            val backgroundColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+
+            Row {
+                Box(
+                    modifier = Modifier
+                        .width(12.dp)
+                        .fillMaxHeight()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(backgroundColor, Color.Transparent)
+                            )
+                        )
+                ) {}
+                Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .width(12.dp)
+                        .fillMaxHeight()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, backgroundColor)
+                            )
+                        )
+                ) {}
             }
         }
     }
