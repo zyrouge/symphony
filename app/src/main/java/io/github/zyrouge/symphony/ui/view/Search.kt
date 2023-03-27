@@ -362,6 +362,9 @@ fun SearchView(context: ViewContext) {
                     }
                 }
             }
+        },
+        bottomBar = {
+            NowPlayingBottomBar(context)
         }
     )
 }
