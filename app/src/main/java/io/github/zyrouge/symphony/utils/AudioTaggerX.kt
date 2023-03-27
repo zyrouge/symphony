@@ -10,7 +10,6 @@ object AudioTaggerX {
 
     fun getLyrics(file: File) = read(file) { audioFile ->
         audioFile.tagOrCreateDefault.getFirst(FieldKey.LYRICS)
-            .trim()
-            .takeIf { it.isNotEmpty() }
+            .takeIf { !it.isNullOrBlank() }
     }
 }
