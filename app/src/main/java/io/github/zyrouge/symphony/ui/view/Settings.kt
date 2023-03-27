@@ -184,30 +184,6 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setHomePageBottomBarLabelVisibility(value)
                         }
                     )
-                    SettingsSwitchTile(
-                        icon = {
-                            Icon(Icons.Default.SkipNext, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.MiniPlayerTrackControls)
-                        },
-                        value = settings.miniPlayerTrackControls,
-                        onChange = { value ->
-                            context.symphony.settings.setMiniPlayerTrackControls(value)
-                        }
-                    )
-                    SettingsSwitchTile(
-                        icon = {
-                            Icon(Icons.Default.Forward30, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.MiniPlayerSeekControls)
-                        },
-                        value = settings.miniPlayerSeekControls,
-                        onChange = { value ->
-                            context.symphony.settings.setMiniPlayerSeekControls(value)
-                        }
-                    )
                     Divider()
                     SettingsSideHeading(context.symphony.t.Player)
                     SettingsSwitchTile(
@@ -295,30 +271,6 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setPauseOnHeadphonesDisconnect(value)
                         }
                     )
-                    SettingsSwitchTile(
-                        icon = {
-                            Icon(Icons.Default.Wysiwyg, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.ShowAudioInformation)
-                        },
-                        value = settings.showNowPlayingAdditionalInfo,
-                        onChange = { value ->
-                            context.symphony.settings.setShowNowPlayingAdditionalInfo(value)
-                        }
-                    )
-                    SettingsSwitchTile(
-                        icon = {
-                            Icon(Icons.Default.Forward30, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.EnableSeekControls)
-                        },
-                        value = settings.enableSeekControls,
-                        onChange = { value ->
-                            context.symphony.settings.setEnableSeekControls(value)
-                        }
-                    )
                     val seekDurationRange = 3f..60f
                     SettingsSliderTile(
                         context,
@@ -369,6 +321,58 @@ fun SettingsView(context: ViewContext) {
                                 SettingsDataDefaults.seekForwardDuration
                             )
                         },
+                    )
+                    Divider()
+                    SettingsSideHeading(context.symphony.t.MiniPlayer)
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.SkipNext, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowTrackControls)
+                        },
+                        value = settings.miniPlayerTrackControls,
+                        onChange = { value ->
+                            context.symphony.settings.setMiniPlayerTrackControls(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Forward30, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowSeekControls)
+                        },
+                        value = settings.miniPlayerSeekControls,
+                        onChange = { value ->
+                            context.symphony.settings.setMiniPlayerSeekControls(value)
+                        }
+                    )
+                    Divider()
+                    SettingsSideHeading(context.symphony.t.NowPlaying)
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Wysiwyg, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowAudioInformation)
+                        },
+                        value = settings.showNowPlayingAdditionalInfo,
+                        onChange = { value ->
+                            context.symphony.settings.setShowNowPlayingAdditionalInfo(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Forward30, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowSeekControls)
+                        },
+                        value = settings.enableSeekControls,
+                        onChange = { value ->
+                            context.symphony.settings.setEnableSeekControls(value)
+                        }
                     )
                     Divider()
                     SettingsSideHeading(context.symphony.t.Groove)

@@ -125,9 +125,6 @@
         "ShowAudioInformation",
         "FastRewindDuration",
         "FastForwardDuration",
-        "EnableSeekControls",
-        "MiniPlayerTrackControls",
-        "MiniPlayerSeekControls",
         "SuggestedAlbumArtists",
         "AreYouSureThatYouWantToDeleteThisPlaylist",
         "RemoveFromPlaylist",
@@ -137,7 +134,10 @@
         "NoLyrics",
         "SponsorViaPatreon",
         "FDroid",
-        "IzzyOnDroid"
+        "IzzyOnDroid",
+        "MiniPlayer",
+        "ShowTrackControls",
+        "ShowSeekControls"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

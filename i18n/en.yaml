@@ -133,9 +133,6 @@ Translations:
     ShowAudioInformation: Show audio information
     FastRewindDuration: Fast-rewind duration
     FastForwardDuration: Fast-forward duration
-    EnableSeekControls: Enable seek controls
-    MiniPlayerTrackControls: Mini-player track controls
-    MiniPlayerSeekControls: Mini-player seek controls
     SuggestedAlbumArtists: Suggested album artists
     AreYouSureThatYouWantToDeleteThisPlaylist: Are you sure that you want to delete this playlist?
     RemoveFromPlaylist: Remove from playlist
@@ -146,6 +143,9 @@ Translations:
     SponsorViaPatreon: Sponsor via Patreon
     FDroid: F-droid
     IzzyOnDroid: IzzyOnDroid
+    MiniPlayer: Mini-player
+    ShowTrackControls: Show track controls
+    ShowSeekControls: Show seek controls
 
     # Dynamic
     PlayingXofY: Playing $x of $y
