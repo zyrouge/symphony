@@ -25,6 +25,7 @@ class SongRepository(private val symphony: Symphony) {
     var explorer = MediaStoreExposer.createExplorer()
     var isUpdating = false
     val onUpdate = Eventer.nothing()
+    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
     private val searcher = FuzzySearcher<Song>(
         options = listOf(
@@ -47,6 +48,7 @@ class SongRepository(private val symphony: Symphony) {
 
     private fun onFetchEnd() {
         isUpdating = false
+        onUpdate.dispatch()
     }
 
     private fun onSong(song: Song) {
@@ -55,7 +57,7 @@ class SongRepository(private val symphony: Symphony) {
         val entity = explorer
             .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
         entity.data = song.id
-        onUpdate.dispatch()
+        onUpdateRapidDispatcher.dispatch()
     }
 
     fun reset() {

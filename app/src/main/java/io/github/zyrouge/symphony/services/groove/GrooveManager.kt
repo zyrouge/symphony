@@ -3,6 +3,8 @@ package io.github.zyrouge.symphony.services.groove
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.PermissionEvents
+import io.github.zyrouge.symphony.utils.Eventer
+import io.github.zyrouge.symphony.utils.dispatch
 import kotlinx.coroutines.*
 
 enum class GrooveKinds {
@@ -82,17 +84,17 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     }
 }
 
-class GrooveRepositoryUpdateDispatcher(
+class GrooveEventerRapidUpdateDispatcher(
+    val eventer: Eventer<Nothing?>,
     val maxCount: Int = 30,
     val minTimeDiff: Int = 200,
-    val dispatch: () -> Unit,
 ) {
     var count = 0
     var time = currentTime
 
-    fun increment() {
+    fun dispatch() {
         if (count > maxCount && (currentTime - time) > minTimeDiff) {
-            dispatch()
+            eventer.dispatch()
             count = 0
             time = System.currentTimeMillis()
             return

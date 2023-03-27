@@ -21,6 +21,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     var favoritesId: String? = null
     var isUpdating = false
     val onUpdate = Eventer.nothing()
+    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
     val onFavoritesUpdate = Eventer<List<Long>>()
 
     private val searcher = FuzzySearcher<Playlist>(
@@ -48,6 +49,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             }
             favoritesId = data.favorites.id
             cache[data.favorites.id] = data.favorites
+            onUpdateRapidDispatcher.dispatch()
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed: $err")

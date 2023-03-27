@@ -19,6 +19,7 @@ class ArtistRepository(private val symphony: Symphony) {
     val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
     var isUpdating = false
     val onUpdate = Eventer.nothing()
+    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
     private val searcher = FuzzySearcher<Artist>(
         options = listOf(
@@ -38,6 +39,7 @@ class ArtistRepository(private val symphony: Symphony) {
 
     private fun onFetchEnd() {
         isUpdating = false
+        onUpdate.dispatch()
     }
 
     private fun onSong(song: Song) {
@@ -62,7 +64,7 @@ class ArtistRepository(private val symphony: Symphony) {
                 numberOfTracks = 1,
             )
         }
-        onUpdate.dispatch()
+        onUpdateRapidDispatcher.dispatch()
     }
 
     fun reset() {
