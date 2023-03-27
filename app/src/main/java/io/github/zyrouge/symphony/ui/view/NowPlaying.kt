@@ -422,6 +422,11 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                                 it,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.clickable {
+                                    context.navController.navigate(
+                                        RoutesBuilder.buildArtistRoute(it)
+                                    )
+                                },
                             )
                         }
                         if (data.showSongAdditionalInfo) {
