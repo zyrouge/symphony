@@ -68,7 +68,7 @@ class MediaStoreExposer(private val symphony: Symphony) {
                 symphony.database.songCache.update(nAdditionalMetadata)
             }
         } catch (err: Exception) {
-            Logger.error("MediaStoreExposer", "fetch failed: $err")
+            Logger.error("MediaStoreExposer", "fetch failed", err)
         }
         isFetching = false
         onFetchEnd.dispatch()

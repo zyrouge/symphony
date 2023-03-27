@@ -29,10 +29,9 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        Thread.setDefaultUncaughtExceptionHandler { _, error ->
-            Logger.error("MainActivity", "Uncaught exception: $error")
-            error.printStackTrace()
-            ErrorActivity.start(this, error)
+        Thread.setDefaultUncaughtExceptionHandler { _, err ->
+            Logger.error("MainActivity", "Uncaught exception", err)
+            ErrorActivity.start(this, err)
             finish()
         }
 

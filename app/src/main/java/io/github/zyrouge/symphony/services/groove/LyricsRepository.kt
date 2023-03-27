@@ -65,7 +65,7 @@ class LyricsRepository(private val symphony: Symphony) {
             }
             return lyrics
         } catch (err: Exception) {
-            Logger.error("LyricsRepository", "fetch lyrics failed: $err")
+            Logger.error("LyricsRepository", "fetch lyrics failed", err)
         }
         return null
     }

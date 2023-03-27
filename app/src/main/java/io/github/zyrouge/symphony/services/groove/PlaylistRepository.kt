@@ -44,7 +44,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                         }
                     }
                 } catch (err: Exception) {
-                    Logger.error("PlaylistRepository", "parsing ${it.path} failed: $err")
+                    Logger.error("PlaylistRepository", "parsing ${it.path} failed", err)
                 }
             }
             favoritesId = data.favorites.id
@@ -52,7 +52,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             onUpdateRapidDispatcher.dispatch()
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
-            Logger.error("PlaylistRepository", "fetch failed: $err")
+            Logger.error("PlaylistRepository", "fetch failed", err)
         }
         isUpdating = false
         onUpdate.dispatch()
