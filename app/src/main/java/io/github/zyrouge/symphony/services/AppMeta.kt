@@ -23,12 +23,11 @@ object AppMeta {
     const val githubIssuesUrl = "$githubRepositoryUrl/issues"
     const val discordUrl = "https://discord.gg/5k9Hdq7ycm "
     const val redditUrl = "https://reddit.com/r/symphony_app"
+    const val patreonSponsorsUrl = "https://www.patreon.com/zyrouge"
 
-    enum class Variant {
-        Official,
-        FDroid,
-        Unknown,
-    }
+    const val packageName = "io.github.zyrouge.symphony"
+    const val izzyOnDroidUrl = "https://apt.izzysoft.de/fdroid/index/apk/$packageName"
+    const val fdroidUrl = "https://f-droid.org/en/packages/$packageName"
 
     /**
      * Format: v\[yyyy].\[mm].\[versionCode]
@@ -48,11 +47,10 @@ object AppMeta {
             val draft = json.getBoolean("draft")
             if (!draft) {
                 latestVersion = tagName
-                return tagName
             }
         } catch (err: Exception) {
             Logger.warn("AppMeta", "version check failed: $err")
         }
-        return null
+        return latestVersion
     }
 }

@@ -51,7 +51,7 @@ Translations:
     FilteringResults: Filtering results...
     Appearance: Appearance
     About: About
-    Github: Github
+    GitHub: GitHub
     Play: Play
     Previous: Previous
     Next: Next
@@ -143,6 +143,9 @@ Translations:
     Pitch: Pitch
     PersistUntilQueueEnd: Persist until queue end
     NoLyrics: No lyrics
+    SponsorViaPatreon: Sponsor via Patreon
+    FDroid: F-droid
+    IzzyOnDroid: IzzyOnDroid
 
     # Dynamic
     PlayingXofY: Playing $x of $y

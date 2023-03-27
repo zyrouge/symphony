@@ -43,7 +43,7 @@
         "FilteringResults",
         "Appearance",
         "About",
-        "Github",
+        "GitHub",
         "Play",
         "Previous",
         "Next",
@@ -134,7 +134,10 @@
         "Speed",
         "Pitch",
         "PersistUntilQueueEnd",
-        "NoLyrics"
+        "NoLyrics",
+        "SponsorViaPatreon",
+        "FDroid",
+        "IzzyOnDroid"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

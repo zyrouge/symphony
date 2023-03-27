@@ -487,9 +487,29 @@ fun SettingsView(context: ViewContext) {
                             Icon(Icons.Default.Code, null)
                         },
                         title = {
-                            Text(context.symphony.t.Github)
+                            Text(context.symphony.t.GitHub)
                         },
                         url = AppMeta.githubRepositoryUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Store, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.IzzyOnDroid)
+                        },
+                        url = AppMeta.izzyOnDroidUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Store, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.FDroid)
+                        },
+                        url = AppMeta.fdroidUrl
                     )
                     SettingsLinkTile(
                         context,
@@ -500,6 +520,16 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.SponsorViaGitHub)
                         },
                         url = AppMeta.githubSponsorsUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Redeem, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.SponsorViaPatreon)
+                        },
+                        url = AppMeta.patreonSponsorsUrl
                     )
                     SettingsSwitchTile(
                         icon = {
