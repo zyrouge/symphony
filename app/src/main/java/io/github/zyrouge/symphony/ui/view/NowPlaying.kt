@@ -422,7 +422,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                                 it,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.clickable {
+                                modifier = Modifier.noRippleClickable {
                                     context.navController.navigate(
                                         RoutesBuilder.buildArtistRoute(it)
                                     )
