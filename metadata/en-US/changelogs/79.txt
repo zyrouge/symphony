@@ -1,0 +1,20 @@
+- Support for embedded lyrics.
+- Fix missing playback bar on notifications.
+- Added Speed & pitch control.
+- Improved animations in Now Playing page.
+- Improved internal MediaStore access.
+- Show mini-player in Search page.
+- Text in mini-player now scrolls when it's too long.
+- Clickable artist name in Now Playing page.
+- Identify and act upon bluetooth headphone actions.
+- Ability to create playlists when adding songs using "Add to playlist".
+- System tones are blacklisted by default.
+- Added "Remove from playlist" option.
+- Fixed incorrect Album Artist issues.
+- Changed default playlist sort order to custom.
+- Black theme colors are now darker.
+- Suggested Album Artists in For You page.
+- For You page now allows customization.
+- Fixed invalid date in song information dialog.
+- Improved Settings page categories.
+- Added Patreon, F-droid and IzzyOnDroid links in Settings page.
