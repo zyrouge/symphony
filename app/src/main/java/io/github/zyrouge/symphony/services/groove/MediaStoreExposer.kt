@@ -18,14 +18,14 @@ class MediaStoreExposer(private val symphony: Symphony) {
 
     fun fetch() {
         isFetching = true
-        val cursor = symphony.applicationContext.contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            null,
-            MediaStore.Audio.Media.IS_MUSIC + " != 0",
-            null,
-            MediaStore.Audio.Media.TITLE + " ASC"
-        )
         try {
+            val cursor = symphony.applicationContext.contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                null,
+                MediaStore.Audio.Media.IS_MUSIC + " != 0",
+                null,
+                MediaStore.Audio.Media.TITLE + " ASC"
+            )
             cursor?.use {
                 val blacklisted = symphony.settings.getBlacklistFolders().toSortedSet()
                 val whitelisted = symphony.settings.getWhitelistFolders().toSortedSet()
