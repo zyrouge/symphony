@@ -132,7 +132,7 @@ Translations:
     MiniPlayerSeekControls: "Управління перемотуванням з міні-плеєра"
 
     PlayingXofY: "Грає $x із $y"
-    UnknownArtistX: "Невідомий виконавець ($name)"
+    UnknownArtistX: "Невідомий виконавець ($x)"
     XSongs: "$x треків"
     UnknownAlbumX: "Невідомий альбом (ID: ${id})"
     XArtists: "$x виконавців"

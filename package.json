@@ -23,6 +23,6 @@
     },
     "dependencies": {
         "fs-extra": "^11.1.0",
-        "phrasey": "^1.0.0"
+        "phrasey": "^1.1.0"
     }
 }
