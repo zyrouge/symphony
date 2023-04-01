@@ -137,7 +137,8 @@
         "IzzyOnDroid",
         "MiniPlayer",
         "ShowTrackControls",
-        "ShowSeekControls"
+        "ShowSeekControls",
+        "Font"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

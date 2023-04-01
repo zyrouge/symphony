@@ -12,11 +12,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import io.github.zyrouge.symphony.services.SettingsKeys
-import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
-private enum class ColorSchemeMode {
+enum class ThemeMode {
+    SYSTEM,
+    LIGHT,
+    DARK,
+    BLACK,
+}
+
+enum class ColorSchemeMode {
     LIGHT,
     DARK,
     BLACK
@@ -30,14 +36,22 @@ fun SymphonyTheme(
     var themeMode by remember { mutableStateOf(context.symphony.settings.getThemeMode()) }
     var useMaterialYou by remember { mutableStateOf(context.symphony.settings.getUseMaterialYou()) }
     var primaryColorName by remember { mutableStateOf(context.symphony.settings.getPrimaryColor()) }
+    var fontName by remember { mutableStateOf(context.symphony.settings.getFontFamily()) }
 
     EventerEffect(context.symphony.settings.onChange) {
         when (it) {
-            SettingsKeys.themeMode -> themeMode = context.symphony.settings.getThemeMode()
-            SettingsKeys.materialYou -> useMaterialYou =
-                context.symphony.settings.getUseMaterialYou()
-            SettingsKeys.primaryColor -> primaryColorName =
-                context.symphony.settings.getPrimaryColor()
+            SettingsKeys.themeMode -> {
+                themeMode = context.symphony.settings.getThemeMode()
+            }
+            SettingsKeys.materialYou -> {
+                useMaterialYou = context.symphony.settings.getUseMaterialYou()
+            }
+            SettingsKeys.primaryColor -> {
+                primaryColorName = context.symphony.settings.getPrimaryColor()
+            }
+            SettingsKeys.fontFamily -> {
+                fontName = context.symphony.settings.getFontFamily()
+            }
         }
     }
 
@@ -76,9 +90,13 @@ fun SymphonyTheme(
         }
     }
 
+    val typography = SymphonyTypography.toTypography(
+        SymphonyTypography.resolveFont(fontName)
+    )
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }

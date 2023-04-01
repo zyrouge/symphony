@@ -7,17 +7,11 @@ import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.RadioQueue
+import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.utils.Eventer
-
-enum class ThemeMode {
-    SYSTEM,
-    LIGHT,
-    DARK,
-    BLACK,
-}
 
 object SettingsKeys {
     const val identifier = "settings"
@@ -69,6 +63,7 @@ object SettingsKeys {
     const val seekForwardDuration = "seek_forward_duration"
     const val miniPlayerTrackControls = "mini_player_extended_controls"
     const val miniPlayerSeekControls = "mini_player_seek_controls"
+    const val fontFamily = "font_family"
 }
 
 data class SettingsData(
@@ -95,6 +90,7 @@ data class SettingsData(
     val seekForwardDuration: Int,
     val miniPlayerTrackControls: Boolean,
     val miniPlayerSeekControls: Boolean,
+    val fontFamily: String?,
 )
 
 object SettingsDataDefaults {
@@ -160,6 +156,7 @@ class SettingsManager(private val symphony: Symphony) {
         seekForwardDuration = getSeekForwardDuration(),
         miniPlayerTrackControls = getMiniPlayerTrackControls(),
         miniPlayerSeekControls = getMiniPlayerSeekControls(),
+        fontFamily = getFontFamily(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -715,11 +712,18 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.miniPlayerSeekControls)
     }
 
-    private fun getSharedPreferences() =
-        symphony.applicationContext.getSharedPreferences(
-            SettingsKeys.identifier,
-            Context.MODE_PRIVATE
-        )
+    fun getFontFamily() = getSharedPreferences().getString(SettingsKeys.fontFamily, null)
+    fun setFontFamily(language: String) {
+        getSharedPreferences().edit {
+            putString(SettingsKeys.fontFamily, language)
+        }
+        onChange.dispatch(SettingsKeys.fontFamily)
+    }
+
+    private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(
+        SettingsKeys.identifier,
+        Context.MODE_PRIVATE,
+    )
 }
 
 private inline fun <reified T : Enum<T>> SharedPreferences.getEnum(

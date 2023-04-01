@@ -6,27 +6,72 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import io.github.zyrouge.symphony.R
 
-private val InterFontFamily = FontFamily(
-    Font(R.font.inter_regular, FontWeight.Normal),
-    Font(R.font.inter_bold, FontWeight.Bold)
-)
+enum class SymphonyFont(
+    val fontName: String,
+    val fontFamily: FontFamily,
+) {
+    Inter(
+        fontName = "Inter",
+        fontFamily = FontFamily(
+            Font(R.font.inter_regular, FontWeight.Normal),
+            Font(R.font.inter_bold, FontWeight.Bold),
+        ),
+    ),
+    Poppins(
+        fontName = "Poppins",
+        fontFamily = FontFamily(
+            Font(R.font.roboto_regular, FontWeight.Normal),
+            Font(R.font.roboto_bold, FontWeight.Bold)
+        ),
+    ),
+    DMSans(
+        fontName = "DM Sans",
+        fontFamily = FontFamily(
+            Font(R.font.dmsans_regular, FontWeight.Normal),
+            Font(R.font.dmsans_bold, FontWeight.Bold)
+        ),
+    ),
+    Roboto(
+        fontName = "Roboto",
+        fontFamily = FontFamily(
+            Font(R.font.roboto_regular, FontWeight.Normal),
+            Font(R.font.roboto_bold, FontWeight.Bold)
+        ),
+    ),
+}
 
-val Typography = Typography().run {
-    copy(
-        displayLarge = displayLarge.copy(fontFamily = InterFontFamily),
-        displayMedium = displayMedium.copy(fontFamily = InterFontFamily),
-        displaySmall = displaySmall.copy(fontFamily = InterFontFamily),
-        headlineLarge = headlineLarge.copy(fontFamily = InterFontFamily),
-        headlineMedium = headlineMedium.copy(fontFamily = InterFontFamily),
-        headlineSmall = headlineSmall.copy(fontFamily = InterFontFamily),
-        titleLarge = titleLarge.copy(fontFamily = InterFontFamily),
-        titleMedium = titleMedium.copy(fontFamily = InterFontFamily),
-        titleSmall = titleSmall.copy(fontFamily = InterFontFamily),
-        bodyLarge = bodyLarge.copy(fontFamily = InterFontFamily),
-        bodyMedium = bodyMedium.copy(fontFamily = InterFontFamily),
-        bodySmall = bodySmall.copy(fontFamily = InterFontFamily),
-        labelLarge = labelLarge.copy(fontFamily = InterFontFamily),
-        labelMedium = labelMedium.copy(fontFamily = InterFontFamily),
-        labelSmall = labelSmall.copy(fontFamily = InterFontFamily)
+object SymphonyTypography {
+    val defaultFont = SymphonyFont.Inter
+    val all = mapOf(
+        SymphonyFont.Inter.fontName to SymphonyFont.Inter,
+        SymphonyFont.Poppins.fontName to SymphonyFont.Poppins,
+        SymphonyFont.DMSans.fontName to SymphonyFont.DMSans,
+        SymphonyFont.Roboto.fontName to SymphonyFont.Roboto,
     )
+
+    fun resolveFont(name: String?) = all[name] ?: defaultFont
+
+    fun toTypography(font: SymphonyFont): Typography {
+        font.run {
+            return Typography().run {
+                copy(
+                    displayLarge = displayLarge.copy(fontFamily = fontFamily),
+                    displayMedium = displayMedium.copy(fontFamily = fontFamily),
+                    displaySmall = displaySmall.copy(fontFamily = fontFamily),
+                    headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
+                    headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
+                    headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
+                    titleLarge = titleLarge.copy(fontFamily = fontFamily),
+                    titleMedium = titleMedium.copy(fontFamily = fontFamily),
+                    titleSmall = titleSmall.copy(fontFamily = fontFamily),
+                    bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
+                    bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
+                    bodySmall = bodySmall.copy(fontFamily = fontFamily),
+                    labelLarge = labelLarge.copy(fontFamily = fontFamily),
+                    labelMedium = labelMedium.copy(fontFamily = fontFamily),
+                    labelSmall = labelSmall.copy(fontFamily = fontFamily)
+                )
+            }
+        }
+    }
 }

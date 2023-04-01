@@ -11,14 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.SettingsDataDefaults
-import io.github.zyrouge.symphony.services.ThemeMode
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
+import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.ui.view.settings.*
 import kotlinx.coroutines.launch
@@ -93,6 +94,19 @@ fun SettingsView(context: ViewContext) {
                         },
                         onChange = { value ->
                             context.symphony.settings.setLanguage(value)
+                        }
+                    )
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Default.TextFormat, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.Font)
+                        },
+                        value = SymphonyTypography.resolveFont(settings.fontFamily).fontName,
+                        values = SymphonyTypography.all.keys.associateWith { it },
+                        onChange = { value ->
+                            context.symphony.settings.setFontFamily(value)
                         }
                     )
                     SettingsOptionTile(
