@@ -54,11 +54,9 @@ jobs:
                   SIGNING_KEYSTORE_FILE: ./${{ env.SIGNING_KEYSTORE_FILENAME }}
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
-            - name: 🔨 Generate required files
-              run: npm run i18n:build
-
             - name: 🔨 Build apk
               run: |
+                  npm run prebuild
                   chmod +x ./gradlew
                   ./gradlew build
               env:
