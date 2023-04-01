@@ -32,6 +32,7 @@ fun SettingsView(context: ViewContext) {
     var settings by remember { mutableStateOf(context.symphony.settings.getSettings()) }
 
     val refetchLibrary = {
+        context.symphony.radio.stop()
         coroutineScope.launch {
             context.symphony.groove.refetch()
         }
