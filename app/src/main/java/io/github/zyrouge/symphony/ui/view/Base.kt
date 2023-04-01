@@ -59,7 +59,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.Artist.route,
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
+                    exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
                     ArtistView(
                         context,
@@ -70,7 +70,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.Album.route,
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
+                    exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
                     AlbumView(
                         context,
@@ -88,7 +88,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.AlbumArtist.route,
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
+                    exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
                     AlbumArtistView(
                         context,
@@ -99,7 +99,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.Genre.route,
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
+                    exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
                     GenreView(
                         context,
@@ -110,7 +110,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 composable(
                     Routes.Playlist.route,
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
+                    exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
                     PlaylistView(
                         context,
