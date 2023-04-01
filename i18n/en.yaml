@@ -146,6 +146,7 @@ Translations:
     MiniPlayer: Mini-player
     ShowTrackControls: Show track controls
     ShowSeekControls: Show seek controls
+    Font: Font
 
     # Dynamic
     PlayingXofY: Playing $x of $y
