@@ -96,13 +96,15 @@ private fun AlbumHero(context: ViewContext, album: Album) {
             )
         },
         content = {
-            Text(album.name)
-            album.artist?.let { artistName ->
-                Text(
-                    artistName,
-                    style = MaterialTheme.typography.bodyMedium
-                        .copy(fontWeight = FontWeight.Bold)
-                )
+            Column {
+                Text(album.name)
+                album.artist?.let { artistName ->
+                    Text(
+                        artistName,
+                        style = MaterialTheme.typography.bodyMedium
+                            .copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     )
