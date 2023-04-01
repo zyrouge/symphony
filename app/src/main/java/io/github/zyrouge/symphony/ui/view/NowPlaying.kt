@@ -249,12 +249,11 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                     NowPlayingBodyBottomBar(context, data, states)
                                 }
                             }
-                            ScreenOrientation.LANDSCAPE -> Row(modifier = Modifier.fillMaxSize()) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(top = 12.dp, bottom = 20.dp)
-                                ) {
+                            ScreenOrientation.LANDSCAPE -> Row(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                            ) {
+                                Box(modifier = Modifier.padding(top = 12.dp, bottom = 20.dp)) {
                                     NowPlayingBodyCover(context, data, states)
                                 }
                                 Box(modifier = Modifier.weight(1f)) {
