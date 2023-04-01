@@ -377,6 +377,11 @@ private fun NowPlayingBodyCover(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(12.dp))
+                                    .noRippleClickable {
+                                        context.navController.navigate(
+                                            RoutesBuilder.buildAlbumRoute(song.albumId)
+                                        )
+                                    }
                             )
                         }
                     }

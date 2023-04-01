@@ -87,7 +87,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
 class GrooveEventerRapidUpdateDispatcher(
     val eventer: Eventer<Nothing?>,
     val maxCount: Int = 50,
-    val minTimeDiff: Int = 500,
+    val minTimeDiff: Int = 1000,
 ) {
     var count = 0
     var time = currentTime
