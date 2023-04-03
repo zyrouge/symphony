@@ -1,0 +1,170 @@
+Locale: it
+Language: Italian
+
+Translations:
+    # Static
+    UnknownSymbol: "?"
+    HelloThere: Ciao!
+    IntroductoryMessage: |
+        Grazie per aver scelto Symphony! Se incontri difficoltà tecniche, il nostro Repository GitHub è il posto giusto per segnalarle.
+
+        Unisciti alle nostre comunità Discord e Reddit per connetterti con altri amanti della musica, ricevere supporto, e restare aggiornato con gli ultimi aggiornamenti. La tua generosità aiuta a proseguire lo sviluppo di Symphony, ti prego quindi di considerare il supporto tramite donazioni su GitHub Sponsors.
+
+        Di nuovo, goditi la musica!
+    Songs: Brani
+    Artists: Artisti
+    Albums: Album
+    Settings: Impostazioni
+    Details: Dettagli
+    Path: Percorso
+    Filename: Nome File
+    Size: Dimensioni
+    DateAdded: Data Aggiunta
+    LastModified: Ultima Modifica
+    Length: Lunghezza
+    Bitrate: Bitrate
+    TrackName: Nome Brano
+    Artist: Artista
+    Album: Album
+    AlbumArtist: Artista Album
+    Composer: Compositore
+    NothingIsBeingPlayedRightNow: Nessun brano in riproduzione
+    AddToQueue: Aggiungi alla coda
+    Queue: Coda
+    PlayNext: Riproduci successivo
+    NowPlaying: In Riproduzione
+    Language_: Lingua
+    MaterialYou: Material You
+    System: Sistema
+    Light: Chiaro
+    Dark: Scuro
+    Black: Nero
+    ViewArtist: Vedi artista
+    Title: Titolo
+    Duration: Durata
+    Year: Anno
+    ViewAlbum: Vedi album
+    SearchYourMusic: Cerca la tua musica
+    NoResultsFound: Nessun risultato
+    AlbumCount: Conteggio album
+    TrackCount: Conteggio brani
+    FilteringResults: Filtrando i risultati...
+    Appearance: Aspetto
+    About: Info
+    GitHub: GitHub
+    Play: Riproduci
+    Previous: Precedente
+    Next: Successivo
+    Pause: Pausa
+    Done: Fatto
+    Groove: Groove
+    SongsFilterPattern: Modello filtro brani
+    Reset: Reimposta
+    Theme: Tema
+    CheckForUpdates: Controlla aggiornamenti
+    Version: Versione
+    ShufflePlay: Riproduzione casuale
+    ViewAlbumArtist: Vedi artista album
+    Stop: Ferma
+    All: Tutti
+    FadePlaybackInOut: Dissolvenza in conclusione
+    RequireAudioFocus: Richiedere focus audio
+    IgnoreAudioFocusLoss: Ignora perdita del focus audio
+    Player: Lettore
+    PlayOnHeadphonesConnect: Riproduzione in cuffia
+    PauseOnHeadphonesDisconnect: Pausa su diconnessione cuffie
+    Genre: Genere
+    DamnThisIsSoEmpty: Maledizione, è così vuoto!
+    PrimaryColor: Colore Primario
+    PlayAll: Riproduci tutti
+    ForYou: Per te
+    SuggestedAlbums: Album suggeriti
+    SuggestedArtists: Artisti suggeriti
+    RecentlyAddedSongs: Brani recenti
+    SponsorViaGitHub: Sponsor via GitHub
+    ClearSongCache: Svuota cache brani
+    SongCacheCleared: Cache brani pulite
+    AlbumArtists: Artisti album
+    Genres: Generi
+    Cancel: Cancella
+    HomeTabs: Schede principali
+    SelectAtleast2orAtmost5Tabs: Scegli da 2 a 5 schede
+    Folders: Cartelle
+    Invisible: Invisibili
+    AlwaysVisible: Sempre visibili
+    VisibleWhenActive: Visibili quando attive
+    BottomBarLabelVisibility: Visibilità etichette barra
+    Playlists: Liste
+    NewPlaylist: Nuova lista
+    ImportPlaylist: Importa lista
+    NoInAppPlaylistsFound: Nessuna lista in app trovata
+    NoLocalPlaylistsFound: Nessuna lista locale trovata
+    Custom: Personalizza
+    Playlist: Lista
+    AddSongs: Aggiungi brani
+    AddToPlaylist: Aggiungi a lista
+    IsLocalPlaylist: La lista è locale?
+    "Yes": "Si"
+    "No": "No"
+    ManageSongs: Gestisci brani
+    Delete: Cancella
+    DeletePlaylist: Cancella lista
+    TrackNumber: Numero brano
+    Tree: Albero
+    Loading: Caricamento...
+    Name: Nome
+    AddFolder: Nuova cartella
+    BlacklistFolders: Cartelle ingorate
+    WhitelistFolders: Certelle considerate
+    PickFolder: Scegli cartella
+    InvalidM3UFile: File M3U non valido
+    Discord: Discord
+    Reddit: Reddit
+    ReportAnIssue: Segnala un problema
+    NoFoldersFound: Nessuna cartella trovata
+    SleepTimer: Sveglia
+    Hours: Ore
+    Minutes: Minuti
+    QuitAppOnEnd: Chiudi app al termine
+    Favorite: Preferita
+    Unfavorite: Sgradita
+    BitDepth: Profondità bit
+    SamplingRate: Frequenza di campionamento
+    ShowAudioInformation: Mostra info audio
+    FastRewindDuration: Durata riavvolgimento
+    FastForwardDuration: Durata avanzamento
+    SuggestedAlbumArtists: Artisti album suggeriti
+    AreYouSureThatYouWantToDeleteThisPlaylist: Sicuro di voler cancellare questa lista?
+    RemoveFromPlaylist: Rimuovi dalla lista
+    Speed: Velocità
+    Pitch: Tono
+    PersistUntilQueueEnd: Persisti fino al termine della coda
+    NoLyrics: Nessun testo
+    SponsorViaPatreon: Sponsor via Patreon
+    FDroid: F-droid
+    IzzyOnDroid: IzzyOnDroid
+    MiniPlayer: Mini-player
+    ShowTrackControls: Mostra controlli brano
+    ShowSeekControls: Mostra controlli ricerca
+    Font: Carattere
+
+    # Dynamic
+    PlayingXofY: Riproducendo $x di $y
+    UnknownArtistX: Artista sconosciuto ($x)
+    XSongs: $x brani
+    UnknownAlbumId: "Album sconosciuto (ID: $id)"
+    XArtists: $x artisti
+    XAlbums: $x album
+    MadeByX: Fatto da $x
+    NewVersionAvailableX: Nuova versione disponibile! ($x)
+    XKbps: $x kbps
+    XSecs: ${x}s
+    UnknownGenreX: Genere sconosciuto $x
+    XGenres: $x generi
+    XFoldersYFiles: $x cartelle, $y file
+    XItems: $x oggetti
+    XPlaylists: $x liste
+    UnknownPlaylistX: "Lista sconosciuta (ID: $x)"
+    XFolders: $x cartelle
+    XBit: $x-bit
+    XKHz: $x kHz
