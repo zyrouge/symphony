@@ -1,0 +1,155 @@
+Locale: "De"
+Language: "German"
+
+Translations:
+    UnknownSymbol: ?
+    HelloThere: Grüße!
+    IntroductoryMessage: |
+Danke, dass Sie sich für Symphony entschieden haben! Wenn Sie auf technische Schwierigkeiten stoßen, können Sie diese in unserem GitHub-Repo melden. 
+Treten Sie unserer Discord- und Reddit-Community bei, um mit anderen Musikliebhabern in Kontakt zu treten, Unterstützung zu erhalten und über die neuesten Updates auf dem Laufenden zu bleiben. Ihre Großzügigkeit hilft, die Entwicklung von Symphony zu unterstützen, also ziehen Sie bitte in Betracht, uns durch Spenden an GitHub-Sponsoren zu unterstützen. 
+Genießen Sie noch einmal die Musik!
+    Songs: Lieder
+    Artists: Künstler
+    Albums: Alben
+    Settings: Einstellungen
+    Details: Einzelheiten
+    Path: Pfad zur Datei
+    Filename: Dateinamen
+    Size: Größe
+    DateAdded: Zeit hinzufügen
+    LastModified: Zuletzt bearbeitet
+    Length: Länge
+    Bitrate: Bitrate
+    TrackName: "Name des Tracks
+    Artist: Künstler
+    Album: Alben
+    AlbumArtist: Künstleralbum
+    Composer: Komponist
+    NothingIsBeingPlayedRightNow: Im Moment wird nichts abgespielt
+    AddToQueueP: Zur Warteschlange hinzufügen
+    Queue: Warteschlange
+    PlayNext: Als nächstes spielen
+    NowPlaying: Läuft gerade
+    Language_: Sprache
+    MaterialYou: Material You
+    System: Systemisch
+    Light: Licht
+    Dark: Dunkel
+    Black: Schwarz
+    ViewArtist: Künstler ansehen
+    Title: Name
+    Duration: Dauer
+    Year: Jahr
+    ViewAlbum: Album anzeigen
+    SearchYourMusic: Finden Sie Ihre Musik
+    NoResultsFound: Keine Ergebnisse
+    AlbumCount: Anzahl Alben
+    TrackCount: Anzahl der Spuren
+    FilteringResults: Filtern der Ergebnisse...
+    Appearance: Aussehen
+    About: Über uns
+    Github: Github
+    Play: Spielen
+    Previous: Vorherige
+    Next: Nächste
+    Pause: Pause
+    Done: Anwenden
+    Groove: Groove
+    SongsFilterPattern: Song-Filter-Vorlage
+    Reset: Zurücksetzen
+    Theme: Thema
+    CheckForUpdates: Auf Updates prüfen
+    Version: Ausführung
+    ShufflePlay: Mischen
+    ViewAlbumArtist: Album des Künstlers anzeigen
+    Stop: Stoppen
+    All: Alle
+    FadePlaybackInOut: Dämpfung
+    RequireAudioFocus: Erfordert Audiofokus
+    IgnoreAudioFocusLoss: Audiofokus ignorieren
+    Player: Spieler
+    PlayOnHeadphonesConnect: Abspielen, wenn die Kopfhörer angeschlossen sind
+    PauseOnHeadphonesDisconnect: Pause, wenn die Kopfhörer ausgeschaltet sind
+    Genre: Genre
+    DamnThisIsSoEmpty: Gott, es ist so leer hier!
+    PrimaryColor: Hauptfarbe
+    PlayAll: Alle wiedergeben
+    ForYou: Für Sie
+    SuggestedAlbums: Vorgeschlagene Alben
+    SuggestedArtists: Vorgeschlagene Künstler
+    RecentlyAddedSongs: Kürzlich hinzugefügte Lieder
+    SponsorViaGitHub: Sponsor über GitHub
+    ClearSongCache: Track-Cache löschen
+    SongCacheCleared: Track-Cache gelöscht
+    AlbumArtists: Alben von Künstlern
+    Genres: Genres
+    Cancel: Stornieren
+    HomeTabs: Start-Tabs
+    SelectAtleast2orAtmost5Tabs: Bitte wählen Sie mindestens 2 oder höchstens 5 Registerkarten aus
+    Folders: Ordner
+    Invisible: Versteckt
+    AlwaysVisible: Immer sichtbar
+    VisibleWhenActive: Nur auf der aktuellen Registerkarte
+    BottomBarLabelVisibility: Registerkartennamen
+    Playlists: Wiedergabelisten
+    NewPlaylist: Neue Wiedergabelisten
+    ImportPlaylist: Wiedergabeliste importieren
+    NoInAppPlaylistsFound: Playlists nicht in der App gefunden
+    NoLocalPlaylistsFound: Lokale Playlists nicht gefunden
+    Custom: Eigen
+    Playlist: Wiedergabeliste
+    AddSongs: Spuren hinzufügen
+    AddToPlaylist: Zur Wiedergabeliste hinzufügen
+    IsLocalPlaylist: Ist das eine interne Playlist?
+    Yes: Ja
+    No: Nein
+    ManageSongs: Track-Management
+    Delete: Löschen
+    DeletePlaylist: Wiedergabeliste löschen
+    TrackNumber: Titelnummer
+    Tree: Baum
+    Loading: Wird geladen...
+    Name: Name
+    AddFolder: Ordner hinzufügen
+    BlacklistFolders: Blacklist für Ordner
+    WhitelistFolders: Whitelist für Ordner
+    PickFolder: Wählen Sie einen Ordner aus
+    InvalidM3UFile: Ungültige M3U-Datei
+    Discord: Discord
+    Reddit: Reddit
+    ReportAnIssue: Ein Problem melden
+    NoFoldersFound: Ordner nicht gefunden
+    SleepTimer: Sleep-Timer
+    Hours: Stunden
+    Minutes: Minuten
+    QuitAppOnEnd: Verlassen Sie den Player am Ende des Timers
+    Favorite: Gefällt
+    Unfavorite: Gefällt mir nicht
+    BitDepth: Klangtiefe
+    SamplingRate: Beispielrate
+    ShowAudioInformation: Audioinformationen anzeigen
+    FastRewindDuration: Rückspullänge
+    FastForwardDuration: Länge des schnellen Vorlaufs
+    EnableSeekControls: Schalten Sie die Rückspulsteuerung ein
+    MiniPlayerTrackControls: Tracks vom Miniplayer verwalten
+    MiniPlayerSeekControls: Rückspulsteuerung vom Miniplayer
+
+    PlayingXofY: Spielt $x von $y
+    UnknownArtistX: Unbekannter Künstler ($x)
+    XSongs: $x Lieder
+    UnknownAlbumX: Unbekanntes Album (ID: ${id})
+    XArtists: $x Künstler
+    XAlbums: $x Alben
+    MadeByX: Erstellt von $x
+    NewVersionAvailableX: Neue Version verfügbar! ($x)
+    XKbps: $x Kbps
+    XSecs: ${x} s
+    UnknownGenreX: Unbekanntes Genre $x
+    XGenres: $x Genres
+    XFoldersYFiles: $x Ordner, $y Dateien
+    XItems: $x Abschnitte
+    XPlaylists: $x Wiedergabelisten
+    UnknownPlaylistX: Unbekannte Wiedergabeliste (ID: $x)
+    XFolders: $x Ordner
+    XBit: $x-Bit
+    XKHz: $x kHz
