@@ -128,8 +128,21 @@ Translations:
     FastRewindDuration: "Длина перемотки назад"
     FastForwardDuration: "Длина перемотки вперёд"
     EnableSeekControls: "Включите управление перемоткой"
-    MiniPlayerTrackControls: "Управление дорожками из мини-плеера"
-    MiniPlayerSeekControls: "Управление перемоткой из мини-плеера"
+    ShowTrackControls: "Управление дорожками"
+    ShowSeekControls: "Управление перемоткой"
+    SuggestedAlbumArtists: "Предложенные альбомы исполнителей"
+    AreYouSureThatYouWantToDeleteThisPlaylist: Are you sure that you want to delete this playlist?
+    RemoveFromPlaylist: "Удалить из плейлиста"
+    Speed: "Скорость"
+    Pitch: "Высота"
+    PersistUntilQueueEnd: "Сохранить до конца очереди"
+    NoLyrics: "Нет текста песни"
+    SponsorViaPatreon: "Спонсировать через Patreon"
+    FDroid: "F-Droid"
+    IzzyOnDroid: "IzzyOnDroid"
+    MiniPlayer: "Мини-плеер"
+    Font: "Шрифт"
+   
 
     PlayingXofY: "Играет $x из $y"
     UnknownArtistX: "Неизвестный исполнитель ($x)"
