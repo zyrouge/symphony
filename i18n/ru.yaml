@@ -23,7 +23,7 @@ Translations:
     AlbumArtist: "Альбом исполнителя"
     Composer: "Композитор"
     NothingIsBeingPlayedRightNow: "Сейчас ничего не играет"
-    AddToQueueP: "Добавить в очередь"
+    AddToQueue: "Добавить в очередь"
     Queue: "Очередь"
     PlayNext: "Играть далее"
     NowPlaying: "Сейчас играет"
