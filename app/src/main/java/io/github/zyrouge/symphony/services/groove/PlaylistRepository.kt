@@ -54,7 +54,9 @@ class PlaylistRepository(private val symphony: Symphony) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed", err)
         }
-        ensureFavoritesPlaylist()
+        if (favoritesId == null) {
+            createFavoritesPlaylist()
+        }
         isUpdating = false
         onUpdate.dispatch()
     }
@@ -66,9 +68,9 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun getAll() = cache.values.toList()
     fun getPlaylistWithId(id: String) = cache[id]
-    fun getFavoritesPlaylist() = favoritesId?.let { cache[it] } ?: ensureFavoritesPlaylist()
+    fun getFavoritesPlaylist() = favoritesId?.let { cache[it] } ?: createFavoritesPlaylist()
 
-    fun ensureFavoritesPlaylist(): Playlist {
+    fun createFavoritesPlaylist(): Playlist {
         val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
         cache[playlist.id] = playlist
         favoritesId = playlist.id
