@@ -54,6 +54,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed", err)
         }
+        ensureFavoritesPlaylist()
         isUpdating = false
         onUpdate.dispatch()
     }
@@ -65,7 +66,14 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun getAll() = cache.values.toList()
     fun getPlaylistWithId(id: String) = cache[id]
-    fun getFavoritesPlaylist() = favoritesId?.let { cache[it] }
+    fun getFavoritesPlaylist() = favoritesId?.let { cache[it] } ?: ensureFavoritesPlaylist()
+
+    fun ensureFavoritesPlaylist(): Playlist {
+        val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
+        cache[playlist.id] = playlist
+        favoritesId = playlist.id
+        return playlist
+    }
 
     fun getSongsOfPlaylist(playlist: Playlist) = playlist.songs.mapNotNull {
         symphony.groove.song.getSongWithId(it)
@@ -119,31 +127,29 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun isInFavorites(song: Long): Boolean {
         val favorites = getFavoritesPlaylist()
-        return favorites?.songs?.contains(song) ?: false
+        return favorites.songs.contains(song)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
     fun addToFavorites(song: Long) {
-        getFavoritesPlaylist()?.let { favorites ->
-            if (favorites.songs.contains(song)) return@let
-            symphony.groove.coroutineScope.launch {
-                updatePlaylistSongs(
-                    favorites,
-                    favorites.songs.mutate { add(song) },
-                )
-            }
+        val favorites = getFavoritesPlaylist()
+        if (favorites.songs.contains(song)) return
+        symphony.groove.coroutineScope.launch {
+            updatePlaylistSongs(
+                favorites,
+                favorites.songs.mutate { add(song) },
+            )
         }
     }
 
     fun removeFromFavorites(song: Long) {
-        getFavoritesPlaylist()?.let { favorites ->
-            if (!favorites.songs.contains(song)) return@let
-            symphony.groove.coroutineScope.launch {
-                updatePlaylistSongs(
-                    favorites,
-                    favorites.songs.mutate { remove(song) },
-                )
-            }
+        val favorites = getFavoritesPlaylist()
+        if (!favorites.songs.contains(song)) return
+        symphony.groove.coroutineScope.launch {
+            updatePlaylistSongs(
+                favorites,
+                favorites.songs.mutate { remove(song) },
+            )
         }
     }
 
@@ -153,7 +159,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     suspend fun save() {
         val custom = mutableListOf<Playlist>()
         val local = mutableListOf<Playlist.Local>()
-        val favorites = getFavoritesPlaylist() ?: PlaylistsBox.Data.createFavoritesPlaylist()
+        val favorites = getFavoritesPlaylist()
         cache.values.forEach { playlist ->
             when {
                 playlist.id == favorites.id -> return@forEach
