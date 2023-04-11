@@ -138,7 +138,8 @@
         "MiniPlayer",
         "ShowTrackControls",
         "ShowSeekControls",
-        "Font"
+        "Font",
+        "Codec"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

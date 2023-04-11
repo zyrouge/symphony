@@ -147,6 +147,7 @@ Translations:
     ShowTrackControls: Show track controls
     ShowSeekControls: Show seek controls
     Font: Font
+    Codec: Codec
 
     # Dynamic
     PlayingXofY: Playing $x of $y
