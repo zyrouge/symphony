@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.asImmutableList
 import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,14 +22,15 @@ fun AlbumView(context: ViewContext, albumId: Long) {
     var album by remember {
         mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
     }
-    val songs = remember {
+    val songsMutable = remember {
         context.symphony.groove.album.getSongsOfAlbumId(albumId).toMutableStateList()
     }
+    val songs = songsMutable.asImmutableList()
     var isViable by remember { mutableStateOf(album != null) }
 
     EventerEffect(context.symphony.groove.album.onUpdate) {
         album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songs.swap(context.symphony.groove.album.getSongsOfAlbumId(albumId))
+        songsMutable.swap(context.symphony.groove.album.getSongsOfAlbumId(albumId))
         isViable = album != null
     }
 

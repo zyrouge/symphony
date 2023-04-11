@@ -13,10 +13,12 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun SongsView(context: ViewContext, data: HomeViewData) {
     LoaderScaffold(context, isLoading = data.songsIsUpdating) {
+        val songs = data.songs
+
         when {
-            data.songs.isNotEmpty() -> SongList(
+            songs.isNotEmpty() -> SongList(
                 context,
-                songs = data.songs,
+                songs = songs,
             )
             else -> IconTextBody(
                 icon = { modifier ->

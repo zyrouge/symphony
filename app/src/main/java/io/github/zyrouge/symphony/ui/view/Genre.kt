@@ -11,19 +11,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.asImmutableList
 import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenreView(context: ViewContext, genre: String) {
-    val songs = remember {
+    val songsMutable = remember {
         context.symphony.groove.genre.getSongsOfGenre(genre).toMutableStateList()
     }
+    val songs = songsMutable.asImmutableList()
     var isViable by remember { mutableStateOf(songs.isNotEmpty()) }
 
     EventerEffect(context.symphony.groove.genre.onUpdate) {
-        songs.swap(context.symphony.groove.genre.getSongsOfGenre(genre))
-        isViable = songs.isNotEmpty()
+        songsMutable.swap(context.symphony.groove.genre.getSongsOfGenre(genre))
+        isViable = songsMutable.isNotEmpty()
     }
 
     Scaffold(

@@ -39,12 +39,17 @@ enum class ForYou(val label: (context: ViewContext) -> String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouView(context: ViewContext, data: HomeViewData) {
+    val songs = data.songs
+    val albums = data.albums
+    val artists = data.artists
+    val albumArtists = data.albumArtists
+
     when {
-        data.songs.isNotEmpty() && data.albums.isNotEmpty() -> {
-            val allSongs by remember {
+        songs.isNotEmpty() -> {
+            val sortedSongs by remember {
                 derivedStateOf {
                     SongRepository.sort(
-                        data.songs,
+                        songs,
                         context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE,
                         reversed = context.symphony.settings.getLastUsedSongsSortReverse(),
                     )
@@ -52,17 +57,17 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
             }
             val recentlyAddedSongs by remember {
                 derivedStateOf {
-                    SongRepository.sort(data.songs, SongSortBy.DATE_ADDED, reversed = true)
+                    SongRepository.sort(songs, SongSortBy.DATE_ADDED, reversed = true)
                 }
             }
             val randomAlbums by remember {
-                derivedStateOf { data.albums.randomSubList(6) }
+                derivedStateOf { albums.randomSubList(6) }
             }
             val randomArtists by remember {
-                derivedStateOf { data.artists.randomSubList(6) }
+                derivedStateOf { artists.randomSubList(6) }
             }
             val randomAlbumArtists by remember {
-                derivedStateOf { data.albumArtists.randomSubList(6) }
+                derivedStateOf { albumArtists.randomSubList(6) }
             }
 
             Column(
@@ -77,7 +82,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                                 Text(context.symphony.t.PlayAll)
                             },
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(allSongs)
+                                context.symphony.radio.shorty.playQueue(sortedSongs)
                             },
                         )
                     }
@@ -90,7 +95,7 @@ fun ForYouView(context: ViewContext, data: HomeViewData) {
                             },
                             onClick = {
                                 context.symphony.radio.shorty.playQueue(
-                                    data.songs,
+                                    songs,
                                     shuffle = true,
                                 )
                             }

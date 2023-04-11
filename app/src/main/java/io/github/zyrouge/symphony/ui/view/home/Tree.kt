@@ -13,10 +13,12 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun TreeView(context: ViewContext, data: HomeViewData) {
     LoaderScaffold(context, isLoading = data.songsIsUpdating) {
+        val songs = data.songs
+
         when {
-            data.songs.isNotEmpty() -> SongTreeList(
+            songs.isNotEmpty() -> SongTreeList(
                 context,
-                songs = data.songs,
+                songs = songs,
                 initialDisabled = context.symphony.settings.getLastDisabledTreePaths(),
                 onDisable = { paths ->
                     context.symphony.settings.setLastDisabledTreePaths(paths)

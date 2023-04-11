@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.strictEquals
-import io.github.zyrouge.symphony.utils.swap
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,9 +45,7 @@ fun <T> SettingsMultiOptionTile(
     }
 
     if (isOpen) {
-        val nValue = remember {
-            mutableStateListOf<T>().apply { swap(value) }
-        }
+        val nValue = remember { value.toMutableStateList() }
         val sortedValues by remember {
             derivedStateOf {
                 mutableSetOf<T>().apply {

@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import io.github.zyrouge.symphony.utils.asImmutableList
 import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
@@ -20,9 +21,10 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
     var playlist by remember {
         mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
     }
-    val songs = remember {
+    val songsMutable = remember {
         context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId).toMutableStateList()
     }
+    val songs = songsMutable.asImmutableList()
     var isViable by remember { mutableStateOf(playlist != null) }
     var showOptionsMenu by remember { mutableStateOf(false) }
     val isFavoritesPlaylist by remember {
@@ -35,7 +37,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
 
     EventerEffect(context.symphony.groove.playlist.onUpdate) {
         playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
-        songs.swap(context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId))
+        songsMutable.swap(context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId))
         isViable = playlist != null
     }
 

@@ -12,13 +12,12 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
 
 @Composable
 fun PlaylistManageSongsDialog(
@@ -31,13 +30,11 @@ fun PlaylistManageSongsDialog(
             !selectedSongs.contains(it.id)
         }
     }
-    val allSelectedSongs = remember {
-        mutableStateListOf<Long>().apply { swap(selectedSongs) }
-    }
+    val nSelectedSongs = remember { selectedSongs.toMutableStateList() }
 
     ScaffoldDialog(
         onDismissRequest = {
-            onDone(allSelectedSongs.toList())
+            onDone(nSelectedSongs.toList())
         },
         title = {
             Text(context.symphony.t.ManageSongs)
@@ -64,7 +61,7 @@ fun PlaylistManageSongsDialog(
                     .padding(end = 8.dp)
                     .clip(CircleShape)
                     .clickable {
-                        onDone(allSelectedSongs.toList())
+                        onDone(nSelectedSongs.toList())
                     },
             ) {
                 Icon(
@@ -90,7 +87,7 @@ fun PlaylistManageSongsDialog(
                                 context,
                                 song = song,
                                 thumbnailLabel = when {
-                                    allSelectedSongs.contains(song.id) -> ({
+                                    nSelectedSongs.contains(song.id) -> ({
                                         Icon(
                                             Icons.Default.Check,
                                             null,
@@ -102,10 +99,10 @@ fun PlaylistManageSongsDialog(
                                 disableHeartIcon = true,
                             ) {
                                 when {
-                                    allSelectedSongs.contains(song.id) -> allSelectedSongs.remove(
+                                    nSelectedSongs.contains(song.id) -> nSelectedSongs.remove(
                                         song.id
                                     )
-                                    else -> allSelectedSongs.add(song.id)
+                                    else -> nSelectedSongs.add(song.id)
                                 }
                             }
                         }

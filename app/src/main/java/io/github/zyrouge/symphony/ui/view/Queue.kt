@@ -20,6 +20,7 @@ import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.asImmutableList
 import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
@@ -27,9 +28,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    val queue = remember {
+    val queueMutable = remember {
         context.symphony.radio.queue.currentQueue.toMutableStateList()
     }
+    val queue = queueMutable.asImmutableList()
     var currentSongIndex by remember {
         mutableStateOf(context.symphony.radio.queue.currentSongIndex)
     }
@@ -43,7 +45,7 @@ fun QueueView(context: ViewContext) {
     }
 
     EventerEffect(context.symphony.radio.onUpdate) {
-        queue.swap(context.symphony.radio.queue.currentQueue)
+        queueMutable.swap(context.symphony.radio.queue.currentQueue)
         currentSongIndex = context.symphony.radio.queue.currentSongIndex
     }
 

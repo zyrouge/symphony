@@ -6,27 +6,34 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.EventUnsubscribeFn
+import io.github.zyrouge.symphony.utils.asImmutableList
 import io.github.zyrouge.symphony.utils.swap
 
 class HomeViewData(val symphony: Symphony) {
     var songsIsUpdating by mutableStateOf(symphony.groove.song.isUpdating)
-    val songs = symphony.groove.song.getAll().toMutableStateList()
+    val songsMutable = symphony.groove.song.getAll().toMutableStateList()
+    val songs = songsMutable.asImmutableList()
     var songsExplorerId by mutableStateOf(System.currentTimeMillis())
 
     var artistsIsUpdating by mutableStateOf(symphony.groove.artist.isUpdating)
-    val artists = symphony.groove.artist.getAll().toMutableStateList()
+    val artistsMutable = symphony.groove.artist.getAll().toMutableStateList()
+    val artists = artistsMutable.asImmutableList()
 
     var albumsIsUpdating by mutableStateOf(symphony.groove.album.isUpdating)
-    val albums = symphony.groove.album.getAll().toMutableStateList()
+    val albumsMutable = symphony.groove.album.getAll().toMutableStateList()
+    val albums = albumsMutable.asImmutableList()
 
     var albumArtistsIsUpdating by mutableStateOf(symphony.groove.albumArtist.isUpdating)
-    val albumArtists = symphony.groove.albumArtist.getAll().toMutableStateList()
+    val albumArtistsMutable = symphony.groove.albumArtist.getAll().toMutableStateList()
+    val albumArtists = albumArtistsMutable.asImmutableList()
 
     var genresIsUpdating by mutableStateOf(symphony.groove.genre.isUpdating)
-    val genres = symphony.groove.genre.getAll().toMutableStateList()
+    val genresMutable = symphony.groove.genre.getAll().toMutableStateList()
+    val genres = genresMutable.asImmutableList()
 
     var playlistsIsUpdating by mutableStateOf(symphony.groove.playlist.isUpdating)
-    val playlists = symphony.groove.playlist.getAll().toMutableStateList()
+    val playlistsMutable = symphony.groove.playlist.getAll().toMutableStateList()
+    val playlists = playlistsMutable.asImmutableList()
 
     private var songsSubscriber: EventUnsubscribeFn? = null
     private var artistsSubscriber: EventUnsubscribeFn? = null
@@ -66,32 +73,32 @@ class HomeViewData(val symphony: Symphony) {
 
     private fun updateSongsState() {
         songsIsUpdating = symphony.groove.song.isUpdating
-        songs.swap(symphony.groove.song.getAll())
+        songsMutable.swap(symphony.groove.song.getAll())
         songsExplorerId = System.currentTimeMillis()
     }
 
     private fun updateArtistsState() {
         artistsIsUpdating = symphony.groove.artist.isUpdating
-        artists.swap(symphony.groove.artist.getAll())
+        artistsMutable.swap(symphony.groove.artist.getAll())
     }
 
     private fun updateAlbumsState() {
         albumsIsUpdating = symphony.groove.album.isUpdating
-        albums.swap(symphony.groove.album.getAll())
+        albumsMutable.swap(symphony.groove.album.getAll())
     }
 
     private fun updateAlbumArtistsState() {
         albumArtistsIsUpdating = symphony.groove.albumArtist.isUpdating
-        albumArtists.swap(symphony.groove.albumArtist.getAll())
+        albumArtistsMutable.swap(symphony.groove.albumArtist.getAll())
     }
 
     private fun updateGenresState() {
         genresIsUpdating = symphony.groove.genre.isUpdating
-        genres.swap(symphony.groove.genre.getAll())
+        genresMutable.swap(symphony.groove.genre.getAll())
     }
 
     private fun updatePlaylistsState() {
         playlistsIsUpdating = symphony.groove.playlist.isUpdating
-        playlists.swap(symphony.groove.playlist.getAll())
+        playlistsMutable.swap(symphony.groove.playlist.getAll())
     }
 }

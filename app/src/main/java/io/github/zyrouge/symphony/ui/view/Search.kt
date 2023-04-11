@@ -234,9 +234,7 @@ fun SearchView(context: ViewContext) {
                                 }
                             }
                             else -> {
-                                Column(
-                                    modifier = Modifier.verticalScroll(rememberScrollState())
-                                ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                     if (hasSongs) {
                                         SideHeading(context, GrooveKinds.SONG)
                                         songs.forEach { song ->

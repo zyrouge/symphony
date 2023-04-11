@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.asImmutableList
 import io.github.zyrouge.symphony.utils.swap
-import io.github.zyrouge.symphony.utils.toImmutableDerivedState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -29,11 +29,13 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
     var showPlaylistPicker by remember { mutableStateOf(false) }
 
     LoaderScaffold(context, isLoading = data.playlistsIsUpdating) {
+        val playlists = data.playlists
+
         when {
-            data.playlists.isNotEmpty() -> {
+            playlists.isNotEmpty() -> {
                 PlaylistGrid(
                     context,
-                    playlists = data.playlists,
+                    playlists = playlists,
                     leadingContent = {
                         PlaylistControlBar(
                             context,
@@ -223,7 +225,7 @@ fun NewPlaylistDialog(
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
     val songs = remember { mutableStateListOf<Long>() }
-    val songsImmutable by remember { songs.toImmutableDerivedState() }
+    val songsImmutable = songs.asImmutableList()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(LocalContext.current) {

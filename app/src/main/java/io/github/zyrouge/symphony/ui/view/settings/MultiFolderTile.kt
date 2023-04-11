@@ -25,7 +25,6 @@ import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
-import io.github.zyrouge.symphony.utils.swap
 import java.util.*
 
 private const val SettingsFolderContentType = "folder"
@@ -59,9 +58,7 @@ fun SettingsMultiFolderTile(
     }
 
     if (showDialog) {
-        val values = remember {
-            mutableStateListOf<String>().apply { swap(initialValues) }
-        }
+        val values = remember { initialValues.toMutableStateList() }
         var showPicker by remember { mutableStateOf(false) }
 
         // TODO: workaround for dialog resize bug
