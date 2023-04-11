@@ -8,6 +8,8 @@ import io.github.zyrouge.symphony.Symphony
 
 // Credits: https://github.com/RetroMusicPlayer/RetroMusicPlayer/blob/7b1593009319c8d8e04660470ba37f814e8203eb/app/src/main/java/code/name/monkey/retromusic/service/LocalPlayback.kt
 class RadioFocus(val symphony: Symphony) {
+    private var restoreOnFocusGain = false
+
     private val audioManager: AudioManager =
         symphony.applicationContext.getSystemService(AudioManager::class.java)
     private val audioFocusRequest: AudioFocusRequestCompat =
@@ -20,17 +22,22 @@ class RadioFocus(val symphony: Symphony) {
             .setOnAudioFocusChangeListener { event ->
                 when (event) {
                     AudioManager.AUDIOFOCUS_GAIN -> {
-                        when {
-                            symphony.radio.isPlaying -> symphony.radio.restoreVolume()
-                            else -> symphony.radio.resume()
+                        if (restoreOnFocusGain) {
+                            restoreOnFocusGain = false
+                            when {
+                                symphony.radio.isPlaying -> symphony.radio.restoreVolume()
+                                else -> symphony.radio.resume()
+                            }
                         }
                     }
                     AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                        restoreOnFocusGain = true
                         if (!symphony.settings.getIgnoreAudioFocusLoss()) {
                             symphony.radio.pause()
                         }
                     }
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                        restoreOnFocusGain = true
                         if (symphony.radio.isPlaying) {
                             symphony.radio.duck()
                         }
