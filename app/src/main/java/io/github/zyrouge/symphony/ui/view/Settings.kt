@@ -315,7 +315,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSliderTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.FastRewind, null)
+                            Icon(Icons.Default.FastForward, null)
                         },
                         title = {
                             Text(context.symphony.t.FastForwardDuration)
