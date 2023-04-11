@@ -41,6 +41,7 @@ data class Song(
         val bitrate: Int?,
         val bitsPerSample: Int?,
         val samplingRate: Int?,
+        val codec: String?,
     ) {
         val bitrateK: Int? get() = bitrate?.let { it / 1000 }
         val samplingRateK: Float?
@@ -53,6 +54,7 @@ data class Song(
 
         fun toSamplingInfoString(symphony: Symphony): String? {
             val values = mutableListOf<String>()
+            codec?.let { values.add(it) }
             bitsPerSample?.let {
                 values.add(symphony.t.XBit(it.toString()))
             }
@@ -75,6 +77,7 @@ data class Song(
                 genre = attributes.genre,
                 bitsPerSample = attributes.bitsPerSample,
                 samplingRate = attributes.samplingRate,
+                codec = attributes.codec,
             )
 
             fun fetch(symphony: Symphony, id: Long): AdditionalMetadata {
@@ -83,6 +86,7 @@ data class Song(
                 var genre: String? = null
                 var bitsPerSample: Int? = null
                 var samplingRate: Int? = null
+                var codec: String? = null
                 kotlin.runCatching {
                     val retriever = MediaMetadataRetriever()
                     retriever.runCatching {
@@ -100,6 +104,8 @@ data class Song(
                                 extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
                                     ?.toInt()
                         }
+                        codec = extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+                            ?.let { prettyMimetype(it) }
                     }
                     retriever.close()
                 }
@@ -109,6 +115,7 @@ data class Song(
                     genre = genre,
                     bitsPerSample = bitsPerSample,
                     samplingRate = samplingRate,
+                    codec = codec,
                 )
             }
         }
@@ -180,6 +187,17 @@ data class Song(
                     ?.getOrNull()
                     ?: AdditionalMetadata.fetch(symphony, id),
             )
+        }
+
+        val prettyCodecs = mapOf(
+            "opus" to "Opus",
+            "vorbis" to "Vorbis",
+        )
+
+        fun prettyMimetype(mimetype: String): String? {
+            val codec = mimetype.lowercase().replaceFirst("audio/", "")
+            if (codec.isBlank()) return null
+            return prettyCodecs[codec] ?: codec.uppercase()
         }
     }
 }
