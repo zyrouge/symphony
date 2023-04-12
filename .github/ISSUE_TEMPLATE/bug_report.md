@@ -30,3 +30,5 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+
+[ ] I have read the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
