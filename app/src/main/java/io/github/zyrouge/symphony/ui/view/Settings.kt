@@ -403,6 +403,7 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setNowPlayingSeekControls(value)
                         }
                     )
+                    Divider()
                     SettingsSideHeading(context.symphony.t.Groove)
                     val defaultSongsFilterPattern = ".*"
                     SettingsTextInputTile(
