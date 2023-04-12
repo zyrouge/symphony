@@ -1,5 +1,4 @@
-{
-    "static": [
+{ "static": [
         "UnknownSymbol",
         "HelloThere",
         "IntroductoryMessage",
@@ -139,7 +138,12 @@
         "ShowTrackControls",
         "ShowSeekControls",
         "Font",
-        "Codec"
+        "Codec",
+        "ControlsLayout",
+        "Default",
+        "Traditional",
+        "Enabled",
+        "Disabled"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

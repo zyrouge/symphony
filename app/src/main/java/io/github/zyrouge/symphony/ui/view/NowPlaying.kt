@@ -64,6 +64,7 @@ private data class PlayerStateData(
     val enableSeekControls: Boolean,
     val seekBackDuration: Int,
     val seekForwardDuration: Int,
+    val controlsLayout: NowPlayingControlsLayout,
 )
 
 private data class NowPlayingStates(
@@ -72,6 +73,11 @@ private data class NowPlayingStates(
 
 private object NowPlayingDefaults {
     var showLyrics = false
+}
+
+enum class NowPlayingControlsLayout {
+    Default,
+    Traditional,
 }
 
 @Composable
@@ -88,16 +94,19 @@ fun NowPlayingView(context: ViewContext) {
     var persistedPitch by remember { mutableStateOf(context.symphony.radio.persistedPitch) }
     var hasSleepTimer by remember { mutableStateOf(context.symphony.radio.hasSleepTimer()) }
     var showSongAdditionalInfo by remember {
-        mutableStateOf(context.symphony.settings.getShowNowPlayingAdditionalInfo())
+        mutableStateOf(context.symphony.settings.getNowPlayingAdditionalInfo())
     }
     var enableSeekControls by remember {
-        mutableStateOf(context.symphony.settings.getEnableSeekControls())
+        mutableStateOf(context.symphony.settings.getNowPlayingSeekControls())
     }
     var seekBackDuration by remember {
         mutableStateOf(context.symphony.settings.getSeekBackDuration())
     }
     var seekForwardDuration by remember {
         mutableStateOf(context.symphony.settings.getSeekForwardDuration())
+    }
+    var controlsLayout by remember {
+        mutableStateOf(context.symphony.settings.getNowPlayingControlsLayout())
     }
     var isViable by remember { mutableStateOf(song != null) }
 
@@ -122,17 +131,20 @@ fun NowPlayingView(context: ViewContext) {
 
     EventerEffect(context.symphony.settings.onChange) { key ->
         when (key) {
-            SettingsKeys.showNowPlayingAdditionalInfo -> {
-                showSongAdditionalInfo = context.symphony.settings.getShowNowPlayingAdditionalInfo()
+            SettingsKeys.nowPlayingAdditionalInfo -> {
+                showSongAdditionalInfo = context.symphony.settings.getNowPlayingAdditionalInfo()
             }
-            SettingsKeys.enableSeekControls -> {
-                enableSeekControls = context.symphony.settings.getEnableSeekControls()
+            SettingsKeys.nowPlayingSeekControls -> {
+                enableSeekControls = context.symphony.settings.getNowPlayingSeekControls()
             }
             SettingsKeys.seekBackDuration -> {
                 seekBackDuration = context.symphony.settings.getSeekBackDuration()
             }
             SettingsKeys.seekForwardDuration -> {
                 seekForwardDuration = context.symphony.settings.getSeekForwardDuration()
+            }
+            SettingsKeys.nowPlayingControlsLayout -> {
+                controlsLayout = context.symphony.settings.getNowPlayingControlsLayout()
             }
             else -> {}
         }
@@ -157,6 +169,7 @@ fun NowPlayingView(context: ViewContext) {
                 enableSeekControls = enableSeekControls,
                 seekBackDuration = seekBackDuration,
                 seekForwardDuration = seekForwardDuration,
+                controlsLayout = controlsLayout,
             )
         )
         else -> NothingPlaying(context)
@@ -487,49 +500,96 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                 }
             }
             Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
-            Row(
-                modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                NowPlayingControlButton(
-                    backgroundColor = MaterialTheme.colorScheme.primary,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    icon = when {
-                        !isPlaying -> Icons.Default.PlayArrow
-                        else -> Icons.Default.Pause
-                    },
-                    onClick = {
-                        context.symphony.radio.shorty.playPause()
-                    }
-                )
-                NowPlayingControlButton(
-                    icon = Icons.Default.SkipPrevious,
-                    onClick = {
-                        context.symphony.radio.shorty.previous()
-                    }
-                )
-                if (enableSeekControls) {
-                    NowPlayingControlButton(
-                        icon = Icons.Default.FastRewind,
-                        onClick = {
-                            context.symphony.radio.shorty
-                                .seekFromCurrent(-seekBackDuration)
-                        }
+            when (controlsLayout) {
+                NowPlayingControlsLayout.Default -> Row(
+                    modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    NowPlayingPlayPauseButton(
+                        context,
+                        data = data,
+                        style = NowPlayingControlButtonStyle(
+                            color = NowPlayingControlButtonColors.Primary,
+                        ),
                     )
-                    NowPlayingControlButton(
-                        icon = Icons.Default.FastForward,
-                        onClick = {
-                            context.symphony.radio.shorty
-                                .seekFromCurrent(seekForwardDuration)
-                        }
+                    NowPlayingSkipPreviousButton(
+                        context,
+                        data = data,
+                        style = NowPlayingControlButtonStyle(
+                            color = NowPlayingControlButtonColors.Surface,
+                        ),
+                    )
+                    if (enableSeekControls) {
+                        NowPlayingFastRewindButton(
+                            context,
+                            data = data,
+                            style = NowPlayingControlButtonStyle(
+                                color = NowPlayingControlButtonColors.Surface,
+                            ),
+                        )
+                        NowPlayingFastForwardButton(
+                            context,
+                            data = data,
+                            style = NowPlayingControlButtonStyle(
+                                color = NowPlayingControlButtonColors.Surface,
+                            ),
+                        )
+                    }
+                    NowPlayingSkipNextButton(
+                        context,
+                        data = data,
+                        style = NowPlayingControlButtonStyle(
+                            color = NowPlayingControlButtonColors.Surface,
+                        ),
                     )
                 }
-                NowPlayingControlButton(
-                    icon = Icons.Default.SkipNext,
-                    onClick = {
-                        context.symphony.radio.shorty.skip()
+                NowPlayingControlsLayout.Traditional -> Row(
+                    modifier = Modifier
+                        .padding(defaultHorizontalPadding, 0.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+                    NowPlayingSkipPreviousButton(
+                        context,
+                        data = data,
+                        style = NowPlayingControlButtonStyle(
+                            color = NowPlayingControlButtonColors.Transparent,
+                        ),
+                    )
+                    if (enableSeekControls) {
+                        NowPlayingFastRewindButton(
+                            context,
+                            data = data,
+                            style = NowPlayingControlButtonStyle(
+                                color = NowPlayingControlButtonColors.Transparent,
+                            ),
+                        )
                     }
-                )
+                    NowPlayingPlayPauseButton(
+                        context,
+                        data = data,
+                        style = NowPlayingControlButtonStyle(
+                            color = NowPlayingControlButtonColors.Surface,
+                            size = NowPlayingControlButtonSize.Large,
+                        ),
+                    )
+                    if (enableSeekControls) {
+                        NowPlayingFastForwardButton(
+                            context,
+                            data = data,
+                            style = NowPlayingControlButtonStyle(
+                                color = NowPlayingControlButtonColors.Transparent,
+                            ),
+                        )
+                    }
+                    NowPlayingSkipNextButton(
+                        context,
+                        data = data,
+                        style = NowPlayingControlButtonStyle(
+                            color = NowPlayingControlButtonColors.Transparent,
+                        ),
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(defaultHorizontalPadding))
             Row(
@@ -586,20 +646,141 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
 }
 
 @Composable
+private fun NowPlayingPlayPauseButton(
+    context: ViewContext,
+    data: PlayerStateData,
+    style: NowPlayingControlButtonStyle
+) {
+    data.run {
+        NowPlayingControlButton(
+            style = style,
+            icon = when {
+                !isPlaying -> Icons.Default.PlayArrow
+                else -> Icons.Default.Pause
+            },
+            onClick = {
+                context.symphony.radio.shorty.playPause()
+            }
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingSkipPreviousButton(
+    context: ViewContext,
+    data: PlayerStateData,
+    style: NowPlayingControlButtonStyle
+) {
+    data.run {
+        NowPlayingControlButton(
+            style = style,
+            icon = Icons.Default.SkipPrevious,
+            onClick = {
+                context.symphony.radio.shorty.previous()
+            }
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingSkipNextButton(
+    context: ViewContext,
+    data: PlayerStateData,
+    style: NowPlayingControlButtonStyle
+) {
+    data.run {
+        NowPlayingControlButton(
+            style = style,
+            icon = Icons.Default.SkipNext,
+            onClick = {
+                context.symphony.radio.shorty.skip()
+            }
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingFastRewindButton(
+    context: ViewContext,
+    data: PlayerStateData,
+    style: NowPlayingControlButtonStyle
+) {
+    data.run {
+        NowPlayingControlButton(
+            style = style,
+            icon = Icons.Default.FastRewind,
+            onClick = {
+                context.symphony.radio.shorty
+                    .seekFromCurrent(-seekBackDuration)
+            }
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingFastForwardButton(
+    context: ViewContext,
+    data: PlayerStateData,
+    style: NowPlayingControlButtonStyle
+) {
+    data.run {
+        NowPlayingControlButton(
+            style = style,
+            icon = Icons.Default.FastForward,
+            onClick = {
+                context.symphony.radio.shorty
+                    .seekFromCurrent(seekForwardDuration)
+            }
+        )
+    }
+}
+
+private enum class NowPlayingControlButtonColors {
+    Primary,
+    Surface,
+    Transparent,
+}
+
+private enum class NowPlayingControlButtonSize {
+    Default,
+    Large,
+}
+
+private data class NowPlayingControlButtonStyle(
+    val color: NowPlayingControlButtonColors,
+    val size: NowPlayingControlButtonSize = NowPlayingControlButtonSize.Default,
+)
+
+@Composable
 private fun NowPlayingControlButton(
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    color: Color = LocalContentColor.current,
+    style: NowPlayingControlButtonStyle,
     icon: ImageVector,
     onClick: () -> Unit,
 ) {
+    val backgroundColor = when (style.color) {
+        NowPlayingControlButtonColors.Primary -> MaterialTheme.colorScheme.primary
+        NowPlayingControlButtonColors.Surface -> MaterialTheme.colorScheme.surfaceVariant
+        NowPlayingControlButtonColors.Transparent -> Color.Transparent
+    }
+    val contentColor = when (style.color) {
+        NowPlayingControlButtonColors.Primary -> MaterialTheme.colorScheme.onPrimary
+        else -> LocalContentColor.current
+    }
+    val iconSize = when (style.size) {
+        NowPlayingControlButtonSize.Default -> 24.dp
+        NowPlayingControlButtonSize.Large -> 32.dp
+    }
+
     IconButton(
-        modifier = Modifier.background(
-            backgroundColor,
-            CircleShape
-        ),
+        modifier = Modifier.background(backgroundColor, CircleShape),
         onClick = onClick,
     ) {
-        Icon(icon, null, tint = color)
+        Icon(
+            icon,
+            null,
+            tint = contentColor,
+            modifier = Modifier.size(iconSize),
+        )
     }
 }
 
@@ -770,6 +951,12 @@ private fun NowPlayingBodyBottomBar(
                         },
                         headlineContent = {
                             Text(context.symphony.t.SleepTimer)
+                        },
+                        supportingContent = {
+                            Text(
+                                if (hasSleepTimer) context.symphony.t.Enabled
+                                else context.symphony.t.Disabled
+                            )
                         },
                     )
                 }

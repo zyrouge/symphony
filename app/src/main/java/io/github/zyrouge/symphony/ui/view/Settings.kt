@@ -365,6 +365,20 @@ fun SettingsView(context: ViewContext) {
                     )
                     Divider()
                     SettingsSideHeading(context.symphony.t.NowPlaying)
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Default.Dashboard, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ControlsLayout)
+                        },
+                        value = settings.nowPlayingControlsLayout,
+                        values = NowPlayingControlsLayout.values()
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.setNowPlayingControlsLayout(value)
+                        }
+                    )
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Default.Wysiwyg, null)
@@ -372,9 +386,9 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ShowAudioInformation)
                         },
-                        value = settings.showNowPlayingAdditionalInfo,
+                        value = settings.nowPlayingAdditionalInfo,
                         onChange = { value ->
-                            context.symphony.settings.setShowNowPlayingAdditionalInfo(value)
+                            context.symphony.settings.showNowPlayingAdditionalInfo(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -384,12 +398,11 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ShowSeekControls)
                         },
-                        value = settings.enableSeekControls,
+                        value = settings.nowPlayingSeekControls,
                         onChange = { value ->
-                            context.symphony.settings.setEnableSeekControls(value)
+                            context.symphony.settings.setNowPlayingSeekControls(value)
                         }
                     )
-                    Divider()
                     SettingsSideHeading(context.symphony.t.Groove)
                     val defaultSongsFilterPattern = ".*"
                     SettingsTextInputTile(
@@ -603,5 +616,12 @@ fun HomePageBottomBarLabelVisibility.label(context: ViewContext): String {
         HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE -> context.symphony.t.AlwaysVisible
         HomePageBottomBarLabelVisibility.VISIBLE_WHEN_ACTIVE -> context.symphony.t.VisibleWhenActive
         HomePageBottomBarLabelVisibility.INVISIBLE -> context.symphony.t.Invisible
+    }
+}
+
+fun NowPlayingControlsLayout.label(context: ViewContext): String {
+    return when (this) {
+        NowPlayingControlsLayout.Default -> context.symphony.t.Default
+        NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
     }
 }

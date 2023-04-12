@@ -31,7 +31,7 @@ fun AlbumArtistGrid(context: ViewContext, albumArtists: List<AlbumArtist>) {
                 reverse = sortReverse,
                 onReverseChange = {
                     sortReverse = it
-                    context.symphony.settings.setLastUsedArtistsSortReverse(it)
+                    context.symphony.settings.setLastUsedAlbumArtistsSortReverse(it)
                 },
                 sort = sortBy,
                 sorts = AlbumArtistSortBy.values().associateWith { x -> { x.label(it) } },

@@ -148,6 +148,11 @@ Translations:
     ShowSeekControls: Show seek controls
     Font: Font
     Codec: Codec
+    ControlsLayout: Controls Layout
+    Default: Default
+    Traditional: Traditional
+    Enabled: Enabled
+    Disabled: Disabled
 
     # Dynamic
     PlayingXofY: Playing $x of $y

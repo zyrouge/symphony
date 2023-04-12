@@ -10,6 +10,7 @@ import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
+import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.utils.Eventer
 
@@ -57,13 +58,14 @@ object SettingsKeys {
     const val blacklistFolders = "blacklist_folders"
     const val whitelistFolders = "whitelist_folders"
     const val readIntroductoryMessage = "introductory_message"
-    const val showNowPlayingAdditionalInfo = "show_now_playing_additional_info"
-    const val enableSeekControls = "enable_seek_controls"
+    const val nowPlayingAdditionalInfo = "show_now_playing_additional_info"
+    const val nowPlayingSeekControls = "enable_seek_controls"
     const val seekBackDuration = "seek_back_duration"
     const val seekForwardDuration = "seek_forward_duration"
     const val miniPlayerTrackControls = "mini_player_extended_controls"
     const val miniPlayerSeekControls = "mini_player_seek_controls"
     const val fontFamily = "font_family"
+    const val nowPlayingControlsLayout = "now_playing_controls_layout"
 }
 
 data class SettingsData(
@@ -84,13 +86,14 @@ data class SettingsData(
     val forYouContents: Set<ForYou>,
     val blacklistFolders: Set<String>,
     val whitelistFolders: Set<String>,
-    val showNowPlayingAdditionalInfo: Boolean,
-    val enableSeekControls: Boolean,
+    val nowPlayingAdditionalInfo: Boolean,
+    val nowPlayingSeekControls: Boolean,
     val seekBackDuration: Int,
     val seekForwardDuration: Int,
     val miniPlayerTrackControls: Boolean,
     val miniPlayerSeekControls: Boolean,
     val fontFamily: String?,
+    val nowPlayingControlsLayout: NowPlayingControlsLayout,
 )
 
 object SettingsDataDefaults {
@@ -127,6 +130,7 @@ object SettingsDataDefaults {
     const val seekForwardDuration = 30
     const val miniPlayerTrackControls = false
     const val miniPlayerSeekControls = false
+    val nowPlayingControlsLayout = NowPlayingControlsLayout.Default
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -150,13 +154,14 @@ class SettingsManager(private val symphony: Symphony) {
         forYouContents = getForYouContents(),
         blacklistFolders = getBlacklistFolders(),
         whitelistFolders = getWhitelistFolders(),
-        showNowPlayingAdditionalInfo = getShowNowPlayingAdditionalInfo(),
-        enableSeekControls = getEnableSeekControls(),
+        nowPlayingAdditionalInfo = getNowPlayingAdditionalInfo(),
+        nowPlayingSeekControls = getNowPlayingSeekControls(),
         seekBackDuration = getSeekBackDuration(),
         seekForwardDuration = getSeekForwardDuration(),
         miniPlayerTrackControls = getMiniPlayerTrackControls(),
         miniPlayerSeekControls = getMiniPlayerSeekControls(),
         fontFamily = getFontFamily(),
+        nowPlayingControlsLayout = getNowPlayingControlsLayout(),
     )
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
@@ -599,11 +604,10 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.forYouContents)
     }
 
-    fun getBlacklistFolders() =
-        getSharedPreferences()
-            .getStringSet(SettingsKeys.blacklistFolders, null)
-            ?.toSet<String>()
-            ?: SettingsDataDefaults.blacklistFolders
+    fun getBlacklistFolders() = getSharedPreferences()
+        .getStringSet(SettingsKeys.blacklistFolders, null)
+        ?.toSet<String>()
+        ?: SettingsDataDefaults.blacklistFolders
 
     fun setBlacklistFolders(values: Set<String>) {
         getSharedPreferences().edit {
@@ -637,35 +641,34 @@ class SettingsManager(private val symphony: Symphony) {
         onChange.dispatch(SettingsKeys.readIntroductoryMessage)
     }
 
-    fun getShowNowPlayingAdditionalInfo() = getSharedPreferences().getBoolean(
-        SettingsKeys.showNowPlayingAdditionalInfo,
+    fun getNowPlayingAdditionalInfo() = getSharedPreferences().getBoolean(
+        SettingsKeys.nowPlayingAdditionalInfo,
         SettingsDataDefaults.showNowPlayingAdditionalInfo,
     )
 
-    fun setShowNowPlayingAdditionalInfo(value: Boolean) {
+    fun showNowPlayingAdditionalInfo(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.showNowPlayingAdditionalInfo, value)
+            putBoolean(SettingsKeys.nowPlayingAdditionalInfo, value)
         }
-        onChange.dispatch(SettingsKeys.showNowPlayingAdditionalInfo)
+        onChange.dispatch(SettingsKeys.nowPlayingAdditionalInfo)
     }
 
-    fun getEnableSeekControls() = getSharedPreferences().getBoolean(
-        SettingsKeys.enableSeekControls,
+    fun getNowPlayingSeekControls() = getSharedPreferences().getBoolean(
+        SettingsKeys.nowPlayingSeekControls,
         SettingsDataDefaults.enableSeekControls,
     )
 
-    fun setEnableSeekControls(value: Boolean) {
+    fun setNowPlayingSeekControls(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.enableSeekControls, value)
+            putBoolean(SettingsKeys.nowPlayingSeekControls, value)
         }
-        onChange.dispatch(SettingsKeys.enableSeekControls)
+        onChange.dispatch(SettingsKeys.nowPlayingSeekControls)
     }
 
-    fun getSeekBackDuration() =
-        getSharedPreferences().getInt(
-            SettingsKeys.seekBackDuration,
-            SettingsDataDefaults.seekBackDuration,
-        )
+    fun getSeekBackDuration() = getSharedPreferences().getInt(
+        SettingsKeys.seekBackDuration,
+        SettingsDataDefaults.seekBackDuration,
+    )
 
     fun setSeekBackDuration(value: Int) {
         getSharedPreferences().edit {
@@ -718,6 +721,17 @@ class SettingsManager(private val symphony: Symphony) {
             putString(SettingsKeys.fontFamily, language)
         }
         onChange.dispatch(SettingsKeys.fontFamily)
+    }
+
+    fun getNowPlayingControlsLayout() = getSharedPreferences()
+        .getEnum(SettingsKeys.nowPlayingControlsLayout, null)
+        ?: SettingsDataDefaults.nowPlayingControlsLayout
+
+    fun setNowPlayingControlsLayout(controlsLayout: NowPlayingControlsLayout) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.nowPlayingControlsLayout, controlsLayout)
+        }
+        onChange.dispatch(SettingsKeys.nowPlayingControlsLayout)
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(
