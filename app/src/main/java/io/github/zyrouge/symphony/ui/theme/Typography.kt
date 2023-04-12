@@ -38,6 +38,13 @@ enum class SymphonyFont(
             Font(R.font.roboto_bold, FontWeight.Bold)
         ),
     ),
+    ProductSans(
+        fontName = "Product Sans",
+        fontFamily = FontFamily(
+            Font(R.font.productsans_regular, FontWeight.Normal),
+            Font(R.font.productsans_bold, FontWeight.Bold)
+        ),
+    ),
 }
 
 object SymphonyTypography {
@@ -47,6 +54,7 @@ object SymphonyTypography {
         SymphonyFont.Poppins.fontName to SymphonyFont.Poppins,
         SymphonyFont.DMSans.fontName to SymphonyFont.DMSans,
         SymphonyFont.Roboto.fontName to SymphonyFont.Roboto,
+        SymphonyFont.ProductSans.fontName to SymphonyFont.ProductSans,
     )
 
     fun resolveFont(name: String?) = all[name] ?: defaultFont
