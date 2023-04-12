@@ -19,11 +19,11 @@ Translations:
     Path: Path
     Filename: Filename
     Size: Size
-    DateAdded: Date Added
-    LastModified: Last Modified
+    DateAdded: Date added
+    LastModified: Last modified
     Length: Length
     Bitrate: Bitrate
-    TrackName: Track Name
+    TrackName: Track name
     Artist: Artist
     Album: Album
     AlbumArtist: Album Artist
@@ -75,7 +75,7 @@ Translations:
     PauseOnHeadphonesDisconnect: Pause on headphones disconnect
     Genre: Genre
     DamnThisIsSoEmpty: Damn, this is so empty!
-    PrimaryColor: Primary Color
+    PrimaryColor: Primary color
     PlayAll: Play all
     ForYou: For you
     SuggestedAlbums: Suggested albums
@@ -148,7 +148,7 @@ Translations:
     ShowSeekControls: Show seek controls
     Font: Font
     Codec: Codec
-    ControlsLayout: Controls Layout
+    ControlsLayout: Controls layout
     Default: Default
     Traditional: Traditional
     Enabled: Enabled
