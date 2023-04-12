@@ -1,4 +1,5 @@
-{ "static": [
+{
+    "static": [
         "UnknownSymbol",
         "HelloThere",
         "IntroductoryMessage",
