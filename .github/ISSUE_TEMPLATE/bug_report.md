@@ -3,32 +3,38 @@ name: Bug report
 about: Create a report to help us improve
 title: "[Bug] "
 labels: bug
-assignees: ''
-
+assignees: ""
 ---
 
-**Describe the bug**
+##### Description
+
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
+##### Steps to Reproduce
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
+##### Expected Behavior
+
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+##### Screenshots
+
 If applicable, add screenshots to help explain your problem.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Version [e.g. 22]
+##### Device
 
-**Additional context**
+-   Device: [e.g. Google Pixel 6]
+-   OS: [e.g. Android 13]
+-   Version [e.g. 2023.04.20]
+
+##### Additional Context
+
 Add any other context about the problem here.
+
+##### Checklist
 
 [ ] I have read the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
