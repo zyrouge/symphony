@@ -18,6 +18,7 @@ class MediaStoreExposer(private val symphony: Symphony) {
 
     fun fetch() {
         isFetching = true
+        onFetchStart.dispatch()
         try {
             val cursor = symphony.applicationContext.contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
