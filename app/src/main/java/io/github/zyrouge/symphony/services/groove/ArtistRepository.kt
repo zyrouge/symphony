@@ -21,12 +21,6 @@ class ArtistRepository(private val symphony: Symphony) {
     val onUpdate = Eventer.nothing()
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
-    private val searcher = FuzzySearcher<Artist>(
-        options = listOf(
-            FuzzySearchOption({ it.name })
-        )
-    )
-
     fun ready() {
         symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
         symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
@@ -93,9 +87,17 @@ class ArtistRepository(private val symphony: Symphony) {
     fun getSongsOfArtistName(artistName: String) = getSongIdsOfArtistName(artistName)
         .mapNotNull { symphony.groove.song.getSongWithId(it) }
 
-    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
-
     companion object {
+        val searcher = FuzzySearcher<Artist>(
+            options = listOf(
+                FuzzySearchOption({ it.name })
+            )
+        )
+
+        fun search(artists: List<Artist>, terms: String, limit: Int? = 7) = searcher
+            .search(terms, artists)
+            .subListNonStrict(limit ?: artists.size)
+
         fun sort(artists: List<Artist>, by: ArtistSortBy, reversed: Boolean): List<Artist> {
             val sorted = when (by) {
                 ArtistSortBy.CUSTOM -> artists.toList()

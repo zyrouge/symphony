@@ -17,10 +17,6 @@ class GenreRepository(private val symphony: Symphony) {
     val onUpdate = Eventer.nothing()
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
-    private val searcher = FuzzySearcher<Genre>(
-        options = listOf(FuzzySearchOption({ it.name }))
-    )
-
     fun ready() {
         symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
         symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
@@ -65,9 +61,15 @@ class GenreRepository(private val symphony: Symphony) {
     fun getSongsOfGenre(genre: String) = getSongIdsOfGenre(genre)
         .mapNotNull { symphony.groove.song.getSongWithId(it) }
 
-    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
-
     companion object {
+        val searcher = FuzzySearcher<Genre>(
+            options = listOf(FuzzySearchOption({ it.name }))
+        )
+
+        fun search(genres: List<Genre>, terms: String, limit: Int? = 7) = searcher
+            .search(terms, genres)
+            .subListNonStrict(limit ?: genres.size)
+
         fun sort(genres: List<Genre>, by: GenreSortBy, reversed: Boolean): List<Genre> {
             val sorted = when (by) {
                 GenreSortBy.CUSTOM -> genres.toList()

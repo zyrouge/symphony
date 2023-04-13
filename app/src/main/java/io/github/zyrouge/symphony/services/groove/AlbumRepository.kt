@@ -22,13 +22,6 @@ class AlbumRepository(private val symphony: Symphony) {
     val onUpdate = Eventer.nothing()
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
-    private val searcher = FuzzySearcher<Album>(
-        options = listOf(
-            FuzzySearchOption({ it.name }, 3),
-            FuzzySearchOption({ it.artist })
-        )
-    )
-
     fun ready() {
         symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
         symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
@@ -88,15 +81,24 @@ class AlbumRepository(private val symphony: Symphony) {
     fun getSongsOfAlbumId(albumId: Long) = getSongIdsOfAlbumId(albumId)
         .mapNotNull { symphony.groove.song.getSongWithId(it) }
 
-    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
-
     companion object {
-        fun sort(songs: List<Album>, by: AlbumSortBy, reversed: Boolean): List<Album> {
+        val searcher = FuzzySearcher<Album>(
+            options = listOf(
+                FuzzySearchOption({ it.name }, 3),
+                FuzzySearchOption({ it.artist })
+            )
+        )
+
+        fun search(albums: List<Album>, terms: String, limit: Int? = 7) = searcher
+            .search(terms, albums)
+            .subListNonStrict(limit ?: albums.size)
+
+        fun sort(albums: List<Album>, by: AlbumSortBy, reversed: Boolean): List<Album> {
             val sorted = when (by) {
-                AlbumSortBy.CUSTOM -> songs.toList()
-                AlbumSortBy.ALBUM_NAME -> songs.sortedBy { it.name }
-                AlbumSortBy.ARTIST_NAME -> songs.sortedBy { it.artist }
-                AlbumSortBy.TRACKS_COUNT -> songs.sortedBy { it.numberOfTracks }
+                AlbumSortBy.CUSTOM -> albums.toList()
+                AlbumSortBy.ALBUM_NAME -> albums.sortedBy { it.name }
+                AlbumSortBy.ARTIST_NAME -> albums.sortedBy { it.artist }
+                AlbumSortBy.TRACKS_COUNT -> albums.sortedBy { it.numberOfTracks }
             }
             return if (reversed) sorted.reversed() else sorted
         }

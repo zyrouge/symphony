@@ -9,16 +9,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistManageSongsDialog(
     context: ViewContext,
@@ -26,11 +26,17 @@ fun PlaylistManageSongsDialog(
     onDone: (List<Long>) -> Unit,
 ) {
     val allSongs = remember {
-        context.symphony.groove.song.getAll().sortedBy {
-            !selectedSongs.contains(it.id)
-        }
+        context.symphony.groove.song.getAll()
     }
     val nSelectedSongs = remember { selectedSongs.toMutableStateList() }
+    var terms by remember { mutableStateOf("") }
+    val songs by remember {
+        derivedStateOf {
+            SongRepository.search(allSongs, terms, null)
+                .map { it.entity }
+                .sortedBy { !selectedSongs.contains(it.id) }
+        }
+    }
 
     ScaffoldDialog(
         onDismissRequest = {
@@ -72,37 +78,54 @@ fun PlaylistManageSongsDialog(
             }
         },
         content = {
-            when {
-                allSongs.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
-                    SubtleCaptionText(context.symphony.t.DamnThisIsSoEmpty)
-                }
-                else -> BoxWithConstraints {
-                    LazyColumn(
-                        modifier = Modifier
-                            .height(maxHeight)
-                            .padding(bottom = 4.dp)
-                    ) {
-                        items(allSongs) { song ->
-                            SongCard(
-                                context,
-                                song = song,
-                                thumbnailLabel = when {
-                                    nSelectedSongs.contains(song.id) -> ({
-                                        Icon(
-                                            Icons.Default.Check,
-                                            null,
-                                            modifier = Modifier.size(12.dp),
+            Column {
+                TextField(
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RectangleShape,
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+                    ),
+                    placeholder = {
+                        Text(context.symphony.t.SearchYourMusic)
+                    },
+                    value = terms,
+                    onValueChange = {
+                        terms = it
+                    },
+                )
+                when {
+                    songs.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
+                        SubtleCaptionText(context.symphony.t.DamnThisIsSoEmpty)
+                    }
+                    else -> BoxWithConstraints {
+                        LazyColumn(
+                            modifier = Modifier
+                                .height(maxHeight)
+                                .padding(bottom = 4.dp)
+                        ) {
+                            items(songs) { song ->
+                                SongCard(
+                                    context,
+                                    song = song,
+                                    thumbnailLabel = when {
+                                        nSelectedSongs.contains(song.id) -> ({
+                                            Icon(
+                                                Icons.Default.Check,
+                                                null,
+                                                modifier = Modifier.size(12.dp),
+                                            )
+                                        })
+                                        else -> null
+                                    },
+                                    disableHeartIcon = true,
+                                ) {
+                                    when {
+                                        nSelectedSongs.contains(song.id) -> nSelectedSongs.remove(
+                                            song.id
                                         )
-                                    })
-                                    else -> null
-                                },
-                                disableHeartIcon = true,
-                            ) {
-                                when {
-                                    nSelectedSongs.contains(song.id) -> nSelectedSongs.remove(
-                                        song.id
-                                    )
-                                    else -> nSelectedSongs.add(song.id)
+                                        else -> nSelectedSongs.add(song.id)
+                                    }
                                 }
                             }
                         }

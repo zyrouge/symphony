@@ -24,10 +24,6 @@ class PlaylistRepository(private val symphony: Symphony) {
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
     val onFavoritesUpdate = Eventer<List<Long>>()
 
-    private val searcher = FuzzySearcher<Playlist>(
-        options = listOf(FuzzySearchOption({ it.title }))
-    )
-
     fun fetch() {
         if (isUpdating) return
         isUpdating = true
@@ -84,8 +80,6 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun getSongsOfPlaylistId(playlistId: String) = cache[playlistId]
         ?.let { getSongsOfPlaylist(it) }
         ?: listOf()
-
-    fun search(terms: String) = searcher.search(terms, getAll()).subListNonStrict(7)
 
     fun parseLocalPlaylist(local: Playlist.LocalExtended) = kotlin.runCatching {
         Playlist.fromM3U(symphony, local)
@@ -217,6 +211,14 @@ class PlaylistRepository(private val symphony: Symphony) {
 
         private fun getExternalVolumeUri(rowId: Long) =
             MediaStore.Files.getContentUri(FILES_EXTERNAL_VOLUME, rowId)
+
+        val searcher = FuzzySearcher<Playlist>(
+            options = listOf(FuzzySearchOption({ it.title }))
+        )
+
+        fun search(playlists: List<Playlist>, terms: String, limit: Int? = 7) = searcher
+            .search(terms, playlists)
+            .subListNonStrict(limit ?: playlists.size)
 
         fun sort(playlists: List<Playlist>, by: PlaylistSortBy, reversed: Boolean): List<Playlist> {
             val sorted = when (by) {
