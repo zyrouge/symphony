@@ -77,7 +77,7 @@ ${Object.entries(keys.dynamic)
 });
 
 function escapeText(text: String) {
-    return text.replace(/"/g, '\\"').replace(/\n/g, "\\n").trim();
+    return text.trim().replace(/"/g, '\\"').replace(/\n/g, "\\n");
 }
 
 function capitalize(text: String) {
