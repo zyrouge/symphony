@@ -46,7 +46,6 @@ class HomeViewData(val symphony: Symphony) {
     private var subscribers = mutableListOf<EventUnsubscribeFn>()
 
     fun initialize() {
-        updateAllStates()
         subscribers.addAllVarArg(
             symphony.groove.song.onUpdate.subscribe {
                 updateSongsState(true)
@@ -85,6 +84,7 @@ class HomeViewData(val symphony: Symphony) {
                 updatePlaylistsState(false)
             },
         )
+        updateAllStates()
     }
 
     fun dispose() {

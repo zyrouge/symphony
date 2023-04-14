@@ -1214,7 +1214,7 @@ private fun NowPlayingSpeedDialog(
     persistedSpeed: Float,
     onDismissRequest: () -> Unit,
 ) {
-    val allowedSpeeds = listOf(0.5f, 1f, 1.5f, 2f, 3f, 4f, 5f)
+    val allowedSpeeds = listOf(0.5f, 1f, 1.5f, 2f, 3f)
     var isPersistent by remember {
         mutableStateOf(currentSpeed == persistedSpeed)
     }
@@ -1280,7 +1280,7 @@ private fun NowPlayingPitchDialog(
     persistedPitch: Float,
     onDismissRequest: () -> Unit,
 ) {
-    val allowedPitches = listOf(0.5f, 1f, 1.5f, 2f, 3f, 4f, 5f)
+    val allowedPitches = listOf(0.5f, 1f, 1.5f, 2f, 3f)
     var isPersistent by remember {
         mutableStateOf(currentPitch == persistedPitch)
     }
