@@ -1,6 +1,9 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.Artist
@@ -13,6 +16,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun ArtistGrid(
     context: ViewContext,
     artists: List<Artist>,
+    artistsCount: Int? = null,
 ) {
     var sortBy by remember {
         mutableStateOf(
@@ -42,18 +46,30 @@ fun ArtistGrid(
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XArtists(artists.size.toString()))
+                    Text(context.symphony.t.XArtists((artistsCount ?: artists.size).toString()))
                 },
             )
         },
         content = {
-            ResponsiveGrid {
-                itemsIndexed(
-                    sortedArtists,
-                    key = { i, x -> "$i-${x.name}" },
-                    contentType = { _, _ -> GrooveKinds.ARTIST }
-                ) { _, artist ->
-                    ArtistTile(context, artist)
+            when {
+                artists.isEmpty() -> IconTextBody(
+                    icon = { modifier ->
+                        Icon(
+                            Icons.Default.Person,
+                            null,
+                            modifier = modifier,
+                        )
+                    },
+                    content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
+                )
+                else -> ResponsiveGrid {
+                    itemsIndexed(
+                        sortedArtists,
+                        key = { i, x -> "$i-${x.name}" },
+                        contentType = { _, _ -> GrooveKinds.ARTIST }
+                    ) { _, artist ->
+                        ArtistTile(context, artist)
+                    }
                 }
             }
         }

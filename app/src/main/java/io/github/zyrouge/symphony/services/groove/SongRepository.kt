@@ -24,7 +24,9 @@ class SongRepository(private val symphony: Symphony) {
     val pathCache = ConcurrentHashMap<String, Long>()
     var explorer = MediaStoreExposer.createExplorer()
     var isUpdating = false
+    val onUpdateStart = Eventer.nothing()
     val onUpdate = Eventer.nothing()
+    val onUpdateEnd = Eventer.nothing()
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
     fun ready() {
@@ -35,11 +37,12 @@ class SongRepository(private val symphony: Symphony) {
 
     private fun onFetchStart() {
         isUpdating = true
+        onUpdateStart.dispatch()
     }
 
     private fun onFetchEnd() {
         isUpdating = false
-        onUpdate.dispatch()
+        onUpdateEnd.dispatch()
     }
 
     private fun onSong(song: Song) {
@@ -58,6 +61,7 @@ class SongRepository(private val symphony: Symphony) {
         onUpdate.dispatch()
     }
 
+    fun count() = cache.size
     fun getAll() = cache.values.toList()
 
     fun getSongWithId(songId: Long) = cache[songId]

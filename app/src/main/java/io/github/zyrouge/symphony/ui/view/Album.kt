@@ -28,7 +28,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
     val songs = songsMutable.asImmutableList()
     var isViable by remember { mutableStateOf(album != null) }
 
-    EventerEffect(context.symphony.groove.album.onUpdate) {
+    EventerEffect(context.symphony.groove.album.onUpdateEnd) {
         album = context.symphony.groove.album.getAlbumWithId(albumId)
         songsMutable.swap(context.symphony.groove.album.getSongsOfAlbumId(albumId))
         isViable = album != null

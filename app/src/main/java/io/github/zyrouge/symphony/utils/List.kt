@@ -42,6 +42,8 @@ fun <T> List<T>.mutate(fn: MutableList<T>.() -> Unit): List<T> {
     return out.toList()
 }
 
+fun <T> MutableList<T>.addAllVarArg(vararg elements: T) = addAll(elements)
+
 class ConcurrentList<T> : MutableList<T> {
     private val list = mutableListOf<T>()
     private val lock = ReentrantReadWriteLock()

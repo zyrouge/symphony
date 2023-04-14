@@ -35,7 +35,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
         }
     }
 
-    EventerEffect(context.symphony.groove.playlist.onUpdate) {
+    EventerEffect(context.symphony.groove.playlist.onUpdateEnd) {
         playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
         songsMutable.swap(context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId))
         isViable = playlist != null

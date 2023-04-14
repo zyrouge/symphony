@@ -32,7 +32,7 @@ fun AlbumArtistView(context: ViewContext, artistName: String) {
     val albums = albumsMutable.asImmutableList()
     var isViable by remember { mutableStateOf(albumArtist != null) }
 
-    EventerEffect(context.symphony.groove.albumArtist.onUpdate) {
+    EventerEffect(context.symphony.groove.albumArtist.onUpdateEnd) {
         albumArtist = context.symphony.groove.albumArtist.getAlbumArtistFromArtistName(artistName)
         songsMutable.swap(context.symphony.groove.albumArtist.getSongsOfAlbumArtist(artistName))
         albumsMutable.swap(context.symphony.groove.albumArtist.getAlbumsOfAlbumArtist(artistName))

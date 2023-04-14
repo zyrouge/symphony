@@ -18,7 +18,9 @@ class ArtistRepository(private val symphony: Symphony) {
     val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
     val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
     var isUpdating = false
+    val onUpdateStart = Eventer.nothing()
     val onUpdate = Eventer.nothing()
+    val onUpdateEnd = Eventer.nothing()
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
     fun ready() {
@@ -29,11 +31,12 @@ class ArtistRepository(private val symphony: Symphony) {
 
     private fun onFetchStart() {
         isUpdating = true
+        onUpdateStart.dispatch()
     }
 
     private fun onFetchEnd() {
         isUpdating = false
-        onUpdate.dispatch()
+        onUpdateEnd.dispatch()
     }
 
     private fun onSong(song: Song) {
@@ -76,6 +79,7 @@ class ArtistRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
+    fun count() = cache.size
     fun getAll() = cache.values.toList()
     fun getArtistFromArtistName(artistName: String) = cache[artistName]
 

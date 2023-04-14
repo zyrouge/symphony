@@ -1,6 +1,9 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.Album
@@ -13,6 +16,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun AlbumGrid(
     context: ViewContext,
     albums: List<Album>,
+    albumsCount: Int? = null,
 ) {
     var sortBy by remember {
         mutableStateOf(
@@ -42,18 +46,30 @@ fun AlbumGrid(
                     context.symphony.settings.setLastUsedAlbumsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XAlbums(albums.size.toString()))
+                    Text(context.symphony.t.XAlbums((albumsCount ?: albums.size).toString()))
                 },
             )
         },
         content = {
-            ResponsiveGrid {
-                itemsIndexed(
-                    sortedAlbums,
-                    key = { i, x -> "$i-${x.id}" },
-                    contentType = { _, _ -> GrooveKinds.ALBUM }
-                ) { _, album ->
-                    AlbumTile(context, album)
+            when {
+                albums.isEmpty() -> IconTextBody(
+                    icon = { modifier ->
+                        Icon(
+                            Icons.Default.Album,
+                            null,
+                            modifier = modifier,
+                        )
+                    },
+                    content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
+                )
+                else -> ResponsiveGrid {
+                    itemsIndexed(
+                        sortedAlbums,
+                        key = { i, x -> "$i-${x.id}" },
+                        contentType = { _, _ -> GrooveKinds.ALBUM }
+                    ) { _, album ->
+                        AlbumTile(context, album)
+                    }
                 }
             }
         }

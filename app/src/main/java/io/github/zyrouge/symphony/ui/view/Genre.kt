@@ -23,7 +23,7 @@ fun GenreView(context: ViewContext, genre: String) {
     val songs = songsMutable.asImmutableList()
     var isViable by remember { mutableStateOf(songs.isNotEmpty()) }
 
-    EventerEffect(context.symphony.groove.genre.onUpdate) {
+    EventerEffect(context.symphony.groove.genre.onUpdateEnd) {
         songsMutable.swap(context.symphony.groove.genre.getSongsOfGenre(genre))
         isViable = songsMutable.isNotEmpty()
     }

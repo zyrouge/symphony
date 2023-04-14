@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -157,80 +158,94 @@ fun SongExplorerList(
             }
         },
         content = {
-            val lazyListState = rememberLazyListState()
+            when {
+                currentFolder.isEmpty -> IconTextBody(
+                    icon = { modifier ->
+                        Icon(
+                            Icons.Default.MusicNote,
+                            null,
+                            modifier = modifier,
+                        )
+                    },
+                    content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
+                )
+                else -> {
+                    val lazyListState = rememberLazyListState()
 
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.drawScrollBar(lazyListState)
-            ) {
-                items(
-                    sortedEntities.folders,
-                    key = { it.basename },
-                    contentType = { SongFolderContentType }
-                ) { folder ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                        onClick = {
-                            currentFolder = folder
-                        }
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier.drawScrollBar(lazyListState)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(
-                                start = 20.dp,
-                                end = 4.dp,
-                                top = 12.dp,
-                                bottom = 12.dp,
-                            ),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Default.Folder,
-                                null,
-                                modifier = Modifier.size(32.dp),
-                            )
-                            Spacer(modifier = Modifier.width(20.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    folder.basename,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                Text(
-                                    context.symphony.t.XItems(folder.children.size.toString()),
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
-
-                            var showOptionsMenu by remember { mutableStateOf(false) }
-                            IconButton(
+                        items(
+                            sortedEntities.folders,
+                            key = { it.basename },
+                            contentType = { SongFolderContentType }
+                        ) { folder ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                                 onClick = {
-                                    showOptionsMenu = !showOptionsMenu
+                                    currentFolder = folder
                                 }
                             ) {
-                                Icon(Icons.Default.MoreVert, null)
-                                GenericSongListDropdown(
-                                    context,
-                                    songs = folder.childrenAsSongs(context.symphony),
-                                    expanded = showOptionsMenu,
-                                    onDismissRequest = {
-                                        showOptionsMenu = false
+                                Row(
+                                    modifier = Modifier.padding(
+                                        start = 20.dp,
+                                        end = 4.dp,
+                                        top = 12.dp,
+                                        bottom = 12.dp,
+                                    ),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        Icons.Default.Folder,
+                                        null,
+                                        modifier = Modifier.size(32.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(20.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            folder.basename,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                        Text(
+                                            context.symphony.t.XItems(folder.children.size.toString()),
+                                            style = MaterialTheme.typography.labelSmall,
+                                        )
                                     }
+
+                                    var showOptionsMenu by remember { mutableStateOf(false) }
+                                    IconButton(
+                                        onClick = {
+                                            showOptionsMenu = !showOptionsMenu
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.MoreVert, null)
+                                        GenericSongListDropdown(
+                                            context,
+                                            songs = folder.childrenAsSongs(context.symphony),
+                                            expanded = showOptionsMenu,
+                                            onDismissRequest = {
+                                                showOptionsMenu = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        itemsIndexed(
+                            sortedEntities.files.entries.toList(),
+                            key = { i, x -> "$i-${x.key.id}" },
+                            contentType = { _, _ -> GrooveKinds.SONG }
+                        ) { i, entry ->
+                            SongCard(context, entry.key) {
+                                context.symphony.radio.shorty.playQueue(
+                                    sortedEntities.files.keys.toList(),
+                                    Radio.PlayOptions(index = i)
                                 )
                             }
                         }
-                    }
-                }
-                itemsIndexed(
-                    sortedEntities.files.entries.toList(),
-                    key = { i, x -> "$i-${x.key.id}" },
-                    contentType = { _, _ -> GrooveKinds.SONG }
-                ) { i, entry ->
-                    SongCard(context, entry.key) {
-                        context.symphony.radio.shorty.playQueue(
-                            sortedEntities.files.keys.toList(),
-                            Radio.PlayOptions(index = i)
-                        )
                     }
                 }
             }

@@ -29,28 +29,10 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
     var showPlaylistPicker by remember { mutableStateOf(false) }
 
     LoaderScaffold(context, isLoading = data.playlistsIsUpdating) {
-        val playlists = data.playlists
-
-        when {
-            playlists.isNotEmpty() -> {
-                PlaylistGrid(
-                    context,
-                    playlists = playlists,
-                    leadingContent = {
-                        PlaylistControlBar(
-                            context,
-                            showPlaylistCreator = {
-                                showPlaylistCreator = true
-                            },
-                            showPlaylistPicker = {
-                                showPlaylistPicker = true
-                            },
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-                )
-            }
-            else -> Column {
+        PlaylistGrid(
+            context,
+            playlists = data.playlists,
+            leadingContent = {
                 PlaylistControlBar(
                     context,
                     showPlaylistCreator = {
@@ -60,20 +42,9 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
                         showPlaylistPicker = true
                     },
                 )
-                IconTextBody(
-                    icon = { modifier ->
-                        Icon(
-                            Icons.Default.QueueMusic,
-                            null,
-                            modifier = modifier,
-                        )
-                    },
-                    content = {
-                        Text(context.symphony.t.DamnThisIsSoEmpty)
-                    }
-                )
+                Spacer(modifier = Modifier.height(4.dp))
             }
-        }
+        )
     }
 
     if (showPlaylistPicker) {

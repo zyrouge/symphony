@@ -5,6 +5,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -25,6 +28,7 @@ enum class SongListType {
 fun SongList(
     context: ViewContext,
     songs: List<Song>,
+    songsCount: Int? = null,
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
     trailingOptionsContent: (@Composable ColumnScope.(Int, Song, () -> Unit) -> Unit)? = null,
@@ -57,7 +61,7 @@ fun SongList(
                     type.setLastUsedSortBy(context, it)
                 },
                 label = {
-                    Text(context.symphony.t.XSongs(songs.size.toString()))
+                    Text(context.symphony.t.XSongs((songsCount ?: songs.size).toString()))
                 },
                 onShufflePlay = {
                     context.symphony.radio.shorty.playQueue(sortedSongs, shuffle = true)
@@ -65,33 +69,47 @@ fun SongList(
             )
         },
         content = {
-            val lazyListState = rememberLazyListState()
-
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.drawScrollBar(lazyListState)
-            ) {
-                leadingContent?.invoke(this)
-                itemsIndexed(
-                    sortedSongs,
-                    key = { i, x -> "$i-${x.id}" },
-                    contentType = { _, _ -> GrooveKinds.SONG }
-                ) { i, song ->
-                    SongCard(
-                        context,
-                        song = song,
-                        disableHeartIcon = disableHeartIcon,
-                        trailingOptionsContent = trailingOptionsContent?.let {
-                            { onDismissRequest -> it(i, song, onDismissRequest) }
-                        },
-                    ) {
-                        context.symphony.radio.shorty.playQueue(
-                            sortedSongs,
-                            Radio.PlayOptions(index = i)
+            when {
+                songs.isEmpty() -> IconTextBody(
+                    icon = { modifier ->
+                        Icon(
+                            Icons.Default.MusicNote,
+                            null,
+                            modifier = modifier,
                         )
+                    },
+                    content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
+                )
+                else -> {
+                    val lazyListState = rememberLazyListState()
+
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier.drawScrollBar(lazyListState)
+                    ) {
+                        leadingContent?.invoke(this)
+                        itemsIndexed(
+                            sortedSongs,
+                            key = { i, x -> "$i-${x.id}" },
+                            contentType = { _, _ -> GrooveKinds.SONG }
+                        ) { i, song ->
+                            SongCard(
+                                context,
+                                song = song,
+                                disableHeartIcon = disableHeartIcon,
+                                trailingOptionsContent = trailingOptionsContent?.let {
+                                    { onDismissRequest -> it(i, song, onDismissRequest) }
+                                },
+                            ) {
+                                context.symphony.radio.shorty.playQueue(
+                                    sortedSongs,
+                                    Radio.PlayOptions(index = i)
+                                )
+                            }
+                        }
+                        trailingContent?.invoke(this)
                     }
                 }
-                trailingContent?.invoke(this)
             }
         }
     )

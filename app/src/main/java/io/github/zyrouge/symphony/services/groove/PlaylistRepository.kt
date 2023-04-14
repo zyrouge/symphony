@@ -20,14 +20,16 @@ class PlaylistRepository(private val symphony: Symphony) {
     val cache = ConcurrentHashMap<String, Playlist>()
     var favoritesId: String? = null
     var isUpdating = false
+    val onUpdateStart = Eventer.nothing()
     val onUpdate = Eventer.nothing()
+    val onUpdateEnd = Eventer.nothing()
     val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
     val onFavoritesUpdate = Eventer<List<Long>>()
 
     fun fetch() {
         if (isUpdating) return
         isUpdating = true
-        onUpdate.dispatch()
+        onUpdateStart.dispatch()
         try {
             val data = symphony.database.playlists.read()
             val locals = queryAllLocalPlaylistsMap()
@@ -54,7 +56,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             createFavoritesPlaylist()
         }
         isUpdating = false
-        onUpdate.dispatch()
+        onUpdateEnd.dispatch()
     }
 
     fun reset() {
@@ -62,6 +64,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         onUpdate.dispatch()
     }
 
+    fun count() = cache.size
     fun getAll() = cache.values.toList()
     fun getPlaylistWithId(id: String) = cache[id]
     fun getFavoritesPlaylist() = favoritesId?.let { cache[it] } ?: createFavoritesPlaylist()
