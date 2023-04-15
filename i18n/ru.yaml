@@ -142,6 +142,12 @@ Translations:
     IzzyOnDroid: "IzzyOnDroid"
     MiniPlayer: "Мини-плеер"
     Font: "Шрифт"
+    Codec: "Кодек"
+    ControlsLayout: "Элементы управления"
+    Default: "По умолчанию"
+    Traditional: "Традициональный"
+    Enabled: "Включен"
+    Disabled: "Отключен"
    
 
     PlayingXofY: "Играет $x из $y"
