@@ -9,7 +9,7 @@ Translations:
     Artists: "Исполнители"
     Albums: "Альбомы"
     Settings: "Настройки"
-    Details: "Подробности"
+    Details: "Сведения"
     Path: "Путь до файла"
     Filename: "Имя файла"
     Size: "Размер"
@@ -146,8 +146,8 @@ Translations:
     ControlsLayout: "Элементы управления"
     Default: "По умолчанию"
     Traditional: "Традиционно"
-    Enabled: "Включен"
-    Disabled: "Отключен"
+    Enabled: "Включён"
+    Disabled: "Отключён"
    
 
     PlayingXofY: "Играет $x из $y"
