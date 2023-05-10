@@ -6,7 +6,7 @@ Translations:
     UnknownSymbol: "?"
     HelloThere: Hallo!
     IntroductoryMessage: |
-        Danke, dass du dich für Symphony entschieden hast! Falls du auf irgendwelche technische Probleme stoßt, dann ist unser Github Repository der Ort um diese zu melden.
+        Danke, dass du dich für Symphony entschieden hast! Falls du auf irgendwelche technische Probleme stößt, dann ist unser Github Repository der Ort um diese zu melden.
 
         Trete unserer Discord und Reddit Community bei, um mit anderen Musikliebhabern in Kontakt zu treten, Unterstützung zu bekommen und um auf dem aktuellsten Stand über die neuersten Updates zu sein. Deine Großzügigkeit hilft dabei, die Entwicklung von Symphony aufrecht zu erhalten, also ziehe bitte in Erwägung uns durch Spenden oder Github Sponsors zu untersützen.
 
@@ -28,7 +28,7 @@ Translations:
     Album: Album
     AlbumArtist: Album Künstler
     Composer: Komponist
-    NothingIsBeingPlayedRightNow: Gerade wird nichts abgespielt
+    NothingIsBeingPlayedRightNow: Gerade wird nichts wiedergegeben
     AddToQueue: Zur Warteschlange anhängen
     Queue: Warteschlange
     PlayNext: Als nächstes abspielen
@@ -66,7 +66,7 @@ Translations:
     ShufflePlay: Zufällige Wiedergabe
     ViewAlbumArtist: Album Künstler ansehen
     Stop: Stopp
-    All: Alle
+    All: Alles
     FadePlaybackInOut: Fade playback in-out
     RequireAudioFocus: Audiofokus erfordern
     IgnoreAudioFocusLoss: Verlust von Audiofokus ignorieren
@@ -114,8 +114,8 @@ Translations:
     Loading: Lade...
     Name: Name
     AddFolder: Ordner hinzufügen
-    BlacklistFolders: Ordner Blackliste
-    WhitelistFolders: Ordner Whiteliste
+    BlacklistFolders: Schwarze Liste für Ordner
+    WhitelistFolders: Weiße Liste für Ordner
     PickFolder: Wähle Ordner
     InvalidM3UFile: Ungültige M3U Datei
     Discord: Discord
@@ -151,8 +151,8 @@ Translations:
     ControlsLayout: Steuer Anordnung
     Default: Standard
     Traditional: Traditionell
-    Enabled: angeschaltet
-    Disabled: ausgeschaltet
+    Enabled: An
+    Disabled: Aus
 
     # Dynamic
     PlayingXofY: Wiedergabe von $x von $y
