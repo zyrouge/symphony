@@ -1,0 +1,176 @@
+Locale: de
+Language: German
+
+Translations:
+    # Static
+    UnknownSymbol: "?"
+    HelloThere: Hallo!
+    IntroductoryMessage: |
+        Danke, dass du dich für Symphony entschieden hast! Falls du auf irgendwelche technische Probleme stößt, dann ist unser Github Repository der Ort um diese zu melden.
+
+        Trete unserer Discord und Reddit Community bei, um mit anderen Musikliebhabern in Kontakt zu treten, Unterstützung zu bekommen und um auf dem aktuellsten Stand über die neuersten Updates zu sein. Deine Großzügigkeit hilft dabei, die Entwicklung von Symphony aufrecht zu erhalten, also ziehe bitte in Erwägung uns durch Spenden oder Github Sponsors zu untersützen.
+
+        Noch einmal, genießen Sie die Musik!
+    Songs: Lieder
+    Artists: Künstler
+    Albums: Alben
+    Settings: Einstellungen
+    Details: Details
+    Path: Pfad
+    Filename: Dateiname
+    Size: Größe
+    DateAdded: Hinzugefügt am
+    LastModified: Zuletzt bearbeitet
+    Length: Länge
+    Bitrate: Bitrate
+    TrackName: Track Name
+    Artist: Künstler
+    Album: Album
+    AlbumArtist: Album Künstler
+    Composer: Komponist
+    NothingIsBeingPlayedRightNow: Gerade wird nichts wiedergegeben
+    AddToQueue: Zur Warteschlange anhängen
+    Queue: Warteschlange
+    PlayNext: Als nächstes abspielen
+    NowPlaying: Jetzt spielt
+    Language_: Sprache
+    MaterialYou: Material You
+    System: System
+    Light: Hell
+    Dark: Dunkel
+    Black: Schwarz
+    ViewArtist: Künstler ansehen
+    Title: Titel
+    Duration: Dauer
+    Year: Jahr
+    ViewAlbum: Album ansehen
+    SearchYourMusic: Deine Musik suchen
+    NoResultsFound: Keine Ergebnisse gefunden
+    AlbumCount: Albumanzahl
+    TrackCount: Trackanzahl
+    FilteringResults: Filtere Ergebnisse
+    Appearance: Aussehen
+    About: Über
+    GitHub: GitHub
+    Play: Wiedergeben
+    Previous: Vorherige
+    Next: Nächste
+    Pause: Pause
+    Done: Fertig
+    Groove: Groove
+    SongsFilterPattern: Lied Filtermuster
+    Reset: Zurücksetzen
+    Theme: Thema
+    CheckForUpdates: Nach Updates suchen
+    Version: Version
+    ShufflePlay: Zufällige Wiedergabe
+    ViewAlbumArtist: Album Künstler ansehen
+    Stop: Stopp
+    All: Alles
+    FadePlaybackInOut: Fade playback in-out
+    RequireAudioFocus: Audiofokus erfordern
+    IgnoreAudioFocusLoss: Verlust von Audiofokus ignorieren
+    Player: Player
+    PlayOnHeadphonesConnect: Wiedergabe bei Kopfhörerverbindung
+    PauseOnHeadphonesDisconnect: Pausiere bei Kopfhörertrennung
+    Genre: Genre
+    DamnThisIsSoEmpty: Verdammt, es ist so leer!
+    PrimaryColor: Primäre Farbe
+    PlayAll: Alles abspielen
+    ForYou: Für dich
+    SuggestedAlbums: Vorgeschlagene Alben
+    SuggestedArtists: Vorgeschlagene Künstler
+    RecentlyAddedSongs: Zuletzt hinzugefügte Lieder
+    SponsorViaGitHub: Sponsor via GitHub
+    ClearSongCache: Lieder cache löschen
+    SongCacheCleared: Lieder cache gelöscht
+    AlbumArtists: Album Künstler
+    Genres: Genres
+    Cancel: Abbrechen
+    HomeTabs: Registerkarten
+    SelectAtleast2orAtmost5Tabs: Wähle mindestens 2 oder maximal 5 Registerkarten
+    Folders: Ordner
+    Invisible: unsichtbar
+    AlwaysVisible: Immer sichtbar
+    VisibleWhenActive: Sichtbar wenn aktiv
+    BottomBarLabelVisibility: Sichtbarkeit Bodenleistenbeschriftung
+    Playlists: Wiedergabelisten
+    NewPlaylist: Neue Wiedergabelsite
+    ImportPlaylist: Wiedergabeliste importieren
+    NoInAppPlaylistsFound: Keine in-app Wiedergabelisten gefunden
+    NoLocalPlaylistsFound: Keine lokalen Wiedergabelisten gefunden
+    Custom: Benutzerdefiniert
+    Playlist: Wiedergabelsite
+    AddSongs: Lieder hinzufügen
+    AddToPlaylist: Zur Wiedergabeliste hinzufügen
+    IsLocalPlaylist: Ist es eine lokale Wiedergabeliste?
+    "Yes": "Ja"
+    "No": "Nein"
+    ManageSongs: Lieder verwalten
+    Delete: Löschen
+    DeletePlaylist: Wiedergabeliste löschen
+    TrackNumber: Tracknummer
+    Tree: Tree
+    Loading: Lade...
+    Name: Name
+    AddFolder: Ordner hinzufügen
+    BlacklistFolders: Schwarze Liste für Ordner
+    WhitelistFolders: Weiße Liste für Ordner
+    PickFolder: Wähle Ordner
+    InvalidM3UFile: Ungültige M3U Datei
+    Discord: Discord
+    Reddit: Reddit
+    ReportAnIssue: Ein Fehler melden
+    NoFoldersFound: Keine Ordner gefunden
+    SleepTimer: Schlaftimer
+    Hours: Stunden
+    Minutes: Minuten
+    QuitAppOnEnd: Nach Ende App verlassen
+    Favorite: Als Favorit markieren
+    Unfavorite: Als Favorit entfernen
+    BitDepth: Bit depth
+    SamplingRate: Sampling Rate
+    ShowAudioInformation: Audioinformationen zeigen
+    FastRewindDuration: Dauer des schnellen Rückspulen 
+    FastForwardDuration: Dauer des schnellen Vorspulen
+    SuggestedAlbumArtists: Vorgeschlagene Album Künstler
+    AreYouSureThatYouWantToDeleteThisPlaylist: Bist du dir sicher, dass du die Wiedergabeliste löschen willst?
+    RemoveFromPlaylist: Aus Wiedergabeliste entfernen
+    Speed: Geschwindigkeit
+    Pitch: Pitch
+    PersistUntilQueueEnd: Bis zum Ende der Wiedergabe beibehalten
+    NoLyrics: Kein Liedtext
+    SponsorViaPatreon: Sponsor via Patreon
+    FDroid: F-droid
+    IzzyOnDroid: IzzyOnDroid
+    MiniPlayer: Mini-Player
+    ShowTrackControls: Tracksteuerung zeigen
+    ShowSeekControls: Suchsteuerung zeigen
+    Font: Schriftart
+    Codec: Codec
+    ControlsLayout: Steuer Anordnung
+    Default: Standard
+    Traditional: Traditionell
+    Enabled: An
+    Disabled: Aus
+
+    # Dynamic
+    PlayingXofY: Wiedergabe von $x von $y
+    UnknownArtistX: Unbekannter Künstler ($x)
+    XSongs: $x Lieder
+    UnknownAlbumId: "Unbekanntes Album (ID: $id)"
+    XArtists: $x Künstler
+    XAlbums: $x Alben
+    MadeByX: Entwickelt von $x
+    NewVersionAvailableX: Neue Version verfügbar! ($x)
+    XKbps: $x kbps
+    XSecs: ${x}s
+    UnknownGenreX: Unbekanntes Genre $x
+    XGenres: $x Genre
+    XFoldersYFiles: $x Ordner, $y Dateien
+    XItems: $x Einträge
+    XPlaylists: $x Wiedergabelisten
+    UnknownPlaylistX: "Unbekannte Wiedergabeliste (ID: $x)"
+    XFolders: $x Ordner
+    XBit: $x-bit
+    XKHz: $x kHz
