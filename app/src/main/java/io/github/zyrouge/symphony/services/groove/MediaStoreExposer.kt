@@ -3,22 +3,22 @@ package io.github.zyrouge.symphony.services.groove
 import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.SongCache
-import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
-import io.github.zyrouge.symphony.utils.dispatch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 class MediaStoreExposer(private val symphony: Symphony) {
-    val onSong = Eventer<Song>()
-    val onFetchStart = Eventer.nothing()
-    val onFetchEnd = Eventer.nothing()
-    var isFetching = false
     var explorer = createExplorer()
     val cache = ConcurrentHashMap<Long, Song>()
 
+    private val _isUpdating = MutableStateFlow(false)
+    val isUpdating = _isUpdating.asStateFlow()
+
+    private fun emitUpdate(value: Boolean) = _isUpdating.tryEmit(value)
+
     fun fetch() {
-        isFetching = true
-        onFetchStart.dispatch()
+        emitUpdate(true)
         try {
             val cursor = symphony.applicationContext.contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -63,7 +63,7 @@ class MediaStoreExposer(private val symphony: Symphony) {
                         }
                         ?.also { song ->
                             nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
-                            onSong.dispatch(song)
+                            emitSong(song)
                         }
                 }
                 symphony.database.songCache.update(nAdditionalMetadata)
@@ -71,13 +71,23 @@ class MediaStoreExposer(private val symphony: Symphony) {
         } catch (err: Exception) {
             Logger.error("MediaStoreExposer", "fetch failed", err)
         }
-        isFetching = false
-        onFetchEnd.dispatch()
+        emitUpdate(false)
     }
 
     fun reset() {
+        emitUpdate(true)
         explorer = createExplorer()
         cache.clear()
+        emitUpdate(false)
+    }
+
+    private fun emitSong(song: Song) {
+        symphony.groove.albumArtist.onSong(song)
+        symphony.groove.album.onSong(song)
+        symphony.groove.artist.onSong(song)
+        symphony.groove.genre.onSong(song)
+        symphony.groove.lyrics.onSong(song)
+        symphony.groove.song.onSong(song)
     }
 
     companion object {

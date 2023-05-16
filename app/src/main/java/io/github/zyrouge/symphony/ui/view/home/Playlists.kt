@@ -23,15 +23,17 @@ import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable
-fun PlaylistsView(context: ViewContext, data: HomeViewData) {
+fun PlaylistsView(context: ViewContext) {
+    val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
+    val playlists by context.symphony.groove.playlist.all.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
 
-    LoaderScaffold(context, isLoading = data.playlistsIsUpdating) {
+    LoaderScaffold(context, isLoading = isUpdating) {
         PlaylistGrid(
             context,
-            playlists = data.playlists,
+            playlists = playlists,
             leadingContent = {
                 PlaylistControlBar(
                     context,

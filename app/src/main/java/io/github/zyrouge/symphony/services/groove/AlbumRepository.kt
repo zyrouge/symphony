@@ -5,7 +5,12 @@ import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
-import io.github.zyrouge.symphony.utils.*
+import io.github.zyrouge.symphony.utils.ConcurrentSet
+import io.github.zyrouge.symphony.utils.FuzzySearchOption
+import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.subListNonStrict
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class AlbumSortBy {
@@ -18,29 +23,14 @@ enum class AlbumSortBy {
 class AlbumRepository(private val symphony: Symphony) {
     val cache = ConcurrentHashMap<Long, Album>()
     val songIdsCache = ConcurrentHashMap<Long, ConcurrentSet<Long>>()
-    var isUpdating = false
-    val onUpdateStart = Eventer.nothing()
-    val onUpdate = Eventer.nothing()
-    val onUpdateEnd = Eventer.nothing()
-    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
-    fun ready() {
-        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
-        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
-        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
-    }
+    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    private val _all = MutableStateFlow<List<Long>>(listOf())
+    val all = _all.asStateFlow()
 
-    private fun onFetchStart() {
-        isUpdating = true
-        onUpdateStart.dispatch()
-    }
+    private fun emitAll() = _all.tryEmit(cache.keys.toList())
 
-    private fun onFetchEnd() {
-        isUpdating = false
-        onUpdateEnd.dispatch()
-    }
-
-    private fun onSong(song: Song) {
+    internal fun onSong(song: Song) {
         if (song.albumName == null || song.artistName == null) return
         songIdsCache.compute(song.albumId) { _, value ->
             value?.apply { add(song.id) } ?: ConcurrentSet(song.id)
@@ -55,13 +45,13 @@ class AlbumRepository(private val symphony: Symphony) {
                 numberOfTracks = 1,
             )
         }
-        onUpdateRapidDispatcher.dispatch()
+        emitAll()
     }
 
     fun reset() {
         cache.clear()
         songIdsCache.clear()
-        onUpdate.dispatch()
+        emitAll()
     }
 
     fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)

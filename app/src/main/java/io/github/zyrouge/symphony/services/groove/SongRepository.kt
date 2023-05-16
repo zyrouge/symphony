@@ -1,7 +1,11 @@
 package io.github.zyrouge.symphony.services.groove
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.*
+import io.github.zyrouge.symphony.utils.FuzzySearchOption
+import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.subListNonStrict
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class SongSortBy {
@@ -23,46 +27,35 @@ class SongRepository(private val symphony: Symphony) {
     val cache = ConcurrentHashMap<Long, Song>()
     val pathCache = ConcurrentHashMap<String, Long>()
     var explorer = MediaStoreExposer.createExplorer()
-    var isUpdating = false
-    val onUpdateStart = Eventer.nothing()
-    val onUpdate = Eventer.nothing()
-    val onUpdateEnd = Eventer.nothing()
-    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
 
-    fun ready() {
-        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
-        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
-        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
+    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    private val _all = MutableStateFlow<List<Long>>(listOf())
+    val all = _all.asStateFlow()
+    private val _id = MutableStateFlow(System.currentTimeMillis())
+    val id = _id.asStateFlow()
+
+    private fun emitAll() {
+        _all.tryEmit(cache.keys.toList())
+        _id.tryEmit(System.currentTimeMillis())
     }
 
-    private fun onFetchStart() {
-        isUpdating = true
-        onUpdateStart.dispatch()
-    }
-
-    private fun onFetchEnd() {
-        isUpdating = false
-        onUpdateEnd.dispatch()
-    }
-
-    private fun onSong(song: Song) {
+    internal fun onSong(song: Song) {
         cache[song.id] = song
         pathCache[song.path] = song.id
         val entity = explorer
             .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
         entity.data = song.id
-        onUpdateRapidDispatcher.dispatch()
+        emitAll()
     }
 
     fun reset() {
         cache.clear()
         pathCache.clear()
         explorer = MediaStoreExposer.createExplorer()
-        onUpdate.dispatch()
+        emitAll()
     }
 
     fun count() = cache.size
-    fun getAll() = cache.values.toList()
 
     fun getSongWithId(songId: Long) = cache[songId]
     fun hasSongWithId(songId: Long) = getSongWithId(songId) != null

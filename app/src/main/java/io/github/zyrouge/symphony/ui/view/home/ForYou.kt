@@ -38,11 +38,11 @@ enum class ForYou(val label: (context: ViewContext) -> String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForYouView(context: ViewContext, data: HomeViewData) {
-    val songs = data.songs
-    val albums = data.albums
-    val artists = data.artists
-    val albumArtists = data.albumArtists
+fun ForYouView(context: ViewContext) {
+    val albumArtists by context.symphony.groove.albumArtist.all.collectAsState()
+    val albums by context.symphony.groove.album.all.collectAsState()
+    val artists by context.symphony.groove.artist.all.collectAsState()
+    val songs by context.symphony.groove.song.all.collectAsState()
 
     when {
         songs.isNotEmpty() -> {

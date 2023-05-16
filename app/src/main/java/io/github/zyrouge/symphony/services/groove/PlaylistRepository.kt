@@ -5,6 +5,8 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.util.*
@@ -19,17 +21,20 @@ enum class PlaylistSortBy {
 class PlaylistRepository(private val symphony: Symphony) {
     val cache = ConcurrentHashMap<String, Playlist>()
     var favoritesId: String? = null
-    var isUpdating = false
-    val onUpdateStart = Eventer.nothing()
-    val onUpdate = Eventer.nothing()
-    val onUpdateEnd = Eventer.nothing()
-    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
-    val onFavoritesUpdate = Eventer<List<Long>>()
+
+    private val _isUpdating = MutableStateFlow(false)
+    val isUpdating = _isUpdating.asStateFlow()
+    private val _all = MutableStateFlow<List<String>>(listOf())
+    val all = _all.asStateFlow()
+    private val _favorites = MutableStateFlow<List<Long>>(listOf())
+    val favorites = _favorites.asStateFlow()
+
+    private fun emitUpdate(value: Boolean) = _isUpdating.tryEmit(value)
+    private fun emitAll() = _all.tryEmit(cache.keys.toList())
+    private fun emitFavorite(value: List<Long>) = _favorites.tryEmit(value)
 
     fun fetch() {
-        if (isUpdating) return
-        isUpdating = true
-        onUpdateStart.dispatch()
+        emitUpdate(true)
         try {
             val data = symphony.database.playlists.read()
             val locals = queryAllLocalPlaylistsMap()
@@ -47,7 +52,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             }
             favoritesId = data.favorites.id
             cache[data.favorites.id] = data.favorites
-            onUpdateRapidDispatcher.dispatch()
+            emitAll()
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed", err)
@@ -55,13 +60,13 @@ class PlaylistRepository(private val symphony: Symphony) {
         if (favoritesId == null) {
             createFavoritesPlaylist()
         }
-        isUpdating = false
-        onUpdateEnd.dispatch()
+        emitUpdate(false)
     }
 
     fun reset() {
+        emitUpdate(true)
         cache.clear()
-        onUpdate.dispatch()
+        emitUpdate(false)
     }
 
     fun count() = cache.size
@@ -98,14 +103,14 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     suspend fun addPlaylist(playlist: Playlist) {
         cache[playlist.id] = playlist
-        onUpdate.dispatch()
+        emitAll()
         save()
     }
 
     suspend fun removePlaylist(playlist: Playlist) = removePlaylist(playlist.id)
     suspend fun removePlaylist(id: String) {
         cache.remove(id)
-        onUpdate.dispatch()
+        emitAll()
         save()
     }
 
@@ -117,9 +122,9 @@ class PlaylistRepository(private val symphony: Symphony) {
             numberOfTracks = songs.size,
             local = null,
         )
-        onUpdate.dispatch()
+        emitAll()
         if (playlist.id == favoritesId) {
-            onFavoritesUpdate.dispatch(songs)
+            emitFavorite(songs)
         }
         save()
     }

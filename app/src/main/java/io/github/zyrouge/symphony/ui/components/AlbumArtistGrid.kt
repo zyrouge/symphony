@@ -6,7 +6,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import io.github.zyrouge.symphony.services.groove.AlbumArtist
 import io.github.zyrouge.symphony.services.groove.AlbumArtistRepository
 import io.github.zyrouge.symphony.services.groove.AlbumArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
@@ -15,7 +14,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun AlbumArtistGrid(
     context: ViewContext,
-    albumArtists: List<AlbumArtist>,
+    albumArtists: List<String>,
     albumArtistsCount: Int? = null,
 ) {
     var sortBy by remember {
@@ -28,7 +27,10 @@ fun AlbumArtistGrid(
         mutableStateOf(context.symphony.settings.getLastUsedAlbumArtistsSortReverse())
     }
     val sortedAlbumArtists by remember {
-        derivedStateOf { AlbumArtistRepository.sort(albumArtists, sortBy, sortReverse) }
+        derivedStateOf {
+            val resolved = context.symphony.groove.albumArtist.resolveIds(albumArtists)
+            AlbumArtistRepository.sort(resolved, sortBy, sortReverse)
+        }
     }
 
     MediaSortBarScaffold(
