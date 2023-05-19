@@ -62,42 +62,42 @@ fun SearchView(context: ViewContext) {
                     if (isChipSelected(GrooveKinds.SONG)) {
                         songs.addAll(
                             SongRepository
-                                .search(context.symphony.groove.song.getAll(), terms)
+                                .search(context.symphony.groove.song.values(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ARTIST)) {
                         artists.addAll(
                             ArtistRepository
-                                .search(context.symphony.groove.artist.getAll(), terms)
+                                .search(context.symphony.groove.artist.values(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM)) {
                         albums.addAll(
                             AlbumRepository
-                                .search(context.symphony.groove.album.getAll(), terms)
+                                .search(context.symphony.groove.album.values(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM_ARTIST)) {
                         albumArtists.addAll(
                             AlbumArtistRepository
-                                .search(context.symphony.groove.albumArtist.getAll(), terms)
+                                .search(context.symphony.groove.albumArtist.values(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.GENRE)) {
                         genres.addAll(
                             GenreRepository
-                                .search(context.symphony.groove.genre.getAll(), terms)
+                                .search(context.symphony.groove.genre.values(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.PLAYLIST)) {
                         playlists.addAll(
                             PlaylistRepository
-                                .search(context.symphony.groove.playlist.getAll(), terms)
+                                .search(context.symphony.groove.playlist.values(), terms)
                                 .map { it.entity }
                         )
                     }

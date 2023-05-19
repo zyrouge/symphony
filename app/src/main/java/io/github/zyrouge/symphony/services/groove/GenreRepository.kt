@@ -18,12 +18,12 @@ enum class GenreSortBy {
 class GenreRepository(private val symphony: Symphony) {
     val cache = ConcurrentHashMap<String, Genre>()
     val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    val isUpdating get() = symphony.groove.mediaStore.isUpdating
 
+    val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = MutableStateFlow<List<String>>(listOf())
     val all = _all.asStateFlow()
 
-    private fun emitAll() = _all.tryEmit(cache.keys.toList())
+    private fun emitAll() = _all.tryEmit(ids())
 
     internal fun onSong(song: Song) {
         if (song.additional.genre == null) return
@@ -49,11 +49,11 @@ class GenreRepository(private val symphony: Symphony) {
     }
 
     fun count() = cache.size
-    fun getAll() = cache.values.toList()
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
 
-    fun getSongIdsOfGenre(genre: String) = songIdsCache[genre] ?: listOf()
-    fun getSongsOfGenre(genre: String) = getSongIdsOfGenre(genre)
-        .mapNotNull { symphony.groove.song.getSongWithId(it) }
+    fun get(id: String) = cache[id]
+    fun getSongIds(genre: String) = songIdsCache[genre] ?: listOf()
 
     companion object {
         val searcher = FuzzySearcher<Genre>(

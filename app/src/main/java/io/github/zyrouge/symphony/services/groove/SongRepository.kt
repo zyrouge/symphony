@@ -35,7 +35,7 @@ class SongRepository(private val symphony: Symphony) {
     val id = _id.asStateFlow()
 
     private fun emitAll() {
-        _all.tryEmit(cache.keys.toList())
+        _all.tryEmit(ids())
         _id.tryEmit(System.currentTimeMillis())
     }
 
@@ -56,9 +56,10 @@ class SongRepository(private val symphony: Symphony) {
     }
 
     fun count() = cache.size
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
 
-    fun getSongWithId(songId: Long) = cache[songId]
-    fun hasSongWithId(songId: Long) = getSongWithId(songId) != null
+    fun get(id: Long) = cache[id]
 
     companion object {
         val searcher = FuzzySearcher<Song>(

@@ -27,7 +27,7 @@ class AlbumArtistRepository(private val symphony: Symphony) {
     private val _all = MutableStateFlow<List<String>>(listOf())
     val all = _all.asStateFlow()
 
-    private fun emitAll() = _all.tryEmit(cache.keys.toList())
+    private fun emitAll() = _all.tryEmit(ids())
 
     internal fun onSong(song: Song) {
         if (song.additional.albumArtist == null) return
@@ -59,35 +59,25 @@ class AlbumArtistRepository(private val symphony: Symphony) {
         emitAll()
     }
 
-    fun getAlbumArtistArtworkUri(artistName: String) =
+    fun getArtworkUri(artistName: String) =
         albumIdsCache[artistName]?.firstOrNull()?.let {
-            symphony.groove.album.getAlbumArtworkUri(it)
-        } ?: symphony.groove.album.getDefaultAlbumArtworkUri()
+            symphony.groove.album.getArtworkUri(it)
+        } ?: symphony.groove.album.getDefaultArtworkUri()
 
-    fun createAlbumArtistArtworkImageRequest(artistName: String) = createHandyImageRequest(
+    fun createArtworkImageRequest(artistName: String) = createHandyImageRequest(
         symphony.applicationContext,
-        image = getAlbumArtistArtworkUri(artistName),
+        image = getArtworkUri(artistName),
         fallback = Assets.placeholderId,
     )
 
-    fun resolveId(id: String) = cache[id]
-    fun resolveIds(ids: List<String>) = ids.mapNotNull { id -> resolveId(id) }
-
     fun count() = cache.size
-    fun getAll() = cache.values.toList()
-    fun getAlbumArtistFromArtistName(artistName: String) = cache[artistName]
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
 
-    fun getAlbumIdsOfAlbumArtist(artistName: String) =
-        albumIdsCache[artistName]?.toList() ?: listOf()
-
-    fun getAlbumsOfAlbumArtist(artistName: String) = getAlbumIdsOfAlbumArtist(artistName)
-        .mapNotNull { symphony.groove.album.getAlbumWithId(it) }
-
-    fun getSongIdsOfAlbumArtist(artistName: String) =
-        songIdsCache[artistName]?.toList() ?: listOf()
-
-    fun getSongsOfAlbumArtist(artistName: String) = getSongIdsOfAlbumArtist(artistName)
-        .mapNotNull { symphony.groove.song.getSongWithId(it) }
+    fun get(artistName: String) = cache[artistName]
+    fun get(artistNames: List<String>) = artistNames.mapNotNull { get(it) }
+    fun getAlbumIds(artistName: String) = albumIdsCache[artistName]?.toList() ?: listOf()
+    fun getSongIds(artistName: String) = songIdsCache[artistName]?.toList() ?: listOf()
 
     companion object {
         val searcher = FuzzySearcher<AlbumArtist>(

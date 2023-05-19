@@ -28,7 +28,7 @@ class AlbumRepository(private val symphony: Symphony) {
     private val _all = MutableStateFlow<List<Long>>(listOf())
     val all = _all.asStateFlow()
 
-    private fun emitAll() = _all.tryEmit(cache.keys.toList())
+    private fun emitAll() = _all.tryEmit(ids())
 
     internal fun onSong(song: Song) {
         if (song.albumName == null || song.artistName == null) return
@@ -54,26 +54,25 @@ class AlbumRepository(private val symphony: Symphony) {
         emitAll()
     }
 
-    fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
+    fun getDefaultArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
 
-    fun getAlbumArtworkUri(albumId: Long) = ContentUris.withAppendedId(
+    fun getArtworkUri(albumId: Long) = ContentUris.withAppendedId(
         MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
         albumId
     )
 
-    fun createAlbumArtworkImageRequest(albumId: Long) = createHandyImageRequest(
+    fun createArtworkImageRequest(albumId: Long) = createHandyImageRequest(
         symphony.applicationContext,
-        image = getAlbumArtworkUri(albumId),
+        image = getArtworkUri(albumId),
         fallback = Assets.placeholderId,
     )
 
     fun count() = cache.size
-    fun getAll() = cache.values.toList()
-    fun getAlbumWithId(albumId: Long) = cache[albumId]
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
 
-    fun getSongIdsOfAlbumId(albumId: Long) = songIdsCache[albumId]?.toList() ?: listOf()
-    fun getSongsOfAlbumId(albumId: Long) = getSongIdsOfAlbumId(albumId)
-        .mapNotNull { symphony.groove.song.getSongWithId(it) }
+    fun get(albumId: Long) = cache[albumId]
+    fun getSongIds(albumId: Long) = songIdsCache[albumId]?.toList() ?: listOf()
 
     companion object {
         val searcher = FuzzySearcher<Album>(

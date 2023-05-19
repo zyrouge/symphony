@@ -24,7 +24,7 @@ fun AddToPlaylistDialog(
     val coroutineScope = rememberCoroutineScope()
     var showNewPlaylistDialog by remember { mutableStateOf(false) }
     val playlists = remember {
-        context.symphony.groove.playlist.getAll()
+        context.symphony.groove.playlist.values()
             .filter { it.isNotLocal() }
             .toMutableStateList()
     }
