@@ -8,15 +8,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.Playlist
-import io.github.zyrouge.symphony.services.groove.PlaylistRepository
 import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun PlaylistGrid(
     context: ViewContext,
-    playlists: List<Playlist>,
+    playlistIds: List<String>,
     playlistsCount: Int? = null,
     leadingContent: @Composable () -> Unit = {},
 ) {
@@ -28,8 +26,10 @@ fun PlaylistGrid(
     var sortReverse by remember {
         mutableStateOf(context.symphony.settings.getLastUsedPlaylistsSortReverse())
     }
-    val sortedPlaylists by remember {
-        derivedStateOf { PlaylistRepository.sort(playlists, sortBy, sortReverse) }
+    val sortedPlaylistIds by remember {
+        derivedStateOf {
+            context.symphony.groove.playlist.sort(playlistIds, sortBy, sortReverse)
+        }
     }
 
     MediaSortBarScaffold(
@@ -52,7 +52,7 @@ fun PlaylistGrid(
                     label = {
                         Text(
                             context.symphony.t.XPlaylists(
-                                (playlistsCount ?: playlists.size).toString()
+                                (playlistsCount ?: playlistIds.size).toString()
                             )
                         )
                     },
@@ -61,7 +61,7 @@ fun PlaylistGrid(
         },
         content = {
             when {
-                playlists.isEmpty() -> IconTextBody(
+                playlistIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Default.QueueMusic,
@@ -75,11 +75,13 @@ fun PlaylistGrid(
                 )
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedPlaylists,
-                        key = { i, x -> "$i-${x.id}" },
+                        sortedPlaylistIds,
+                        key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.PLAYLIST }
-                    ) { _, playlist ->
-                        PlaylistTile(context, playlist)
+                    ) { _, playlistId ->
+                        context.symphony.groove.playlist.get(playlistId)?.let { playlist ->
+                            PlaylistTile(context, playlist)
+                        }
                     }
                 }
             }

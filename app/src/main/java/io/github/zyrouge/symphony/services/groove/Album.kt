@@ -11,5 +11,5 @@ data class Album(
     var numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.album.createAlbumArtworkImageRequest(id)
+        symphony.groove.album.createArtworkImageRequest(id)
 }

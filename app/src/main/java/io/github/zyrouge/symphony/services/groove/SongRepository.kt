@@ -24,15 +24,23 @@ enum class SongSortBy {
 }
 
 class SongRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<Long, Song>()
-    val pathCache = ConcurrentHashMap<String, Long>()
-    var explorer = MediaStoreExposer.createExplorer()
+    private val cache = ConcurrentHashMap<Long, Song>()
+    internal val pathCache = ConcurrentHashMap<String, Long>()
+    private val searcher = FuzzySearcher<Long>(
+        options = listOf(
+            FuzzySearchOption({ get(it)?.title }, 3),
+            FuzzySearchOption({ get(it)?.filename }, 2),
+            FuzzySearchOption({ get(it)?.artistName }),
+            FuzzySearchOption({ get(it)?.albumName })
+        )
+    )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = MutableStateFlow<List<Long>>(listOf())
     val all = _all.asStateFlow()
     private val _id = MutableStateFlow(System.currentTimeMillis())
     val id = _id.asStateFlow()
+    var explorer = MediaStoreExposer.createExplorer()
 
     private fun emitAll() {
         _all.tryEmit(ids())
@@ -55,42 +63,32 @@ class SongRepository(private val symphony: Symphony) {
         emitAll()
     }
 
+    fun search(songIds: List<Long>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, songIds)
+        .subListNonStrict(limit ?: songIds.size)
+
+    fun sort(songIds: List<Long>, by: SongSortBy, reversed: Boolean): List<Long> {
+        val sorted = when (by) {
+            SongSortBy.CUSTOM -> songIds.toList()
+            SongSortBy.TITLE -> songIds.sortedBy { get(it)?.title }
+            SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artistName }
+            SongSortBy.ALBUM -> songIds.sortedBy { get(it)?.albumName }
+            SongSortBy.DURATION -> songIds.sortedBy { get(it)?.duration }
+            SongSortBy.DATE_ADDED -> songIds.sortedBy { get(it)?.dateAdded }
+            SongSortBy.DATE_MODIFIED -> songIds.sortedBy { get(it)?.dateModified }
+            SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composer }
+            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.additional?.albumArtist }
+            SongSortBy.YEAR -> songIds.sortedBy { get(it)?.year }
+            SongSortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
+            SongSortBy.TRACK_NUMBER -> songIds.sortedBy { get(it)?.trackNumber }
+        }
+        return if (reversed) sorted.reversed() else sorted
+    }
+
     fun count() = cache.size
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
     fun get(id: Long) = cache[id]
-
-    companion object {
-        val searcher = FuzzySearcher<Song>(
-            options = listOf(
-                FuzzySearchOption({ it.title }, 3),
-                FuzzySearchOption({ it.filename }, 2),
-                FuzzySearchOption({ it.artistName }),
-                FuzzySearchOption({ it.albumName })
-            )
-        )
-
-        fun search(songs: List<Song>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, songs)
-            .subListNonStrict(limit ?: songs.size)
-
-        fun sort(songs: List<Song>, by: SongSortBy, reversed: Boolean): List<Song> {
-            val sorted = when (by) {
-                SongSortBy.CUSTOM -> songs.toList()
-                SongSortBy.TITLE -> songs.sortedBy { it.title }
-                SongSortBy.ARTIST -> songs.sortedBy { it.artistName }
-                SongSortBy.ALBUM -> songs.sortedBy { it.albumName }
-                SongSortBy.DURATION -> songs.sortedBy { it.duration }
-                SongSortBy.DATE_ADDED -> songs.sortedBy { it.dateAdded }
-                SongSortBy.DATE_MODIFIED -> songs.sortedBy { it.dateModified }
-                SongSortBy.COMPOSER -> songs.sortedBy { it.composer }
-                SongSortBy.ALBUM_ARTIST -> songs.sortedBy { it.additional.albumArtist }
-                SongSortBy.YEAR -> songs.sortedBy { it.year }
-                SongSortBy.FILENAME -> songs.sortedBy { it.filename }
-                SongSortBy.TRACK_NUMBER -> songs.sortedBy { it.trackNumber }
-            }
-            return if (reversed) sorted.reversed() else sorted
-        }
-    }
+    fun get(ids: List<Long>) = ids.mapNotNull { get(it) }
 }

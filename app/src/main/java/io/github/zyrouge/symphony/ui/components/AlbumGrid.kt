@@ -6,8 +6,6 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import io.github.zyrouge.symphony.services.groove.Album
-import io.github.zyrouge.symphony.services.groove.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.AlbumSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -15,7 +13,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun AlbumGrid(
     context: ViewContext,
-    albums: List<Album>,
+    albumIds: List<Long>,
     albumsCount: Int? = null,
 ) {
     var sortBy by remember {
@@ -26,8 +24,10 @@ fun AlbumGrid(
     var sortReverse by remember {
         mutableStateOf(context.symphony.settings.getLastUsedAlbumsSortReverse())
     }
-    val sortedAlbums by remember {
-        derivedStateOf { AlbumRepository.sort(albums, sortBy, sortReverse) }
+    val sortedAlbumIds by remember {
+        derivedStateOf {
+            context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
+        }
     }
 
     MediaSortBarScaffold(
@@ -46,13 +46,13 @@ fun AlbumGrid(
                     context.symphony.settings.setLastUsedAlbumsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XAlbums((albumsCount ?: albums.size).toString()))
+                    Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
                 },
             )
         },
         content = {
             when {
-                albums.isEmpty() -> IconTextBody(
+                albumIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Default.Album,
@@ -64,11 +64,13 @@ fun AlbumGrid(
                 )
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedAlbums,
-                        key = { i, x -> "$i-${x.id}" },
+                        sortedAlbumIds,
+                        key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.ALBUM }
-                    ) { _, album ->
-                        AlbumTile(context, album)
+                    ) { _, albumId ->
+                        context.symphony.groove.album.get(albumId)?.let { album ->
+                            AlbumTile(context, album)
+                        }
                     }
                 }
             }

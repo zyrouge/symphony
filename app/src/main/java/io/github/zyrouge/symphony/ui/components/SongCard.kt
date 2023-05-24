@@ -35,8 +35,9 @@ fun SongCard(
     var isCurrentPlaying by remember {
         mutableStateOf(autoHighlight && song.id == context.symphony.radio.queue.currentPlayingSong?.id)
     }
-    var isInFavorites by remember {
-        mutableStateOf(context.symphony.groove.playlist.isInFavorites(song.id))
+    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val isFavorite by remember {
+        derivedStateOf { favoriteSongIds.contains(song.id) }
     }
 
     if (autoHighlight) {
@@ -45,10 +46,6 @@ fun SongCard(
                 isCurrentPlaying = song.id == context.symphony.radio.queue.currentPlayingSong?.id
             }
         }
-    }
-
-    EventerEffect(context.symphony.groove.playlist.onFavoritesUpdate) { favorites ->
-        isInFavorites = favorites.contains(song.id)
     }
 
     Card(
@@ -115,11 +112,11 @@ fun SongCard(
                 Spacer(modifier = Modifier.width(15.dp))
 
                 Row {
-                    if (!disableHeartIcon && isInFavorites) {
+                    if (!disableHeartIcon && isFavorite) {
                         IconButton(
                             modifier = Modifier.offset(4.dp, 0.dp),
                             onClick = {
-                                context.symphony.groove.playlist.removeFromFavorites(song.id)
+                                context.symphony.groove.playlist.unfavorite(song.id)
                             }
                         ) {
                             Icon(
@@ -143,6 +140,7 @@ fun SongCard(
                         SongDropdownMenu(
                             context,
                             song,
+                            isFavorite = isFavorite,
                             trailingContent = trailingOptionsContent,
                             expanded = showOptionsMenu,
                             onDismissRequest = {
@@ -160,13 +158,13 @@ fun SongCard(
 fun SongDropdownMenu(
     context: ViewContext,
     song: Song,
+    isFavorite: Boolean,
     trailingContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
-    val isInFavorite = context.symphony.groove.playlist.isInFavorites(song.id)
 
     DropdownMenu(
         expanded = expanded,
@@ -178,7 +176,7 @@ fun SongDropdownMenu(
             },
             text = {
                 Text(
-                    if (isInFavorite) context.symphony.t.Unfavorite
+                    if (isFavorite) context.symphony.t.Unfavorite
                     else context.symphony.t.Favorite
                 )
             },
@@ -186,8 +184,8 @@ fun SongDropdownMenu(
                 onDismissRequest()
                 context.symphony.groove.playlist.run {
                     when {
-                        isInFavorite -> removeFromFavorites(song.id)
-                        else -> addToFavorites(song.id)
+                        isFavorite -> unfavorite(song.id)
+                        else -> favorite(song.id)
                     }
                 }
             }
@@ -305,7 +303,7 @@ fun SongDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songs = listOf(song.id),
+            songIds = listOf(song.id),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

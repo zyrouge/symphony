@@ -407,12 +407,11 @@ private fun NowPlayingBodyCover(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
-    var isInFavorites by remember(data.song.id) {
-        mutableStateOf(context.symphony.groove.playlist.isInFavorites(data.song.id))
-    }
-
-    EventerEffect(context.symphony.groove.playlist.onFavoritesUpdate) { favorites ->
-        isInFavorites = favorites.contains(data.song.id)
+    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val isFavorite by remember {
+        derivedStateOf {
+            favoriteSongIds.contains(data.song.id)
+        }
     }
 
     data.run {
@@ -465,14 +464,14 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                         onClick = {
                             context.symphony.groove.playlist.run {
                                 when {
-                                    isInFavorites -> removeFromFavorites(song.id)
-                                    else -> addToFavorites(song.id)
+                                    isFavorite -> unfavorite(song.id)
+                                    else -> favorite(song.id)
                                 }
                             }
                         }
                     ) {
                         when {
-                            isInFavorites -> Icon(
+                            isFavorite -> Icon(
                                 Icons.Default.Favorite,
                                 null,
                                 tint = MaterialTheme.colorScheme.primary,
@@ -491,6 +490,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                         SongDropdownMenu(
                             context,
                             song,
+                            isFavorite = isFavorite,
                             expanded = showOptionsMenu,
                             onDismissRequest = {
                                 showOptionsMenu = false

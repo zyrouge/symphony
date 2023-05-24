@@ -10,13 +10,13 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun SongsView(context: ViewContext) {
     val isUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val songs by context.symphony.groove.song.all.collectAsState()
+    val songIds by context.symphony.groove.song.all.collectAsState()
 
     LoaderScaffold(context, isLoading = isUpdating) {
         SongList(
             context,
-            songs = songs,
-            songsCount = songs.size,
+            songIds = songIds,
+            songsCount = songIds.size,
         )
     }
 }

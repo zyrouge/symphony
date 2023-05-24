@@ -10,22 +10,22 @@ import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistView(context: ViewContext, playlistId: String) {
     val coroutineScope = rememberCoroutineScope()
-    var playlist by remember {
-        mutableStateOf(context.symphony.groove.playlist.getPlaylistWithId(playlistId))
+    val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
+    val playlist by remember {
+        derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
     }
-    val songsMutable = remember {
-        context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId).toMutableStateList()
+    val songIds by remember {
+        derivedStateOf { playlist?.songIds ?: listOf() }
     }
-    val songs = songsMutable.asImmutableList()
-    var isViable by remember { mutableStateOf(playlist != null) }
+    val isViable by remember {
+        derivedStateOf { allPlaylistIds.contains(playlistId) }
+    }
     var showOptionsMenu by remember { mutableStateOf(false) }
     val isFavoritesPlaylist by remember {
         derivedStateOf {
@@ -33,12 +33,6 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 context.symphony.groove.playlist.isFavoritesPlaylist(it)
             } ?: false
         }
-    }
-
-    EventerEffect(context.symphony.groove.playlist.onUpdateEnd) {
-        playlist = context.symphony.groove.playlist.getPlaylistWithId(playlistId)
-        songsMutable.swap(context.symphony.groove.playlist.getSongsOfPlaylistId(playlistId))
-        isViable = playlist != null
     }
 
     Scaffold(
@@ -96,7 +90,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 when {
                     isViable -> SongList(
                         context,
-                        songs = songs,
+                        songIds = songIds,
                         type = SongListType.Playlist,
                         disableHeartIcon = isFavoritesPlaylist,
                         trailingOptionsContent = { _, song, onDismissRequest ->
@@ -115,9 +109,9 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                                     onClick = {
                                         onDismissRequest()
                                         coroutineScope.launch {
-                                            context.symphony.groove.playlist.updatePlaylistSongs(
-                                                it,
-                                                it.songs.toMutableList().apply {
+                                            context.symphony.groove.playlist.update(
+                                                it.id,
+                                                it.songIds.toMutableList().apply {
                                                     remove(song.id)
                                                 },
                                             )

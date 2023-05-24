@@ -31,7 +31,7 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     private var onPlaybackPositionUpdate: RadioPlayerOnPlaybackPositionUpdateListener? = null
     private var onFinish: RadioPlayerOnFinishListener? = null
     private var playbackPositionUpdater: Timer? = null
-    val playbackPosition: PlaybackPosition?
+    private val playbackPosition: PlaybackPosition?
         get() = mediaPlayer?.let {
             try {
                 PlaybackPosition(

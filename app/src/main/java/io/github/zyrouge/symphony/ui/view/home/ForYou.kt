@@ -39,17 +39,17 @@ enum class ForYou(val label: (context: ViewContext) -> String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouView(context: ViewContext) {
-    val albumArtists by context.symphony.groove.albumArtist.all.collectAsState()
-    val albums by context.symphony.groove.album.all.collectAsState()
-    val artists by context.symphony.groove.artist.all.collectAsState()
-    val songs by context.symphony.groove.song.all.collectAsState()
+    val albumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
+    val albumIds by context.symphony.groove.album.all.collectAsState()
+    val artistIds by context.symphony.groove.artist.all.collectAsState()
+    val songIds by context.symphony.groove.song.all.collectAsState()
 
     when {
-        songs.isNotEmpty() -> {
-            val sortedSongs by remember {
+        songIds.isNotEmpty() -> {
+            val sortedSongIds by remember {
                 derivedStateOf {
-                    SongRepository.sort(
-                        songs,
+                    context.symphony.groove.song.sort(
+                        songIds,
                         context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE,
                         reversed = context.symphony.settings.getLastUsedSongsSortReverse(),
                     )
@@ -57,17 +57,21 @@ fun ForYouView(context: ViewContext) {
             }
             val recentlyAddedSongs by remember {
                 derivedStateOf {
-                    SongRepository.sort(songs, SongSortBy.DATE_ADDED, reversed = true)
+                    context.symphony.groove.song.sort(
+                        songIds,
+                        SongSortBy.DATE_ADDED,
+                        reversed = true,
+                    )
                 }
             }
             val randomAlbums by remember {
-                derivedStateOf { albums.randomSubList(6) }
+                derivedStateOf { albumIds.randomSubList(6) }
             }
             val randomArtists by remember {
-                derivedStateOf { artists.randomSubList(6) }
+                derivedStateOf { artistIds.randomSubList(6) }
             }
             val randomAlbumArtists by remember {
-                derivedStateOf { albumArtists.randomSubList(6) }
+                derivedStateOf { albumArtistIds.randomSubList(6) }
             }
 
             Column(
@@ -82,7 +86,7 @@ fun ForYouView(context: ViewContext) {
                                 Text(context.symphony.t.PlayAll)
                             },
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(sortedSongs)
+                                context.symphony.radio.shorty.playQueue(sortedSongIds)
                             },
                         )
                     }
@@ -95,7 +99,7 @@ fun ForYouView(context: ViewContext) {
                             },
                             onClick = {
                                 context.symphony.radio.shorty.playQueue(
-                                    songs,
+                                    songIds,
                                     shuffle = true,
                                 )
                             }
@@ -114,9 +118,12 @@ fun ForYouView(context: ViewContext) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Spacer(modifier = Modifier.width(12.dp))
-                        recentlyAddedSongs.subListNonStrict(5).forEachIndexed { i, song ->
+                        recentlyAddedSongs.subListNonStrict(5).forEachIndexed { i, songId ->
                             val tileHeight = 96.dp
                             val backgroundColor = MaterialTheme.colorScheme.surface
+                            val song = context.symphony.groove.song.get(songId)
+                                ?: return@forEachIndexed
+
                             ElevatedCard(
                                 modifier = Modifier
                                     .width(tileWidth)
@@ -211,18 +218,18 @@ fun ForYouView(context: ViewContext) {
                 contents.forEach {
                     when (it) {
                         ForYou.Albums -> SuggestedAlbums(
-                            context = context,
-                            randomAlbums = randomAlbums
+                            context,
+                            albumIds = randomAlbums,
                         )
                         ForYou.Artists -> SuggestedArtists(
-                            context = context,
+                            context,
                             label = context.symphony.t.SuggestedArtists,
-                            randomArtists = randomArtists
+                            artistIds = randomArtists,
                         )
                         ForYou.AlbumArtists -> SuggestedAlbumArtists(
-                            context = context,
+                            context,
                             label = context.symphony.t.SuggestedAlbumArtists,
-                            randomAlbumArtists = randomAlbumArtists
+                            albumArtistIds = randomAlbumArtists,
                         )
                     }
                 }
@@ -306,13 +313,19 @@ private fun <T> SixGrid(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SuggestedAlbums(context: ViewContext, randomAlbums: List<Album>) {
+private fun SuggestedAlbums(context: ViewContext, albumIds: List<Long>) {
+    val albums by remember {
+        derivedStateOf {
+            context.symphony.groove.album.get(albumIds)
+        }
+    }
+
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
         Text(context.symphony.t.SuggestedAlbums)
     }
     Spacer(modifier = Modifier.height(12.dp))
-    SixGrid(randomAlbums) { album ->
+    SixGrid(albums) { album ->
         Card(
             onClick = {
                 context.navController.navigate(
@@ -335,13 +348,19 @@ private fun SuggestedAlbums(context: ViewContext, randomAlbums: List<Album>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SuggestedArtists(context: ViewContext, label: String, randomArtists: List<Artist>) {
+private fun SuggestedArtists(context: ViewContext, label: String, artistIds: List<String>) {
+    val artists by remember {
+        derivedStateOf {
+            context.symphony.groove.artist.get(artistIds)
+        }
+    }
+
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
         Text(label)
     }
     Spacer(modifier = Modifier.height(12.dp))
-    SixGrid(randomArtists) { artist ->
+    SixGrid(artists) { artist ->
         Card(
             onClick = {
                 context.navController.navigate(
@@ -367,14 +386,20 @@ private fun SuggestedArtists(context: ViewContext, label: String, randomArtists:
 private fun SuggestedAlbumArtists(
     context: ViewContext,
     label: String,
-    randomAlbumArtists: List<AlbumArtist>,
+    albumArtistIds: List<String>
 ) {
+    val albumArtists by remember {
+        derivedStateOf {
+            context.symphony.groove.albumArtist.get(albumArtistIds)
+        }
+    }
+
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
         Text(label)
     }
     Spacer(modifier = Modifier.height(12.dp))
-    SixGrid(randomAlbumArtists) { albumArtist ->
+    SixGrid(albumArtists) { albumArtist ->
         Card(
             onClick = {
                 context.navController.navigate(

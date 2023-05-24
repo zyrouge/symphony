@@ -10,5 +10,5 @@ data class Artist(
     var numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.artist.createArtistArtworkImageRequest(name)
+        symphony.groove.artist.createArtworkImageRequest(name)
 }

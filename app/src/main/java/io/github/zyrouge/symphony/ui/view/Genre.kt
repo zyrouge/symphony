@@ -11,21 +11,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenreView(context: ViewContext, genre: String) {
-    val songsMutable = remember {
-        context.symphony.groove.genre.getSongsOfGenre(genre).toMutableStateList()
+fun GenreView(context: ViewContext, genreId: String) {
+    val allGenreIds by context.symphony.groove.genre.all.collectAsState()
+    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val genre by remember(allGenreIds) {
+        derivedStateOf { context.symphony.groove.genre.get(genreId) }
     }
-    val songs = songsMutable.asImmutableList()
-    var isViable by remember { mutableStateOf(songs.isNotEmpty()) }
-
-    EventerEffect(context.symphony.groove.genre.onUpdateEnd) {
-        songsMutable.swap(context.symphony.groove.genre.getSongsOfGenre(genre))
-        isViable = songsMutable.isNotEmpty()
+    val songIds by remember(genre, allSongIds) {
+        derivedStateOf { context.symphony.groove.genre.getSongIds(genreId) }
+    }
+    val isViable by remember {
+        derivedStateOf { allGenreIds.contains(genreId) }
     }
 
     Scaffold(
@@ -55,7 +54,7 @@ fun GenreView(context: ViewContext, genre: String) {
                         Icon(Icons.Default.MoreVert, null)
                         GenericSongListDropdown(
                             context,
-                            songs = songs,
+                            songIds = songIds,
                             expanded = showOptionsMenu,
                             onDismissRequest = {
                                 showOptionsMenu = false
@@ -75,11 +74,8 @@ fun GenreView(context: ViewContext, genre: String) {
                     .fillMaxSize()
             ) {
                 when {
-                    isViable -> SongList(
-                        context,
-                        songs = songs
-                    )
-                    else -> UnknownGenre(context, genre)
+                    isViable -> SongList(context, songIds = songIds)
+                    else -> UnknownGenre(context, genreId)
                 }
             }
         },

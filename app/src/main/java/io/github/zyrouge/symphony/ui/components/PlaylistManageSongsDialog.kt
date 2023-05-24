@@ -15,30 +15,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistManageSongsDialog(
     context: ViewContext,
-    selectedSongs: List<Long>,
+    selectedSongIds: List<Long>,
     onDone: (List<Long>) -> Unit,
 ) {
-    val allSongs = remember { context.symphony.groove.song.values() }
-    val nSelectedSongs = remember { selectedSongs.toMutableStateList() }
+    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val nSelectedSongIds = remember { selectedSongIds.toMutableStateList() }
     var terms by remember { mutableStateOf("") }
-    val songs by remember {
+    val songIds by remember {
         derivedStateOf {
-            SongRepository.search(allSongs, terms, null)
+            context.symphony.groove.song.search(allSongIds, terms, null)
                 .map { it.entity }
-                .sortedBy { !selectedSongs.contains(it.id) }
+                .sortedBy { !selectedSongIds.contains(it) }
         }
     }
 
     ScaffoldDialog(
         onDismissRequest = {
-            onDone(nSelectedSongs.toList())
+            onDone(nSelectedSongIds.toList())
         },
         title = {
             Text(context.symphony.t.ManageSongs)
@@ -49,7 +48,7 @@ fun PlaylistManageSongsDialog(
                     .padding(start = 8.dp)
                     .clip(CircleShape)
                     .clickable {
-                        onDone(selectedSongs)
+                        onDone(selectedSongIds)
                     },
             ) {
                 Icon(
@@ -65,7 +64,7 @@ fun PlaylistManageSongsDialog(
                     .padding(end = 8.dp)
                     .clip(CircleShape)
                     .clickable {
-                        onDone(nSelectedSongs.toList())
+                        onDone(nSelectedSongIds.toList())
                     },
             ) {
                 Icon(
@@ -93,7 +92,7 @@ fun PlaylistManageSongsDialog(
                     },
                 )
                 when {
-                    songs.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
+                    songIds.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
                         SubtleCaptionText(context.symphony.t.DamnThisIsSoEmpty)
                     }
                     else -> BoxWithConstraints {
@@ -102,27 +101,29 @@ fun PlaylistManageSongsDialog(
                                 .height(maxHeight)
                                 .padding(bottom = 4.dp)
                         ) {
-                            items(songs) { song ->
-                                SongCard(
-                                    context,
-                                    song = song,
-                                    thumbnailLabel = when {
-                                        nSelectedSongs.contains(song.id) -> ({
-                                            Icon(
-                                                Icons.Default.Check,
-                                                null,
-                                                modifier = Modifier.size(12.dp),
-                                            )
-                                        })
-                                        else -> null
-                                    },
-                                    disableHeartIcon = true,
-                                ) {
-                                    when {
-                                        nSelectedSongs.contains(song.id) -> nSelectedSongs.remove(
-                                            song.id
-                                        )
-                                        else -> nSelectedSongs.add(song.id)
+                            items(songIds) { songId ->
+                                context.symphony.groove.song.get(songId)?.let { song ->
+                                    SongCard(
+                                        context,
+                                        song = song,
+                                        thumbnailLabel = when {
+                                            nSelectedSongIds.contains(song.id) -> ({
+                                                Icon(
+                                                    Icons.Default.Check,
+                                                    null,
+                                                    modifier = Modifier.size(12.dp),
+                                                )
+                                            })
+                                            else -> null
+                                        },
+                                        disableHeartIcon = true,
+                                    ) {
+                                        when {
+                                            nSelectedSongIds.contains(song.id) -> {
+                                                nSelectedSongIds.remove(song.id)
+                                            }
+                                            else -> nSelectedSongIds.add(song.id)
+                                        }
                                     }
                                 }
                             }

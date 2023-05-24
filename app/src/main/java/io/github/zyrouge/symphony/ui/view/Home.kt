@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -96,15 +95,6 @@ fun HomeView(context: ViewContext) {
         mutableStateOf(context.symphony.settings.getHomeLastTab())
     }
     var showOptionsDropdown by remember { mutableStateOf(false) }
-    val data = remember { HomeViewData(context.symphony) }
-
-    LaunchedEffect(LocalContext.current) {
-        data.initialize()
-    }
-
-    DisposableEffect(LocalContext.current) {
-        onDispose { data.dispose() }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -177,15 +167,15 @@ fun HomeView(context: ViewContext) {
                 },
             ) { page ->
                 when (page) {
-                    HomePages.ForYou -> ForYouView(context, data)
-                    HomePages.Songs -> SongsView(context, data)
-                    HomePages.Albums -> AlbumsView(context, data)
-                    HomePages.Artists -> ArtistsView(context, data)
-                    HomePages.AlbumArtists -> AlbumArtistsView(context, data)
-                    HomePages.Genres -> GenresView(context, data)
-                    HomePages.Folders -> FoldersView(context, data)
-                    HomePages.Playlists -> PlaylistsView(context, data)
-                    HomePages.Tree -> TreeView(context, data)
+                    HomePages.ForYou -> ForYouView(context)
+                    HomePages.Songs -> SongsView(context)
+                    HomePages.Albums -> AlbumsView(context)
+                    HomePages.Artists -> ArtistsView(context)
+                    HomePages.AlbumArtists -> AlbumArtistsView(context)
+                    HomePages.Genres -> GenresView(context)
+                    HomePages.Folders -> FoldersView(context)
+                    HomePages.Playlists -> PlaylistsView(context)
+                    HomePages.Tree -> TreeView(context)
                 }
             }
         },

@@ -19,8 +19,11 @@ enum class PlaylistSortBy {
 }
 
 class PlaylistRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<String, Playlist>()
-    var favoritesId: String? = null
+    private val cache = ConcurrentHashMap<String, Playlist>()
+    private var favoritesId: String? = null
+    private val searcher = FuzzySearcher<String>(
+        options = listOf(FuzzySearchOption({ get(it)?.title }))
+    )
 
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
@@ -69,11 +72,25 @@ class PlaylistRepository(private val symphony: Symphony) {
         emitUpdate(false)
     }
 
+    fun search(playlistIds: List<String>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, playlistIds)
+        .subListNonStrict(limit ?: playlistIds.size)
+
+    fun sort(playlistIds: List<String>, by: PlaylistSortBy, reversed: Boolean): List<String> {
+        val sorted = when (by) {
+            PlaylistSortBy.CUSTOM -> playlistIds.toList()
+            PlaylistSortBy.TITLE -> playlistIds.sortedBy { get(it)?.title }
+            PlaylistSortBy.TRACKS_COUNT -> playlistIds.sortedBy { get(it)?.numberOfTracks }
+        }
+        return if (reversed) sorted.reversed() else sorted
+    }
+
     fun count() = cache.size
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
     fun get(id: String) = cache[id]
+    fun get(ids: List<String>) = ids.mapNotNull { get(it) }
     fun getFavorites() = favoritesId?.let { cache[it] } ?: createFavorites()
 
     fun createFavorites(): Playlist {
@@ -87,11 +104,11 @@ class PlaylistRepository(private val symphony: Symphony) {
         Playlist.fromM3U(symphony, local)
     }.getOrNull()
 
-    fun create(title: String, songs: List<Long>) = Playlist(
+    fun create(title: String, songIds: List<Long>) = Playlist(
         id = generatePlaylistId(),
         title = title,
-        songs = songs,
-        numberOfTracks = songs.size,
+        songIds = songIds,
+        numberOfTracks = songIds.size,
         local = null,
     )
 
@@ -107,40 +124,40 @@ class PlaylistRepository(private val symphony: Symphony) {
         save()
     }
 
-    suspend fun update(id: String, songs: List<Long>) {
+    suspend fun update(id: String, songIds: List<Long>) {
         val old = get(id) ?: return
         val new = Playlist(
             id = id,
             title = old.title,
-            songs = songs.distinctList(),
-            numberOfTracks = songs.size,
+            songIds = songIds.distinctList(),
+            numberOfTracks = songIds.size,
             local = null,
         )
         cache[id] = new
         emitAll()
-        if (id == favoritesId) emitFavorite(songs)
+        if (id == favoritesId) emitFavorite(songIds)
         save()
     }
 
-    fun isFavorite(song: Long): Boolean {
+    fun isFavorite(songId: Long): Boolean {
         val favorites = getFavorites()
-        return favorites.songs.contains(song)
+        return favorites.songIds.contains(songId)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
-    fun favorite(song: Long) {
+    fun favorite(songId: Long) {
         val favorites = getFavorites()
-        if (favorites.songs.contains(song)) return
+        if (favorites.songIds.contains(songId)) return
         symphony.groove.coroutineScope.launch {
-            update(favorites.id, favorites.songs.mutate { add(song) })
+            update(favorites.id, favorites.songIds.mutate { add(songId) })
         }
     }
 
-    fun unfavorite(song: Long) {
+    fun unfavorite(songId: Long) {
         val favorites = getFavorites()
-        if (!favorites.songs.contains(song)) return
+        if (!favorites.songIds.contains(songId)) return
         symphony.groove.coroutineScope.launch {
-            update(favorites.id, favorites.songs.mutate { remove(song) })
+            update(favorites.id, favorites.songIds.mutate { remove(songId) })
         }
     }
 
@@ -206,22 +223,5 @@ class PlaylistRepository(private val symphony: Symphony) {
 
         private fun getExternalVolumeUri(rowId: Long) =
             MediaStore.Files.getContentUri(FILES_EXTERNAL_VOLUME, rowId)
-
-        val searcher = FuzzySearcher<Playlist>(
-            options = listOf(FuzzySearchOption({ it.title }))
-        )
-
-        fun search(playlists: List<Playlist>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, playlists)
-            .subListNonStrict(limit ?: playlists.size)
-
-        fun sort(playlists: List<Playlist>, by: PlaylistSortBy, reversed: Boolean): List<Playlist> {
-            val sorted = when (by) {
-                PlaylistSortBy.CUSTOM -> playlists.toList()
-                PlaylistSortBy.TITLE -> playlists.sortedBy { it.title }
-                PlaylistSortBy.TRACKS_COUNT -> playlists.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
-        }
     }
 }

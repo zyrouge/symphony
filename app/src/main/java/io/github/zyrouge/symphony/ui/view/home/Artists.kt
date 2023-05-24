@@ -10,13 +10,13 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun ArtistsView(context: ViewContext) {
     val isUpdating by context.symphony.groove.artist.isUpdating.collectAsState()
-    val artists by context.symphony.groove.artist.all.collectAsState()
+    val artistIds by context.symphony.groove.artist.all.collectAsState()
 
     LoaderScaffold(context, isLoading = isUpdating) {
         ArtistGrid(
             context,
-            artists = artists,
-            artistsCount = artists.size,
+            artistIds = artistIds,
+            artistsCount = artistIds.size,
         )
     }
 }

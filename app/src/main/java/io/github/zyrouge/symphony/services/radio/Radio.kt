@@ -311,12 +311,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             val originalQueue = mutableListOf<Long>()
             val currentQueue = mutableListOf<Long>()
             previous.originalQueue.forEach { songId ->
-                if (symphony.groove.song.hasSongWithId(songId)) {
+                if (symphony.groove.song.get(songId) != null) {
                     originalQueue.add(songId)
                 }
             }
             previous.currentQueue.forEachIndexed { i, songId ->
-                if (symphony.groove.song.hasSongWithId(songId)) {
+                if (symphony.groove.song.get(songId) != null) {
                     currentQueue.add(songId)
                 } else {
                     if (i < currentSongIndex) currentSongIndex--

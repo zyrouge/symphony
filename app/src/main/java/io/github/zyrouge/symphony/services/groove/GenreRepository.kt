@@ -16,8 +16,11 @@ enum class GenreSortBy {
 }
 
 class GenreRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<String, Genre>()
-    val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val cache = ConcurrentHashMap<String, Genre>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val searcher = FuzzySearcher<String>(
+        options = listOf(FuzzySearchOption({ get(it)?.name }))
+    )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = MutableStateFlow<List<String>>(listOf())
@@ -48,29 +51,23 @@ class GenreRepository(private val symphony: Symphony) {
         emitAll()
     }
 
+    fun search(genreIds: List<String>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, genreIds)
+        .subListNonStrict(limit ?: genreIds.size)
+
+    fun sort(genreIds: List<String>, by: GenreSortBy, reversed: Boolean): List<String> {
+        val sorted = when (by) {
+            GenreSortBy.CUSTOM -> genreIds.toList()
+            GenreSortBy.GENRE -> genreIds.sortedBy { get(it)?.name }
+            GenreSortBy.TRACKS_COUNT -> genreIds.sortedBy { get(it)?.numberOfTracks }
+        }
+        return if (reversed) sorted.reversed() else sorted
+    }
+
     fun count() = cache.size
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
     fun get(id: String) = cache[id]
-    fun getSongIds(genre: String) = songIdsCache[genre] ?: listOf()
-
-    companion object {
-        val searcher = FuzzySearcher<Genre>(
-            options = listOf(FuzzySearchOption({ it.name }))
-        )
-
-        fun search(genres: List<Genre>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, genres)
-            .subListNonStrict(limit ?: genres.size)
-
-        fun sort(genres: List<Genre>, by: GenreSortBy, reversed: Boolean): List<Genre> {
-            val sorted = when (by) {
-                GenreSortBy.CUSTOM -> genres.toList()
-                GenreSortBy.GENRE -> genres.sortedBy { it.name }
-                GenreSortBy.TRACKS_COUNT -> genres.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
-        }
-    }
+    fun getSongIds(genre: String) = songIdsCache[genre]?.toList() ?: listOf()
 }

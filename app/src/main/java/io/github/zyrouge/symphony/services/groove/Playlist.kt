@@ -14,7 +14,7 @@ import org.json.JSONObject
 data class Playlist(
     val id: String,
     val title: String,
-    val songs: List<Long>,
+    val songIds: List<Long>,
     val numberOfTracks: Int,
     val local: Local?,
 ) {
@@ -40,8 +40,8 @@ data class Playlist(
     }
 
     fun createArtworkImageRequest(symphony: Symphony) =
-        songs.firstOrNull()
-            ?.let { symphony.groove.song.getSongWithId(it)?.createArtworkImageRequest(symphony) }
+        songIds.firstOrNull()
+            ?.let { symphony.groove.song.get(it)?.createArtworkImageRequest(symphony) }
             ?: ImageRequest.Builder(symphony.applicationContext)
                 .data(Assets.getPlaceholderUri(symphony.applicationContext))
 
@@ -52,7 +52,7 @@ data class Playlist(
         val json = JSONObject()
         json.put(PLAYLIST_ID_KEY, id)
         json.put(PLAYLIST_TITLE_KEY, title)
-        json.put(PLAYLIST_SONGS_KEY, JSONArray(songs))
+        json.put(PLAYLIST_SONGS_KEY, JSONArray(songIds))
         json.put(PLAYLIST_NUMBER_OF_TRACKS_KEY, numberOfTracks)
         return json
     }
@@ -69,7 +69,7 @@ data class Playlist(
             return Playlist(
                 id = serialized.getString(PLAYLIST_ID_KEY),
                 title = serialized.getString(PLAYLIST_TITLE_KEY),
-                songs = songs,
+                songIds = songs,
                 numberOfTracks = serialized.getInt(PLAYLIST_NUMBER_OF_TRACKS_KEY),
                 local = null,
             )
@@ -94,7 +94,7 @@ data class Playlist(
             return Playlist(
                 id = local.path,
                 title = path.basename.removeSuffix(".m3u"),
-                songs = songs,
+                songIds = songs,
                 numberOfTracks = songs.size,
                 local = local.local,
             )

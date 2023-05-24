@@ -79,7 +79,7 @@ object GrooveExplorer {
 
         companion object {
             private val isFileRegex = Regex(""".+\..+""")
-            private val intoPartsRegex = Regex("""\\|\/""")
+            private val intoPartsRegex = Regex("""[\\/]""")
 
             fun isAbsolute(path: String) = path.startsWith("/")
 

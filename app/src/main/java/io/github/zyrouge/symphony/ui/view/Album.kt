@@ -13,25 +13,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumView(context: ViewContext, albumId: Long) {
-    var album by remember {
-        mutableStateOf(context.symphony.groove.album.getAlbumWithId(albumId))
+    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
+    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val album by remember(allAlbumIds) {
+        derivedStateOf { context.symphony.groove.album.get(albumId) }
     }
-    val songsMutable = remember {
-        context.symphony.groove.album.getSongsOfAlbumId(albumId).toMutableStateList()
+    val songIds by remember(album, allSongIds) {
+        derivedStateOf { context.symphony.groove.album.getSongIds(albumId) }
     }
-    val songs = songsMutable.asImmutableList()
-    var isViable by remember { mutableStateOf(album != null) }
-
-    EventerEffect(context.symphony.groove.album.onUpdateEnd) {
-        album = context.symphony.groove.album.getAlbumWithId(albumId)
-        songsMutable.swap(context.symphony.groove.album.getSongsOfAlbumId(albumId))
-        isViable = album != null
+    val isViable by remember {
+        derivedStateOf { allAlbumIds.contains(albumId) }
     }
 
     Scaffold(
@@ -68,7 +63,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                 if (isViable) {
                     SongList(
                         context,
-                        songs = songs,
+                        songIds = songIds,
                         type = SongListType.Album,
                         leadingContent = {
                             item {

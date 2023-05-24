@@ -33,7 +33,7 @@ fun PlaylistsView(context: ViewContext) {
     LoaderScaffold(context, isLoading = isUpdating) {
         PlaylistGrid(
             context,
-            playlists = playlists,
+            playlistIds = playlists,
             leadingContent = {
                 PlaylistControlBar(
                     context,
@@ -60,8 +60,8 @@ fun PlaylistsView(context: ViewContext) {
             onSelected = { local ->
                 showPlaylistPicker = false
                 coroutineScope.launch {
-                    context.symphony.groove.playlist.parseLocalPlaylist(local)?.let { playlist ->
-                        context.symphony.groove.playlist.addPlaylist(playlist)
+                    context.symphony.groove.playlist.parseLocal(local)?.let { playlist ->
+                        context.symphony.groove.playlist.add(playlist)
                     } ?: run {
                         Toast.makeText(
                             context.symphony.applicationContext,
@@ -83,7 +83,7 @@ fun PlaylistsView(context: ViewContext) {
             onDone = { playlist ->
                 showPlaylistCreator = false
                 coroutineScope.launch {
-                    context.symphony.groove.playlist.addPlaylist(playlist)
+                    context.symphony.groove.playlist.add(playlist)
                 }
             },
             onDismissRequest = {
@@ -197,8 +197,8 @@ fun NewPlaylistDialog(
 ) {
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
-    val songs = remember { mutableStateListOf<Long>() }
-    val songsImmutable = songs.asImmutableList()
+    val songIds = remember { mutableStateListOf<Long>() }
+    val songIdsImmutable = songIds.asImmutableList()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(LocalContext.current) {
@@ -236,15 +236,15 @@ fun NewPlaylistDialog(
                     showSongsPicker = true
                 }
             ) {
-                Text(context.symphony.t.AddSongs + " (${songs.size})")
+                Text(context.symphony.t.AddSongs + " (${songIds.size})")
             }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 enabled = input.isNotBlank(),
                 onClick = {
-                    val playlist = context.symphony.groove.playlist.createNewPlaylist(
+                    val playlist = context.symphony.groove.playlist.create(
                         title = input,
-                        songs = songs,
+                        songIds = songIds,
                     )
                     onDone(playlist)
                 }
@@ -257,10 +257,10 @@ fun NewPlaylistDialog(
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
             context,
-            selectedSongs = songsImmutable,
+            selectedSongIds = songIdsImmutable,
             onDone = {
                 showSongsPicker = false
-                songs.swap(it)
+                songIds.swap(it)
             }
         )
     }

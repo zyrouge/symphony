@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -32,7 +31,7 @@ import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
 
 private data class SongExplorerResult(
     val folders: List<GrooveExplorer.Folder>,
-    val files: Map<Song, GrooveExplorer.File>,
+    val files: Map<Long, GrooveExplorer.File>,
 )
 
 private const val SongFolderContentType = "folder"
@@ -63,7 +62,7 @@ fun SongExplorerList(
     }
     val sortedEntities by remember(key) {
         derivedStateOf {
-            val categorized = currentFolder.categorizedChildren(context.symphony)
+            val categorized = currentFolder.categorizedChildren()
 
             SongExplorerResult(
                 folders = run {
@@ -73,7 +72,7 @@ fun SongExplorerList(
                     }
                     if (sortReverse) sorted.reversed() else sorted
                 },
-                files = SongRepository
+                files = context.symphony.groove.song
                     .sort(categorized.files.keys.toList(), sortBy, sortReverse)
                     .associateWith { categorized.files[it]!! },
             )
@@ -224,7 +223,7 @@ fun SongExplorerList(
                                         Icon(Icons.Default.MoreVert, null)
                                         GenericSongListDropdown(
                                             context,
-                                            songs = folder.childrenAsSongs(context.symphony),
+                                            songIds = folder.childrenAsSongIds(),
                                             expanded = showOptionsMenu,
                                             onDismissRequest = {
                                                 showOptionsMenu = false
@@ -236,14 +235,16 @@ fun SongExplorerList(
                         }
                         itemsIndexed(
                             sortedEntities.files.entries.toList(),
-                            key = { i, x -> "$i-${x.key.id}" },
+                            key = { i, x -> "$i-${x.key}" },
                             contentType = { _, _ -> GrooveKinds.SONG }
                         ) { i, entry ->
-                            SongCard(context, entry.key) {
-                                context.symphony.radio.shorty.playQueue(
-                                    sortedEntities.files.keys.toList(),
-                                    Radio.PlayOptions(index = i)
-                                )
+                            context.symphony.groove.song.get(entry.key)?.let { song ->
+                                SongCard(context, song) {
+                                    context.symphony.radio.shorty.playQueue(
+                                        sortedEntities.files.keys.toList(),
+                                        Radio.PlayOptions(index = i)
+                                    )
+                                }
                             }
                         }
                     }
@@ -254,32 +255,26 @@ fun SongExplorerList(
 
 private data class GrooveExplorerCategorizedData(
     val folders: List<GrooveExplorer.Folder>,
-    val files: Map<Song, GrooveExplorer.File>,
+    val files: Map<Long, GrooveExplorer.File>,
 )
 
-private fun GrooveExplorer.Folder.categorizedChildren(
-    symphony: Symphony
-): GrooveExplorerCategorizedData {
+private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategorizedData {
     val folders = mutableListOf<GrooveExplorer.Folder>()
-    val files = mutableMapOf<Song, GrooveExplorer.File>()
+    val files = mutableMapOf<Long, GrooveExplorer.File>()
     children.values.forEach { entity ->
         when (entity) {
             is GrooveExplorer.Folder -> folders.add(entity)
             is GrooveExplorer.File -> {
-                symphony.groove.song
-                    .getSongWithId(entity.data as Long)
-                    ?.let { song -> files[song] = entity }
+                files[entity.data as Long] = entity
             }
         }
     }
     return GrooveExplorerCategorizedData(folders = folders, files = files)
 }
 
-private fun GrooveExplorer.Folder.childrenAsSongs(
-    symphony: Symphony,
-) = children.values.mapNotNull { entity ->
+private fun GrooveExplorer.Folder.childrenAsSongIds() = children.values.mapNotNull { entity ->
     when (entity) {
-        is GrooveExplorer.File -> symphony.groove.song.getSongWithId(entity.data as Long)
+        is GrooveExplorer.File -> entity.data as Long
         else -> null
     }
 }

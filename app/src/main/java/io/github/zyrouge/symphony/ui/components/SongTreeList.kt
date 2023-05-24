@@ -22,20 +22,19 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
-import io.github.zyrouge.symphony.services.radio.RadioEvents
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.swap
 
 @Composable
 fun SongTreeList(
     context: ViewContext,
-    songs: List<Song>,
+    songIds: List<Long>,
     songsCount: Int? = null,
     initialDisabled: List<String>,
     onDisable: ((List<String>) -> Unit),
 ) {
     val tree by remember {
-        derivedStateOf { createLinearTree(songs) }
+        derivedStateOf { createLinearTree(context, songIds = songIds) }
     }
     val disabled = remember {
         mutableStateListOf<String>().apply {
@@ -60,12 +59,13 @@ fun SongTreeList(
     }
     val sortedTree by remember {
         derivedStateOf {
-            val pairs = GrooveExplorer.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
-                .map { it to SongRepository.sort(tree[it]!!, songsSortBy, songsSortReverse) }
+            val pairs = GrooveExplorer.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse).map {
+                it to context.symphony.groove.song.sort(tree[it]!!, songsSortBy, songsSortReverse)
+            }
             mapOf(*pairs.toTypedArray())
         }
     }
-    val sortedSongs by remember {
+    val sortedSongIds by remember {
         derivedStateOf { sortedTree.values.flatten().toList() }
     }
 
@@ -73,7 +73,7 @@ fun SongTreeList(
         mediaSortBar = {
             SongTreeListMediaSortBar(
                 context,
-                songsCount = songsCount ?: songs.size,
+                songsCount = songsCount ?: songIds.size,
                 pathsSortBy = pathsSortBy,
                 pathsSortReverse = pathsSortReverse,
                 songsSortBy = songsSortBy,
@@ -98,7 +98,7 @@ fun SongTreeList(
         },
         content = {
             when {
-                songs.isEmpty() -> IconTextBody(
+                songIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Default.MusicNote,
@@ -111,7 +111,7 @@ fun SongTreeList(
                 else -> SongTreeListContent(
                     context,
                     tree = sortedTree,
-                    songs = sortedSongs,
+                    songIds = sortedSongIds,
                     disabled = disabled,
                     togglePath = { dirname ->
                         when {
@@ -130,18 +130,19 @@ fun SongTreeList(
 @Composable
 fun SongTreeListContent(
     context: ViewContext,
-    tree: Map<String, List<Song>>,
-    songs: List<Song>,
+    tree: Map<String, List<Long>>,
+    songIds: List<Long>,
     disabled: List<String>,
     togglePath: (String) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
+    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsState()
 
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.drawScrollBar(lazyListState),
     ) {
-        tree.forEach { (dirname, children) ->
+        tree.forEach { (dirname, childSongIds) ->
             val show = !disabled.contains(dirname)
             val sepPadding = if (show) 4.dp else 0.dp
 
@@ -180,7 +181,7 @@ fun SongTreeListContent(
                                 )
                                 GenericSongListDropdown(
                                     context,
-                                    songs = children,
+                                    songIds = childSongIds,
                                     expanded = showOptionsMenu,
                                     onDismissRequest = {
                                         showOptionsMenu = false
@@ -196,113 +197,98 @@ fun SongTreeListContent(
             }
 
             if (show) {
-                items(children) { song ->
-                    var isCurrentPlaying by remember {
-                        mutableStateOf(
-                            song.id == context.symphony.radio.queue.currentPlayingSong?.id
-                        )
-                    }
-                    var isInFavorites by remember {
-                        mutableStateOf(
-                            context.symphony.groove.playlist.isInFavorites(
-                                song.id
-                            )
-                        )
-                    }
-
-                    EventerEffect(context.symphony.radio.onUpdate) {
-                        if (it == RadioEvents.StartPlaying || it == RadioEvents.StopPlaying) {
-                            isCurrentPlaying =
+                items(childSongIds) { songId ->
+                    context.symphony.groove.song.get(songId)?.let { song ->
+                        var isCurrentPlaying by remember {
+                            mutableStateOf(
                                 song.id == context.symphony.radio.queue.currentPlayingSong?.id
-                        }
-                    }
-
-                    EventerEffect(context.symphony.groove.playlist.onFavoritesUpdate) { favorites ->
-                        isInFavorites = favorites.contains(song.id)
-                    }
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(5.dp))
-                            .clickable {
-                                context.symphony.radio.shorty.playQueue(
-                                    songs,
-                                    Radio.PlayOptions(
-                                        index = songs.indexOf(song)
-                                    )
-                                )
-                            }
-                            .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
-                    ) {
-                        AsyncImage(
-                            song.createArtworkImageRequest(context.symphony)
-                                .build(),
-                            null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clip(RoundedCornerShape(5.dp)),
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                song.title,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    color = when {
-                                        isCurrentPlaying -> MaterialTheme.colorScheme.primary
-                                        else -> LocalTextStyle.current.color
-                                    }
-                                ),
                             )
-                            song.artistName?.let {
-                                Text(
-                                    it,
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
                         }
-                        Row {
-                            if (isInFavorites) {
+                        val isFavorite by remember {
+                            derivedStateOf { favoriteIds.contains(song.id) }
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(5.dp))
+                                .clickable {
+                                    context.symphony.radio.shorty.playQueue(
+                                        songIds,
+                                        Radio.PlayOptions(index = songIds.indexOf(song.id))
+                                    )
+                                }
+                                .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
+                        ) {
+                            AsyncImage(
+                                song.createArtworkImageRequest(context.symphony)
+                                    .build(),
+                                null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(RoundedCornerShape(5.dp)),
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    song.title,
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        color = when {
+                                            isCurrentPlaying -> MaterialTheme.colorScheme.primary
+                                            else -> LocalTextStyle.current.color
+                                        }
+                                    ),
+                                )
+                                song.artistName?.let {
+                                    Text(
+                                        it,
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
+                            }
+                            Row {
+                                if (isFavorite) {
+                                    SongTreeListSongCardIconButton(
+                                        icon = { modifier ->
+                                            Icon(
+                                                Icons.Default.Favorite,
+                                                null,
+                                                modifier = modifier,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                            )
+                                        },
+                                        onClick = {
+                                            context.symphony.groove.playlist.unfavorite(song.id)
+                                        }
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                var showOptionsMenu by remember { mutableStateOf(false) }
                                 SongTreeListSongCardIconButton(
                                     icon = { modifier ->
                                         Icon(
-                                            Icons.Default.Favorite,
+                                            Icons.Default.MoreVert,
                                             null,
                                             modifier = modifier,
-                                            tint = MaterialTheme.colorScheme.primary,
+                                        )
+                                        SongDropdownMenu(
+                                            context,
+                                            song,
+                                            isFavorite = isFavorite,
+                                            expanded = showOptionsMenu,
+                                            onDismissRequest = {
+                                                showOptionsMenu = false
+                                            }
                                         )
                                     },
                                     onClick = {
-                                        context.symphony.groove.playlist
-                                            .removeFromFavorites(song.id)
+                                        showOptionsMenu = !showOptionsMenu
                                     }
                                 )
                             }
-                            Spacer(modifier = Modifier.width(4.dp))
-
-                            var showOptionsMenu by remember { mutableStateOf(false) }
-                            SongTreeListSongCardIconButton(
-                                icon = { modifier ->
-                                    Icon(
-                                        Icons.Default.MoreVert,
-                                        null,
-                                        modifier = modifier,
-                                    )
-                                    SongDropdownMenu(
-                                        context,
-                                        song,
-                                        expanded = showOptionsMenu,
-                                        onDismissRequest = {
-                                            showOptionsMenu = false
-                                        }
-                                    )
-                                },
-                                onClick = {
-                                    showOptionsMenu = !showOptionsMenu
-                                }
-                            )
                         }
                     }
                 }
@@ -495,15 +481,16 @@ private fun PathSortBy.label(context: ViewContext) = when (this) {
     PathSortBy.NAME -> context.symphony.t.Name
 }
 
-private fun createLinearTree(songs: List<Song>): Map<String, List<Song>> {
-    val result = mutableMapOf<String, MutableList<Song>>()
-    songs.forEach { song ->
+private fun createLinearTree(context: ViewContext, songIds: List<Long>): Map<String, List<Long>> {
+    val result = mutableMapOf<String, MutableList<Long>>()
+    songIds.forEach { songId ->
+        val song = context.symphony.groove.song.get(songId) ?: return@forEach
         val parsedPath = GrooveExplorer.Path(song.path)
         val dirname = parsedPath.dirname.toString()
         if (!result.containsKey(dirname)) {
             result[dirname] = mutableListOf()
         }
-        result[dirname]!!.add(song)
+        result[dirname]!!.add(songId)
     }
     return result
 }

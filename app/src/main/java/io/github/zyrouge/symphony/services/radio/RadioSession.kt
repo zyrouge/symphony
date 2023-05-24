@@ -128,17 +128,6 @@ class RadioSession(val symphony: Symphony) {
             }
         )
         notification.start()
-        symphony.radio.onUpdate.subscribe {
-            when (it) {
-                RadioEvents.StartPlaying,
-                RadioEvents.PausePlaying,
-                RadioEvents.ResumePlaying,
-                RadioEvents.SongStaged,
-                RadioEvents.SongSeeked -> update()
-                RadioEvents.QueueEnded -> cancel()
-                else -> {}
-            }
-        }
     }
 
     fun handleAction(action: String) {
@@ -160,17 +149,19 @@ class RadioSession(val symphony: Symphony) {
         symphony.applicationContext.unregisterReceiver(receiver)
     }
 
-    private fun update() {
+    fun update() {
         symphony.groove.coroutineScope.launch {
             updateAsync()
         }
     }
 
     private suspend fun updateAsync() {
-        val song = symphony.radio.queue.currentPlayingSong ?: return
+        val song = symphony.radio.queue.getSongIdAt(symphony.radio.queue.currentSongIndex)?.let {
+            symphony.groove.song.get(it)
+        } ?: return
         currentSongId = song.id
 
-        val artworkUri = symphony.groove.album.getAlbumArtworkUri(song.albumId)
+        val artworkUri = symphony.groove.album.getArtworkUri(song.albumId)
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition

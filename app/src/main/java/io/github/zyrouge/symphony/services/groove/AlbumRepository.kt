@@ -21,8 +21,14 @@ enum class AlbumSortBy {
 }
 
 class AlbumRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<Long, Album>()
-    val songIdsCache = ConcurrentHashMap<Long, ConcurrentSet<Long>>()
+    private val cache = ConcurrentHashMap<Long, Album>()
+    private val songIdsCache = ConcurrentHashMap<Long, ConcurrentSet<Long>>()
+    private val searcher = FuzzySearcher<Long>(
+        options = listOf(
+            FuzzySearchOption({ get(it)?.name }, 3),
+            FuzzySearchOption({ get(it)?.artist })
+        )
+    )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = MutableStateFlow<List<Long>>(listOf())
@@ -67,33 +73,25 @@ class AlbumRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
+    fun search(albumIds: List<Long>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, albumIds)
+        .subListNonStrict(limit ?: albumIds.size)
+
+    fun sort(albumIds: List<Long>, by: AlbumSortBy, reversed: Boolean): List<Long> {
+        val sorted = when (by) {
+            AlbumSortBy.CUSTOM -> albumIds.toList()
+            AlbumSortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
+            AlbumSortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artist }
+            AlbumSortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
+        }
+        return if (reversed) sorted.reversed() else sorted
+    }
+
     fun count() = cache.size
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
-    fun get(albumId: Long) = cache[albumId]
+    fun get(id: Long) = cache[id]
+    fun get(ids: List<Long>) = ids.mapNotNull { get(it) }
     fun getSongIds(albumId: Long) = songIdsCache[albumId]?.toList() ?: listOf()
-
-    companion object {
-        val searcher = FuzzySearcher<Album>(
-            options = listOf(
-                FuzzySearchOption({ it.name }, 3),
-                FuzzySearchOption({ it.artist })
-            )
-        )
-
-        fun search(albums: List<Album>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, albums)
-            .subListNonStrict(limit ?: albums.size)
-
-        fun sort(albums: List<Album>, by: AlbumSortBy, reversed: Boolean): List<Album> {
-            val sorted = when (by) {
-                AlbumSortBy.CUSTOM -> albums.toList()
-                AlbumSortBy.ALBUM_NAME -> albums.sortedBy { it.name }
-                AlbumSortBy.ARTIST_NAME -> albums.sortedBy { it.artist }
-                AlbumSortBy.TRACKS_COUNT -> albums.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
-        }
-    }
 }

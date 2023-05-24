@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 class MediaStoreExposer(private val symphony: Symphony) {
-    var explorer = createExplorer()
-    val cache = ConcurrentHashMap<Long, Song>()
+    private val cache = ConcurrentHashMap<Long, Song>()
 
+    var explorer = createExplorer()
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
 

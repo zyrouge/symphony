@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddToPlaylistDialog(
     context: ViewContext,
-    songs: List<Long>,
+    songIds: List<Long>,
     onDismissRequest: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -55,9 +55,9 @@ fun AddToPlaylistDialog(
                             },
                             onClick = {
                                 coroutineScope.launch {
-                                    context.symphony.groove.playlist.updatePlaylistSongs(
-                                        playlist = playlist,
-                                        songs = playlist.songs.mutate { addAll(songs) },
+                                    context.symphony.groove.playlist.update(
+                                        playlist.id,
+                                        playlist.songIds.mutate { addAll(songIds) },
                                     )
                                     onDismissRequest()
                                 }

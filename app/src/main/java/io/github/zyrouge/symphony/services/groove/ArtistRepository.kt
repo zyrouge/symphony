@@ -19,9 +19,14 @@ enum class ArtistSortBy {
 }
 
 class ArtistRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<String, Artist>()
-    val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val cache = ConcurrentHashMap<String, Artist>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val searcher = FuzzySearcher<String>(
+        options = listOf(
+            FuzzySearchOption({ get(it)?.name })
+        )
+    )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = MutableStateFlow<List<String>>(listOf())
@@ -69,33 +74,26 @@ class ArtistRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
+    fun search(artistIds: List<String>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, artistIds)
+        .subListNonStrict(limit ?: artistIds.size)
+
+    fun sort(artistIds: List<String>, by: ArtistSortBy, reversed: Boolean): List<String> {
+        val sorted = when (by) {
+            ArtistSortBy.CUSTOM -> artistIds.toList()
+            ArtistSortBy.ARTIST_NAME -> artistIds.sortedBy { get(it)?.name }
+            ArtistSortBy.TRACKS_COUNT -> artistIds.sortedBy { get(it)?.numberOfTracks }
+            ArtistSortBy.ALBUMS_COUNT -> artistIds.sortedBy { get(it)?.numberOfTracks }
+        }
+        return if (reversed) sorted.reversed() else sorted
+    }
+
     fun count() = cache.size
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
-    fun get(artistName: String) = cache[artistName]
-    fun getAlbumIds(artistName: String) = albumIdsCache[artistName] ?: listOf()
+    fun get(id: String) = cache[id]
+    fun get(ids: List<String>) = ids.mapNotNull { get(it) }
+    fun getAlbumIds(artistName: String) = albumIdsCache[artistName]?.toList() ?: listOf()
     fun getSongIds(artistName: String) = songIdsCache[artistName]?.toList() ?: listOf()
-
-    companion object {
-        val searcher = FuzzySearcher<Artist>(
-            options = listOf(
-                FuzzySearchOption({ it.name })
-            )
-        )
-
-        fun search(artists: List<Artist>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, artists)
-            .subListNonStrict(limit ?: artists.size)
-
-        fun sort(artists: List<Artist>, by: ArtistSortBy, reversed: Boolean): List<Artist> {
-            val sorted = when (by) {
-                ArtistSortBy.CUSTOM -> artists.toList()
-                ArtistSortBy.ARTIST_NAME -> artists.sortedBy { it.name }
-                ArtistSortBy.TRACKS_COUNT -> artists.sortedBy { it.numberOfTracks }
-                ArtistSortBy.ALBUMS_COUNT -> artists.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
-        }
-    }
 }
