@@ -106,8 +106,8 @@ data class Song(
                         }
                         codec = extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
                             ?.let { prettyMimetype(it) }
+                        retriever.release()
                     }
-                    retriever.close()
                 }
                 return AdditionalMetadata(
                     albumArtist = albumArtist,
