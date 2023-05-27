@@ -11,12 +11,14 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun TreeView(context: ViewContext) {
     val isUpdating by context.symphony.groove.song.isUpdating.collectAsState()
     val songIds = context.symphony.groove.song.all
+    val songsCount by context.symphony.groove.song.count.collectAsState()
     val disabledTreePaths by context.symphony.settings.lastDisabledTreePaths.collectAsState()
 
     LoaderScaffold(context, isLoading = isUpdating) {
         SongTreeList(
             context,
             songIds = songIds,
+            songsCount = songsCount,
             initialDisabled = disabledTreePaths,
             onDisable = { paths ->
                 context.symphony.settings.setLastDisabledTreePaths(paths)

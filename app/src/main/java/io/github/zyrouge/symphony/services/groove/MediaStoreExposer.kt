@@ -72,6 +72,7 @@ class MediaStoreExposer(private val symphony: Symphony) {
             Logger.error("MediaStoreExposer", "fetch failed", err)
         }
         emitUpdate(false)
+        emitFinish()
     }
 
     fun reset() {
@@ -88,6 +89,14 @@ class MediaStoreExposer(private val symphony: Symphony) {
         symphony.groove.genre.onSong(song)
         symphony.groove.lyrics.onSong(song)
         symphony.groove.song.onSong(song)
+    }
+
+    private fun emitFinish() {
+        symphony.groove.albumArtist.onFinish()
+        symphony.groove.album.onFinish()
+        symphony.groove.artist.onFinish()
+        symphony.groove.genre.onFinish()
+        symphony.groove.song.onFinish()
     }
 
     companion object {

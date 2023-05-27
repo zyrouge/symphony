@@ -2,10 +2,7 @@ package io.github.zyrouge.symphony.services.groove
 
 import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.asList
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.utils.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
@@ -39,11 +36,15 @@ class SongRepository(private val symphony: Symphony) {
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = mutableStateListOf<Long>()
+    private val _allRapid = RapidMutableStateList(_all)
     val all = _all.asList()
+    private val _count = MutableStateFlow(0)
+    val count = _count.asStateFlow()
     private val _id = MutableStateFlow(System.currentTimeMillis())
     val id = _id.asStateFlow()
     var explorer = MediaStoreExposer.createExplorer()
 
+    private fun emitCount() = _count.tryEmit(cache.size)
     private fun emitIds() = _id.tryEmit(System.currentTimeMillis())
 
     internal fun onSong(song: Song) {
@@ -53,8 +54,11 @@ class SongRepository(private val symphony: Symphony) {
             .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
         entity.data = song.id
         emitIds()
-        _all.add(song.id)
+        _allRapid.add(song.id)
+        emitCount()
     }
+
+    internal fun onFinish() = _allRapid.sync()
 
     fun reset() {
         cache.clear()
@@ -62,6 +66,7 @@ class SongRepository(private val symphony: Symphony) {
         explorer = MediaStoreExposer.createExplorer()
         emitIds()
         _all.clear()
+        emitCount()
     }
 
     fun search(songIds: List<Long>, terms: String, limit: Int? = 7) = searcher

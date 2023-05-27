@@ -50,20 +50,12 @@ fun ForYouView(context: ViewContext) {
         songIds.isNotEmpty() -> {
             val sortedSongIds by remember {
                 derivedStateOf {
-                    context.symphony.groove.song.sort(
-                        songIds.toList(),
-                        sortBy,
-                        sortReverse,
-                    )
+                    context.symphony.groove.song.sort(songIds.toList(), sortBy, sortReverse)
                 }
             }
             val recentlyAddedSongs by remember {
                 derivedStateOf {
-                    context.symphony.groove.song.sort(
-                        songIds.toList(),
-                        SongSortBy.DATE_ADDED,
-                        reverse = true,
-                    )
+                    context.symphony.groove.song.sort(songIds.toList(), SongSortBy.DATE_ADDED, true)
                 }
             }
             val randomAlbums by remember {

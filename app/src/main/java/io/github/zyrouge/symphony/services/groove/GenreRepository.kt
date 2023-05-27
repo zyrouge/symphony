@@ -3,6 +3,8 @@ package io.github.zyrouge.symphony.services.groove
 import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class GenreSortBy {
@@ -20,7 +22,12 @@ class GenreRepository(private val symphony: Symphony) {
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = mutableStateListOf<String>()
+    private val _allRapid = RapidMutableStateList(_all)
     val all = _all.asList()
+    private val _count = MutableStateFlow(0)
+    val count = _count.asStateFlow()
+
+    private fun emitCount() = _count.tryEmit(cache.size)
 
     internal fun onSong(song: Song) {
         if (song.additional.genre == null) return
@@ -32,7 +39,8 @@ class GenreRepository(private val symphony: Symphony) {
             value?.apply {
                 numberOfTracks++
             } ?: run {
-                _all.add(song.additional.genre)
+                _allRapid.add(song.additional.genre)
+                emitCount()
                 Genre(
                     name = song.additional.genre,
                     numberOfTracks = 1,
@@ -41,10 +49,13 @@ class GenreRepository(private val symphony: Symphony) {
         }
     }
 
+    internal fun onFinish() = _allRapid.sync()
+
     fun reset() {
         cache.clear()
         songIdsCache.clear()
         _all.clear()
+        emitCount()
     }
 
     fun search(genreIds: List<String>, terms: String, limit: Int? = 7) = searcher

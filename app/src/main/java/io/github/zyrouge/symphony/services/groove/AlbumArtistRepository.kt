@@ -5,6 +5,8 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class AlbumArtistSortBy {
@@ -24,7 +26,12 @@ class AlbumArtistRepository(private val symphony: Symphony) {
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
     private val _all = mutableStateListOf<String>()
+    private val _allRapid = RapidMutableStateList(_all)
     val all = _all.asList()
+    private val _count = MutableStateFlow(0)
+    val count = _count.asStateFlow()
+
+    private fun emitCount() = _count.tryEmit(cache.size)
 
     internal fun onSong(song: Song) {
         if (song.additional.albumArtist == null) return
@@ -38,12 +45,13 @@ class AlbumArtistRepository(private val symphony: Symphony) {
             value?.apply { add(song.albumId) }
                 ?: ConcurrentSet(song.albumId)
         }
-        cache.compute(song.additional.albumArtist) { _, value ->
+        val albumArtist = cache.compute(song.additional.albumArtist) { _, value ->
             value?.apply {
                 numberOfAlbums = nNumberOfAlbums
                 numberOfTracks++
             } ?: run {
-                _all.add(song.additional.albumArtist)
+                _allRapid.add(song.additional.albumArtist)
+                emitCount()
                 AlbumArtist(
                     name = song.additional.albumArtist,
                     numberOfAlbums = 1,
@@ -53,9 +61,12 @@ class AlbumArtistRepository(private val symphony: Symphony) {
         }
     }
 
+    internal fun onFinish() = _allRapid.sync()
+
     fun reset() {
         cache.clear()
         _all.clear()
+        emitCount()
     }
 
     fun getArtworkUri(artistName: String) =

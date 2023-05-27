@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 fun PlaylistsView(context: ViewContext) {
     val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
     val playlists = context.symphony.groove.playlist.all
+    val playlistsCount by context.symphony.groove.playlist.count.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
@@ -32,6 +33,7 @@ fun PlaylistsView(context: ViewContext) {
         PlaylistGrid(
             context,
             playlistIds = playlists,
+            playlistsCount = playlistsCount,
             leadingContent = {
                 PlaylistControlBar(
                     context,
