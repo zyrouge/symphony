@@ -86,13 +86,13 @@ class RadioSession(val symphony: Symphony) {
 
                 override fun onRewind() {
                     super.onRewind()
-                    val duration = symphony.settings.getSeekBackDuration()
+                    val duration = symphony.settings.seekBackDuration.value
                     symphony.radio.shorty.seekFromCurrent(-duration)
                 }
 
                 override fun onFastForward() {
                     super.onFastForward()
-                    val duration = symphony.settings.getSeekForwardDuration()
+                    val duration = symphony.settings.seekForwardDuration.value
                     symphony.radio.shorty.seekFromCurrent(duration)
                 }
 
@@ -167,10 +167,11 @@ class RadioSession(val symphony: Symphony) {
     }
 
     private suspend fun updateAsync() {
-        val song = symphony.radio.queue.currentPlayingSong ?: return
+        val song = symphony.radio.queue.currentSongId
+            ?.let { symphony.groove.song.get(it) } ?: return
         currentSongId = song.id
 
-        val artworkUri = symphony.groove.album.getAlbumArtworkUri(song.albumId)
+        val artworkUri = symphony.groove.album.getArtworkUri(song.albumId)
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition

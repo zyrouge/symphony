@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.Song
 import kotlin.random.Random
 
 class RadioShorty(private val symphony: Symphony) {
@@ -65,16 +64,9 @@ class RadioShorty(private val symphony: Symphony) {
         symphony.radio.queue.setShuffleMode(shuffle)
     }
 
-    @JvmName("playQueueFromSongList")
     fun playQueue(
-        songs: List<Song>,
+        songId: Long,
         options: Radio.PlayOptions = Radio.PlayOptions(),
         shuffle: Boolean = false,
-    ) = playQueue(
-        songIds = songs.map { it.id },
-        options = options,
-        shuffle = shuffle,
-    )
-
-    fun playQueue(song: Song, shuffle: Boolean = false) = playQueue(listOf(song), shuffle = shuffle)
+    ) = playQueue(listOf(songId), options = options, shuffle = shuffle)
 }

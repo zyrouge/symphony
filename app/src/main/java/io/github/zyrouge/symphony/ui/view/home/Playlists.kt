@@ -18,20 +18,22 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable
-fun PlaylistsView(context: ViewContext, data: HomeViewData) {
+fun PlaylistsView(context: ViewContext) {
+    val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
+    val playlists = context.symphony.groove.playlist.all
+    val playlistsCount by context.symphony.groove.playlist.count.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
 
-    LoaderScaffold(context, isLoading = data.playlistsIsUpdating) {
+    LoaderScaffold(context, isLoading = isUpdating) {
         PlaylistGrid(
             context,
-            playlists = data.playlists,
+            playlistIds = playlists,
+            playlistsCount = playlistsCount,
             leadingContent = {
                 PlaylistControlBar(
                     context,
@@ -58,8 +60,8 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
             onSelected = { local ->
                 showPlaylistPicker = false
                 coroutineScope.launch {
-                    context.symphony.groove.playlist.parseLocalPlaylist(local)?.let { playlist ->
-                        context.symphony.groove.playlist.addPlaylist(playlist)
+                    context.symphony.groove.playlist.parseLocal(local)?.let { playlist ->
+                        context.symphony.groove.playlist.add(playlist)
                     } ?: run {
                         Toast.makeText(
                             context.symphony.applicationContext,
@@ -81,7 +83,7 @@ fun PlaylistsView(context: ViewContext, data: HomeViewData) {
             onDone = { playlist ->
                 showPlaylistCreator = false
                 coroutineScope.launch {
-                    context.symphony.groove.playlist.addPlaylist(playlist)
+                    context.symphony.groove.playlist.add(playlist)
                 }
             },
             onDismissRequest = {
@@ -195,8 +197,8 @@ fun NewPlaylistDialog(
 ) {
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
-    val songs = remember { mutableStateListOf<Long>() }
-    val songsImmutable = songs.asImmutableList()
+    val songIds = remember { mutableStateListOf<Long>() }
+    val songIdsImmutable = songIds.toList()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(LocalContext.current) {
@@ -234,15 +236,15 @@ fun NewPlaylistDialog(
                     showSongsPicker = true
                 }
             ) {
-                Text(context.symphony.t.AddSongs + " (${songs.size})")
+                Text(context.symphony.t.AddSongs + " (${songIds.size})")
             }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 enabled = input.isNotBlank(),
                 onClick = {
-                    val playlist = context.symphony.groove.playlist.createNewPlaylist(
+                    val playlist = context.symphony.groove.playlist.create(
                         title = input,
-                        songs = songs,
+                        songIds = songIds.toList(),
                     )
                     onDone(playlist)
                 }
@@ -255,10 +257,11 @@ fun NewPlaylistDialog(
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
             context,
-            selectedSongs = songsImmutable,
+            selectedSongIds = songIdsImmutable,
             onDone = {
                 showSongsPicker = false
-                songs.swap(it)
+                songIds.clear()
+                songIds.addAll(it)
             }
         )
     }

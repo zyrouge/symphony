@@ -2,10 +2,13 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.content.ContentUris
 import android.provider.MediaStore
+import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class AlbumSortBy {
@@ -16,31 +19,25 @@ enum class AlbumSortBy {
 }
 
 class AlbumRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<Long, Album>()
-    val songIdsCache = ConcurrentHashMap<Long, ConcurrentSet<Long>>()
-    var isUpdating = false
-    val onUpdateStart = Eventer.nothing()
-    val onUpdate = Eventer.nothing()
-    val onUpdateEnd = Eventer.nothing()
-    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
+    private val cache = ConcurrentHashMap<Long, Album>()
+    private val songIdsCache = ConcurrentHashMap<Long, ConcurrentSet<Long>>()
+    private val searcher = FuzzySearcher<Long>(
+        options = listOf(
+            FuzzySearchOption({ get(it)?.name }, 3),
+            FuzzySearchOption({ get(it)?.artist })
+        )
+    )
 
-    fun ready() {
-        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
-        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
-        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
-    }
+    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    private val _all = mutableStateListOf<Long>()
+    private val _allRapid = RapidMutableStateList(_all)
+    val all = _all.asList()
+    private val _count = MutableStateFlow(0)
+    val count = _count.asStateFlow()
 
-    private fun onFetchStart() {
-        isUpdating = true
-        onUpdateStart.dispatch()
-    }
+    private fun emitCount() = _count.tryEmit(cache.size)
 
-    private fun onFetchEnd() {
-        isUpdating = false
-        onUpdateEnd.dispatch()
-    }
-
-    private fun onSong(song: Song) {
+    internal fun onSong(song: Song) {
         if (song.albumName == null || song.artistName == null) return
         songIdsCache.compute(song.albumId) { _, value ->
             value?.apply { add(song.id) } ?: ConcurrentSet(song.id)
@@ -48,63 +45,64 @@ class AlbumRepository(private val symphony: Symphony) {
         cache.compute(song.albumId) { _, value ->
             value?.apply {
                 numberOfTracks++
-            } ?: Album(
-                id = song.albumId,
-                name = song.albumName,
-                artist = song.artistName,
-                numberOfTracks = 1,
-            )
+            } ?: run {
+                _allRapid.add(song.albumId)
+                emitCount()
+                Album(
+                    id = song.albumId,
+                    name = song.albumName,
+                    artist = song.artistName,
+                    numberOfTracks = 1,
+                )
+            }
         }
-        onUpdateRapidDispatcher.dispatch()
     }
+
+    internal fun onFinish() = _allRapid.sync()
 
     fun reset() {
         cache.clear()
         songIdsCache.clear()
-        onUpdate.dispatch()
+        _all.clear()
+        emitCount()
     }
 
-    fun getDefaultAlbumArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
+    fun getDefaultArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
 
-    fun getAlbumArtworkUri(albumId: Long) = ContentUris.withAppendedId(
+    fun getArtworkUri(albumId: Long) = ContentUris.withAppendedId(
         MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
         albumId
     )
 
-    fun createAlbumArtworkImageRequest(albumId: Long) = createHandyImageRequest(
+    fun createArtworkImageRequest(albumId: Long) = createHandyImageRequest(
         symphony.applicationContext,
-        image = getAlbumArtworkUri(albumId),
+        image = getArtworkUri(albumId),
         fallback = Assets.placeholderId,
     )
 
-    fun count() = cache.size
-    fun getAll() = cache.values.toList()
-    fun getAlbumWithId(albumId: Long) = cache[albumId]
+    fun search(albumIds: List<Long>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, albumIds)
+        .subListNonStrict(limit ?: albumIds.size)
 
-    fun getSongIdsOfAlbumId(albumId: Long) = songIdsCache[albumId]?.toList() ?: listOf()
-    fun getSongsOfAlbumId(albumId: Long) = getSongIdsOfAlbumId(albumId)
-        .mapNotNull { symphony.groove.song.getSongWithId(it) }
-
-    companion object {
-        val searcher = FuzzySearcher<Album>(
-            options = listOf(
-                FuzzySearchOption({ it.name }, 3),
-                FuzzySearchOption({ it.artist })
-            )
-        )
-
-        fun search(albums: List<Album>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, albums)
-            .subListNonStrict(limit ?: albums.size)
-
-        fun sort(albums: List<Album>, by: AlbumSortBy, reversed: Boolean): List<Album> {
-            val sorted = when (by) {
-                AlbumSortBy.CUSTOM -> albums.toList()
-                AlbumSortBy.ALBUM_NAME -> albums.sortedBy { it.name }
-                AlbumSortBy.ARTIST_NAME -> albums.sortedBy { it.artist }
-                AlbumSortBy.TRACKS_COUNT -> albums.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
+    fun sort(
+        albumIds: List<Long>,
+        by: AlbumSortBy,
+        reverse: Boolean
+    ): List<Long> {
+        val sorted = when (by) {
+            AlbumSortBy.CUSTOM -> albumIds
+            AlbumSortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
+            AlbumSortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artist }
+            AlbumSortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
         }
+        return if (reverse) sorted.reversed() else sorted
     }
+
+    fun count() = cache.size
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
+
+    fun get(id: Long) = cache[id]
+    fun get(ids: List<Long>) = ids.mapNotNull { get(it) }.toList()
+    fun getSongIds(albumId: Long) = songIdsCache[albumId]?.toList() ?: emptyList()
 }

@@ -39,15 +39,6 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    private fun ready() {
-        song.ready()
-        lyrics.ready()
-        album.ready()
-        artist.ready()
-        albumArtist.ready()
-        genre.ready()
-    }
-
     private suspend fun fetch() {
         coroutineScope.launch {
             mediaStore.fetch()
@@ -76,7 +67,6 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     }
 
     override fun onSymphonyReady() {
-        ready()
         coroutineScope.launch {
             fetch()
             readyDeferred.complete(true)

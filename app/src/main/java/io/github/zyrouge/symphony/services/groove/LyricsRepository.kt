@@ -11,25 +11,7 @@ class LyricsRepository(private val symphony: Symphony) {
     val previousSaveCache = ConcurrentHashMap<String, String>()
     val currentSaveCache = ConcurrentHashMap<String, String>()
 
-    fun ready() {
-        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
-        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
-        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
-    }
-
-    private fun onFetchStart() {
-        kotlin
-            .runCatching { symphony.database.lyricsCache.read() }
-            .getOrNull()
-            ?.let { previousSaveCache.putAll(it) }
-    }
-
-    private fun onFetchEnd() {
-        previousSaveCache.clear()
-        symphony.database.lyricsCache.update(currentSaveCache)
-    }
-
-    private fun onSong(song: Song) {
+    internal fun onSong(song: Song) {
         val saveCacheKey = constructSongCacheKey(song)
         previousSaveCache[saveCacheKey]?.let { lyrics ->
             cache[song.id] = lyrics
@@ -61,7 +43,7 @@ class LyricsRepository(private val symphony: Symphony) {
             lyrics?.let {
                 cache[song.id] = lyrics
                 currentSaveCache[constructSongCacheKey(song)] = lyrics
-                symphony.database.lyricsCache.update(currentSaveCache.toMap())
+                symphony.database.lyricsCache.update(currentSaveCache)
             }
             return lyrics
         } catch (err: Exception) {

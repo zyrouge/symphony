@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -90,21 +89,10 @@ fun HomeView(context: ViewContext) {
             !context.symphony.settings.getReadIntroductoryMessage()
         )
     }
-    val tabs = context.symphony.settings.getHomeTabs().toList()
-    val labelVisibility = context.symphony.settings.getHomePageBottomBarLabelVisibility()
-    var currentPage by remember {
-        mutableStateOf(context.symphony.settings.getHomeLastTab())
-    }
+    val tabs by context.symphony.settings.homeTabs.collectAsState()
+    val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
+    val currentTab by context.symphony.settings.homeLastTab.collectAsState()
     var showOptionsDropdown by remember { mutableStateOf(false) }
-    val data = remember { HomeViewData(context.symphony) }
-
-    LaunchedEffect(LocalContext.current) {
-        data.initialize()
-    }
-
-    DisposableEffect(LocalContext.current) {
-        onDispose { data.dispose() }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -124,7 +112,7 @@ fun HomeView(context: ViewContext) {
                     )
                 },
                 title = {
-                    Crossfade(targetState = currentPage.label(context)) {
+                    Crossfade(targetState = currentTab.label(context)) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -167,7 +155,7 @@ fun HomeView(context: ViewContext) {
         },
         content = { contentPadding ->
             AnimatedContent(
-                targetState = currentPage,
+                targetState = currentTab,
                 modifier = Modifier
                     .padding(contentPadding)
                     .fillMaxSize(),
@@ -177,15 +165,15 @@ fun HomeView(context: ViewContext) {
                 },
             ) { page ->
                 when (page) {
-                    HomePages.ForYou -> ForYouView(context, data)
-                    HomePages.Songs -> SongsView(context, data)
-                    HomePages.Albums -> AlbumsView(context, data)
-                    HomePages.Artists -> ArtistsView(context, data)
-                    HomePages.AlbumArtists -> AlbumArtistsView(context, data)
-                    HomePages.Genres -> GenresView(context, data)
-                    HomePages.Folders -> FoldersView(context, data)
-                    HomePages.Playlists -> PlaylistsView(context, data)
-                    HomePages.Tree -> TreeView(context, data)
+                    HomePages.ForYou -> ForYouView(context)
+                    HomePages.Songs -> SongsView(context)
+                    HomePages.Albums -> AlbumsView(context)
+                    HomePages.Artists -> ArtistsView(context)
+                    HomePages.AlbumArtists -> AlbumArtistsView(context)
+                    HomePages.Genres -> GenresView(context)
+                    HomePages.Folders -> FoldersView(context)
+                    HomePages.Playlists -> PlaylistsView(context)
+                    HomePages.Tree -> TreeView(context)
                 }
             }
         },
@@ -195,7 +183,7 @@ fun HomeView(context: ViewContext) {
                 NavigationBar {
                     Spacer(modifier = Modifier.width(2.dp))
                     tabs.map { page ->
-                        val isSelected = currentPage == page
+                        val isSelected = currentTab == page
                         val label = page.label(context)
                         NavigationBarItem(
                             selected = isSelected,
@@ -221,8 +209,7 @@ fun HomeView(context: ViewContext) {
                                 })
                             },
                             onClick = {
-                                currentPage = page
-                                context.symphony.settings.setHomeLastTab(currentPage)
+                                context.symphony.settings.setHomeLastTab(page)
                             }
                         )
                     }

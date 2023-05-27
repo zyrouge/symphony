@@ -1,10 +1,7 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.ConcurrentList
-import io.github.zyrouge.symphony.utils.swap
-import java.util.*
 
 enum class RadioLoopMode {
     None,
@@ -38,12 +35,11 @@ class RadioQueue(private val symphony: Symphony) {
             symphony.radio.onUpdate.dispatch(RadioEvents.LoopModeChanged)
         }
 
-    val currentPlayingSong: Song?
-        get() = if (hasSongAt(currentSongIndex)) getSongAt(currentSongIndex) else null
+    val currentSongId: Long?
+        get() = getSongIdAt(currentSongIndex)
 
     fun hasSongAt(index: Int) = index > -1 && index < currentQueue.size
-    fun getSongIdAt(index: Int) = currentQueue[index]
-    fun getSongAt(index: Int) = symphony.groove.song.getSongWithId(getSongIdAt(index))
+    fun getSongIdAt(index: Int) = if (hasSongAt(index)) currentQueue[index] else null
 
     fun reset() {
         originalQueue.clear()
@@ -69,19 +65,6 @@ class RadioQueue(private val symphony: Symphony) {
         }
         afterAdd(options)
     }
-
-    @JvmName("addToQueueFromSongList")
-    fun add(
-        songs: List<Song>,
-        index: Int? = null,
-        options: Radio.PlayOptions = Radio.PlayOptions()
-    ) = add(songs.map { it.id }, index, options)
-
-    fun add(
-        song: Song,
-        index: Int? = null,
-        options: Radio.PlayOptions = Radio.PlayOptions()
-    ) = add(song.id, index, options)
 
     fun add(
         songId: Long,
@@ -138,16 +121,18 @@ class RadioQueue(private val symphony: Symphony) {
     fun toggleShuffleMode() = setShuffleMode(!currentShuffleMode)
     fun setShuffleMode(to: Boolean) {
         currentShuffleMode = to
-        val currentSongId = getSongIdAt(currentSongIndex)
+        val currentSongId = getSongIdAt(currentSongIndex)!!
         currentSongIndex = if (currentShuffleMode) {
             val newQueue = originalQueue.toMutableList()
             newQueue.removeAt(currentSongIndex)
             newQueue.shuffle()
             newQueue.add(0, currentSongId)
-            currentQueue.swap(newQueue)
+            currentQueue.clear()
+            currentQueue.addAll(newQueue)
             0
         } else {
-            currentQueue.swap(originalQueue)
+            currentQueue.clear()
+            currentQueue.addAll(originalQueue)
             currentQueue.indexOfFirst { it == currentSongId }
         }
     }
@@ -175,8 +160,8 @@ class RadioQueue(private val symphony: Symphony) {
                 Serialized(
                     currentSongIndex = queue.currentSongIndex,
                     playedDuration = playbackPosition.played,
-                    originalQueue = queue.originalQueue,
-                    currentQueue = queue.currentQueue,
+                    originalQueue = queue.originalQueue.toList(),
+                    currentQueue = queue.currentQueue.toList(),
                     shuffled = queue.currentShuffleMode,
                 )
 
@@ -200,8 +185,10 @@ class RadioQueue(private val symphony: Symphony) {
     fun restore(serialized: Serialized) {
         if (serialized.originalQueue.isNotEmpty()) {
             symphony.radio.stop(ended = false)
-            originalQueue.swap(serialized.originalQueue)
-            currentQueue.swap(serialized.currentQueue)
+            originalQueue.clear()
+            originalQueue.addAll(serialized.originalQueue)
+            currentQueue.clear()
+            currentQueue.addAll(serialized.currentQueue)
             currentShuffleMode = serialized.shuffled
             afterAdd(
                 Radio.PlayOptions(

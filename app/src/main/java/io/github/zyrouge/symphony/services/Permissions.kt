@@ -41,7 +41,7 @@ class PermissionsManager(private val symphony: Symphony) {
             required.add(Manifest.permission.READ_MEDIA_AUDIO)
             required.add(Manifest.permission.POST_NOTIFICATIONS)
         }
-        return required.toList()
+        return required
     }
 
     private fun getState(activity: MainActivity): PermissionsState {

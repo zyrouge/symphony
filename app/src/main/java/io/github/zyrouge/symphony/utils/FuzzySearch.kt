@@ -14,11 +14,9 @@ data class FuzzyResultEntity<T>(
 )
 
 class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
-    fun search(terms: String, entities: List<T>): List<FuzzyResultEntity<T>> {
-        return entities
-            .map { compare(terms, it) }
-            .sortedByDescending { it.ratio }
-    }
+    fun search(terms: String, entities: List<T>) = entities
+        .map { compare(terms, it) }
+        .sortedByDescending { it.ratio }
 
     private fun compare(terms: String, entity: T): FuzzyResultEntity<T> {
         var ratio = 0f

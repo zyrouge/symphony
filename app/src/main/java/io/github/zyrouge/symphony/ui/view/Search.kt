@@ -24,12 +24,12 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import kotlinx.coroutines.*
 
 private data class SearchResult(
-    val songs: List<Song>,
-    val artists: List<Artist>,
-    val albums: List<Album>,
-    val albumArtists: List<AlbumArtist>,
-    val genres: List<Genre>,
-    val playlists: List<Playlist>,
+    val songIds: List<Long>,
+    val artistIds: List<String>,
+    val albumIds: List<Long>,
+    val albumArtistIds: List<String>,
+    val genreIds: List<String>,
+    val playlistIds: List<String>,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,64 +51,64 @@ fun SearchView(context: ViewContext) {
         currentTermsRoutine = coroutineScope.launch {
             withContext(Dispatchers.Default) {
                 delay(250)
-                val songs = mutableListOf<Song>()
-                val artists = mutableListOf<Artist>()
-                val albums = mutableListOf<Album>()
-                val albumArtists = mutableListOf<AlbumArtist>()
-                val genres = mutableListOf<Genre>()
-                val playlists = mutableListOf<Playlist>()
+                val songIds = mutableListOf<Long>()
+                val artistIds = mutableListOf<String>()
+                val albumIds = mutableListOf<Long>()
+                val albumArtistIds = mutableListOf<String>()
+                val genreIds = mutableListOf<String>()
+                val playlistIds = mutableListOf<String>()
 
                 if (nTerms.isNotEmpty()) {
                     if (isChipSelected(GrooveKinds.SONG)) {
-                        songs.addAll(
-                            SongRepository
-                                .search(context.symphony.groove.song.getAll(), terms)
+                        songIds.addAll(
+                            context.symphony.groove.song
+                                .search(context.symphony.groove.song.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ARTIST)) {
-                        artists.addAll(
-                            ArtistRepository
-                                .search(context.symphony.groove.artist.getAll(), terms)
+                        artistIds.addAll(
+                            context.symphony.groove.artist
+                                .search(context.symphony.groove.artist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM)) {
-                        albums.addAll(
-                            AlbumRepository
-                                .search(context.symphony.groove.album.getAll(), terms)
+                        albumIds.addAll(
+                            context.symphony.groove.album
+                                .search(context.symphony.groove.album.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM_ARTIST)) {
-                        albumArtists.addAll(
-                            AlbumArtistRepository
-                                .search(context.symphony.groove.albumArtist.getAll(), terms)
+                        albumArtistIds.addAll(
+                            context.symphony.groove.albumArtist
+                                .search(context.symphony.groove.albumArtist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.GENRE)) {
-                        genres.addAll(
-                            GenreRepository
-                                .search(context.symphony.groove.genre.getAll(), terms)
+                        genreIds.addAll(
+                            context.symphony.groove.genre
+                                .search(context.symphony.groove.genre.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.PLAYLIST)) {
-                        playlists.addAll(
-                            PlaylistRepository
-                                .search(context.symphony.groove.playlist.getAll(), terms)
+                        playlistIds.addAll(
+                            context.symphony.groove.playlist
+                                .search(context.symphony.groove.playlist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
 
                     results = SearchResult(
-                        songs = songs,
-                        artists = artists,
-                        albums = albums,
-                        albumArtists = albumArtists,
-                        genres = genres,
-                        playlists = playlists,
+                        songIds = songIds,
+                        artistIds = artistIds,
+                        albumIds = albumIds,
+                        albumArtistIds = albumArtistIds,
+                        genreIds = genreIds,
+                        playlistIds = playlistIds,
                     )
                 }
                 isSearching = false
@@ -195,14 +195,14 @@ fun SearchView(context: ViewContext) {
         },
         content = { contentPadding ->
             results?.run {
-                val hasSongs = isChipSelected(GrooveKinds.SONG) && songs.isNotEmpty()
-                val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artists.isNotEmpty()
-                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albums.isNotEmpty()
+                val hasSongs = isChipSelected(GrooveKinds.SONG) && songIds.isNotEmpty()
+                val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artistIds.isNotEmpty()
+                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albumIds.isNotEmpty()
                 val hasAlbumArtists =
-                    isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtists.isNotEmpty()
+                    isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtistIds.isNotEmpty()
                 val hasPlaylists =
-                    isChipSelected(GrooveKinds.PLAYLIST) && playlists.isNotEmpty()
-                val hasGenres = isChipSelected(GrooveKinds.GENRE) && genres.isNotEmpty()
+                    isChipSelected(GrooveKinds.PLAYLIST) && playlistIds.isNotEmpty()
+                val hasGenres = isChipSelected(GrooveKinds.GENRE) && genreIds.isNotEmpty()
                 val hasNoResults =
                     !hasSongs && !hasArtists && !hasAlbums && !hasAlbumArtists && !hasPlaylists && !hasGenres
 
@@ -249,139 +249,160 @@ fun SearchView(context: ViewContext) {
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                     if (hasSongs) {
                                         SideHeading(context, GrooveKinds.SONG)
-                                        songs.forEach { song ->
-                                            SongCard(context, song) {
-                                                context.symphony.radio.shorty.playQueue(song)
+                                        songIds.forEach { songId ->
+                                            context.symphony.groove.song.get(songId)?.let { song ->
+                                                SongCard(context, song) {
+                                                    context.symphony.radio.shorty.playQueue(song.id)
+                                                }
                                             }
                                         }
                                     }
                                     if (hasArtists) {
                                         SideHeading(context, GrooveKinds.ARTIST)
-                                        artists.forEach { artist ->
-                                            GenericGrooveCard(
-                                                image = artist
-                                                    .createArtworkImageRequest(context.symphony)
-                                                    .build(),
-                                                title = {
-                                                    Text(artist.name)
-                                                },
-                                                options = { expanded, onDismissRequest ->
-                                                    ArtistDropdownMenu(
-                                                        context,
-                                                        artist,
-                                                        expanded = expanded,
-                                                        onDismissRequest = onDismissRequest,
-                                                    )
-                                                },
-                                                onClick = {
-                                                    context.navController.navigate(
-                                                        RoutesBuilder.buildArtistRoute(artist.name)
+                                        artistIds.forEach { artistId ->
+                                            context.symphony.groove.artist.get(artistId)
+                                                ?.let { artist ->
+                                                    GenericGrooveCard(
+                                                        image = artist
+                                                            .createArtworkImageRequest(context.symphony)
+                                                            .build(),
+                                                        title = {
+                                                            Text(artist.name)
+                                                        },
+                                                        options = { expanded, onDismissRequest ->
+                                                            ArtistDropdownMenu(
+                                                                context,
+                                                                artist,
+                                                                expanded = expanded,
+                                                                onDismissRequest = onDismissRequest,
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            context.navController.navigate(
+                                                                RoutesBuilder.buildArtistRoute(
+                                                                    artist.name
+                                                                )
+                                                            )
+                                                        }
                                                     )
                                                 }
-                                            )
                                         }
                                     }
                                     if (hasAlbums) {
                                         SideHeading(context, GrooveKinds.ALBUM)
-                                        albums.forEach { album ->
-                                            GenericGrooveCard(
-                                                image = album
-                                                    .createArtworkImageRequest(context.symphony)
-                                                    .build(),
-                                                title = {
-                                                    Text(album.name)
-                                                },
-                                                subtitle = album.artist?.let { { Text(it) } },
-                                                options = { expanded, onDismissRequest ->
-                                                    AlbumDropdownMenu(
-                                                        context,
-                                                        album,
-                                                        expanded = expanded,
-                                                        onDismissRequest = onDismissRequest,
-                                                    )
-                                                },
-                                                onClick = {
-                                                    context.navController.navigate(
-                                                        RoutesBuilder.buildAlbumRoute(album.id)
+                                        albumIds.forEach { albumId ->
+                                            context.symphony.groove.album.get(albumId)
+                                                ?.let { album ->
+                                                    GenericGrooveCard(
+                                                        image = album
+                                                            .createArtworkImageRequest(context.symphony)
+                                                            .build(),
+                                                        title = {
+                                                            Text(album.name)
+                                                        },
+                                                        subtitle = album.artist?.let { { Text(it) } },
+                                                        options = { expanded, onDismissRequest ->
+                                                            AlbumDropdownMenu(
+                                                                context,
+                                                                album,
+                                                                expanded = expanded,
+                                                                onDismissRequest = onDismissRequest,
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            context.navController.navigate(
+                                                                RoutesBuilder.buildAlbumRoute(album.id)
+                                                            )
+                                                        }
                                                     )
                                                 }
-                                            )
                                         }
                                     }
                                     if (hasAlbumArtists) {
                                         SideHeading(context, GrooveKinds.ALBUM_ARTIST)
-                                        albumArtists.forEach { albumArtist ->
-                                            GenericGrooveCard(
-                                                image = albumArtist
-                                                    .createArtworkImageRequest(context.symphony)
-                                                    .build(),
-                                                title = {
-                                                    Text(albumArtist.name)
-                                                },
-                                                options = { expanded, onDismissRequest ->
-                                                    AlbumArtistDropdownMenu(
-                                                        context,
-                                                        albumArtist,
-                                                        expanded = expanded,
-                                                        onDismissRequest = onDismissRequest,
-                                                    )
-                                                },
-                                                onClick = {
-                                                    context.navController.navigate(
-                                                        RoutesBuilder.buildAlbumArtistRoute(
-                                                            albumArtist.name
-                                                        )
+                                        albumArtistIds.forEach { albumArtistId ->
+                                            context.symphony.groove.albumArtist.get(albumArtistId)
+                                                ?.let { albumArtist ->
+                                                    GenericGrooveCard(
+                                                        image = albumArtist
+                                                            .createArtworkImageRequest(context.symphony)
+                                                            .build(),
+                                                        title = {
+                                                            Text(albumArtist.name)
+                                                        },
+                                                        options = { expanded, onDismissRequest ->
+                                                            AlbumArtistDropdownMenu(
+                                                                context,
+                                                                albumArtist,
+                                                                expanded = expanded,
+                                                                onDismissRequest = onDismissRequest,
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            context.navController.navigate(
+                                                                RoutesBuilder.buildAlbumArtistRoute(
+                                                                    albumArtist.name
+                                                                )
+                                                            )
+                                                        }
                                                     )
                                                 }
-                                            )
                                         }
                                     }
                                     if (hasPlaylists) {
                                         SideHeading(context, GrooveKinds.PLAYLIST)
-                                        playlists.forEach { playlist ->
-                                            GenericGrooveCard(
-                                                image = playlist
-                                                    .createArtworkImageRequest(context.symphony)
-                                                    .build(),
-                                                title = {
-                                                    Text(playlist.title)
-                                                },
-                                                options = { expanded, onDismissRequest ->
-                                                    PlaylistDropdownMenu(
-                                                        context,
-                                                        playlist,
-                                                        expanded = expanded,
-                                                        onDismissRequest = onDismissRequest,
-                                                    )
-                                                },
-                                                onClick = {
-                                                    context.navController.navigate(
-                                                        RoutesBuilder.buildPlaylistRoute(playlist.id)
+                                        playlistIds.forEach { playlistId ->
+                                            context.symphony.groove.playlist.get(playlistId)
+                                                ?.let { playlist ->
+                                                    GenericGrooveCard(
+                                                        image = playlist
+                                                            .createArtworkImageRequest(context.symphony)
+                                                            .build(),
+                                                        title = {
+                                                            Text(playlist.title)
+                                                        },
+                                                        options = { expanded, onDismissRequest ->
+                                                            PlaylistDropdownMenu(
+                                                                context,
+                                                                playlist,
+                                                                expanded = expanded,
+                                                                onDismissRequest = onDismissRequest,
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            context.navController.navigate(
+                                                                RoutesBuilder.buildPlaylistRoute(
+                                                                    playlist.id
+                                                                )
+                                                            )
+                                                        }
                                                     )
                                                 }
-                                            )
                                         }
                                     }
                                     if (hasGenres) {
                                         SideHeading(context, GrooveKinds.GENRE)
-                                        genres.forEach { genre ->
-                                            GenericGrooveCard(
-                                                image = null,
-                                                title = { Text(genre.name) },
-                                                subtitle = {
-                                                    Text(
-                                                        context.symphony.t.XSongs(
-                                                            genre.numberOfTracks.toString()
-                                                        )
-                                                    )
-                                                },
-                                                options = null,
-                                                onClick = {
-                                                    context.navController.navigate(
-                                                        RoutesBuilder.buildGenreRoute(genre.name)
+                                        genreIds.forEach { genreId ->
+                                            context.symphony.groove.genre.get(genreId)
+                                                ?.let { genre ->
+                                                    GenericGrooveCard(
+                                                        image = null,
+                                                        title = { Text(genre.name) },
+                                                        subtitle = {
+                                                            Text(
+                                                                context.symphony.t.XSongs(
+                                                                    genre.numberOfTracks.toString()
+                                                                )
+                                                            )
+                                                        },
+                                                        options = null,
+                                                        onClick = {
+                                                            context.navController.navigate(
+                                                                RoutesBuilder.buildGenreRoute(genre.name)
+                                                            )
+                                                        }
                                                     )
                                                 }
-                                            )
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))

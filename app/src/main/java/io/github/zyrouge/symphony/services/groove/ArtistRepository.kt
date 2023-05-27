@@ -1,9 +1,12 @@
 package io.github.zyrouge.symphony.services.groove
 
+import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class ArtistSortBy {
@@ -14,32 +17,23 @@ enum class ArtistSortBy {
 }
 
 class ArtistRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<String, Artist>()
-    val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    var isUpdating = false
-    val onUpdateStart = Eventer.nothing()
-    val onUpdate = Eventer.nothing()
-    val onUpdateEnd = Eventer.nothing()
-    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
+    private val cache = ConcurrentHashMap<String, Artist>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val searcher = FuzzySearcher<String>(
+        options = listOf(FuzzySearchOption({ get(it)?.name }))
+    )
 
-    fun ready() {
-        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
-        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
-        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
-    }
+    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    private val _all = mutableStateListOf<String>()
+    private val _allRapid = RapidMutableStateList(_all)
+    val all = _all.asList()
+    private val _count = MutableStateFlow(0)
+    val count = _count.asStateFlow()
 
-    private fun onFetchStart() {
-        isUpdating = true
-        onUpdateStart.dispatch()
-    }
+    private fun emitCount() = _count.tryEmit(cache.size)
 
-    private fun onFetchEnd() {
-        isUpdating = false
-        onUpdateEnd.dispatch()
-    }
-
-    private fun onSong(song: Song) {
+    internal fun onSong(song: Song) {
         if (song.artistName == null) return
         songIdsCache.compute(song.artistName) { _, value ->
             value?.apply { add(song.id) }
@@ -55,61 +49,60 @@ class ArtistRepository(private val symphony: Symphony) {
             value?.apply {
                 numberOfAlbums = nNumberOfAlbums
                 numberOfTracks++
-            } ?: Artist(
-                name = song.artistName,
-                numberOfAlbums = 1,
-                numberOfTracks = 1,
-            )
+            } ?: run {
+                _allRapid.add(song.artistName)
+                emitCount()
+                Artist(
+                    name = song.artistName,
+                    numberOfAlbums = 1,
+                    numberOfTracks = 1,
+                )
+            }
         }
-        onUpdateRapidDispatcher.dispatch()
     }
+
+    internal fun onFinish() = _allRapid.sync()
 
     fun reset() {
         cache.clear()
-        onUpdate.dispatch()
+        _all.clear()
+        emitCount()
     }
 
-    fun getArtistArtworkUri(artistName: String) = albumIdsCache[artistName]?.firstOrNull()
-        ?.let { symphony.groove.album.getAlbumArtworkUri(it) }
-        ?: symphony.groove.album.getDefaultAlbumArtworkUri()
+    fun getArtworkUri(artistName: String) = albumIdsCache[artistName]?.firstOrNull()
+        ?.let { symphony.groove.album.getArtworkUri(it) }
+        ?: symphony.groove.album.getDefaultArtworkUri()
 
-    fun createArtistArtworkImageRequest(artistName: String) = createHandyImageRequest(
+    fun createArtworkImageRequest(artistName: String) = createHandyImageRequest(
         symphony.applicationContext,
-        image = getArtistArtworkUri(artistName),
+        image = getArtworkUri(artistName),
         fallback = Assets.placeholderId,
     )
 
-    fun count() = cache.size
-    fun getAll() = cache.values.toList()
-    fun getArtistFromArtistName(artistName: String) = cache[artistName]
+    fun search(artistIds: List<String>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, artistIds)
+        .subListNonStrict(limit ?: artistIds.size)
 
-    fun getAlbumIdsOfArtistName(artistName: String) = albumIdsCache[artistName] ?: listOf()
-    fun getAlbumsOfArtistName(artistName: String) = getAlbumIdsOfArtistName(artistName)
-        .mapNotNull { symphony.groove.album.getAlbumWithId(it) }
-
-    fun getSongIdsOfArtistName(artistName: String) = songIdsCache[artistName]?.toList() ?: listOf()
-    fun getSongsOfArtistName(artistName: String) = getSongIdsOfArtistName(artistName)
-        .mapNotNull { symphony.groove.song.getSongWithId(it) }
-
-    companion object {
-        val searcher = FuzzySearcher<Artist>(
-            options = listOf(
-                FuzzySearchOption({ it.name })
-            )
-        )
-
-        fun search(artists: List<Artist>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, artists)
-            .subListNonStrict(limit ?: artists.size)
-
-        fun sort(artists: List<Artist>, by: ArtistSortBy, reversed: Boolean): List<Artist> {
-            val sorted = when (by) {
-                ArtistSortBy.CUSTOM -> artists.toList()
-                ArtistSortBy.ARTIST_NAME -> artists.sortedBy { it.name }
-                ArtistSortBy.TRACKS_COUNT -> artists.sortedBy { it.numberOfTracks }
-                ArtistSortBy.ALBUMS_COUNT -> artists.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
+    fun sort(
+        artistIds: List<String>,
+        by: ArtistSortBy,
+        reverse: Boolean
+    ): List<String> {
+        val sorted = when (by) {
+            ArtistSortBy.CUSTOM -> artistIds
+            ArtistSortBy.ARTIST_NAME -> artistIds.sortedBy { get(it)?.name }
+            ArtistSortBy.TRACKS_COUNT -> artistIds.sortedBy { get(it)?.numberOfTracks }
+            ArtistSortBy.ALBUMS_COUNT -> artistIds.sortedBy { get(it)?.numberOfTracks }
         }
+        return if (reverse) sorted.reversed() else sorted
     }
+
+    fun count() = cache.size
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
+
+    fun get(id: String) = cache[id]
+    fun get(ids: List<String>) = ids.mapNotNull { get(it) }
+    fun getAlbumIds(artistName: String) = albumIdsCache[artistName]?.toList() ?: emptyList()
+    fun getSongIds(artistName: String) = songIdsCache[artistName]?.toList() ?: emptyList()
 }

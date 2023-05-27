@@ -45,14 +45,14 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
 
     var volume: Float = MAX_VOLUME
     val fadePlayback: Boolean
-        get() = symphony.settings.getFadePlayback()
+        get() = symphony.settings.fadePlayback.value
     val speed: Float
         get() = mediaPlayer?.playbackParams?.speed?.takeIf { it != 0f } ?: DEFAULT_SPEED
     val pitch: Float
         get() = mediaPlayer?.playbackParams?.pitch?.takeIf { it != 0f } ?: DEFAULT_PITCH
 
     private val fadePlaybackDuration: Int
-        get() = (symphony.settings.getFadePlaybackDuration() * 1000).toInt()
+        get() = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()
     private var fader: RadioEffects.Fader? = null
     val isPlaying: Boolean
         get() = mediaPlayer?.isPlaying ?: false
