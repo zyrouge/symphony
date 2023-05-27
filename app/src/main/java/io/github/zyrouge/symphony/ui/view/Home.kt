@@ -91,7 +91,7 @@ fun HomeView(context: ViewContext) {
     }
     val tabs by context.symphony.settings.homeTabs.collectAsState()
     val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
-    val currentPage by context.symphony.settings.homeLastTab.collectAsState()
+    val currentTab by context.symphony.settings.homeLastTab.collectAsState()
     var showOptionsDropdown by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -112,7 +112,7 @@ fun HomeView(context: ViewContext) {
                     )
                 },
                 title = {
-                    Crossfade(targetState = currentPage.label(context)) {
+                    Crossfade(targetState = currentTab.label(context)) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -155,7 +155,7 @@ fun HomeView(context: ViewContext) {
         },
         content = { contentPadding ->
             AnimatedContent(
-                targetState = currentPage,
+                targetState = currentTab,
                 modifier = Modifier
                     .padding(contentPadding)
                     .fillMaxSize(),
@@ -183,7 +183,7 @@ fun HomeView(context: ViewContext) {
                 NavigationBar {
                     Spacer(modifier = Modifier.width(2.dp))
                     tabs.map { page ->
-                        val isSelected = currentPage == page
+                        val isSelected = currentTab == page
                         val label = page.label(context)
                         NavigationBarItem(
                             selected = isSelected,
@@ -209,7 +209,7 @@ fun HomeView(context: ViewContext) {
                                 })
                             },
                             onClick = {
-                                context.symphony.settings.setHomeLastTab(currentPage)
+                                context.symphony.settings.setHomeLastTab(page)
                             }
                         )
                     }
