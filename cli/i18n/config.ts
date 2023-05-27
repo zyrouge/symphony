@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import path from "path";
 import { definePhraseyConfig } from "phrasey";
 import { Paths } from "../helpers/paths";
-import TranslationKeys from "./keys.json";
+import TranslationKeys from "../../i18n/keys.json";
 
 export const keys = TranslationKeys;
 

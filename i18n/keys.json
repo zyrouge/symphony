@@ -144,7 +144,9 @@
         "Default",
         "Traditional",
         "Enabled",
-        "Disabled"
+        "Disabled",
+        "ShowUpdateToast",
+        "SponsorViaKoFi"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],

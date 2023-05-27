@@ -6,11 +6,13 @@ Translations:
     UnknownSymbol: "?"
     HelloThere: Hello there!
     IntroductoryMessage: |
-        Thanks for choosing Symphony! If you encounter any technical difficulties, our GitHub Repository is the place to report them.
+        Thank you for being a part of Symphony open-beta. If you encounter any bugs or want to suggest improvements, kindly open an issue in our GitHub Repository.
 
-        Join our Discord and Reddit community to connect with other music lovers, get support, and stay up-to-date with the latest updates. Your generosity helps keep the development of Symphony going, so please consider supporting us through donations on GitHub Sponsors.
+        Join our Discord and Reddit community to share you feedback and to stay up-to-date with the development.
 
-        Once again, enjoy the music!
+        Symphony is entirely supported by donations made via Github Sponsors, Ko-fi and Patreon.
+
+        Once again, thank you for trying out Symphony!
     Songs: Songs
     Artists: Artists
     Albums: Albums
@@ -153,6 +155,8 @@ Translations:
     Traditional: Traditional
     Enabled: Enabled
     Disabled: Disabled
+    ShowUpdateToast: Show update toast
+    SponsorViaKoFi: Sponsor via Ko-fi
 
     # Dynamic
     PlayingXofY: Playing $x of $y

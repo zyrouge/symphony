@@ -5,7 +5,13 @@ import android.content.SharedPreferences
 import android.os.Environment
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.*
+import io.github.zyrouge.symphony.services.groove.AlbumArtistSortBy
+import io.github.zyrouge.symphony.services.groove.AlbumSortBy
+import io.github.zyrouge.symphony.services.groove.ArtistSortBy
+import io.github.zyrouge.symphony.services.groove.GenreSortBy
+import io.github.zyrouge.symphony.services.groove.PathSortBy
+import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
+import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
@@ -67,35 +73,8 @@ object SettingsKeys {
     const val miniPlayerSeekControls = "mini_player_seek_controls"
     const val fontFamily = "font_family"
     const val nowPlayingControlsLayout = "now_playing_controls_layout"
+    const val showUpdateToast = "show_update_toast"
 }
-
-data class SettingsData(
-    val themeMode: ThemeMode,
-    val language: String?,
-    val useMaterialYou: Boolean,
-    val songsFilterPattern: String?,
-    val checkForUpdates: Boolean,
-    val fadePlayback: Boolean,
-    val requireAudioFocus: Boolean,
-    val ignoreAudioFocusLoss: Boolean,
-    val playOnHeadphonesConnect: Boolean,
-    val pauseOnHeadphonesDisconnect: Boolean,
-    val primaryColor: String?,
-    val fadePlaybackDuration: Float,
-    val homeTabs: Set<HomePages>,
-    val homePageBottomBarLabelVisibility: HomePageBottomBarLabelVisibility,
-    val forYouContents: Set<ForYou>,
-    val blacklistFolders: Set<String>,
-    val whitelistFolders: Set<String>,
-    val nowPlayingAdditionalInfo: Boolean,
-    val nowPlayingSeekControls: Boolean,
-    val seekBackDuration: Int,
-    val seekForwardDuration: Int,
-    val miniPlayerTrackControls: Boolean,
-    val miniPlayerSeekControls: Boolean,
-    val fontFamily: String?,
-    val nowPlayingControlsLayout: NowPlayingControlsLayout,
-)
 
 object SettingsDefaults {
     val themeMode = ThemeMode.SYSTEM
@@ -110,7 +89,7 @@ object SettingsDefaults {
     val lastUsedPlaylistSongsSortBy = SongSortBy.CUSTOM
     val lastUsedAlbumSongsSortBy = SongSortBy.TITLE
     val lastUsedTreePathSortBy = PathSortBy.NAME
-    const val checkForUpdates = true
+    const val checkForUpdates = false
     const val fadePlayback = false
     const val requireAudioFocus = true
     const val ignoreAudioFocusLoss = false
@@ -142,6 +121,7 @@ object SettingsDefaults {
     const val miniPlayerTrackControls = false
     const val miniPlayerSeekControls = false
     val nowPlayingControlsLayout = NowPlayingControlsLayout.Default
+    val showUpdateToast = true
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -246,34 +226,8 @@ class SettingsManager(private val symphony: Symphony) {
     val fontFamily = _fontFamily.asStateFlow()
     private val _nowPlayingControlsLayout = MutableStateFlow(getNowPlayingControlsLayout())
     val nowPlayingControlsLayout = _nowPlayingControlsLayout.asStateFlow()
-
-    fun getSettings() = SettingsData(
-        themeMode = getThemeMode(),
-        language = getLanguage(),
-        useMaterialYou = getUseMaterialYou(),
-        songsFilterPattern = getSongsFilterPattern(),
-        checkForUpdates = getCheckForUpdates(),
-        fadePlayback = getFadePlayback(),
-        requireAudioFocus = getRequireAudioFocus(),
-        ignoreAudioFocusLoss = getIgnoreAudioFocusLoss(),
-        playOnHeadphonesConnect = getPlayOnHeadphonesConnect(),
-        pauseOnHeadphonesDisconnect = getPauseOnHeadphonesDisconnect(),
-        primaryColor = getPrimaryColor(),
-        fadePlaybackDuration = getFadePlaybackDuration(),
-        homeTabs = getHomeTabs(),
-        homePageBottomBarLabelVisibility = getHomePageBottomBarLabelVisibility(),
-        forYouContents = getForYouContents(),
-        blacklistFolders = getBlacklistFolders(),
-        whitelistFolders = getWhitelistFolders(),
-        nowPlayingAdditionalInfo = getNowPlayingAdditionalInfo(),
-        nowPlayingSeekControls = getNowPlayingSeekControls(),
-        seekBackDuration = getSeekBackDuration(),
-        seekForwardDuration = getSeekForwardDuration(),
-        miniPlayerTrackControls = getMiniPlayerTrackControls(),
-        miniPlayerSeekControls = getMiniPlayerSeekControls(),
-        fontFamily = getFontFamily(),
-        nowPlayingControlsLayout = getNowPlayingControlsLayout(),
-    )
+    private val _showUpdateToast = MutableStateFlow(getShowUpdateToast())
+    val showUpdateToast = _showUpdateToast.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -829,6 +783,18 @@ class SettingsManager(private val symphony: Symphony) {
             putEnum(SettingsKeys.nowPlayingControlsLayout, controlsLayout)
         }
         _nowPlayingControlsLayout.tryEmit(getNowPlayingControlsLayout())
+    }
+
+    fun getShowUpdateToast() = getSharedPreferences().getBoolean(
+        SettingsKeys.showUpdateToast,
+        SettingsDefaults.showUpdateToast,
+    )
+
+    fun setShowUpdateToast(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.showUpdateToast, value)
+        }
+        _showUpdateToast.tryEmit(getShowUpdateToast())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(

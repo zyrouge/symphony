@@ -55,6 +55,7 @@ fun SettingsView(context: ViewContext) {
     val blacklistFolders by context.symphony.settings.blacklistFolders.collectAsState()
     val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
     val checkForUpdates by context.symphony.settings.checkForUpdates.collectAsState()
+    val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
 
     val refetchLibrary = {
         context.symphony.radio.stop()
@@ -511,6 +512,7 @@ fun SettingsView(context: ViewContext) {
                             !isLatestVersion -> ({
                                 Text(context.symphony.t.NewVersionAvailableX(AppMeta.latestVersion!!))
                             })
+
                             else -> null
                         },
                         onClick = {
@@ -579,9 +581,19 @@ fun SettingsView(context: ViewContext) {
                             Icon(Icons.Default.Redeem, null)
                         },
                         title = {
+                            Text(context.symphony.t.SponsorViaKoFi)
+                        },
+                        url = AppMeta.koFiUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Redeem, null)
+                        },
+                        title = {
                             Text(context.symphony.t.SponsorViaPatreon)
                         },
-                        url = AppMeta.patreonSponsorsUrl
+                        url = AppMeta.patreonUrl
                     )
                     SettingsSwitchTile(
                         icon = {
@@ -593,6 +605,18 @@ fun SettingsView(context: ViewContext) {
                         value = checkForUpdates,
                         onChange = { value ->
                             context.symphony.settings.setCheckForUpdates(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Update, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowUpdateToast)
+                        },
+                        value = showUpdateToast,
+                        onChange = { value ->
+                            context.symphony.settings.setShowUpdateToast(value)
                         }
                     )
                     SettingsLinkTile(

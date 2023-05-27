@@ -4,12 +4,52 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.with
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SupervisorAccount
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.Album
+import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.QueueMusic
+import androidx.compose.material.icons.outlined.SupervisorAccount
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,8 +60,20 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.helpers.*
-import io.github.zyrouge.symphony.ui.view.home.*
+import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
+import io.github.zyrouge.symphony.ui.helpers.SlideTransition
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.view.home.AlbumArtistsView
+import io.github.zyrouge.symphony.ui.view.home.AlbumsView
+import io.github.zyrouge.symphony.ui.view.home.ArtistsView
+import io.github.zyrouge.symphony.ui.view.home.FoldersView
+import io.github.zyrouge.symphony.ui.view.home.ForYouView
+import io.github.zyrouge.symphony.ui.view.home.GenresView
+import io.github.zyrouge.symphony.ui.view.home.PlaylistsView
+import io.github.zyrouge.symphony.ui.view.home.SongsView
+import io.github.zyrouge.symphony.ui.view.home.TreeView
 
 enum class HomePages(
     val label: (context: ViewContext) -> String,
@@ -84,11 +136,7 @@ enum class HomePageBottomBarLabelVisibility {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeView(context: ViewContext) {
-    var showIntroductoryMessage by remember {
-        mutableStateOf(
-            !context.symphony.settings.getReadIntroductoryMessage()
-        )
-    }
+    val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.collectAsState()
     val tabs by context.symphony.settings.homeTabs.collectAsState()
     val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
     val currentTab by context.symphony.settings.homeLastTab.collectAsState()
@@ -219,11 +267,10 @@ fun HomeView(context: ViewContext) {
         }
     )
 
-    if (showIntroductoryMessage) {
+    if (!readIntroductoryMessage) {
         IntroductoryDialog(
             context,
             onDismissRequest = {
-                showIntroductoryMessage = false
                 context.symphony.settings.setReadIntroductoryMessage(true)
             },
         )

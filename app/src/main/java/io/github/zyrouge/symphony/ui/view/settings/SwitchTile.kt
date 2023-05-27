@@ -11,7 +11,7 @@ fun SettingsSwitchTile(
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     value: Boolean,
-    onChange: (Boolean) -> Unit
+    onChange: (Boolean) -> Unit,
 ) {
     Card(
         colors = SettingsTileDefaults.cardColors(),

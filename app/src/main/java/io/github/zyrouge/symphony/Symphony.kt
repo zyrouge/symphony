@@ -71,19 +71,18 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     }
 
     private fun checkVersion() {
+        if (!settings.checkForUpdates.value) return
         viewModelScope.launch {
-            val latestVersion = withContext(Dispatchers.IO) { AppMeta.fetchLatestVersion() }
-            latestVersion?.let {
-                withContext(Dispatchers.Main) {
-                    if (settings.checkForUpdates.value && AppMeta.version != it) {
-                        Toast
-                            .makeText(
-                                applicationContext,
-                                t.NewVersionAvailableX(it),
-                                Toast.LENGTH_SHORT
-                            )
-                            .show()
-                    }
+            val latestVersion = withContext(Dispatchers.IO) {
+                AppMeta.fetchLatestVersion()
+            } ?: return@launch
+            withContext(Dispatchers.Main) {
+                if (settings.showUpdateToast.value && AppMeta.version != latestVersion) {
+                    Toast.makeText(
+                        applicationContext,
+                        t.NewVersionAvailableX(latestVersion),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
             }
         }
