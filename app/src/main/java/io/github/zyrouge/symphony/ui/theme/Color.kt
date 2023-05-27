@@ -3,24 +3,23 @@ package io.github.zyrouge.symphony.ui.theme
 import androidx.compose.ui.graphics.Color
 
 enum class PrimaryThemeColors {
-    SYMPHONY_BLUE,
-    RED,
-    ORANGE,
-    AMBER,
-    YELLOW,
-    LIME,
-    GREEN,
-    EMERALD,
-    TEAL,
-    CYAN,
-    SKY,
-    BLUE,
-    INDIGO,
-    VIOLET,
-    PURPLE,
-    FUCHSIA,
-    PINK,
-    ROSE;
+    Red,
+    Orange,
+    Amber,
+    Yellow,
+    Lime,
+    Green,
+    Emerald,
+    Teal,
+    Cyan,
+    Sky,
+    Blue,
+    Indigo,
+    Violet,
+    Purple,
+    Fuchsia,
+    Pink,
+    Rose;
 
     fun toHumanString() = name
         .split("_")
@@ -30,7 +29,6 @@ enum class PrimaryThemeColors {
 }
 
 object ThemeColors {
-    val SymphonyBlue = Color(0xFF545DFF)
     val Red = Color(0xFFEF4444)
     val Orange = Color(0xFFF97316)
     val Amber = Color(0xFFF59E0B)
@@ -55,26 +53,25 @@ object ThemeColors {
     val Neutral800 = Color(0xFF262626)
     val Neutral900 = Color(0xFF171717)
 
-    val DefaultPrimaryColor = PrimaryThemeColors.SYMPHONY_BLUE
+    val DefaultPrimaryColor = PrimaryThemeColors.Purple
     val PrimaryColorsMap = mapOf(
-        PrimaryThemeColors.SYMPHONY_BLUE to SymphonyBlue,
-        PrimaryThemeColors.RED to Red,
-        PrimaryThemeColors.ORANGE to Orange,
-        PrimaryThemeColors.AMBER to Amber,
-        PrimaryThemeColors.YELLOW to Yellow,
-        PrimaryThemeColors.LIME to Lime,
-        PrimaryThemeColors.GREEN to Green,
-        PrimaryThemeColors.EMERALD to Emerald,
-        PrimaryThemeColors.TEAL to Teal,
-        PrimaryThemeColors.CYAN to Cyan,
-        PrimaryThemeColors.SKY to Sky,
-        PrimaryThemeColors.BLUE to Blue,
-        PrimaryThemeColors.INDIGO to Indigo,
-        PrimaryThemeColors.VIOLET to Violet,
-        PrimaryThemeColors.PURPLE to Purple,
-        PrimaryThemeColors.FUCHSIA to Fuchsia,
-        PrimaryThemeColors.PINK to Pink,
-        PrimaryThemeColors.ROSE to Rose,
+        PrimaryThemeColors.Red to Red,
+        PrimaryThemeColors.Orange to Orange,
+        PrimaryThemeColors.Amber to Amber,
+        PrimaryThemeColors.Yellow to Yellow,
+        PrimaryThemeColors.Lime to Lime,
+        PrimaryThemeColors.Green to Green,
+        PrimaryThemeColors.Emerald to Emerald,
+        PrimaryThemeColors.Teal to Teal,
+        PrimaryThemeColors.Cyan to Cyan,
+        PrimaryThemeColors.Sky to Sky,
+        PrimaryThemeColors.Blue to Blue,
+        PrimaryThemeColors.Indigo to Indigo,
+        PrimaryThemeColors.Violet to Violet,
+        PrimaryThemeColors.Purple to Purple,
+        PrimaryThemeColors.Fuchsia to Fuchsia,
+        PrimaryThemeColors.Pink to Pink,
+        PrimaryThemeColors.Rose to Rose,
     )
 
     fun resolvePrimaryColorKey(value: String?) =
