@@ -71,7 +71,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'androidx.media:media:1.6.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'io.coil-kt:coil-compose:2.2.2'
     implementation 'net.jthink:jaudiotagger:3.0.1'
 
