@@ -18,6 +18,7 @@ import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.contextWrapped
 
 private object GenreTile {
     val colors = mutableListOf(
@@ -49,14 +50,8 @@ fun GenreGrid(
     genreIds: List<String>,
     genresCount: Int? = null,
 ) {
-    var sortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedGenresSortBy() ?: GenreSortBy.GENRE
-        )
-    }
-    var sortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedGenresSortReverse())
-    }
+    val sortBy by context.symphony.settings.lastUsedGenresSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedGenresSortReverse.collectAsState()
     val sortedGenreIds by remember {
         derivedStateOf {
             context.symphony.groove.genre.sort(genreIds, sortBy, sortReverse)
@@ -70,13 +65,12 @@ fun GenreGrid(
                     context,
                     reverse = sortReverse,
                     onReverseChange = {
-                        sortReverse = it
                         context.symphony.settings.setLastUsedGenresSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = GenreSortBy.values().associateWith { x -> { x.label(it) } },
+                    sorts = GenreSortBy.values()
+                        .associateWith { x -> contextWrapped { x.label(it) } },
                     onSortChange = {
-                        sortBy = it
                         context.symphony.settings.setLastUsedGenresSortBy(it)
                     },
                     label = {

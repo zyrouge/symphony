@@ -42,7 +42,7 @@ class PlaylistsBox(val symphony: Symphony) {
             fun createFavoritesPlaylist() = Playlist(
                 id = PlaylistRepository.generatePlaylistId(),
                 title = "Favorites",
-                songIds = listOf(),
+                songIds = emptyList(),
                 numberOfTracks = 0,
                 local = null,
             )

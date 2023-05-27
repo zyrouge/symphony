@@ -43,7 +43,7 @@ class LyricsRepository(private val symphony: Symphony) {
             lyrics?.let {
                 cache[song.id] = lyrics
                 currentSaveCache[constructSongCacheKey(song)] = lyrics
-                symphony.database.lyricsCache.update(currentSaveCache.toMap())
+                symphony.database.lyricsCache.update(currentSaveCache)
             }
             return lyrics
         } catch (err: Exception) {

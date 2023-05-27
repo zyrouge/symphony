@@ -24,7 +24,7 @@ fun PlaylistManageSongsDialog(
     selectedSongIds: List<Long>,
     onDone: (List<Long>) -> Unit,
 ) {
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val allSongIds = context.symphony.groove.song.all
     val nSelectedSongIds = remember { selectedSongIds.toMutableStateList() }
     var terms by remember { mutableStateOf("") }
     val songIds by remember {

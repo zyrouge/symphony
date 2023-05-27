@@ -10,7 +10,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun AlbumsView(context: ViewContext) {
     val isUpdating by context.symphony.groove.album.isUpdating.collectAsState()
-    val albumIds by context.symphony.groove.album.all.collectAsState()
+    val albumIds = context.symphony.groove.album.all
 
     LoaderScaffold(context, isLoading = isUpdating) {
         AlbumGrid(

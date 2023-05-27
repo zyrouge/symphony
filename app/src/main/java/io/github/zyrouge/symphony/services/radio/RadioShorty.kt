@@ -65,8 +65,8 @@ class RadioShorty(private val symphony: Symphony) {
     }
 
     fun playQueue(
-        song: Long,
+        songId: Long,
         options: Radio.PlayOptions = Radio.PlayOptions(),
         shuffle: Boolean = false,
-    ) = playQueue(listOf(song), options = options, shuffle = shuffle)
+    ) = playQueue(listOf(songId), options = options, shuffle = shuffle)
 }

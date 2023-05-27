@@ -23,7 +23,6 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.swap
 
 @Composable
 fun SongTreeList(
@@ -34,39 +33,33 @@ fun SongTreeList(
     onDisable: ((List<String>) -> Unit),
 ) {
     val tree by remember {
-        derivedStateOf { createLinearTree(context, songIds = songIds) }
+        derivedStateOf { createLinearTree(context, songIds) }
     }
     val disabled = remember {
         mutableStateListOf<String>().apply {
-            swap(initialDisabled)
+            addAll(initialDisabled)
         }
     }
-    var pathsSortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedTreePathSortBy() ?: PathSortBy.NAME
-        )
-    }
-    var pathsSortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedTreePathSortReverse())
-    }
-    var songsSortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.FILENAME
-        )
-    }
-    var songsSortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedSongsSortReverse())
-    }
+    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.collectAsState()
+    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.collectAsState()
+    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
+    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
     val sortedTree by remember {
         derivedStateOf {
-            val pairs = GrooveExplorer.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse).map {
-                it to context.symphony.groove.song.sort(tree[it]!!, songsSortBy, songsSortReverse)
-            }
+            val pairs =
+                GrooveExplorer.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
+                    .map {
+                        it to context.symphony.groove.song.sort(
+                            tree[it]!!,
+                            songsSortBy,
+                            songsSortReverse
+                        )
+                    }
             mapOf(*pairs.toTypedArray())
         }
     }
     val sortedSongIds by remember {
-        derivedStateOf { sortedTree.values.flatten().toList() }
+        derivedStateOf { sortedTree.values.flatten() }
     }
 
     MediaSortBarScaffold(
@@ -79,19 +72,15 @@ fun SongTreeList(
                 songsSortBy = songsSortBy,
                 songsSortReverse = songsSortReverse,
                 setPathsSortBy = {
-                    pathsSortBy = it
                     context.symphony.settings.setLastUsedTreePathSortBy(it)
                 },
                 setPathsSortReverse = {
-                    pathsSortReverse = it
                     context.symphony.settings.setLastUsedTreePathSortReverse(it)
                 },
                 setSongsSortBy = {
-                    songsSortBy = it
                     context.symphony.settings.setLastUsedSongsSortBy(it)
                 },
                 setSongsSortReverse = {
-                    songsSortReverse = it
                     context.symphony.settings.setLastUsedSongsSortReverse(it)
                 },
             )
@@ -118,7 +107,7 @@ fun SongTreeList(
                             disabled.contains(dirname) -> disabled.remove(dirname)
                             else -> disabled.add(dirname)
                         }
-                        onDisable(disabled)
+                        onDisable(disabled.toList())
                     }
                 )
             }
@@ -136,7 +125,12 @@ fun SongTreeListContent(
     togglePath: (String) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val queue = context.symphony.radio.observatory.queue
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val currentPlayingSongId by remember {
+        derivedStateOf { queue.getOrNull(queueIndex) }
+    }
+    val favoriteIds = context.symphony.groove.playlist.favorites
 
     LazyColumn(
         state = lazyListState,
@@ -199,10 +193,8 @@ fun SongTreeListContent(
             if (show) {
                 items(childSongIds) { songId ->
                     context.symphony.groove.song.get(songId)?.let { song ->
-                        var isCurrentPlaying by remember {
-                            mutableStateOf(
-                                song.id == context.symphony.radio.queue.currentPlayingSong?.id
-                            )
+                        val isCurrentPlaying by remember {
+                            derivedStateOf { song.id == currentPlayingSongId }
                         }
                         val isFavorite by remember {
                             derivedStateOf { favoriteIds.contains(song.id) }
@@ -481,7 +473,10 @@ private fun PathSortBy.label(context: ViewContext) = when (this) {
     PathSortBy.NAME -> context.symphony.t.Name
 }
 
-private fun createLinearTree(context: ViewContext, songIds: List<Long>): Map<String, List<Long>> {
+private fun createLinearTree(
+    context: ViewContext,
+    songIds: List<Long>
+): Map<String, List<Long>> {
     val result = mutableMapOf<String, MutableList<Long>>()
     songIds.forEach { songId ->
         val song = context.symphony.groove.song.get(songId) ?: return@forEach

@@ -28,6 +28,7 @@ import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
+import io.github.zyrouge.symphony.utils.contextWrapped
 
 private data class SongExplorerResult(
     val folders: List<GrooveExplorer.Folder>,
@@ -52,14 +53,8 @@ fun SongExplorerList(
                 ?: explorer
         )
     }
-    var sortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedFolderSortBy() ?: SongSortBy.FILENAME
-        )
-    }
-    var sortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedFolderSortReverse())
-    }
+    val sortBy by context.symphony.settings.lastUsedFolderSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedFolderSortReverse.collectAsState()
     val sortedEntities by remember(key) {
         derivedStateOf {
             val categorized = currentFolder.categorizedChildren()
@@ -67,7 +62,8 @@ fun SongExplorerList(
             SongExplorerResult(
                 folders = run {
                     val sorted = when (sortBy) {
-                        SongSortBy.TITLE, SongSortBy.FILENAME -> categorized.folders.sortedBy { it.basename }
+                        SongSortBy.TITLE,
+                        SongSortBy.FILENAME -> categorized.folders.sortedBy { it.basename }
                         else -> categorized.folders
                     }
                     if (sortReverse) sorted.reversed() else sorted
@@ -130,13 +126,12 @@ fun SongExplorerList(
                     context,
                     reverse = sortReverse,
                     onReverseChange = {
-                        sortReverse = it
                         context.symphony.settings.setLastUsedFolderSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
+                    sorts = SongSortBy.values()
+                        .associateWith { x -> contextWrapped { x.label(it) } },
                     onSortChange = {
-                        sortBy = it
                         context.symphony.settings.setLastUsedFolderSortBy(it)
                     },
                     label = {
@@ -265,7 +260,7 @@ private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategoriz
         when (entity) {
             is GrooveExplorer.Folder -> folders.add(entity)
             is GrooveExplorer.File -> {
-                files[entity.data as Long] = entity
+                files.put(entity.data as Long, entity)
             }
         }
     }

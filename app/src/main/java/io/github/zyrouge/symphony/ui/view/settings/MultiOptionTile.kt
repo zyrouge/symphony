@@ -13,7 +13,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.strictEquals
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +57,7 @@ fun <T> SettingsMultiOptionTile(
             derivedStateOf { satisfies(nValue.toSet()) }
         }
         val modified by remember {
-            derivedStateOf { !nValue.strictEquals(value.toList()) }
+            derivedStateOf { nValue != value }
         }
 
         ScaffoldDialog(

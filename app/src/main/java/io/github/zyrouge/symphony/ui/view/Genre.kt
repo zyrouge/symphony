@@ -15,8 +15,8 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenreView(context: ViewContext, genreId: String) {
-    val allGenreIds by context.symphony.groove.genre.all.collectAsState()
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val allGenreIds = context.symphony.groove.genre.all
+    val allSongIds = context.symphony.groove.song.all
     val genre by remember(allGenreIds) {
         derivedStateOf { context.symphony.groove.genre.get(genreId) }
     }

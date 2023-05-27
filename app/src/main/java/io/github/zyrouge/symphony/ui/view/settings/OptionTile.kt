@@ -18,7 +18,7 @@ fun <T> SettingsOptionTile(
     title: @Composable () -> Unit,
     value: T,
     values: Map<T, String>,
-    onChange: (T) -> Unit
+    onChange: (T) -> Unit,
 ) {
     var isOpen by remember { mutableStateOf(false) }
 

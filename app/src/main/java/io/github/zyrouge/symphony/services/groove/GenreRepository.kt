@@ -1,12 +1,8 @@
 package io.github.zyrouge.symphony.services.groove
 
+import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.ConcurrentSet
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import io.github.zyrouge.symphony.utils.*
 import java.util.concurrent.ConcurrentHashMap
 
 enum class GenreSortBy {
@@ -23,10 +19,8 @@ class GenreRepository(private val symphony: Symphony) {
     )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
-    private val _all = MutableStateFlow<List<String>>(listOf())
-    val all = _all.asStateFlow()
-
-    private fun emitAll() = _all.tryEmit(ids())
+    private val _all = mutableStateListOf<String>()
+    val all = _all.asList()
 
     internal fun onSong(song: Song) {
         if (song.additional.genre == null) return
@@ -37,31 +31,37 @@ class GenreRepository(private val symphony: Symphony) {
         cache.compute(song.additional.genre) { _, value ->
             value?.apply {
                 numberOfTracks++
-            } ?: Genre(
-                name = song.additional.genre,
-                numberOfTracks = 1,
-            )
+            } ?: run {
+                _all.add(song.additional.genre)
+                Genre(
+                    name = song.additional.genre,
+                    numberOfTracks = 1,
+                )
+            }
         }
-        emitAll()
     }
 
     fun reset() {
         cache.clear()
         songIdsCache.clear()
-        emitAll()
+        _all.clear()
     }
 
     fun search(genreIds: List<String>, terms: String, limit: Int? = 7) = searcher
         .search(terms, genreIds)
         .subListNonStrict(limit ?: genreIds.size)
 
-    fun sort(genreIds: List<String>, by: GenreSortBy, reversed: Boolean): List<String> {
+    fun sort(
+        genreIds: List<String>,
+        by: GenreSortBy,
+        reverse: Boolean
+    ): List<String> {
         val sorted = when (by) {
-            GenreSortBy.CUSTOM -> genreIds.toList()
+            GenreSortBy.CUSTOM -> genreIds
             GenreSortBy.GENRE -> genreIds.sortedBy { get(it)?.name }
             GenreSortBy.TRACKS_COUNT -> genreIds.sortedBy { get(it)?.numberOfTracks }
         }
-        return if (reversed) sorted.reversed() else sorted
+        return if (reverse) sorted.reversed() else sorted
     }
 
     fun count() = cache.size
@@ -69,5 +69,5 @@ class GenreRepository(private val symphony: Symphony) {
     fun values() = cache.values.toList()
 
     fun get(id: String) = cache[id]
-    fun getSongIds(genre: String) = songIdsCache[genre]?.toList() ?: listOf()
+    fun getSongIds(genre: String) = songIdsCache[genre]?.toList() ?: emptyList()
 }

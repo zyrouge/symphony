@@ -12,11 +12,12 @@ fun FoldersView(context: ViewContext) {
     val isUpdating by context.symphony.groove.song.isUpdating.collectAsState()
     val id by context.symphony.groove.song.id.collectAsState()
     val explorer = context.symphony.groove.song.explorer
+    val lastUsedFolderPath by context.symphony.settings.lastUsedFolderPath.collectAsState()
 
     LoaderScaffold(context, isLoading = isUpdating) {
         SongExplorerList(
             context,
-            initialPath = context.symphony.settings.getLastUsedFolderPath(),
+            initialPath = lastUsedFolderPath,
             key = id,
             explorer = explorer,
             onPathChange = { path ->

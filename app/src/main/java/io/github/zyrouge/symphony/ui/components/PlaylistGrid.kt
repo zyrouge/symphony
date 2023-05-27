@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.contextWrapped
 
 @Composable
 fun PlaylistGrid(
@@ -18,14 +19,8 @@ fun PlaylistGrid(
     playlistsCount: Int? = null,
     leadingContent: @Composable () -> Unit = {},
 ) {
-    var sortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedPlaylistsSortBy() ?: PlaylistSortBy.TITLE,
-        )
-    }
-    var sortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedPlaylistsSortReverse())
-    }
+    val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.collectAsState()
     val sortedPlaylistIds by remember {
         derivedStateOf {
             context.symphony.groove.playlist.sort(playlistIds, sortBy, sortReverse)
@@ -40,13 +35,12 @@ fun PlaylistGrid(
                     context,
                     reverse = sortReverse,
                     onReverseChange = {
-                        sortReverse = it
                         context.symphony.settings.setLastUsedPlaylistsSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = PlaylistSortBy.values().associateWith { x -> { x.label(it) } },
+                    sorts = PlaylistSortBy.values()
+                        .associateWith { x -> contextWrapped { x.label(it) } },
                     onSortChange = {
-                        sortBy = it
                         context.symphony.settings.setLastUsedPlaylistsSortBy(it)
                     },
                     label = {

@@ -63,17 +63,13 @@ data class Playlist(
         const val PLAYLIST_SONGS_KEY = "songs"
         const val PLAYLIST_NUMBER_OF_TRACKS_KEY = "n_tracks"
 
-        fun fromJSONObject(serialized: JSONObject): Playlist {
-            val songs = serialized.getJSONArray(PLAYLIST_SONGS_KEY)
-                .toList { getLong(it) }
-            return Playlist(
-                id = serialized.getString(PLAYLIST_ID_KEY),
-                title = serialized.getString(PLAYLIST_TITLE_KEY),
-                songIds = songs,
-                numberOfTracks = serialized.getInt(PLAYLIST_NUMBER_OF_TRACKS_KEY),
-                local = null,
-            )
-        }
+        fun fromJSONObject(serialized: JSONObject) = Playlist(
+            id = serialized.getString(PLAYLIST_ID_KEY),
+            title = serialized.getString(PLAYLIST_TITLE_KEY),
+            songIds = serialized.getJSONArray(PLAYLIST_SONGS_KEY).toList { getLong(it) },
+            numberOfTracks = serialized.getInt(PLAYLIST_NUMBER_OF_TRACKS_KEY),
+            local = null,
+        )
 
         fun fromM3U(symphony: Symphony, local: LocalExtended): Playlist {
             val path = GrooveExplorer.Path(local.path)

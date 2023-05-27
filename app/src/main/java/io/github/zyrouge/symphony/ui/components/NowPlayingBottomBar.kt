@@ -28,9 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -40,45 +38,19 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext) {
-    var currentPlayingSong by remember {
-        mutableStateOf(context.symphony.radio.queue.currentPlayingSong)
-    }
-    var isPlaying by remember { mutableStateOf(context.symphony.radio.isPlaying) }
-    var showTrackControls by remember {
-        mutableStateOf(context.symphony.settings.getMiniPlayerTrackControls())
-    }
-    var showSeekControls by remember {
-        mutableStateOf(context.symphony.settings.getMiniPlayerSeekControls())
-    }
-    var seekBackDuration by remember {
-        mutableStateOf(context.symphony.settings.getSeekBackDuration())
-    }
-    var seekForwardDuration by remember {
-        mutableStateOf(context.symphony.settings.getSeekForwardDuration())
-    }
-
-    EventerEffect(context.symphony.radio.onUpdate) {
-        currentPlayingSong = context.symphony.radio.queue.currentPlayingSong
-        isPlaying = context.symphony.radio.isPlaying
-    }
-
-    EventerEffect(context.symphony.settings.onChange) { key ->
-        when (key) {
-            SettingsKeys.miniPlayerTrackControls -> {
-                showTrackControls = context.symphony.settings.getMiniPlayerTrackControls()
-            }
-            SettingsKeys.miniPlayerSeekControls -> {
-                showSeekControls = context.symphony.settings.getMiniPlayerSeekControls()
-            }
-            SettingsKeys.seekBackDuration -> {
-                seekBackDuration = context.symphony.settings.getSeekBackDuration()
-            }
-            SettingsKeys.seekForwardDuration -> {
-                seekForwardDuration = context.symphony.settings.getSeekForwardDuration()
-            }
-            else -> {}
+    val queue = context.symphony.radio.observatory.queue
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val currentPlayingSong by remember {
+        derivedStateOf {
+            queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
         }
     }
+    val isPlaying by context.symphony.radio.observatory.isPlaying.collectAsState()
+    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
+    val showTrackControls by context.symphony.settings.miniPlayerTrackControls.collectAsState()
+    val showSeekControls by context.symphony.settings.miniPlayerSeekControls.collectAsState()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
 
     AnimatedVisibility(
         visible = currentPlayingSong != null,
@@ -99,14 +71,6 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         .height(2.dp)
                         .fillMaxWidth()
                 ) {
-                    var duration by remember {
-                        mutableStateOf(
-                            context.symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
-                        )
-                    }
-                    EventerEffect(context.symphony.radio.onPlaybackPositionUpdate) {
-                        duration = it
-                    }
                     Box(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.primary.copy(0.3f))
@@ -117,7 +81,7 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         modifier = Modifier
                             .align(Alignment.CenterStart)
                             .background(MaterialTheme.colorScheme.primary)
-                            .fillMaxWidth(duration.ratio)
+                            .fillMaxWidth(playbackPosition.ratio)
                             .fillMaxHeight()
                     )
                 }
@@ -221,7 +185,9 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         if (showSeekControls) {
                             IconButton(
                                 onClick = {
-                                    context.symphony.radio.shorty.seekFromCurrent(seekBackDuration)
+                                    context.symphony.radio.shorty.seekFromCurrent(
+                                        seekForwardDuration
+                                    )
                                 }
                             ) {
                                 Icon(Icons.Default.FastForward, null)

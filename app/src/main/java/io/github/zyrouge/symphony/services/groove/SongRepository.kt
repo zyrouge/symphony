@@ -1,8 +1,10 @@
 package io.github.zyrouge.symphony.services.groove
 
+import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.asList
 import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,16 +38,13 @@ class SongRepository(private val symphony: Symphony) {
     )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
-    private val _all = MutableStateFlow<List<Long>>(listOf())
-    val all = _all.asStateFlow()
+    private val _all = mutableStateListOf<Long>()
+    val all = _all.asList()
     private val _id = MutableStateFlow(System.currentTimeMillis())
     val id = _id.asStateFlow()
     var explorer = MediaStoreExposer.createExplorer()
 
-    private fun emitAll() {
-        _all.tryEmit(ids())
-        _id.tryEmit(System.currentTimeMillis())
-    }
+    private fun emitIds() = _id.tryEmit(System.currentTimeMillis())
 
     internal fun onSong(song: Song) {
         cache[song.id] = song
@@ -53,23 +52,25 @@ class SongRepository(private val symphony: Symphony) {
         val entity = explorer
             .addRelativePath(GrooveExplorer.Path(song.path)) as GrooveExplorer.File
         entity.data = song.id
-        emitAll()
+        emitIds()
+        _all.add(song.id)
     }
 
     fun reset() {
         cache.clear()
         pathCache.clear()
         explorer = MediaStoreExposer.createExplorer()
-        emitAll()
+        emitIds()
+        _all.clear()
     }
 
     fun search(songIds: List<Long>, terms: String, limit: Int? = 7) = searcher
         .search(terms, songIds)
         .subListNonStrict(limit ?: songIds.size)
 
-    fun sort(songIds: List<Long>, by: SongSortBy, reversed: Boolean): List<Long> {
+    fun sort(songIds: List<Long>, by: SongSortBy, reverse: Boolean): List<Long> {
         val sorted = when (by) {
-            SongSortBy.CUSTOM -> songIds.toList()
+            SongSortBy.CUSTOM -> songIds
             SongSortBy.TITLE -> songIds.sortedBy { get(it)?.title }
             SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artistName }
             SongSortBy.ALBUM -> songIds.sortedBy { get(it)?.albumName }
@@ -82,7 +83,7 @@ class SongRepository(private val symphony: Symphony) {
             SongSortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
             SongSortBy.TRACK_NUMBER -> songIds.sortedBy { get(it)?.trackNumber }
         }
-        return if (reversed) sorted.reversed() else sorted
+        return if (reverse) sorted.reversed() else sorted
     }
 
     fun count() = cache.size

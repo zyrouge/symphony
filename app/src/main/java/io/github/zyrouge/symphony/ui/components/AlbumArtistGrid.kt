@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import io.github.zyrouge.symphony.services.groove.AlbumArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.contextWrapped
 
 @Composable
 fun AlbumArtistGrid(
@@ -16,15 +17,8 @@ fun AlbumArtistGrid(
     albumArtistIds: List<String>,
     albumArtistsCount: Int? = null,
 ) {
-    var sortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedAlbumArtistsSortBy()
-                ?: AlbumArtistSortBy.ARTIST_NAME
-        )
-    }
-    var sortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedAlbumArtistsSortReverse())
-    }
+    val sortBy by context.symphony.settings.lastUsedAlbumArtistsSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedAlbumArtistsSortReverse.collectAsState()
     val sortedAlbumArtistIds by remember {
         derivedStateOf {
             context.symphony.groove.albumArtist.sort(albumArtistIds, sortBy, sortReverse)
@@ -37,13 +31,12 @@ fun AlbumArtistGrid(
                 context,
                 reverse = sortReverse,
                 onReverseChange = {
-                    sortReverse = it
                     context.symphony.settings.setLastUsedAlbumArtistsSortReverse(it)
                 },
                 sort = sortBy,
-                sorts = AlbumArtistSortBy.values().associateWith { x -> { x.label(it) } },
+                sorts = AlbumArtistSortBy.values()
+                    .associateWith { x -> contextWrapped { x.label(context) } },
                 onSortChange = {
-                    sortBy = it
                     context.symphony.settings.setLastUsedAlbumArtistsSortBy(it)
                 },
                 label = {

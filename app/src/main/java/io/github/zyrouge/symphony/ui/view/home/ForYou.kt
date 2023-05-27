@@ -39,28 +39,30 @@ enum class ForYou(val label: (context: ViewContext) -> String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouView(context: ViewContext) {
-    val albumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
-    val albumIds by context.symphony.groove.album.all.collectAsState()
-    val artistIds by context.symphony.groove.artist.all.collectAsState()
-    val songIds by context.symphony.groove.song.all.collectAsState()
+    val albumArtistIds = context.symphony.groove.albumArtist.all
+    val albumIds = context.symphony.groove.album.all
+    val artistIds = context.symphony.groove.artist.all
+    val songIds = context.symphony.groove.song.all
+    val sortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
 
     when {
         songIds.isNotEmpty() -> {
             val sortedSongIds by remember {
                 derivedStateOf {
                     context.symphony.groove.song.sort(
-                        songIds,
-                        context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE,
-                        reversed = context.symphony.settings.getLastUsedSongsSortReverse(),
+                        songIds.toList(),
+                        sortBy,
+                        sortReverse,
                     )
                 }
             }
             val recentlyAddedSongs by remember {
                 derivedStateOf {
                     context.symphony.groove.song.sort(
-                        songIds,
+                        songIds.toList(),
                         SongSortBy.DATE_ADDED,
-                        reversed = true,
+                        reverse = true,
                     )
                 }
             }
@@ -74,10 +76,7 @@ fun ForYouView(context: ViewContext) {
                 derivedStateOf { albumArtistIds.randomSubList(6) }
             }
 
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-            ) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Row(modifier = Modifier.padding(20.dp, 0.dp)) {
                     Box(modifier = Modifier.weight(1f)) {
                         ForYouButton(
@@ -99,7 +98,7 @@ fun ForYouView(context: ViewContext) {
                             },
                             onClick = {
                                 context.symphony.radio.shorty.playQueue(
-                                    songIds,
+                                    songIds.toList(),
                                     shuffle = true,
                                 )
                             }
@@ -214,7 +213,7 @@ fun ForYouView(context: ViewContext) {
                         Spacer(modifier = Modifier.width(12.dp))
                     }
                 }
-                val contents = context.symphony.settings.getForYouContents().toList()
+                val contents by context.symphony.settings.forYouContents.collectAsState()
                 contents.forEach {
                     when (it) {
                         ForYou.Albums -> SuggestedAlbums(
@@ -348,7 +347,11 @@ private fun SuggestedAlbums(context: ViewContext, albumIds: List<Long>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SuggestedArtists(context: ViewContext, label: String, artistIds: List<String>) {
+private fun SuggestedArtists(
+    context: ViewContext,
+    label: String,
+    artistIds: List<String>,
+) {
     val artists by remember {
         derivedStateOf {
             context.symphony.groove.artist.get(artistIds)
@@ -386,7 +389,7 @@ private fun SuggestedArtists(context: ViewContext, label: String, artistIds: Lis
 private fun SuggestedAlbumArtists(
     context: ViewContext,
     label: String,
-    albumArtistIds: List<String>
+    albumArtistIds: List<String>,
 ) {
     val albumArtists by remember {
         derivedStateOf {

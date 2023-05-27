@@ -89,11 +89,9 @@ fun HomeView(context: ViewContext) {
             !context.symphony.settings.getReadIntroductoryMessage()
         )
     }
-    val tabs = context.symphony.settings.getHomeTabs().toList()
-    val labelVisibility = context.symphony.settings.getHomePageBottomBarLabelVisibility()
-    var currentPage by remember {
-        mutableStateOf(context.symphony.settings.getHomeLastTab())
-    }
+    val tabs by context.symphony.settings.homeTabs.collectAsState()
+    val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
+    val currentPage by context.symphony.settings.homeLastTab.collectAsState()
     var showOptionsDropdown by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -211,7 +209,6 @@ fun HomeView(context: ViewContext) {
                                 })
                             },
                             onClick = {
-                                currentPage = page
                                 context.symphony.settings.setHomeLastTab(currentPage)
                             }
                         )

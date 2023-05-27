@@ -18,14 +18,12 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistsView(context: ViewContext) {
     val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
-    val playlists by context.symphony.groove.playlist.all.collectAsState()
+    val playlists = context.symphony.groove.playlist.all
     val coroutineScope = rememberCoroutineScope()
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
@@ -198,7 +196,7 @@ fun NewPlaylistDialog(
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
     val songIds = remember { mutableStateListOf<Long>() }
-    val songIdsImmutable = songIds.asImmutableList()
+    val songIdsImmutable = songIds.toList()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(LocalContext.current) {
@@ -244,7 +242,7 @@ fun NewPlaylistDialog(
                 onClick = {
                     val playlist = context.symphony.groove.playlist.create(
                         title = input,
-                        songIds = songIds,
+                        songIds = songIds.toList(),
                     )
                     onDone(playlist)
                 }
@@ -260,7 +258,8 @@ fun NewPlaylistDialog(
             selectedSongIds = songIdsImmutable,
             onDone = {
                 showSongsPicker = false
-                songIds.swap(it)
+                songIds.clear()
+                songIds.addAll(it)
             }
         )
     }

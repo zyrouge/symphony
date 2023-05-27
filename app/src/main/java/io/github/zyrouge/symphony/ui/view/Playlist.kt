@@ -10,18 +10,19 @@ import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import io.github.zyrouge.symphony.utils.mutate
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistView(context: ViewContext, playlistId: String) {
     val coroutineScope = rememberCoroutineScope()
-    val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
+    val allPlaylistIds = context.symphony.groove.playlist.all
     val playlist by remember {
         derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
     }
     val songIds by remember {
-        derivedStateOf { playlist?.songIds ?: listOf() }
+        derivedStateOf { playlist?.songIds ?: emptyList() }
     }
     val isViable by remember {
         derivedStateOf { allPlaylistIds.contains(playlistId) }
@@ -111,7 +112,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                                         coroutineScope.launch {
                                             context.symphony.groove.playlist.update(
                                                 it.id,
-                                                it.songIds.toMutableList().apply {
+                                                it.songIds.mutate {
                                                     remove(song.id)
                                                 },
                                             )

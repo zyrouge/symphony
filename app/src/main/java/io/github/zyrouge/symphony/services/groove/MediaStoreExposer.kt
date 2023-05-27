@@ -28,9 +28,9 @@ class MediaStoreExposer(private val symphony: Symphony) {
                 MediaStore.Audio.Media.TITLE + " ASC"
             )
             cursor?.use {
-                val blacklisted = symphony.settings.getBlacklistFolders().toSortedSet()
-                val whitelisted = symphony.settings.getWhitelistFolders().toSortedSet()
-                val regex = symphony.settings.getSongsFilterPattern()
+                val blacklisted = symphony.settings.blacklistFolders.value.toSortedSet()
+                val whitelisted = symphony.settings.whitelistFolders.value.toSortedSet()
+                val regex = symphony.settings.songsFilterPattern.value
                     ?.let { literal -> Regex(literal, RegexOption.IGNORE_CASE) }
 
                 val additionalMetadataCache = kotlin

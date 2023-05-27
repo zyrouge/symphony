@@ -16,37 +16,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    val queueMutable = remember {
-        context.symphony.radio.queue.currentQueue.toMutableStateList()
-    }
-    val queue = queueMutable.asImmutableList()
-    var currentSongIndex by remember {
-        mutableStateOf(context.symphony.radio.queue.currentSongIndex)
-    }
+    val queue = context.symphony.radio.observatory.queue
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val selectedSongIndices = remember { mutableStateListOf<Int>() }
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = currentSongIndex,
+        initialFirstVisibleItemIndex = queueIndex,
     )
 
     BackHandler {
         context.navController.popBackStack()
-    }
-
-    EventerEffect(context.symphony.radio.onUpdate) {
-        queueMutable.swap(context.symphony.radio.queue.currentQueue)
-        currentSongIndex = context.symphony.radio.queue.currentSongIndex
     }
 
     Scaffold(
@@ -78,7 +65,7 @@ fun QueueView(context: ViewContext) {
                     if (selectedSongIndices.isNotEmpty()) {
                         IconButton(
                             onClick = {
-                                context.symphony.radio.queue.remove(selectedSongIndices)
+                                context.symphony.radio.queue.remove(selectedSongIndices.toList())
                                 selectedSongIndices.clear()
                             }
                         ) {
@@ -106,49 +93,50 @@ fun QueueView(context: ViewContext) {
                 } else {
                     LazyColumn(state = listState) {
                         itemsIndexed(
-                            queue.toList(),
+                            queue,
                             key = { i, id -> "$i-$id" },
                             contentType = { _, _ -> GrooveKinds.SONG },
-                        ) { i, _ ->
-                            val song = context.symphony.radio.queue.getSongAt(i)!!
-                            Box {
-                                SongCard(
-                                    context,
-                                    song,
-                                    autoHighlight = false,
-                                    highlighted = i == currentSongIndex,
-                                    leading = {
-                                        Checkbox(
-                                            checked = selectedSongIndices.contains(i),
-                                            onCheckedChange = {
-                                                if (selectedSongIndices.contains(i)) {
-                                                    selectedSongIndices.remove(i)
-                                                } else {
-                                                    selectedSongIndices.add(i)
-                                                }
-                                            },
-                                            modifier = Modifier.offset((-4).dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                    },
-                                    thumbnailLabel = {
-                                        Text((i + 1).toString())
-                                    },
-                                    onClick = {
-                                        context.symphony.radio.jumpTo(i)
-                                        coroutineScope.launch {
-                                            listState.animateScrollToItem(i)
-                                        }
-                                    },
-                                )
-                                if (i < currentSongIndex) {
-                                    Box(
-                                        modifier = Modifier
-                                            .matchParentSize()
-                                            .background(
-                                                MaterialTheme.colorScheme.background.copy(alpha = 0.3f)
+                        ) { i, songId ->
+                            context.symphony.groove.song.get(songId)?.let { song ->
+                                Box {
+                                    SongCard(
+                                        context,
+                                        song,
+                                        autoHighlight = false,
+                                        highlighted = i == queueIndex,
+                                        leading = {
+                                            Checkbox(
+                                                checked = selectedSongIndices.contains(i),
+                                                onCheckedChange = {
+                                                    if (selectedSongIndices.contains(i)) {
+                                                        selectedSongIndices.remove(i)
+                                                    } else {
+                                                        selectedSongIndices.add(i)
+                                                    }
+                                                },
+                                                modifier = Modifier.offset((-4).dp)
                                             )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                        },
+                                        thumbnailLabel = {
+                                            Text((i + 1).toString())
+                                        },
+                                        onClick = {
+                                            context.symphony.radio.jumpTo(i)
+                                            coroutineScope.launch {
+                                                listState.animateScrollToItem(i)
+                                            }
+                                        },
                                     )
+                                    if (i < queueIndex) {
+                                        Box(
+                                            modifier = Modifier
+                                                .matchParentSize()
+                                                .background(
+                                                    MaterialTheme.colorScheme.background.copy(alpha = 0.3f)
+                                                )
+                                        )
+                                    }
                                 }
                             }
                         }

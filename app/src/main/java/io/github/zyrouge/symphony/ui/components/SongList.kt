@@ -16,6 +16,7 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.contextWrapped
 
 enum class SongListType {
     Default,
@@ -34,12 +35,8 @@ fun SongList(
     type: SongListType = SongListType.Default,
     disableHeartIcon: Boolean = false,
 ) {
-    var sortBy by remember {
-        mutableStateOf(type.getLastUsedSortBy(context))
-    }
-    var sortReverse by remember {
-        mutableStateOf(type.getLastUsedSortReverse(context))
-    }
+    val sortBy by type.getLastUsedSortBy(context).collectAsState()
+    val sortReverse by type.getLastUsedSortReverse(context).collectAsState()
     val sortedSongIds by remember {
         derivedStateOf {
             context.symphony.groove.song.sort(songIds, sortBy, sortReverse)
@@ -52,13 +49,12 @@ fun SongList(
                 context,
                 reverse = sortReverse,
                 onReverseChange = {
-                    sortReverse = it
                     type.setLastUsedSortReverse(context, it)
                 },
                 sort = sortBy,
-                sorts = SongSortBy.values().associateWith { x -> { x.label(it) } },
+                sorts = SongSortBy.values()
+                    .associateWith { x -> contextWrapped { x.label(it) } },
                 onSortChange = {
-                    sortBy = it
                     type.setLastUsedSortBy(context, it)
                 },
                 label = {
@@ -134,11 +130,9 @@ fun SongSortBy.label(context: ViewContext) = when (this) {
 }
 
 fun SongListType.getLastUsedSortBy(context: ViewContext) = when (this) {
-    SongListType.Default -> context.symphony.settings.getLastUsedSongsSortBy() ?: SongSortBy.TITLE
-    SongListType.Album -> context.symphony.settings.getLastUsedAlbumSongsSortBy()
-        ?: SongSortBy.TITLE
-    SongListType.Playlist -> context.symphony.settings.getLastUsedPlaylistSongsSortBy()
-        ?: SongSortBy.CUSTOM
+    SongListType.Default -> context.symphony.settings.lastUsedSongsSortBy
+    SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortBy
+    SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortBy
 }
 
 fun SongListType.setLastUsedSortBy(context: ViewContext, sort: SongSortBy) {
@@ -150,9 +144,9 @@ fun SongListType.setLastUsedSortBy(context: ViewContext, sort: SongSortBy) {
 }
 
 fun SongListType.getLastUsedSortReverse(context: ViewContext) = when (this) {
-    SongListType.Default -> context.symphony.settings.getLastUsedSongsSortReverse()
-    SongListType.Playlist -> context.symphony.settings.getLastUsedPlaylistSongsSortReverse()
-    SongListType.Album -> context.symphony.settings.getLastUsedAlbumSongsSortReverse()
+    SongListType.Default -> context.symphony.settings.lastUsedSongsSortReverse
+    SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortReverse
+    SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortReverse
 }
 
 fun SongListType.setLastUsedSortReverse(context: ViewContext, reverse: Boolean) {

@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.provider.MediaStore
+import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
@@ -27,26 +28,28 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
-    private val _all = MutableStateFlow<List<String>>(listOf())
-    val all = _all.asStateFlow()
-    private val _favorites = MutableStateFlow<List<Long>>(listOf())
-    val favorites = _favorites.asStateFlow()
+    private val _all = mutableStateListOf<String>()
+    val all = _all.asList()
+    private val _favorites = mutableStateListOf<Long>()
+    val favorites = _favorites.asList()
 
     private fun emitUpdate(value: Boolean) = _isUpdating.tryEmit(value)
-    private fun emitAll() = _all.tryEmit(cache.keys.toList())
-    private fun emitFavorite(value: List<Long>) = _favorites.tryEmit(value)
 
     fun fetch() {
         emitUpdate(true)
         try {
             val data = symphony.database.playlists.read()
             val locals = queryAllLocalPlaylistsMap()
-            data.custom.forEach { cache[it.id] = it }
+            data.custom.forEach { playlist ->
+                cache[playlist.id] = playlist
+                _all.add(playlist.id)
+            }
             data.local.forEach {
                 try {
                     locals[it.path]?.let { extended ->
                         parseLocal(extended)?.let { playlist ->
                             cache[playlist.id] = playlist
+                            _all.add(playlist.id)
                         }
                     }
                 } catch (err: Exception) {
@@ -55,7 +58,6 @@ class PlaylistRepository(private val symphony: Symphony) {
             }
             favoritesId = data.favorites.id
             cache[data.favorites.id] = data.favorites
-            emitAll()
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed", err)
@@ -64,11 +66,14 @@ class PlaylistRepository(private val symphony: Symphony) {
             createFavorites()
         }
         emitUpdate(false)
+        _favorites.addAll(getFavorites().songIds)
     }
 
     fun reset() {
         emitUpdate(true)
         cache.clear()
+        _all.clear()
+        _favorites.clear()
         emitUpdate(false)
     }
 
@@ -76,13 +81,13 @@ class PlaylistRepository(private val symphony: Symphony) {
         .search(terms, playlistIds)
         .subListNonStrict(limit ?: playlistIds.size)
 
-    fun sort(playlistIds: List<String>, by: PlaylistSortBy, reversed: Boolean): List<String> {
+    fun sort(playlistIds: List<String>, by: PlaylistSortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
-            PlaylistSortBy.CUSTOM -> playlistIds.toList()
+            PlaylistSortBy.CUSTOM -> playlistIds
             PlaylistSortBy.TITLE -> playlistIds.sortedBy { get(it)?.title }
             PlaylistSortBy.TRACKS_COUNT -> playlistIds.sortedBy { get(it)?.numberOfTracks }
         }
-        return if (reversed) sorted.reversed() else sorted
+        return if (reverse) sorted.reversed() else sorted
     }
 
     fun count() = cache.size
@@ -114,13 +119,13 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     suspend fun add(playlist: Playlist) {
         cache[playlist.id] = playlist
-        emitAll()
+        _all.add(playlist.id)
         save()
     }
 
     suspend fun delete(id: String) {
         cache.remove(id)
-        emitAll()
+        _all.remove(id)
         save()
     }
 
@@ -129,13 +134,19 @@ class PlaylistRepository(private val symphony: Symphony) {
         val new = Playlist(
             id = id,
             title = old.title,
-            songIds = songIds.distinctList(),
+            songIds = songIds.distinct().toList(),
             numberOfTracks = songIds.size,
             local = null,
         )
         cache[id] = new
-        emitAll()
-        if (id == favoritesId) emitFavorite(songIds)
+        _all.remove(id)
+        _all.add(id)
+        if (id == favoritesId) {
+            val removed = old.songIds.minus(songIds.toSet())
+            val added = songIds.minus(old.songIds.toSet())
+            _favorites.removeAll(removed)
+            _favorites.addAll(added)
+        }
         save()
     }
 
@@ -176,11 +187,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             }
         }
         symphony.database.playlists.update(
-            PlaylistsBox.Data(
-                custom = custom,
-                local = local,
-                favorites = favorites,
-            )
+            PlaylistsBox.Data(custom = custom, local = local, favorites = favorites)
         )
     }
 
@@ -202,15 +209,18 @@ class PlaylistRepository(private val symphony: Symphony) {
                     cursor.getString(it)
                 }
                 if (!cache.containsKey(path)) {
-                    playlists[path] = Playlist.LocalExtended(
-                        id = id,
-                        uri = getExternalVolumeUri(id),
-                        local = Playlist.Local(path),
+                    playlists.put(
+                        path,
+                        Playlist.LocalExtended(
+                            id = id,
+                            uri = getExternalVolumeUri(id),
+                            local = Playlist.Local(path),
+                        )
                     )
                 }
             }
         }
-        return playlists.toMap()
+        return playlists
     }
 
     companion object {

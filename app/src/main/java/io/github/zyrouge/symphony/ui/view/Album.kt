@@ -17,8 +17,8 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumView(context: ViewContext, albumId: Long) {
-    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val allAlbumIds = context.symphony.groove.album.all
+    val allSongIds = context.symphony.groove.song.all
     val album by remember(allAlbumIds) {
         derivedStateOf { context.symphony.groove.album.get(albumId) }
     }

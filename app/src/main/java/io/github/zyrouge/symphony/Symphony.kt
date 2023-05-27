@@ -3,6 +3,9 @@ package io.github.zyrouge.symphony
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.services.AppMeta
@@ -11,7 +14,6 @@ import io.github.zyrouge.symphony.services.SettingsManager
 import io.github.zyrouge.symphony.services.database.Database
 import io.github.zyrouge.symphony.services.groove.GrooveManager
 import io.github.zyrouge.symphony.services.i18n.Translator
-import io.github.zyrouge.symphony.services.i18n.translations.ITranslations
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.utils.AndroidXShorty
 import kotlinx.coroutines.Dispatchers
@@ -31,10 +33,9 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     val database = Database(this)
     val groove = GrooveManager(this)
     val radio = Radio(this)
-
     val translator = Translator(this)
-    val t: ITranslations
-        get() = translator.t
+
+    var t by mutableStateOf(translator.getCurrentTranslations())
 
     val applicationContext: Context
         get() = getApplication<Application>().applicationContext
@@ -58,6 +59,11 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
 
     override fun onSymphonyReady() {
         checkVersion()
+        viewModelScope.launch {
+            translator.onChange { nTranslation ->
+                t = nTranslation
+            }
+        }
     }
 
     private fun notifyHooks(fn: SymphonyHooks.() -> Unit) {
@@ -69,7 +75,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
             val latestVersion = withContext(Dispatchers.IO) { AppMeta.fetchLatestVersion() }
             latestVersion?.let {
                 withContext(Dispatchers.Main) {
-                    if (settings.getCheckForUpdates() && AppMeta.version != it) {
+                    if (settings.checkForUpdates.value && AppMeta.version != it) {
                         Toast
                             .makeText(
                                 applicationContext,

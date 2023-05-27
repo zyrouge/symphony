@@ -15,7 +15,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.services.radio.RadioEvents
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -32,20 +31,14 @@ fun SongCard(
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    var isCurrentPlaying by remember {
-        mutableStateOf(autoHighlight && song.id == context.symphony.radio.queue.currentPlayingSong?.id)
+    val queue = context.symphony.radio.observatory.queue
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val isCurrentPlaying by remember {
+        derivedStateOf { autoHighlight && song.id == queue.getOrNull(queueIndex) }
     }
-    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val favoriteSongIds = context.symphony.groove.playlist.favorites
     val isFavorite by remember {
         derivedStateOf { favoriteSongIds.contains(song.id) }
-    }
-
-    if (autoHighlight) {
-        EventerEffect(context.symphony.radio.onUpdate) {
-            if (it == RadioEvents.StartPlaying || it == RadioEvents.StopPlaying) {
-                isCurrentPlaying = song.id == context.symphony.radio.queue.currentPlayingSong?.id
-            }
-        }
     }
 
     Card(
@@ -200,7 +193,7 @@ fun SongDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    song,
+                    song.id,
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -214,7 +207,7 @@ fun SongDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(song)
+                context.symphony.radio.queue.add(song.id)
             }
         )
         DropdownMenuItem(

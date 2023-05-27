@@ -31,9 +31,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.SettingsKeys
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
 import io.github.zyrouge.symphony.ui.components.*
@@ -82,72 +80,32 @@ enum class NowPlayingControlsLayout {
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
-    var song by remember { mutableStateOf(context.symphony.radio.queue.currentPlayingSong) }
-    var isPlaying by remember { mutableStateOf(context.symphony.radio.isPlaying) }
-    var currentSongIndex by remember { mutableStateOf(context.symphony.radio.queue.currentSongIndex) }
-    var queueSize by remember { mutableStateOf(context.symphony.radio.queue.originalQueue.size) }
-    var currentLoopMode by remember { mutableStateOf(context.symphony.radio.queue.currentLoopMode) }
-    var currentShuffleMode by remember { mutableStateOf(context.symphony.radio.queue.currentShuffleMode) }
-    var currentSpeed by remember { mutableStateOf(context.symphony.radio.currentSpeed) }
-    var currentPitch by remember { mutableStateOf(context.symphony.radio.currentPitch) }
-    var persistedSpeed by remember { mutableStateOf(context.symphony.radio.persistedSpeed) }
-    var persistedPitch by remember { mutableStateOf(context.symphony.radio.persistedPitch) }
-    var hasSleepTimer by remember { mutableStateOf(context.symphony.radio.hasSleepTimer()) }
-    var showSongAdditionalInfo by remember {
-        mutableStateOf(context.symphony.settings.getNowPlayingAdditionalInfo())
+    val queue = context.symphony.radio.observatory.queue
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val song by remember {
+        derivedStateOf {
+            queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
+        }
     }
-    var enableSeekControls by remember {
-        mutableStateOf(context.symphony.settings.getNowPlayingSeekControls())
+    val isPlaying by context.symphony.radio.observatory.isPlaying.collectAsState()
+    val currentLoopMode by context.symphony.radio.observatory.loopMode.collectAsState()
+    val currentShuffleMode by context.symphony.radio.observatory.shuffleMode.collectAsState()
+    val currentSpeed by context.symphony.radio.observatory.speed.collectAsState()
+    val currentPitch by context.symphony.radio.observatory.pitch.collectAsState()
+    val persistedSpeed by context.symphony.radio.observatory.persistedSpeed.collectAsState()
+    val persistedPitch by context.symphony.radio.observatory.persistedPitch.collectAsState()
+    val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsState()
+    val showSongAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
+    val enableSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
+    val controlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
+    val isViable by remember {
+        derivedStateOf { song != null }
     }
-    var seekBackDuration by remember {
-        mutableStateOf(context.symphony.settings.getSeekBackDuration())
-    }
-    var seekForwardDuration by remember {
-        mutableStateOf(context.symphony.settings.getSeekForwardDuration())
-    }
-    var controlsLayout by remember {
-        mutableStateOf(context.symphony.settings.getNowPlayingControlsLayout())
-    }
-    var isViable by remember { mutableStateOf(song != null) }
 
     BackHandler {
         context.navController.popBackStack()
-    }
-
-    EventerEffect(context.symphony.radio.onUpdate) {
-        song = context.symphony.radio.queue.currentPlayingSong
-        isPlaying = context.symphony.radio.isPlaying
-        currentSongIndex = context.symphony.radio.queue.currentSongIndex
-        queueSize = context.symphony.radio.queue.originalQueue.size
-        currentLoopMode = context.symphony.radio.queue.currentLoopMode
-        currentShuffleMode = context.symphony.radio.queue.currentShuffleMode
-        currentSpeed = context.symphony.radio.currentSpeed
-        currentPitch = context.symphony.radio.currentPitch
-        persistedSpeed = context.symphony.radio.persistedSpeed
-        persistedPitch = context.symphony.radio.persistedPitch
-        hasSleepTimer = context.symphony.radio.hasSleepTimer()
-        isViable = song != null
-    }
-
-    EventerEffect(context.symphony.settings.onChange) { key ->
-        when (key) {
-            SettingsKeys.nowPlayingAdditionalInfo -> {
-                showSongAdditionalInfo = context.symphony.settings.getNowPlayingAdditionalInfo()
-            }
-            SettingsKeys.nowPlayingSeekControls -> {
-                enableSeekControls = context.symphony.settings.getNowPlayingSeekControls()
-            }
-            SettingsKeys.seekBackDuration -> {
-                seekBackDuration = context.symphony.settings.getSeekBackDuration()
-            }
-            SettingsKeys.seekForwardDuration -> {
-                seekForwardDuration = context.symphony.settings.getSeekForwardDuration()
-            }
-            SettingsKeys.nowPlayingControlsLayout -> {
-                controlsLayout = context.symphony.settings.getNowPlayingControlsLayout()
-            }
-            else -> {}
-        }
     }
 
     when {
@@ -156,15 +114,15 @@ fun NowPlayingView(context: ViewContext) {
             PlayerStateData(
                 song = song!!,
                 isPlaying = isPlaying,
-                currentSongIndex = currentSongIndex,
-                queueSize = queueSize,
+                currentSongIndex = queueIndex,
+                queueSize = queue.size,
                 currentLoopMode = currentLoopMode,
                 currentShuffleMode = currentShuffleMode,
                 currentSpeed = currentSpeed,
                 currentPitch = currentPitch,
                 persistedSpeed = persistedSpeed,
                 persistedPitch = persistedPitch,
-                hasSleepTimer = hasSleepTimer,
+                hasSleepTimer = sleepTimer != null,
                 showSongAdditionalInfo = showSongAdditionalInfo,
                 enableSeekControls = enableSeekControls,
                 seekBackDuration = seekBackDuration,
@@ -407,11 +365,10 @@ private fun NowPlayingBodyCover(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
-    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
+    val favoriteSongIds = context.symphony.groove.playlist.favorites
     val isFavorite by remember {
-        derivedStateOf {
-            favoriteSongIds.contains(data.song.id)
-        }
+        derivedStateOf { favoriteSongIds.contains(data.song.id) }
     }
 
     data.run {
@@ -599,23 +556,14 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
             ) {
                 val interactionSource = remember { MutableInteractionSource() }
                 var sliderPosition by remember { mutableStateOf<Int?>(null) }
-                var duration by remember {
-                    mutableStateOf(
-                        context.symphony.radio.currentPlaybackPosition
-                            ?: PlaybackPosition.zero
-                    )
-                }
-                EventerEffect(context.symphony.radio.onPlaybackPositionUpdate) {
-                    duration = it
-                }
                 Text(
-                    DurationFormatter.formatMs(sliderPosition ?: duration.played),
+                    DurationFormatter.formatMs(sliderPosition ?: playbackPosition.played),
                     style = MaterialTheme.typography.labelMedium
                 )
                 BoxWithConstraints(modifier = Modifier.weight(1f)) {
                     Slider(
-                        value = (sliderPosition ?: duration.played).toFloat(),
-                        valueRange = 0f..duration.total.toFloat(),
+                        value = (sliderPosition ?: playbackPosition.played).toFloat(),
+                        valueRange = 0f..playbackPosition.total.toFloat(),
                         onValueChange = {
                             sliderPosition = it.toInt()
                         },
@@ -637,7 +585,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                     )
                 }
                 Text(
-                    DurationFormatter.formatMs(duration.total),
+                    DurationFormatter.formatMs(playbackPosition.total),
                     style = MaterialTheme.typography.labelMedium
                 )
             }
@@ -791,6 +739,7 @@ private fun NowPlayingBodyBottomBar(
     data: PlayerStateData,
     states: NowPlayingStates,
 ) {
+    val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsState()
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showPitchDialog by remember { mutableStateOf(false) }
@@ -885,17 +834,16 @@ private fun NowPlayingBodyBottomBar(
         }
 
         if (showSleepTimerDialog) {
-            when {
-                hasSleepTimer -> context.symphony.radio.getSleepTimer()?.let {
-                    NowPlayingSleepTimerDialog(
-                        context,
-                        sleepTimer = it,
-                        onDismissRequest = {
-                            showSleepTimerDialog = false
-                        }
-                    )
-                }
-                else -> NowPlayingSleepTimerSetDialog(
+            sleepTimer?.let {
+                NowPlayingSleepTimerDialog(
+                    context,
+                    sleepTimer = it,
+                    onDismissRequest = {
+                        showSleepTimerDialog = false
+                    }
+                )
+            } ?: run {
+                NowPlayingSleepTimerSetDialog(
                     context,
                     onDismissRequest = {
                         showSleepTimerDialog = false

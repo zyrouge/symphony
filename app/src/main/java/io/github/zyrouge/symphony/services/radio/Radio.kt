@@ -42,13 +42,13 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
     val session = RadioSession(symphony)
+    var observatory = RadioObservatory(symphony)
 
     private val focus = RadioFocus(symphony)
     private val nativeReceiver = RadioNativeReceiver(symphony)
 
     private var player: RadioPlayer? = null
     private var focusCounter = 0
-    private var sleepTimer: RadioSleepTimer? = null
 
     val hasPlayer: Boolean
         get() = player?.usable ?: false
@@ -64,13 +64,21 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED
     var persistedPitch: Float = RadioPlayer.DEFAULT_PITCH
+    var sleepTimer: RadioSleepTimer? = null
 
     init {
         nativeReceiver.start()
     }
 
+    fun ready() {
+        attachGrooveListener()
+        session.start()
+        observatory.start()
+    }
+
     fun destroy() {
         stop()
+        observatory.destroy()
         session.destroy()
         nativeReceiver.destroy()
     }
@@ -83,19 +91,19 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     fun play(options: PlayOptions) {
         stopCurrentSong()
-        if (!queue.hasSongAt(options.index)) {
-            queue.currentSongIndex = -1
+        val song = queue.getSongIdAt(options.index)?.let { symphony.groove.song.get(it) }
+        if (song == null) {
+            onSongFinish(SongFinishSource.Exception)
             return
         }
-        val song = queue.getSongAt(options.index)!!
-        queue.currentSongIndex = options.index
         try {
+            queue.currentSongIndex = options.index
             player = RadioPlayer(symphony, song.uri).apply {
                 setOnPlaybackPositionUpdateListener {
                     onPlaybackPositionUpdate.dispatch(it)
                 }
                 setOnFinishListener {
-                    onSongFinish()
+                    onSongFinish(SongFinishSource.Finish)
                 }
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
@@ -111,7 +119,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         } catch (err: Exception) {
             Logger.warn(
                 "Radio",
-                "skipping song at ${queue.currentPlayingSong} (${queue.currentSongIndex}) due to $err"
+                "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $err"
             )
             queue.remove(queue.currentSongIndex)
         }
@@ -121,7 +129,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     private fun start(source: Int) {
         player?.let {
             val hasFocus = requestFocus()
-            if (hasFocus || !symphony.settings.getRequireAudioFocus()) {
+            if (hasFocus || !symphony.settings.requireAudioFocus.value) {
                 if (it.fadePlayback) {
                     it.setVolumeInstant(RadioPlayer.MIN_VOLUME)
                 }
@@ -213,9 +221,6 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    fun getSleepTimer() = sleepTimer
-    fun hasSleepTimer() = sleepTimer != null
-
     fun setSleepTimer(
         duration: Long,
         quitOnEnd: Boolean,
@@ -224,7 +229,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         val timer = Timer()
         timer.schedule(
             kotlin.concurrent.timerTask {
-                val shouldQuit = getSleepTimer()?.quitOnEnd ?: quitOnEnd
+                val shouldQuit = sleepTimer?.quitOnEnd ?: quitOnEnd
                 clearSleepTimer()
                 pause(forceFade = true) {
                     if (shouldQuit) {
@@ -261,24 +266,40 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    private fun onSongFinish() {
+    private enum class SongFinishSource {
+        Finish,
+        Exception,
+    }
+
+    private fun onSongFinish(source: SongFinishSource) {
         stopCurrentSong()
+        if (queue.isEmpty()) {
+            queue.currentSongIndex = -1
+            return
+        }
+        var autostart: Boolean
+        var nextSongIndex: Int
         when (queue.currentLoopMode) {
-            RadioLoopMode.Song -> play(PlayOptions(queue.currentSongIndex))
-            else -> {
-                var autostart = true
-                var nextSongIndex = queue.currentSongIndex + 1
+            RadioLoopMode.Song -> {
+                nextSongIndex = queue.currentSongIndex
+                autostart = source == SongFinishSource.Finish
                 if (!queue.hasSongAt(nextSongIndex)) {
                     nextSongIndex = 0
-                    autostart = queue.currentLoopMode == RadioLoopMode.Queue
-                }
-                if (queue.hasSongAt(nextSongIndex)) {
-                    play(PlayOptions(nextSongIndex, autostart = autostart))
-                } else {
-                    queue.reset()
+                    autostart = false
                 }
             }
+            else -> {
+                nextSongIndex = when (source) {
+                    SongFinishSource.Finish -> queue.currentSongIndex + 1
+                    SongFinishSource.Exception -> queue.currentSongIndex
+                }
+                if (!queue.hasSongAt(nextSongIndex)) {
+                    nextSongIndex = 0
+                }
+                autostart = queue.currentLoopMode == RadioLoopMode.Queue
+            }
         }
+        play(PlayOptions(nextSongIndex, autostart = autostart))
     }
 
     private fun requestFocus(): Boolean {
@@ -340,8 +361,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     override fun onSymphonyReady() {
-        attachGrooveListener()
-        session.start()
+        ready()
     }
 
     override fun onSymphonyPause() {
