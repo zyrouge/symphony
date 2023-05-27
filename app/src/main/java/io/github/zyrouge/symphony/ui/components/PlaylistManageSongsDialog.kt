@@ -80,9 +80,12 @@ fun PlaylistManageSongsDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RectangleShape,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
-                    ),
+                    colors = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).let {
+                        TextFieldDefaults.colors(
+                            focusedContainerColor = it,
+                            unfocusedContainerColor = it,
+                        )
+                    },
                     placeholder = {
                         Text(context.symphony.t.SearchYourMusic)
                     },

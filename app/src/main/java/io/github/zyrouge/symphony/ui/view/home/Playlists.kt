@@ -220,8 +220,8 @@ fun NewPlaylistDialog(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        unfocusedBorderColor = DividerDefaults.color,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = DividerDefaults.color,
                     ),
                     value = input,
                     onValueChange = {

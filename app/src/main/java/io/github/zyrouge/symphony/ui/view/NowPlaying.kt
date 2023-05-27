@@ -1089,8 +1089,8 @@ private fun NowPlayingSleepTimerSetDialog(
                     OutlinedTextField(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            unfocusedBorderColor = DividerDefaults.color,
+                        colors = TextFieldDefaults.colors(
+                            unfocusedIndicatorColor = DividerDefaults.color,
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = {
@@ -1105,8 +1105,8 @@ private fun NowPlayingSleepTimerSetDialog(
                     OutlinedTextField(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            unfocusedBorderColor = DividerDefaults.color,
+                        colors = TextFieldDefaults.colors(
+                            unfocusedIndicatorColor = DividerDefaults.color,
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = {

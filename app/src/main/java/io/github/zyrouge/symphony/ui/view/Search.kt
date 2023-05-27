@@ -132,8 +132,9 @@ fun SearchView(context: ViewContext) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(textFieldFocusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     ),
                     singleLine = true,
                     value = terms,

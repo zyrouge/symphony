@@ -54,8 +54,8 @@ fun SettingsTextInputTile(
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            unfocusedBorderColor = DividerDefaults.color,
+                        colors = TextFieldDefaults.colors(
+                            unfocusedIndicatorColor = DividerDefaults.color,
                         ),
                         value = input ?: value,
                         onValueChange = {

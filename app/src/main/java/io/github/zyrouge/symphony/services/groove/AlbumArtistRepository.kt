@@ -45,7 +45,7 @@ class AlbumArtistRepository(private val symphony: Symphony) {
             value?.apply { add(song.albumId) }
                 ?: ConcurrentSet(song.albumId)
         }
-        val albumArtist = cache.compute(song.additional.albumArtist) { _, value ->
+        cache.compute(song.additional.albumArtist) { _, value ->
             value?.apply {
                 numberOfAlbums = nNumberOfAlbums
                 numberOfTracks++
