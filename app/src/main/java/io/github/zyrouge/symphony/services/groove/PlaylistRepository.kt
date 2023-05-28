@@ -119,6 +119,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
         cache[playlist.id] = playlist
         favoritesId = playlist.id
+        _all.add(playlist.id)
         return playlist
     }
 
