@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import GradientLink from "./components/GradientLink.vue";
+import HeroLink from "./components/HeroLink.vue";
 
 const images = {
-    icon: "https://github.com/zyrouge/symphony/blob/main/media/icon-circle.svg?raw=true",
+    icon: "https://raw.githubusercontent.com/zyrouge/symphony/main/media/icon.svg",
     screenshots:
-        "https://github.com/zyrouge/symphony/blob/main/media/screenshots.png?raw=true",
+        "https://raw.githubusercontent.com/zyrouge/symphony/main/media/screenshots.png",
 };
 
 const links = {
@@ -18,7 +18,7 @@ const links = {
     <nav>
         <div class="flex justify-center items-center py-4">
             <div class="flex gap-4 items-center">
-                <img class="w-10 h-10" :src="images.icon" />
+                <img class="w-8 h-8" :src="images.icon" />
                 <p class="font-bold text-xl">Symphony</p>
             </div>
         </div>
@@ -37,7 +37,7 @@ const links = {
                     <div
                         :class="[
                             'mt-2 sm:mt-0 w-full max-w-92 h-1/4 rounded-1/2',
-                            'bg-gradient-to-r from-red-600 via-purple-600 to-blue-600',
+                            'bg-violet-400',
                         ]"
                     ></div>
                 </div>
@@ -47,14 +47,14 @@ const links = {
                     </p>
                     <div class="pt-12 text-center">
                         <div>
-                            <GradientLink :href="links.releases">
+                            <HeroLink :href="links.releases">
                                 Download from <b>GitHub</b>
-                            </GradientLink>
+                            </HeroLink>
                         </div>
                         <div class="pt-3">
-                            <GradientLink :href="links.izzyOnDroid">
+                            <HeroLink :href="links.izzyOnDroid">
                                 Download from <b>IzzyOnDroid</b>
-                            </GradientLink>
+                            </HeroLink>
                         </div>
                     </div>
                 </div>

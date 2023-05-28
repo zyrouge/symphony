@@ -10,7 +10,7 @@ const { href } = defineProps<Props>();
     <a
         :class="[
             'inline-block px-4 py-2 rounded-lg text-sm',
-            'bg-gradient-to-r from-red-600 via-purple-600 to-blue-600',
+            'bg-gradient-to-br from-violet-500 via-violet-600 to-violet-600',
             'transition transform hover:-translate-y-0.75',
         ]"
         :href="href"
