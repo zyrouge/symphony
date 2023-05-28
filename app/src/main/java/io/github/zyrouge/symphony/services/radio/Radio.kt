@@ -6,7 +6,8 @@ import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.util.*
+import java.util.Date
+import java.util.Timer
 import kotlin.math.max
 
 enum class RadioEvents {
@@ -288,15 +289,17 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     autostart = false
                 }
             }
+
             else -> {
                 nextSongIndex = when (source) {
                     SongFinishSource.Finish -> queue.currentSongIndex + 1
                     SongFinishSource.Exception -> queue.currentSongIndex
                 }
+                autostart = true
                 if (!queue.hasSongAt(nextSongIndex)) {
                     nextSongIndex = 0
+                    autostart = queue.currentLoopMode == RadioLoopMode.Queue
                 }
-                autostart = queue.currentLoopMode == RadioLoopMode.Queue
             }
         }
         play(PlayOptions(nextSongIndex, autostart = autostart))
