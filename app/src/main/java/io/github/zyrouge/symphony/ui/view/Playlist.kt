@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 fun PlaylistView(context: ViewContext, playlistId: String) {
     val coroutineScope = rememberCoroutineScope()
     val allPlaylistIds = context.symphony.groove.playlist.all
-    val playlist by remember {
+    val playlist by remember(allPlaylistIds) {
         derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
     }
     val songIds by remember {
@@ -122,6 +122,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                             }
                         },
                     )
+
                     else -> UnknownPlaylist(context, playlistId)
                 }
             }
