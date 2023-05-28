@@ -153,6 +153,8 @@ Translations:
     Traditional: Traditionell
     Enabled: An
     Disabled: Aus
+    ShowUpdateToast: Update-Toast anzeigen
+    SponsorViaKoFi: Sponsor via Ko-fi
 
     # Dynamic
     PlayingXofY: Wiedergabe von $x von $y
