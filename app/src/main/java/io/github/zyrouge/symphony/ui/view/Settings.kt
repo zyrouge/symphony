@@ -110,9 +110,13 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.Language_)
                         },
                         value = language ?: "",
-                        values = mapOf(
-                            "" to "${context.symphony.t.System} (${context.symphony.t.Locale})"
-                        ) + Translations.all.values.associate { it.Locale to it.Language },
+                        values = run {
+                            val defaultTranslation =
+                                context.symphony.translator.getDefaultTranslation()
+                            mapOf(
+                                "" to "${context.symphony.t.System} (${defaultTranslation.Language})"
+                            ) + Translations.all.values.associate { it.Locale to it.Language }
+                        },
                         onChange = { value ->
                             context.symphony.settings.setLanguage(value.takeUnless { it == "" })
                         }

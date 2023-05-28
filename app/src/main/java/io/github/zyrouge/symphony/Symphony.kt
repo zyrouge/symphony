@@ -35,7 +35,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     val radio = Radio(this)
     val translator = Translator(this)
 
-    var t by mutableStateOf(translator.getCurrentTranslations())
+    var t by mutableStateOf(translator.getCurrentTranslation())
 
     val applicationContext: Context
         get() = getApplication<Application>().applicationContext
