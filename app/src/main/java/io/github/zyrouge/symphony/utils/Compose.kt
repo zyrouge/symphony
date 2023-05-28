@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class ModifierBuilder(var modifier: Modifier) {
     fun apply(fn: Modifier.() -> Modifier) {
@@ -41,11 +40,10 @@ class RapidMutableStateList<T>(
     }
 
     fun sync() {
+        if (pending.isEmpty()) return
         lastUpdated = System.currentTimeMillis()
         val values = pending.toList()
         pending.clear()
         list.addAll(values)
     }
 }
-
-fun MutableStateFlow<Int>.tryEmitIncrement() = tryEmit(value + 1)

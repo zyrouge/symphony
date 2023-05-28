@@ -5,12 +5,19 @@ import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
-import io.github.zyrouge.symphony.utils.*
+import io.github.zyrouge.symphony.utils.FuzzySearchOption
+import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.utils.RapidMutableStateList
+import io.github.zyrouge.symphony.utils.asList
+import io.github.zyrouge.symphony.utils.getColumnValue
+import io.github.zyrouge.symphony.utils.mutate
+import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 enum class PlaylistSortBy {
@@ -73,8 +80,9 @@ class PlaylistRepository(private val symphony: Symphony) {
         if (favoritesId == null) {
             createFavorites()
         }
-        emitUpdate(false)
+        _allRapid.sync()
         _favorites.addAll(getFavorites().songIds)
+        emitUpdate(false)
     }
 
     fun reset() {
