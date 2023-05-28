@@ -78,7 +78,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             Logger.error("PlaylistRepository", "fetch failed", err)
         }
         if (favoritesId == null) {
-            createFavorites()
+            createFavorites(notifyRapid = true)
         }
         _allRapid.sync()
         _favorites.addAll(getFavorites().songIds)
@@ -114,14 +114,6 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun get(id: String) = cache[id]
     fun get(ids: List<String>) = ids.mapNotNull { get(it) }
     fun getFavorites() = favoritesId?.let { cache[it] } ?: createFavorites()
-
-    fun createFavorites(): Playlist {
-        val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
-        cache[playlist.id] = playlist
-        favoritesId = playlist.id
-        _all.add(playlist.id)
-        return playlist
-    }
 
     fun parseLocal(local: Playlist.LocalExtended) = kotlin.runCatching {
         Playlist.fromM3U(symphony, local)
@@ -239,6 +231,18 @@ class PlaylistRepository(private val symphony: Symphony) {
             }
         }
         return playlists
+    }
+
+    private fun createFavorites(notifyRapid: Boolean = false): Playlist {
+        val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
+        cache[playlist.id] = playlist
+        favoritesId = playlist.id
+        when {
+            notifyRapid -> _allRapid.add(playlist.id)
+            else -> _all.add(playlist.id)
+        }
+        emitCount()
+        return playlist
     }
 
     companion object {
