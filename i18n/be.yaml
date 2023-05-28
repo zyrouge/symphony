@@ -148,6 +148,8 @@ Translations:
     Traditional: "Традыцыйна"
     Enabled: "Уключаны"
     Disabled: "Адключаны"
+    ShowUpdateToast: "Паказваць апавяшчэнне аб абнаўленні"
+    SponsorViaKoFi: "Спансаваць праз Ko-fi"
    
 
     PlayingXofY: "Гуляе $x з $y"
