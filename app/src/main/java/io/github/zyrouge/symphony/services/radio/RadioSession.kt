@@ -105,6 +105,7 @@ class RadioSession(val symphony: Symphony) {
                             KeyEvent::class.java,
                         )
                     } else {
+                        @Suppress("Deprecated")
                         intent?.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
                     }
                     return when (keyEvent?.keyCode) {

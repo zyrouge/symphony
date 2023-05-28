@@ -50,7 +50,6 @@ fun IntroductoryDialog(
                 Divider()
                 Box(modifier = Modifier.height(8.dp))
                 OptInTile(
-                    context,
                     content = { Text(context.symphony.t.CheckForUpdates) },
                     value = checkForUpdates,
                     onChange = { value ->
@@ -59,7 +58,6 @@ fun IntroductoryDialog(
                 )
                 Box(modifier = Modifier.height(4.dp))
                 OptInTile(
-                    context,
                     content = { Text(context.symphony.t.ShowUpdateToast) },
                     value = showUpdateToast,
                     onChange = { value ->
@@ -75,7 +73,6 @@ fun IntroductoryDialog(
 
 @Composable
 private fun OptInTile(
-    context: ViewContext,
     content: @Composable () -> Unit,
     value: Boolean,
     onChange: (Boolean) -> Unit,
