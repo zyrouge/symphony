@@ -241,7 +241,7 @@ class SettingsManager(private val symphony: Symphony) {
     }
 
     fun getLanguage() = getSharedPreferences().getString(SettingsKeys.language, null)
-    fun setLanguage(language: String) {
+    fun setLanguage(language: String?) {
         getSharedPreferences().edit {
             putString(SettingsKeys.language, language)
         }

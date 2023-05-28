@@ -109,12 +109,12 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.Language_)
                         },
-                        value = language ?: context.symphony.t.Locale,
-                        values = Translations.all.associate {
-                            it.Locale to it.Language
-                        },
+                        value = language ?: "",
+                        values = mapOf(
+                            "" to "${context.symphony.t.System} (${context.symphony.t.Locale})"
+                        ) + Translations.all.values.associate { it.Locale to it.Language },
                         onChange = { value ->
-                            context.symphony.settings.setLanguage(value)
+                            context.symphony.settings.setLanguage(value.takeUnless { it == "" })
                         }
                     )
                     SettingsOptionTile(
