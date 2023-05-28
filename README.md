@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://github.com/zyrouge"><img src="https://img.shields.io/badge/made%20by-zyrouge-d946ef"></a>
-    <a href="https://github.com/sponsors/zyrouge"><img src="https://img.shields.io/github/sponsors/zyrouge?color=EA4AAA&logo=github-sponsors"></a>
+    <a href="#links"><img src="https://img.shields.io/badge/❤️%20consider%20donating-ffffff"></a>
 </p>
 
 <h1 align="center">Symphony</h1>
@@ -45,11 +45,11 @@ Why was this created? As I was getting into offline music, most of the popular g
 ## Links
 
 -   [Wiki](https://github.com/zyrouge/symphony/wiki)
+-   [Discord](https://discord.gg/5k9Hdq7ycm)
+-   [Reddit](https://reddit.com/r/symphony_app)
 -   [Github Sponsors](https://github.com/sponsors/zyrouge)
 -   [Ko-fi](https://ko-fi.com/zyrouge)
 -   [Patreon](https://patreon.com/zyrouge)
--   [Discord](https://discord.gg/5k9Hdq7ycm)
--   [Reddit](https://reddit.com/r/symphony_app)
 
 ## Contributing
 
