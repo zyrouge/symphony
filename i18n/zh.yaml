@@ -157,6 +157,9 @@ Translations:
     Disabled: 已关闭
     ShowUpdateToast: 显示升级提示
     SponsorViaKoFi: 通过Ko-fi支持
+    PlaylistStoreLocation: 播放列表存储位置
+    AppBuiltIn: 应用内置
+    LocalStorage: 设备内部存储
 
     # Dynamic
     PlayingXofY: 第 $x 首，共 $y 首
