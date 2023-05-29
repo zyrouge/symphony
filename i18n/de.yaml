@@ -33,7 +33,7 @@ Translations:
     NothingIsBeingPlayedRightNow: Gerade wird nichts wiedergegeben
     AddToQueue: Zur Warteschlange anhängen
     Queue: Warteschlange
-    PlayNext: Als nächstes abspielen
+    PlayNext: Als nächstes wiedergeben
     NowPlaying: Jetzt spielt
     Language_: Sprache
     MaterialYou: Material You
@@ -73,19 +73,19 @@ Translations:
     RequireAudioFocus: Audiofokus erfordern
     IgnoreAudioFocusLoss: Verlust von Audiofokus ignorieren
     Player: Player
-    PlayOnHeadphonesConnect: Wiedergabe bei Kopfhörerverbindung
-    PauseOnHeadphonesDisconnect: Pausiere bei Kopfhörertrennung
+    PlayOnHeadphonesConnect: Bei Kopfhörerverbindung wiedergeben
+    PauseOnHeadphonesDisconnect: Bei Kopfhörertrennung pausieren
     Genre: Genre
     DamnThisIsSoEmpty: Verdammt, es ist so leer!
     PrimaryColor: Primäre Farbe
-    PlayAll: Alles abspielen
+    PlayAll: Alles wiedergeben
     ForYou: Für dich
     SuggestedAlbums: Vorgeschlagene Alben
     SuggestedArtists: Vorgeschlagene Künstler
     RecentlyAddedSongs: Zuletzt hinzugefügte Lieder
     SponsorViaGitHub: Sponsor via GitHub
-    ClearSongCache: Lieder cache löschen
-    SongCacheCleared: Lieder cache gelöscht
+    ClearSongCache: Liedcache löschen
+    SongCacheCleared: Liedcache gelöscht
     AlbumArtists: Album Künstler
     Genres: Genres
     Cancel: Abbrechen
@@ -95,7 +95,7 @@ Translations:
     Invisible: unsichtbar
     AlwaysVisible: Immer sichtbar
     VisibleWhenActive: Sichtbar wenn aktiv
-    BottomBarLabelVisibility: Sichtbarkeit Bodenleistenbeschriftung
+    BottomBarLabelVisibility: Sichtbarkeit der Bodenleistenbeschriftung
     Playlists: Wiedergabelisten
     NewPlaylist: Neue Wiedergabelsite
     ImportPlaylist: Wiedergabeliste importieren
