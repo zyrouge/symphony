@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.services.i18n.translations.ItTranslation
 import io.github.zyrouge.symphony.services.i18n.translations.RuTranslation
 import io.github.zyrouge.symphony.services.i18n.translations.TrTranslation
 import io.github.zyrouge.symphony.services.i18n.translations.UkTranslation
+import io.github.zyrouge.symphony.services.i18n.translations.ZhTranslation
 
 object Translations {
     val all = map(
@@ -16,6 +17,7 @@ object Translations {
         RuTranslation(),
         TrTranslation(),
         UkTranslation(),
+        ZhTranslation(),
     )
 
     fun get(locale: String) = all[locale]
