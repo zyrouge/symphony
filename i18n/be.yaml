@@ -1,4 +1,4 @@
-Locale: "be"
+LocaleCode: "be"
 Language: "Belarusian"
 
 Translations:
@@ -148,7 +148,6 @@ Translations:
     Traditional: "Традыцыйна"
     Enabled: "Уключаны"
     Disabled: "Адключаны"
-   
 
     PlayingXofY: "Гуляе $x з $y"
     UnknownArtistX: "Невядомы выканаўца ($x)"

@@ -1,4 +1,4 @@
-Locale: "ru"
+LocaleCode: "ru"
 Language: "Russian"
 
 Translations:
@@ -148,7 +148,6 @@ Translations:
     Traditional: "Традиционно"
     Enabled: "Включён"
     Disabled: "Отключён"
-   
 
     PlayingXofY: "Играет $x из $y"
     UnknownArtistX: "Неизвестный исполнитель ($x)"

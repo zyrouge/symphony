@@ -1,4 +1,4 @@
-Locale: "uk"
+LocaleCode: "uk"
 Language: "Ukrainian"
 
 Translations:
@@ -148,7 +148,6 @@ Translations:
     Traditional: "Традиційно"
     Enabled: "Увімкнено"
     Disabled: "Вимкнено"
-   
 
     PlayingXofY: "Грає $x із $y"
     UnknownArtistX: "Невідомий виконавець ($x)"

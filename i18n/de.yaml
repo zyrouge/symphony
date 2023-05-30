@@ -1,4 +1,4 @@
-Locale: de
+LocaleCode: de
 Language: German
 
 Translations:
@@ -7,11 +7,11 @@ Translations:
     HelloThere: Hallo!
     IntroductoryMessage: |
         Danke, dass du Teil der Symphony Open-Beta bist. Falls du auf irgendwelche Fehler stößt oder du Verbesserungsvorschläge hast, dann öffne gerne ein Issue in unserem Github Repository.
-        
+
         Tritt unserer Discord und Reddit Community bei, um dein Feedback mitzuteilen und um auf dem aktuellsten Stand der Entwicklung zu bleiben.
-        
+
         Symphony wird ausschließlich von Spenden aus Github Sponsors, Ko-fi und Patreon unterstützt.
-        
+
         Nochmals, danke dass du Symphony ausprobierst!
     Songs: Lieder
     Artists: Künstler
@@ -133,7 +133,7 @@ Translations:
     BitDepth: Bit Breite
     SamplingRate: Samplingrate
     ShowAudioInformation: Audioinformationen zeigen
-    FastRewindDuration: Dauer des schnellen Rückspulen 
+    FastRewindDuration: Dauer des schnellen Rückspulen
     FastForwardDuration: Dauer des schnellen Vorspulen
     SuggestedAlbumArtists: Vorgeschlagene Album Künstler
     AreYouSureThatYouWantToDeleteThisPlaylist: Bist du dir sicher, dass du diese Wiedergabeliste löschen willst?

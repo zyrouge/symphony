@@ -1,4 +1,4 @@
-Locale: it
+LocaleCode: it
 Language: Italian
 
 Translations:
@@ -9,7 +9,7 @@ Translations:
         Grazie per aver preso parte alle open-beta di Symphony. Se incontri qualche bug o vuoi suggerire dei miglioramenti, ti preghiamo di aprire una segnalazione nel nostro repository su GitHub
 
         Unisciti alle nostre comunità Discord e Reddit per condividere i tuoi feedback e rimanere aggiornato sullo sviluppo.
-        
+
         Symphony è completamente supportata dalle donazioni effettuate tramite Github Sponsors, Ko-fi e Patreon.
 
         Ancora una volta, grazie per aver scelto Symphony!
