@@ -135,6 +135,7 @@ class RadioQueue(private val symphony: Symphony) {
             currentQueue.addAll(originalQueue)
             currentQueue.indexOfFirst { it == currentSongId }
         }
+        symphony.radio.onUpdate.dispatch(RadioEvents.QueueModified)
     }
 
     fun isEmpty() = originalQueue.isEmpty()
