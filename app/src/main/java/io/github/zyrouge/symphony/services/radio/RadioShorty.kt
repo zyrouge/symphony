@@ -27,6 +27,7 @@ class RadioShorty(private val symphony: Symphony) {
                 symphony.radio.jumpToPrevious()
                 true
             }
+
             else -> {
                 symphony.radio.seek(0)
                 false
@@ -42,6 +43,7 @@ class RadioShorty(private val symphony: Symphony) {
                 symphony.radio.jumpToNext()
                 true
             }
+
             else -> {
                 symphony.radio.play(Radio.PlayOptions(index = 0, autostart = false))
                 false
@@ -55,11 +57,12 @@ class RadioShorty(private val symphony: Symphony) {
         shuffle: Boolean = false,
     ) {
         symphony.radio.stop(ended = false)
+        if (songIds.isEmpty()) return
         symphony.radio.queue.add(
-            songIds,
-            options = options.run {
-                copy(index = if (shuffle) Random.nextInt(songIds.size) else options.index)
-            }
+                songIds,
+                options = options.run {
+                    copy(index = if (shuffle) Random.nextInt(songIds.size) else options.index)
+                }
         )
         symphony.radio.queue.setShuffleMode(shuffle)
     }
