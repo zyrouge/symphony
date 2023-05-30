@@ -30,7 +30,7 @@ interface ITranslations {
     val Language: String
     val Locale: String
     val LocaleCode: String
-    val CountryCode: String
+    val CountryCode: String?
 
 ${keys.static.map((x) => `    val ${x}: String`).join("\n")}
 
