@@ -68,14 +68,14 @@ Translations:
     Stop: Ferma
     All: Tutti
     FadePlaybackInOut: Dissolvenza in conclusione
-    RequireAudioFocus: Richiedere focus audio
+    RequireAudioFocus: Richiedi focus audio
     IgnoreAudioFocusLoss: Ignora perdita del focus audio
     Player: Lettore
     PlayOnHeadphonesConnect: Riproduzione in cuffia
-    PauseOnHeadphonesDisconnect: Pausa su diconnessione cuffie
+    PauseOnHeadphonesDisconnect: Pausa su disconnessione cuffie
     Genre: Genere
     DamnThisIsSoEmpty: Maledizione, è così vuoto!
-    PrimaryColor: Colore Primario
+    PrimaryColor: Colore primario
     PlayAll: Riproduci tutti
     ForYou: Per te
     SuggestedAlbums: Album suggeriti
@@ -114,8 +114,8 @@ Translations:
     Loading: Caricamento...
     Name: Nome
     AddFolder: Nuova cartella
-    BlacklistFolders: Cartelle ingorate
-    WhitelistFolders: Certelle considerate
+    BlacklistFolders: Cartelle ignorate
+    WhitelistFolders: Cartelle considerate
     PickFolder: Scegli cartella
     InvalidM3UFile: File M3U non valido
     Discord: Discord
