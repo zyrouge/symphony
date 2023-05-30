@@ -190,6 +190,7 @@ class RadioQueue(private val symphony: Symphony) {
             originalQueue.addAll(serialized.originalQueue)
             currentQueue.clear()
             currentQueue.addAll(serialized.currentQueue)
+            symphony.radio.onUpdate.dispatch(RadioEvents.QueueModified)
             currentShuffleMode = serialized.shuffled
             afterAdd(
                 Radio.PlayOptions(
