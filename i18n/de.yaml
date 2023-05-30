@@ -6,11 +6,13 @@ Translations:
     UnknownSymbol: "?"
     HelloThere: Hallo!
     IntroductoryMessage: |
-        Danke, dass du dich für Symphony entschieden hast! Falls du auf irgendwelche technische Probleme stößt, dann ist unser Github Repository der Ort um diese zu melden.
-
-        Trete unserer Discord und Reddit Community bei, um mit anderen Musikliebhabern in Kontakt zu treten, Unterstützung zu bekommen und um auf dem aktuellsten Stand über die neuersten Updates zu sein. Deine Großzügigkeit hilft dabei, die Entwicklung von Symphony aufrecht zu erhalten, also ziehe bitte in Erwägung uns durch Spenden oder Github Sponsors zu untersützen.
-
-        Noch einmal, genießen Sie die Musik!
+        Danke, dass du Teil der Symphony Open-Beta bist. Falls du auf irgendwelche Fehler stößt oder du Verbesserungsvorschläge hast, dann öffne gerne ein Issue in unserem Github Repository.
+        
+        Tritt unserer Discord und Reddit Community bei, um dein Feedback mitzuteilen und um auf dem aktuellsten Stand der Entwicklung zu bleiben.
+        
+        Symphony wird ausschließlich von Spenden aus Github Sponsors, Ko-fi und Patreon unterstützt.
+        
+        Nochmals, danke dass du Symphony ausprobierst!
     Songs: Lieder
     Artists: Künstler
     Albums: Alben
@@ -31,7 +33,7 @@ Translations:
     NothingIsBeingPlayedRightNow: Gerade wird nichts wiedergegeben
     AddToQueue: Zur Warteschlange anhängen
     Queue: Warteschlange
-    PlayNext: Als nächstes abspielen
+    PlayNext: Als nächstes wiedergeben
     NowPlaying: Jetzt spielt
     Language_: Sprache
     MaterialYou: Material You
@@ -67,23 +69,23 @@ Translations:
     ViewAlbumArtist: Album Künstler ansehen
     Stop: Stopp
     All: Alles
-    FadePlaybackInOut: Fade playback in-out
+    FadePlaybackInOut: Ein- und Ausblenden der Wiedergabe
     RequireAudioFocus: Audiofokus erfordern
     IgnoreAudioFocusLoss: Verlust von Audiofokus ignorieren
     Player: Player
-    PlayOnHeadphonesConnect: Wiedergabe bei Kopfhörerverbindung
-    PauseOnHeadphonesDisconnect: Pausiere bei Kopfhörertrennung
+    PlayOnHeadphonesConnect: Bei Kopfhörerverbindung wiedergeben
+    PauseOnHeadphonesDisconnect: Bei Kopfhörertrennung pausieren
     Genre: Genre
     DamnThisIsSoEmpty: Verdammt, es ist so leer!
     PrimaryColor: Primäre Farbe
-    PlayAll: Alles abspielen
+    PlayAll: Alles wiedergeben
     ForYou: Für dich
     SuggestedAlbums: Vorgeschlagene Alben
     SuggestedArtists: Vorgeschlagene Künstler
     RecentlyAddedSongs: Zuletzt hinzugefügte Lieder
     SponsorViaGitHub: Sponsor via GitHub
-    ClearSongCache: Lieder cache löschen
-    SongCacheCleared: Lieder cache gelöscht
+    ClearSongCache: Liedcache löschen
+    SongCacheCleared: Liedcache gelöscht
     AlbumArtists: Album Künstler
     Genres: Genres
     Cancel: Abbrechen
@@ -93,7 +95,7 @@ Translations:
     Invisible: unsichtbar
     AlwaysVisible: Immer sichtbar
     VisibleWhenActive: Sichtbar wenn aktiv
-    BottomBarLabelVisibility: Sichtbarkeit Bodenleistenbeschriftung
+    BottomBarLabelVisibility: Sichtbarkeit der Bodenleistenbeschriftung
     Playlists: Wiedergabelisten
     NewPlaylist: Neue Wiedergabelsite
     ImportPlaylist: Wiedergabeliste importieren
@@ -110,17 +112,17 @@ Translations:
     Delete: Löschen
     DeletePlaylist: Wiedergabeliste löschen
     TrackNumber: Tracknummer
-    Tree: Tree
+    Tree: Baumansicht
     Loading: Lade...
     Name: Name
     AddFolder: Ordner hinzufügen
-    BlacklistFolders: Schwarze Liste für Ordner
-    WhitelistFolders: Weiße Liste für Ordner
+    BlacklistFolders: Ordner ausschließen
+    WhitelistFolders: Ordner zulassen
     PickFolder: Wähle Ordner
     InvalidM3UFile: Ungültige M3U Datei
     Discord: Discord
     Reddit: Reddit
-    ReportAnIssue: Ein Fehler melden
+    ReportAnIssue: Einen Fehler melden
     NoFoldersFound: Keine Ordner gefunden
     SleepTimer: Schlaftimer
     Hours: Stunden
@@ -128,13 +130,13 @@ Translations:
     QuitAppOnEnd: Nach Ende App verlassen
     Favorite: Als Favorit markieren
     Unfavorite: Als Favorit entfernen
-    BitDepth: Bit depth
-    SamplingRate: Sampling Rate
+    BitDepth: Bit Breite
+    SamplingRate: Samplingrate
     ShowAudioInformation: Audioinformationen zeigen
     FastRewindDuration: Dauer des schnellen Rückspulen 
     FastForwardDuration: Dauer des schnellen Vorspulen
     SuggestedAlbumArtists: Vorgeschlagene Album Künstler
-    AreYouSureThatYouWantToDeleteThisPlaylist: Bist du dir sicher, dass du die Wiedergabeliste löschen willst?
+    AreYouSureThatYouWantToDeleteThisPlaylist: Bist du dir sicher, dass du diese Wiedergabeliste löschen willst?
     RemoveFromPlaylist: Aus Wiedergabeliste entfernen
     Speed: Geschwindigkeit
     Pitch: Pitch

@@ -157,6 +157,9 @@ Translations:
     Disabled: Disabled
     ShowUpdateToast: Show update toast
     SponsorViaKoFi: Sponsor via Ko-fi
+    PlaylistStoreLocation: Playlist location
+    AppBuiltIn: Built-in
+    LocalStorage: Local storage
 
     # Dynamic
     PlayingXofY: Playing $x of $y

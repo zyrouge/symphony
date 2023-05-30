@@ -146,7 +146,10 @@
         "Enabled",
         "Disabled",
         "ShowUpdateToast",
-        "SponsorViaKoFi"
+        "SponsorViaKoFi",
+        "PlaylistStoreLocation",
+        "AppBuiltIn",
+        "LocalStorage"
     ],
     "dynamic": {
         "PlayingXofY": ["x", "y"],
