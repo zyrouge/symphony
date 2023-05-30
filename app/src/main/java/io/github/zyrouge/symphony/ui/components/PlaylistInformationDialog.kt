@@ -22,10 +22,10 @@ fun PlaylistInformationDialog(
                 playlist.numberOfTracks.toString()
             )
             InformationKeyValue(
-                context.symphony.t.IsLocalPlaylist,
+                context.symphony.t.PlaylistStoreLocation,
                 when {
-                    playlist.isLocal() -> context.symphony.t.Yes
-                    else -> context.symphony.t.No
+                    playlist.isLocal() -> context.symphony.t.LocalStorage
+                    else -> context.symphony.t.AppBuiltIn
                 },
             )
             playlist.local?.let { local ->
