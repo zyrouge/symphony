@@ -3,8 +3,12 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,8 +55,20 @@ fun AddToPlaylistDialog(
                 else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
                     items(playlists) { playlist ->
                         GenericGrooveCard(
-                            image = playlist.createArtworkImageRequest(context.symphony)
+                            image = playlist
+                                .createArtworkImageRequest(context.symphony)
                                 .build(),
+                            imageLabel = when {
+                                songIds.size == 1 && playlist.songIds.contains(songIds[0]) -> ({
+                                    Icon(
+                                        Icons.Default.Check,
+                                        null,
+                                        modifier = Modifier.size(12.dp),
+                                    )
+                                })
+
+                                else -> null
+                            },
                             title = {
                                 Text(playlist.title)
                             },
