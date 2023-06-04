@@ -8,9 +8,9 @@ export interface VersionData {
 }
 
 export class Versioner {
-    static appBuildGradlePath = path.join(Paths.appDir, "build.gradle");
-    static versionCodeRegex = RegExp(/versionCode (\d+)/);
-    static versionNameRegex = RegExp(/versionName "(.+?)"/);
+    static appBuildGradlePath = path.join(Paths.appDir, "build.gradle.kts");
+    static versionCodeRegex = RegExp(/versionCode = (\d+)/);
+    static versionNameRegex = RegExp(/versionName = "(\d{4}\.\d{1,2}\.\d+)"/);
 
     static async getVersion() {
         const content = (await fs.readFile(this.appBuildGradlePath)).toString();
@@ -28,11 +28,11 @@ export class Versioner {
         let content = (await fs.readFile(this.appBuildGradlePath)).toString();
         content = content.replace(
             this.versionCodeRegex,
-            `versionCode ${versionCode}`
+            `versionCode = ${versionCode}`
         );
         content = content.replace(
             this.versionNameRegex,
-            `versionName "${versionName}"`
+            `versionName = "${versionName}"`
         );
         await fs.writeFile(this.appBuildGradlePath, content);
     }
