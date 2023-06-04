@@ -100,7 +100,8 @@ object SettingsDefaults {
         HomePages.ForYou,
         HomePages.Songs,
         HomePages.Albums,
-        HomePages.Artists
+        HomePages.Artists,
+        HomePages.Playlists,
     )
     val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
     val forYouContents = setOf(
