@@ -100,7 +100,13 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun sort(playlistIds: List<String>, by: PlaylistSortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
-            PlaylistSortBy.CUSTOM -> playlistIds
+            PlaylistSortBy.CUSTOM -> {
+                val prefix = listOfNotNull(favoritesId)
+                val others = playlistIds.toMutableList()
+                prefix.forEach { others.remove(it) }
+                prefix + others
+            }
+
             PlaylistSortBy.TITLE -> playlistIds.sortedBy { get(it)?.title }
             PlaylistSortBy.TRACKS_COUNT -> playlistIds.sortedBy { get(it)?.numberOfTracks }
         }
