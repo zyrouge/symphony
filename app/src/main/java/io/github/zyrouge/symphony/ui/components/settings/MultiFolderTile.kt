@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -226,6 +226,7 @@ private fun SettingsFolderTilePickerDialog(
                 ) {
                     SubtleCaptionText(context.symphony.t.NoFoldersFound)
                 }
+
                 else -> {
                     val lazyListState = rememberLazyListState()
 

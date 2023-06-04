@@ -35,8 +35,8 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
 import io.github.zyrouge.symphony.ui.components.*
+import io.github.zyrouge.symphony.ui.components.settings.SettingsTileDefaults
 import io.github.zyrouge.symphony.ui.helpers.*
-import io.github.zyrouge.symphony.ui.view.settings.SettingsTileDefaults
 import io.github.zyrouge.symphony.utils.DurationFormatter
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -130,6 +130,7 @@ fun NowPlayingView(context: ViewContext) {
                 controlsLayout = controlsLayout,
             )
         )
+
         else -> NothingPlaying(context)
     }
 }
@@ -220,6 +221,7 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
                                     NowPlayingBodyBottomBar(context, data, states)
                                 }
                             }
+
                             ScreenOrientation.LANDSCAPE -> Row(
                                 modifier = Modifier.fillMaxSize(),
                                 horizontalArrangement = Arrangement.SpaceAround,
@@ -323,6 +325,7 @@ private fun NowPlayingBodyCover(
                                                 .verticalScroll(rememberScrollState()),
                                         )
                                     }
+
                                     else -> Text(
                                         if (lyricsState == 1) context.symphony.t.Loading
                                         else context.symphony.t.NoLyrics,
@@ -331,6 +334,7 @@ private fun NowPlayingBodyCover(
                                 }
                             }
                         }
+
                         else -> AnimatedContent(
                             modifier = Modifier.matchParentSize(),
                             targetState = song,
@@ -433,6 +437,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                                 null,
                                 tint = MaterialTheme.colorScheme.primary,
                             )
+
                             else -> Icon(Icons.Default.FavoriteBorder, null)
                         }
                     }
@@ -500,6 +505,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                         ),
                     )
                 }
+
                 NowPlayingControlsLayout.Traditional -> Row(
                     modifier = Modifier
                         .padding(defaultHorizontalPadding, 0.dp)

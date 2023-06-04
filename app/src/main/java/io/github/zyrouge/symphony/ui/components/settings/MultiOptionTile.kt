@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -57,7 +57,7 @@ fun <T> SettingsMultiOptionTile(
             derivedStateOf { satisfies(nValue.toSet()) }
         }
         val modified by remember {
-            derivedStateOf { nValue != value }
+            derivedStateOf { nValue.toSet() != value }
         }
 
         ScaffoldDialog(

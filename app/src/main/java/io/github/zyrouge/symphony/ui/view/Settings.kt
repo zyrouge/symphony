@@ -14,13 +14,13 @@ import io.github.zyrouge.symphony.services.SettingsDefaults
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.components.settings.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.home.ForYou
-import io.github.zyrouge.symphony.ui.view.settings.*
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
