@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -133,8 +134,8 @@ fun SearchView(context: ViewContext) {
                         .fillMaxWidth()
                         .focusRequester(textFieldFocusRequester),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
                     ),
                     singleLine = true,
                     value = terms,
@@ -230,6 +231,7 @@ fun SearchView(context: ViewContext) {
                                     )
                                 }
                             }
+
                             hasNoResults -> {
                                 Box(modifier = Modifier.align(Alignment.Center)) {
                                     IconTextBody(
@@ -246,6 +248,7 @@ fun SearchView(context: ViewContext) {
                                     )
                                 }
                             }
+
                             else -> {
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                     if (hasSongs) {

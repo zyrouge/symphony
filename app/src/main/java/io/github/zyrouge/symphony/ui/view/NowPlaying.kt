@@ -1096,6 +1096,8 @@ private fun NowPlayingSleepTimerSetDialog(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
                             unfocusedIndicatorColor = DividerDefaults.color,
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1112,6 +1114,8 @@ private fun NowPlayingSleepTimerSetDialog(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
                             unfocusedIndicatorColor = DividerDefaults.color,
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

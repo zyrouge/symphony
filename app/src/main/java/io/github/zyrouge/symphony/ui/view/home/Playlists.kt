@@ -152,6 +152,7 @@ private fun SelectPlaylistDialog(
                 playlists.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
                     SubtleCaptionText(context.symphony.t.NoLocalPlaylistsFound)
                 }
+
                 else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
                     items(playlists) { playlist ->
                         Card(
@@ -188,7 +189,6 @@ private fun SelectPlaylistDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewPlaylistDialog(
     context: ViewContext,
@@ -221,6 +221,8 @@ fun NewPlaylistDialog(
                         .focusRequester(focusRequester),
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
                         unfocusedIndicatorColor = DividerDefaults.color,
                     ),
                     value = input,
