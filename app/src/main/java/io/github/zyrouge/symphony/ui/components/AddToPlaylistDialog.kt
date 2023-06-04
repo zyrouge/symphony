@@ -7,7 +7,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -23,10 +30,14 @@ fun AddToPlaylistDialog(
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showNewPlaylistDialog by remember { mutableStateOf(false) }
-    val playlists = remember {
-        context.symphony.groove.playlist.values()
-            .filter { it.isNotLocal() }
-            .toMutableStateList()
+    val allPlaylistsIds = context.symphony.groove.playlist.all
+    val playlists by remember {
+        derivedStateOf {
+            allPlaylistsIds
+                .mapNotNull { context.symphony.groove.playlist.get(it) }
+                .filter { it.isNotLocal() }
+                .toMutableStateList()
+        }
     }
 
     ScaffoldDialog(
@@ -86,7 +97,9 @@ fun AddToPlaylistDialog(
             context = context,
             onDone = { playlist ->
                 showNewPlaylistDialog = false
-                playlists.add(playlist)
+                coroutineScope.launch {
+                    context.symphony.groove.playlist.add(playlist)
+                }
             },
             onDismissRequest = {
                 showNewPlaylistDialog = false
