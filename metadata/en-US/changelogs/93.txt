@@ -1,0 +1,5 @@
+- Fix "Create new playlist" not working in "Add to playlist" dialog.
+- Fix undismissible Settings Multi-tile Option dialog.
+- Visual indication showing if a song is already in the playlist when adding song to playlist.
+- Add "Playlists" tab to default Home tabs.
+- Show "Favorites" playlist at top in "custom" sort order.
