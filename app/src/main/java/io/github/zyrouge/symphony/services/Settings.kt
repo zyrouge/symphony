@@ -5,20 +5,27 @@ import android.content.SharedPreferences
 import android.os.Environment
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.*
+import io.github.zyrouge.symphony.services.groove.AlbumArtistSortBy
+import io.github.zyrouge.symphony.services.groove.AlbumSortBy
+import io.github.zyrouge.symphony.services.groove.ArtistSortBy
+import io.github.zyrouge.symphony.services.groove.GenreSortBy
+import io.github.zyrouge.symphony.services.groove.PathSortBy
+import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
+import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
-import io.github.zyrouge.symphony.utils.Eventer
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 object SettingsKeys {
     const val identifier = "settings"
     const val themeMode = "theme_mode"
     const val language = "language"
-    const val materialYou = "material_you"
+    const val useMaterialYou = "material_you"
     const val lastUsedSongsSortBy = "last_used_song_sort_by"
     const val lastUsedSongsSortReverse = "last_used_song_sort_reverse"
     const val lastUsedArtistsSortBy = "last_used_artists_sort_by"
@@ -66,40 +73,23 @@ object SettingsKeys {
     const val miniPlayerSeekControls = "mini_player_seek_controls"
     const val fontFamily = "font_family"
     const val nowPlayingControlsLayout = "now_playing_controls_layout"
+    const val showUpdateToast = "show_update_toast"
 }
 
-data class SettingsData(
-    val themeMode: ThemeMode,
-    val language: String?,
-    val useMaterialYou: Boolean,
-    val songsFilterPattern: String?,
-    val checkForUpdates: Boolean,
-    val fadePlayback: Boolean,
-    val requireAudioFocus: Boolean,
-    val ignoreAudioFocusLoss: Boolean,
-    val playOnHeadphonesConnect: Boolean,
-    val pauseOnHeadphonesDisconnect: Boolean,
-    val primaryColor: String?,
-    val fadePlaybackDuration: Float,
-    val homeTabs: Set<HomePages>,
-    val homePageBottomBarLabelVisibility: HomePageBottomBarLabelVisibility,
-    val forYouContents: Set<ForYou>,
-    val blacklistFolders: Set<String>,
-    val whitelistFolders: Set<String>,
-    val nowPlayingAdditionalInfo: Boolean,
-    val nowPlayingSeekControls: Boolean,
-    val seekBackDuration: Int,
-    val seekForwardDuration: Int,
-    val miniPlayerTrackControls: Boolean,
-    val miniPlayerSeekControls: Boolean,
-    val fontFamily: String?,
-    val nowPlayingControlsLayout: NowPlayingControlsLayout,
-)
-
-object SettingsDataDefaults {
+object SettingsDefaults {
     val themeMode = ThemeMode.SYSTEM
     const val useMaterialYou = true
-    const val checkForUpdates = true
+    val lastUsedSongSortBy = SongSortBy.TITLE
+    val lastUsedArtistsSortBy = ArtistSortBy.ARTIST_NAME
+    val lastUsedAlbumArtistsSortBy = AlbumArtistSortBy.ARTIST_NAME
+    val lastUsedAlbumsSortBy = AlbumSortBy.ALBUM_NAME
+    val lastUsedGenresSortBy = GenreSortBy.GENRE
+    val lastUsedFolderSortBy = SongSortBy.FILENAME
+    val lastUsedPlaylistsSortBy = PlaylistSortBy.TITLE
+    val lastUsedPlaylistSongsSortBy = SongSortBy.CUSTOM
+    val lastUsedAlbumSongsSortBy = SongSortBy.TITLE
+    val lastUsedTreePathSortBy = PathSortBy.NAME
+    const val checkForUpdates = false
     const val fadePlayback = false
     const val requireAudioFocus = true
     const val ignoreAudioFocusLoss = false
@@ -110,7 +100,8 @@ object SettingsDataDefaults {
         HomePages.ForYou,
         HomePages.Songs,
         HomePages.Albums,
-        HomePages.Artists
+        HomePages.Artists,
+        HomePages.Playlists,
     )
     val homePageBottomBarLabelVisibility = HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE
     val forYouContents = setOf(
@@ -131,78 +122,154 @@ object SettingsDataDefaults {
     const val miniPlayerTrackControls = false
     const val miniPlayerSeekControls = false
     val nowPlayingControlsLayout = NowPlayingControlsLayout.Default
+    val showUpdateToast = true
 }
 
 class SettingsManager(private val symphony: Symphony) {
-    val onChange = Eventer<String>()
-
-    fun getSettings() = SettingsData(
-        themeMode = getThemeMode(),
-        language = getLanguage(),
-        useMaterialYou = getUseMaterialYou(),
-        songsFilterPattern = getSongsFilterPattern(),
-        checkForUpdates = getCheckForUpdates(),
-        fadePlayback = getFadePlayback(),
-        requireAudioFocus = getRequireAudioFocus(),
-        ignoreAudioFocusLoss = getIgnoreAudioFocusLoss(),
-        playOnHeadphonesConnect = getPlayOnHeadphonesConnect(),
-        pauseOnHeadphonesDisconnect = getPauseOnHeadphonesDisconnect(),
-        primaryColor = getPrimaryColor(),
-        fadePlaybackDuration = getFadePlaybackDuration(),
-        homeTabs = getHomeTabs(),
-        homePageBottomBarLabelVisibility = getHomePageBottomBarLabelVisibility(),
-        forYouContents = getForYouContents(),
-        blacklistFolders = getBlacklistFolders(),
-        whitelistFolders = getWhitelistFolders(),
-        nowPlayingAdditionalInfo = getNowPlayingAdditionalInfo(),
-        nowPlayingSeekControls = getNowPlayingSeekControls(),
-        seekBackDuration = getSeekBackDuration(),
-        seekForwardDuration = getSeekForwardDuration(),
-        miniPlayerTrackControls = getMiniPlayerTrackControls(),
-        miniPlayerSeekControls = getMiniPlayerSeekControls(),
-        fontFamily = getFontFamily(),
-        nowPlayingControlsLayout = getNowPlayingControlsLayout(),
-    )
+    private val _themeMode = MutableStateFlow(getThemeMode())
+    val themeMode = _themeMode.asStateFlow()
+    private val _language = MutableStateFlow(getLanguage())
+    val language = _language.asStateFlow()
+    private val _useMaterialYou = MutableStateFlow(getUseMaterialYou())
+    val useMaterialYou = _useMaterialYou.asStateFlow()
+    private val _lastUsedSongsSortBy = MutableStateFlow(getLastUsedSongsSortBy())
+    val lastUsedSongsSortBy = _lastUsedSongsSortBy.asStateFlow()
+    private val _lastUsedSongsSortReverse = MutableStateFlow(getLastUsedSongsSortReverse())
+    val lastUsedSongsSortReverse = _lastUsedSongsSortReverse.asStateFlow()
+    private val _lastUsedArtistsSortBy = MutableStateFlow(getLastUsedArtistsSortBy())
+    val lastUsedArtistsSortBy = _lastUsedArtistsSortBy.asStateFlow()
+    private val _lastUsedArtistsSortReverse = MutableStateFlow(getLastUsedArtistsSortReverse())
+    val lastUsedArtistsSortReverse = _lastUsedArtistsSortReverse.asStateFlow()
+    private val _lastUsedAlbumArtistsSortBy = MutableStateFlow(getLastUsedAlbumArtistsSortBy())
+    val lastUsedAlbumArtistsSortBy = _lastUsedAlbumArtistsSortBy.asStateFlow()
+    private val _lastUsedAlbumArtistsSortReverse =
+        MutableStateFlow(getLastUsedAlbumArtistsSortReverse())
+    val lastUsedAlbumArtistsSortReverse = _lastUsedAlbumArtistsSortReverse.asStateFlow()
+    private val _lastUsedAlbumsSortBy = MutableStateFlow(getLastUsedAlbumsSortBy())
+    val lastUsedAlbumsSortBy = _lastUsedAlbumsSortBy.asStateFlow()
+    private val _lastUsedAlbumsSortReverse = MutableStateFlow(getLastUsedAlbumsSortReverse())
+    val lastUsedAlbumsSortReverse = _lastUsedAlbumsSortReverse.asStateFlow()
+    private val _lastUsedGenresSortBy = MutableStateFlow(getLastUsedGenresSortBy())
+    val lastUsedGenresSortBy = _lastUsedGenresSortBy.asStateFlow()
+    private val _lastUsedGenresSortReverse = MutableStateFlow(getLastUsedGenresSortReverse())
+    val lastUsedGenresSortReverse = _lastUsedGenresSortReverse.asStateFlow()
+    private val _lastUsedFolderSortBy = MutableStateFlow(getLastUsedFolderSortBy())
+    val lastUsedFolderSortBy = _lastUsedFolderSortBy.asStateFlow()
+    private val _lastUsedFolderSortReverse = MutableStateFlow(getLastUsedFolderSortReverse())
+    val lastUsedFolderSortReverse = _lastUsedFolderSortReverse.asStateFlow()
+    private val _lastUsedFolderPath = MutableStateFlow(getLastUsedFolderPath())
+    val lastUsedFolderPath = _lastUsedFolderPath.asStateFlow()
+    private val _lastUsedPlaylistsSortBy = MutableStateFlow(getLastUsedPlaylistsSortBy())
+    val lastUsedPlaylistsSortBy = _lastUsedPlaylistsSortBy.asStateFlow()
+    private val _lastUsedPlaylistsSortReverse = MutableStateFlow(getLastUsedPlaylistsSortReverse())
+    val lastUsedPlaylistsSortReverse = _lastUsedPlaylistsSortReverse.asStateFlow()
+    private val _lastUsedPlaylistSongsSortBy = MutableStateFlow(getLastUsedPlaylistSongsSortBy())
+    val lastUsedPlaylistSongsSortBy = _lastUsedPlaylistSongsSortBy.asStateFlow()
+    private val _lastUsedPlaylistSongsSortReverse =
+        MutableStateFlow(getLastUsedPlaylistSongsSortReverse())
+    val lastUsedPlaylistSongsSortReverse = _lastUsedPlaylistSongsSortReverse.asStateFlow()
+    private val _lastUsedAlbumSongsSortBy = MutableStateFlow(getLastUsedAlbumSongsSortBy())
+    val lastUsedAlbumSongsSortBy = _lastUsedAlbumSongsSortBy.asStateFlow()
+    private val _lastUsedAlbumSongsSortReverse = MutableStateFlow(getLastUsedAlbumsSortReverse())
+    val lastUsedAlbumSongsSortReverse = _lastUsedAlbumSongsSortReverse.asStateFlow()
+    private val _lastUsedTreePathSortBy = MutableStateFlow(getLastUsedTreePathSortBy())
+    val lastUsedTreePathSortBy = _lastUsedTreePathSortBy.asStateFlow()
+    private val _lastUsedTreePathSortReverse = MutableStateFlow(getLastUsedFolderSortReverse())
+    val lastUsedTreePathSortReverse = _lastUsedTreePathSortReverse.asStateFlow()
+    private val _lastDisabledTreePaths = MutableStateFlow(getLastDisabledTreePaths())
+    val lastDisabledTreePaths = _lastDisabledTreePaths.asStateFlow()
+    private val _homeLastTab = MutableStateFlow(getHomeLastTab())
+    val homeLastTab = _homeLastTab.asStateFlow()
+    private val _songsFilterPattern = MutableStateFlow(getSongsFilterPattern())
+    val songsFilterPattern = _songsFilterPattern.asStateFlow()
+    private val _checkForUpdates = MutableStateFlow(getCheckForUpdates())
+    val checkForUpdates = _checkForUpdates.asStateFlow()
+    private val _fadePlayback = MutableStateFlow(getFadePlayback())
+    val fadePlayback = _fadePlayback.asStateFlow()
+    private val _requireAudioFocus = MutableStateFlow(getRequireAudioFocus())
+    val requireAudioFocus = _requireAudioFocus.asStateFlow()
+    private val _ignoreAudioFocusLoss = MutableStateFlow(getIgnoreAudioFocusLoss())
+    val ignoreAudioFocusLoss = _ignoreAudioFocusLoss.asStateFlow()
+    private val _playOnHeadphonesConnect = MutableStateFlow(getPlayOnHeadphonesConnect())
+    val playOnHeadphonesConnect = _playOnHeadphonesConnect.asStateFlow()
+    private val _pauseOnHeadphonesDisconnect = MutableStateFlow(getPauseOnHeadphonesDisconnect())
+    val pauseOnHeadphonesDisconnect = _pauseOnHeadphonesDisconnect.asStateFlow()
+    private val _primaryColor = MutableStateFlow(getPrimaryColor())
+    val primaryColor = _primaryColor.asStateFlow()
+    private val _fadePlaybackDuration = MutableStateFlow(getFadePlaybackDuration())
+    val fadePlaybackDuration = _fadePlaybackDuration.asStateFlow()
+    private val _homeTabs = MutableStateFlow(getHomeTabs())
+    val homeTabs = _homeTabs.asStateFlow()
+    private val _homePageBottomBarLabelVisibility =
+        MutableStateFlow(getHomePageBottomBarLabelVisibility())
+    val homePageBottomBarLabelVisibility = _homePageBottomBarLabelVisibility.asStateFlow()
+    private val _forYouContents = MutableStateFlow(getForYouContents())
+    val forYouContents = _forYouContents.asStateFlow()
+    private val _blacklistFolders = MutableStateFlow(getBlacklistFolders())
+    val blacklistFolders = _blacklistFolders.asStateFlow()
+    private val _whitelistFolders = MutableStateFlow(getWhitelistFolders())
+    val whitelistFolders = _whitelistFolders.asStateFlow()
+    private val _readIntroductoryMessage = MutableStateFlow(getReadIntroductoryMessage())
+    val readIntroductoryMessage = _readIntroductoryMessage.asStateFlow()
+    private val _nowPlayingAdditionalInfo = MutableStateFlow(getNowPlayingAdditionalInfo())
+    val nowPlayingAdditionalInfo = _nowPlayingAdditionalInfo.asStateFlow()
+    private val _nowPlayingSeekControls = MutableStateFlow(getNowPlayingSeekControls())
+    val nowPlayingSeekControls = _nowPlayingSeekControls.asStateFlow()
+    private val _seekBackDuration = MutableStateFlow(getSeekBackDuration())
+    val seekBackDuration = _seekBackDuration.asStateFlow()
+    private val _seekForwardDuration = MutableStateFlow(getSeekForwardDuration())
+    val seekForwardDuration = _seekForwardDuration.asStateFlow()
+    private val _miniPlayerTrackControls = MutableStateFlow(getMiniPlayerTrackControls())
+    val miniPlayerTrackControls = _miniPlayerTrackControls.asStateFlow()
+    private val _miniPlayerSeekControls = MutableStateFlow(getMiniPlayerSeekControls())
+    val miniPlayerSeekControls = _miniPlayerSeekControls.asStateFlow()
+    private val _fontFamily = MutableStateFlow(getFontFamily())
+    val fontFamily = _fontFamily.asStateFlow()
+    private val _nowPlayingControlsLayout = MutableStateFlow(getNowPlayingControlsLayout())
+    val nowPlayingControlsLayout = _nowPlayingControlsLayout.asStateFlow()
+    private val _showUpdateToast = MutableStateFlow(getShowUpdateToast())
+    val showUpdateToast = _showUpdateToast.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
-        ?: SettingsDataDefaults.themeMode
+        ?: SettingsDefaults.themeMode
 
     fun setThemeMode(themeMode: ThemeMode) {
         getSharedPreferences().edit {
             putString(SettingsKeys.themeMode, themeMode.name)
         }
-        onChange.dispatch(SettingsKeys.themeMode)
+        _themeMode.tryEmit(getThemeMode())
     }
 
     fun getLanguage() = getSharedPreferences().getString(SettingsKeys.language, null)
-    fun setLanguage(language: String) {
+    fun setLanguage(language: String?) {
         getSharedPreferences().edit {
             putString(SettingsKeys.language, language)
         }
-        onChange.dispatch(SettingsKeys.language)
+        _language.tryEmit(getLanguage())
     }
 
     fun getUseMaterialYou() = getSharedPreferences().getBoolean(
-        SettingsKeys.materialYou,
-        SettingsDataDefaults.useMaterialYou,
+        SettingsKeys.useMaterialYou,
+        SettingsDefaults.useMaterialYou,
     )
 
     fun setUseMaterialYou(value: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.materialYou, value)
+            putBoolean(SettingsKeys.useMaterialYou, value)
         }
-        onChange.dispatch(SettingsKeys.materialYou)
+        _useMaterialYou.tryEmit(getUseMaterialYou())
     }
 
-    fun getLastUsedSongsSortBy() =
-        getSharedPreferences().getEnum<SongSortBy>(SettingsKeys.lastUsedSongsSortBy, null)
+    fun getLastUsedSongsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedSongsSortBy, null)
+        ?: SettingsDefaults.lastUsedSongSortBy
 
     fun setLastUsedSongsSortBy(sortBy: SongSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedSongsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedSongsSortBy)
+        _lastUsedSongsSortBy.tryEmit(getLastUsedSongsSortBy())
     }
 
     fun getLastUsedSongsSortReverse() =
@@ -212,17 +279,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedSongsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedSongsSortReverse)
+        _lastUsedSongsSortReverse.tryEmit(getLastUsedSongsSortReverse())
     }
 
-    fun getLastUsedArtistsSortBy() =
-        getSharedPreferences().getEnum<ArtistSortBy>(SettingsKeys.lastUsedArtistsSortBy, null)
+    fun getLastUsedArtistsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedArtistsSortBy, null)
+        ?: SettingsDefaults.lastUsedArtistsSortBy
 
     fun setLastUsedArtistsSortBy(sortBy: ArtistSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedArtistsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedArtistsSortBy)
+        _lastUsedArtistsSortBy.tryEmit(getLastUsedArtistsSortBy())
     }
 
     fun getLastUsedArtistsSortReverse() =
@@ -232,20 +300,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedArtistsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedArtistsSortReverse)
+        _lastUsedArtistsSortReverse.tryEmit(getLastUsedArtistsSortReverse())
     }
 
-    fun getLastUsedAlbumArtistsSortBy() =
-        getSharedPreferences().getEnum<AlbumArtistSortBy>(
-            SettingsKeys.lastUsedAlbumArtistsSortBy,
-            null
-        )
+    fun getLastUsedAlbumArtistsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedAlbumArtistsSortBy, null)
+        ?: SettingsDefaults.lastUsedAlbumArtistsSortBy
 
     fun setLastUsedAlbumArtistsSortBy(sortBy: AlbumArtistSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumArtistsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumArtistsSortBy)
+        _lastUsedAlbumArtistsSortBy.tryEmit(getLastUsedAlbumArtistsSortBy())
     }
 
     fun getLastUsedAlbumArtistsSortReverse() =
@@ -255,17 +321,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedAlbumArtistsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumArtistsSortReverse)
+        _lastUsedAlbumArtistsSortReverse.tryEmit(getLastUsedAlbumArtistsSortReverse())
     }
 
-    fun getLastUsedAlbumsSortBy() =
-        getSharedPreferences().getEnum<AlbumSortBy>(SettingsKeys.lastUsedAlbumsSortBy, null)
+    fun getLastUsedAlbumsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedAlbumsSortBy, null)
+        ?: SettingsDefaults.lastUsedAlbumsSortBy
 
     fun setLastUsedAlbumsSortBy(sortBy: AlbumSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumsSortBy)
+        _lastUsedAlbumsSortBy.tryEmit(getLastUsedAlbumsSortBy())
     }
 
     fun getLastUsedAlbumsSortReverse() =
@@ -275,17 +342,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedAlbumsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumsSortReverse)
+        _lastUsedAlbumsSortReverse.tryEmit(getLastUsedAlbumsSortReverse())
     }
 
-    fun getLastUsedGenresSortBy() =
-        getSharedPreferences().getEnum<GenreSortBy>(SettingsKeys.lastUsedGenresSortBy, null)
+    fun getLastUsedGenresSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedGenresSortBy, null)
+        ?: SettingsDefaults.lastUsedGenresSortBy
 
     fun setLastUsedGenresSortBy(sortBy: GenreSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedGenresSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedGenresSortBy)
+        _lastUsedGenresSortBy.tryEmit(getLastUsedGenresSortBy())
     }
 
     fun getLastUsedGenresSortReverse() =
@@ -295,17 +363,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedGenresSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedGenresSortReverse)
+        _lastUsedGenresSortReverse.tryEmit(getLastUsedGenresSortReverse())
     }
 
-    fun getLastUsedFolderSortBy() =
-        getSharedPreferences().getEnum<SongSortBy>(SettingsKeys.lastUsedFolderSortBy, null)
+    fun getLastUsedFolderSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedFolderSortBy, null)
+        ?: SettingsDefaults.lastUsedFolderSortBy
 
     fun setLastUsedFolderSortBy(sortBy: SongSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedFolderSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedFolderSortBy)
+        _lastUsedFolderSortBy.tryEmit(getLastUsedFolderSortBy())
     }
 
     fun getLastUsedFolderSortReverse() =
@@ -315,27 +384,29 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedFolderSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedFolderSortReverse)
+        _lastUsedFolderSortReverse.tryEmit(getLastUsedFolderSortReverse())
     }
 
     fun getLastUsedFolderPath() =
-        getSharedPreferences().getString(SettingsKeys.lastUsedFolderPath, null)?.split("/")
+        getSharedPreferences().getString(SettingsKeys.lastUsedFolderPath, null)
+            ?.split("/")?.toList()
 
     fun setLastUsedFolderPath(path: List<String>) {
         getSharedPreferences().edit {
             putString(SettingsKeys.lastUsedFolderPath, path.joinToString("/"))
         }
-        onChange.dispatch(SettingsKeys.lastUsedFolderPath)
+        _lastUsedFolderPath.tryEmit(getLastUsedFolderPath())
     }
 
-    fun getLastUsedPlaylistsSortBy() =
-        getSharedPreferences().getEnum<PlaylistSortBy>(SettingsKeys.lastUsedPlaylistsSortBy, null)
+    fun getLastUsedPlaylistsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedPlaylistsSortBy, null)
+        ?: SettingsDefaults.lastUsedPlaylistsSortBy
 
     fun setLastUsedPlaylistsSortBy(sortBy: PlaylistSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedPlaylistsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedPlaylistsSortBy)
+        _lastUsedPlaylistsSortBy.tryEmit(getLastUsedPlaylistsSortBy())
     }
 
     fun getLastUsedPlaylistsSortReverse() =
@@ -345,20 +416,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedPlaylistsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedPlaylistsSortReverse)
+        _lastUsedPlaylistsSortReverse.tryEmit(getLastUsedPlaylistsSortReverse())
     }
 
-    fun getLastUsedPlaylistSongsSortBy() =
-        getSharedPreferences().getEnum<SongSortBy>(
-            SettingsKeys.lastUsedPlaylistSongsSortBy,
-            null
-        )
+    fun getLastUsedPlaylistSongsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedPlaylistSongsSortBy, null)
+        ?: SettingsDefaults.lastUsedPlaylistSongsSortBy
 
     fun setLastUsedPlaylistSongsSortBy(sortBy: SongSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedPlaylistSongsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedPlaylistSongsSortBy)
+        _lastUsedPlaylistSongsSortBy.tryEmit(getLastUsedPlaylistSongsSortBy())
     }
 
     fun getLastUsedPlaylistSongsSortReverse() =
@@ -368,20 +437,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedPlaylistSongsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedPlaylistSongsSortReverse)
+        _lastUsedPlaylistSongsSortReverse.tryEmit(getLastUsedPlaylistSongsSortReverse())
     }
 
-    fun getLastUsedAlbumSongsSortBy() =
-        getSharedPreferences().getEnum<SongSortBy>(
-            SettingsKeys.lastUsedAlbumSongsSortBy,
-            null
-        )
+    fun getLastUsedAlbumSongsSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedAlbumSongsSortBy, null)
+        ?: SettingsDefaults.lastUsedAlbumSongsSortBy
 
     fun setLastUsedAlbumSongsSortBy(sortBy: SongSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumSongsSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumSongsSortBy)
+        _lastUsedAlbumSongsSortBy.tryEmit(getLastUsedAlbumSongsSortBy())
     }
 
     fun getLastUsedAlbumSongsSortReverse() =
@@ -391,20 +458,18 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedAlbumSongsSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedAlbumSongsSortReverse)
+        _lastUsedAlbumSongsSortReverse.tryEmit(getLastUsedAlbumSongsSortReverse())
     }
 
-    fun getLastUsedTreePathSortBy() =
-        getSharedPreferences().getEnum<PathSortBy>(
-            SettingsKeys.lastUsedTreePathSortBy,
-            null
-        )
+    fun getLastUsedTreePathSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedTreePathSortBy, null)
+        ?: SettingsDefaults.lastUsedTreePathSortBy
 
     fun setLastUsedTreePathSortBy(sortBy: PathSortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedTreePathSortBy, sortBy)
         }
-        onChange.dispatch(SettingsKeys.lastUsedTreePathSortBy)
+        _lastUsedTreePathSortBy.tryEmit(getLastUsedTreePathSortBy())
     }
 
     fun getLastUsedTreePathSortReverse() =
@@ -414,7 +479,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedTreePathSortReverse, reverse)
         }
-        onChange.dispatch(SettingsKeys.lastUsedTreePathSortReverse)
+        _lastUsedTreePathSortReverse.tryEmit(getLastUsedTreePathSortReverse())
     }
 
     fun getPreviousSongQueue() = getSharedPreferences()
@@ -425,29 +490,28 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.previousSongQueue, queue.serialize())
         }
-        onChange.dispatch(SettingsKeys.previousSongQueue)
     }
 
-    fun getHomeLastTab() =
-        getSharedPreferences().getEnum(SettingsKeys.homeLastTab, null) ?: HomePages.Songs
+    fun getHomeLastTab() = getSharedPreferences()
+        .getEnum(SettingsKeys.homeLastTab, null)
+        ?: HomePages.Songs
 
     fun setHomeLastTab(value: HomePages) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.homeLastTab, value)
         }
-        onChange.dispatch(SettingsKeys.homeLastTab)
+        _homeLastTab.tryEmit(getHomeLastTab())
     }
 
-    fun getLastDisabledTreePaths(): List<String> =
-        getSharedPreferences().getStringSet(SettingsKeys.lastDisabledTreePaths, null)
-            ?.toList()
-            ?: listOf()
+    fun getLastDisabledTreePaths(): List<String> = getSharedPreferences()
+        .getStringSet(SettingsKeys.lastDisabledTreePaths, null)
+        ?.toList() ?: emptyList()
 
     fun setLastDisabledTreePaths(paths: List<String>) {
         getSharedPreferences().edit {
             putStringSet(SettingsKeys.lastDisabledTreePaths, paths.toSet())
         }
-        onChange.dispatch(SettingsKeys.lastDisabledTreePaths)
+        _lastDisabledTreePaths.tryEmit(getLastDisabledTreePaths())
     }
 
     fun getSongsFilterPattern() =
@@ -457,108 +521,100 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.songsFilterPattern, value)
         }
-        onChange.dispatch(SettingsKeys.songsFilterPattern)
+        _songsFilterPattern.tryEmit(getSongsFilterPattern())
     }
 
-    fun getCheckForUpdates() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.checkForUpdates,
-            SettingsDataDefaults.checkForUpdates,
-        )
+    fun getCheckForUpdates() = getSharedPreferences().getBoolean(
+        SettingsKeys.checkForUpdates,
+        SettingsDefaults.checkForUpdates,
+    )
 
     fun setCheckForUpdates(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.checkForUpdates, value)
         }
-        onChange.dispatch(SettingsKeys.checkForUpdates)
+        _checkForUpdates.tryEmit(getCheckForUpdates())
     }
 
-    fun getFadePlayback() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.fadePlayback,
-            SettingsDataDefaults.fadePlayback,
-        )
+    fun getFadePlayback() = getSharedPreferences().getBoolean(
+        SettingsKeys.fadePlayback,
+        SettingsDefaults.fadePlayback,
+    )
 
     fun setFadePlayback(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.fadePlayback, value)
         }
-        onChange.dispatch(SettingsKeys.fadePlayback)
+        _fadePlayback.tryEmit(getFadePlayback())
     }
 
-    fun getRequireAudioFocus() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.requireAudioFocus,
-            SettingsDataDefaults.requireAudioFocus,
-        )
+    fun getRequireAudioFocus() = getSharedPreferences().getBoolean(
+        SettingsKeys.requireAudioFocus,
+        SettingsDefaults.requireAudioFocus,
+    )
 
     fun setRequireAudioFocus(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.requireAudioFocus, value)
         }
-        onChange.dispatch(SettingsKeys.requireAudioFocus)
+        _requireAudioFocus.tryEmit(getRequireAudioFocus())
     }
 
-    fun getIgnoreAudioFocusLoss() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.ignoreAudioFocusLoss,
-            SettingsDataDefaults.ignoreAudioFocusLoss,
-        )
+    fun getIgnoreAudioFocusLoss() = getSharedPreferences().getBoolean(
+        SettingsKeys.ignoreAudioFocusLoss,
+        SettingsDefaults.ignoreAudioFocusLoss,
+    )
 
     fun setIgnoreAudioFocusLoss(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.ignoreAudioFocusLoss, value)
         }
-        onChange.dispatch(SettingsKeys.ignoreAudioFocusLoss)
+        _ignoreAudioFocusLoss.tryEmit(getIgnoreAudioFocusLoss())
     }
 
-    fun getPlayOnHeadphonesConnect() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.playOnHeadphonesConnect,
-            SettingsDataDefaults.playOnHeadphonesConnect,
-        )
+    fun getPlayOnHeadphonesConnect() = getSharedPreferences().getBoolean(
+        SettingsKeys.playOnHeadphonesConnect,
+        SettingsDefaults.playOnHeadphonesConnect,
+    )
 
     fun setPlayOnHeadphonesConnect(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.playOnHeadphonesConnect, value)
         }
-        onChange.dispatch(SettingsKeys.playOnHeadphonesConnect)
+        _playOnHeadphonesConnect.tryEmit(getPlayOnHeadphonesConnect())
     }
 
-    fun getPauseOnHeadphonesDisconnect() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.pauseOnHeadphonesDisconnect,
-            SettingsDataDefaults.pauseOnHeadphonesDisconnect,
-        )
+    fun getPauseOnHeadphonesDisconnect() = getSharedPreferences().getBoolean(
+        SettingsKeys.pauseOnHeadphonesDisconnect,
+        SettingsDefaults.pauseOnHeadphonesDisconnect,
+    )
 
     fun setPauseOnHeadphonesDisconnect(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.pauseOnHeadphonesDisconnect, value)
         }
-        onChange.dispatch(SettingsKeys.pauseOnHeadphonesDisconnect)
+        _pauseOnHeadphonesDisconnect.tryEmit(getPauseOnHeadphonesDisconnect())
     }
 
-    fun getPrimaryColor() =
-        getSharedPreferences().getString(SettingsKeys.primaryColor, null)
+    fun getPrimaryColor() = getSharedPreferences().getString(SettingsKeys.primaryColor, null)
 
     fun setPrimaryColor(value: String) {
         getSharedPreferences().edit {
             putString(SettingsKeys.primaryColor, value)
         }
-        onChange.dispatch(SettingsKeys.primaryColor)
+        _primaryColor.tryEmit(getPrimaryColor())
     }
 
-    fun getFadePlaybackDuration() =
-        getSharedPreferences().getFloat(
-            SettingsKeys.fadePlaybackDuration,
-            SettingsDataDefaults.fadePlaybackDuration,
-        )
+    fun getFadePlaybackDuration() = getSharedPreferences().getFloat(
+        SettingsKeys.fadePlaybackDuration,
+        SettingsDefaults.fadePlaybackDuration,
+    )
 
     fun setFadePlaybackDuration(value: Float) {
         getSharedPreferences().edit {
             putFloat(SettingsKeys.fadePlaybackDuration, value)
         }
-        onChange.dispatch(SettingsKeys.fadePlaybackDuration)
+        _fadePlaybackDuration.tryEmit(getFadePlaybackDuration())
     }
 
     fun getHomeTabs() = getSharedPreferences()
@@ -566,28 +622,27 @@ class SettingsManager(private val symphony: Symphony) {
         ?.split(",")
         ?.mapNotNull { parseEnumValue<HomePages>(it) }
         ?.toSet()
-        ?: SettingsDataDefaults.homeTabs
+        ?: SettingsDefaults.homeTabs
 
     fun setHomeTabs(tabs: Set<HomePages>) {
         getSharedPreferences().edit {
             putString(SettingsKeys.homeTabs, tabs.joinToString(",") { it.name })
         }
-        onChange.dispatch(SettingsKeys.homeTabs)
+        _homeTabs.tryEmit(getHomeTabs())
         if (getHomeLastTab() !in tabs) {
             setHomeLastTab(tabs.first())
         }
     }
 
-    fun getHomePageBottomBarLabelVisibility() =
-        getSharedPreferences()
-            .getEnum(SettingsKeys.homePageBottomBarLabelVisibility, null)
-            ?: SettingsDataDefaults.homePageBottomBarLabelVisibility
+    fun getHomePageBottomBarLabelVisibility() = getSharedPreferences()
+        .getEnum(SettingsKeys.homePageBottomBarLabelVisibility, null)
+        ?: SettingsDefaults.homePageBottomBarLabelVisibility
 
     fun setHomePageBottomBarLabelVisibility(value: HomePageBottomBarLabelVisibility) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.homePageBottomBarLabelVisibility, value)
         }
-        onChange.dispatch(SettingsKeys.homePageBottomBarLabelVisibility)
+        _homePageBottomBarLabelVisibility.tryEmit(getHomePageBottomBarLabelVisibility())
     }
 
     fun getForYouContents() = getSharedPreferences()
@@ -595,124 +650,121 @@ class SettingsManager(private val symphony: Symphony) {
         ?.split(",")
         ?.mapNotNull { parseEnumValue<ForYou>(it) }
         ?.toSet()
-        ?: SettingsDataDefaults.forYouContents
+        ?: SettingsDefaults.forYouContents
 
     fun setForYouContents(forYouContents: Set<ForYou>) {
         getSharedPreferences().edit {
             putString(SettingsKeys.forYouContents, forYouContents.joinToString(",") { it.name })
         }
-        onChange.dispatch(SettingsKeys.forYouContents)
+        _forYouContents.tryEmit(getForYouContents())
     }
 
     fun getBlacklistFolders() = getSharedPreferences()
         .getStringSet(SettingsKeys.blacklistFolders, null)
         ?.toSet<String>()
-        ?: SettingsDataDefaults.blacklistFolders
+        ?: SettingsDefaults.blacklistFolders
 
     fun setBlacklistFolders(values: Set<String>) {
         getSharedPreferences().edit {
             putStringSet(SettingsKeys.blacklistFolders, values)
         }
-        onChange.dispatch(SettingsKeys.blacklistFolders)
+        _blacklistFolders.tryEmit(getBlacklistFolders())
     }
 
-    fun getWhitelistFolders() =
-        getSharedPreferences()
-            .getStringSet(SettingsKeys.whitelistFolders, null)
-            ?.toSet<String>()
-            ?: SettingsDataDefaults.whitelistFolders
+    fun getWhitelistFolders() = getSharedPreferences()
+        .getStringSet(SettingsKeys.whitelistFolders, null)
+        ?.toSet<String>()
+        ?: SettingsDefaults.whitelistFolders
 
     fun setWhitelistFolders(values: Set<String>) {
         getSharedPreferences().edit {
             putStringSet(SettingsKeys.whitelistFolders, values)
         }
-        onChange.dispatch(SettingsKeys.whitelistFolders)
+        _whitelistFolders.tryEmit(getWhitelistFolders())
     }
 
     fun getReadIntroductoryMessage() = getSharedPreferences().getBoolean(
         SettingsKeys.readIntroductoryMessage,
-        SettingsDataDefaults.readIntroductoryMessage,
+        SettingsDefaults.readIntroductoryMessage,
     )
 
     fun setReadIntroductoryMessage(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.readIntroductoryMessage, value)
         }
-        onChange.dispatch(SettingsKeys.readIntroductoryMessage)
+        _readIntroductoryMessage.tryEmit(getReadIntroductoryMessage())
     }
 
     fun getNowPlayingAdditionalInfo() = getSharedPreferences().getBoolean(
         SettingsKeys.nowPlayingAdditionalInfo,
-        SettingsDataDefaults.showNowPlayingAdditionalInfo,
+        SettingsDefaults.showNowPlayingAdditionalInfo,
     )
 
     fun showNowPlayingAdditionalInfo(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.nowPlayingAdditionalInfo, value)
         }
-        onChange.dispatch(SettingsKeys.nowPlayingAdditionalInfo)
+        _nowPlayingAdditionalInfo.tryEmit(getNowPlayingAdditionalInfo())
     }
 
     fun getNowPlayingSeekControls() = getSharedPreferences().getBoolean(
         SettingsKeys.nowPlayingSeekControls,
-        SettingsDataDefaults.enableSeekControls,
+        SettingsDefaults.enableSeekControls,
     )
 
     fun setNowPlayingSeekControls(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.nowPlayingSeekControls, value)
         }
-        onChange.dispatch(SettingsKeys.nowPlayingSeekControls)
+        _nowPlayingSeekControls.tryEmit(getNowPlayingSeekControls())
     }
 
     fun getSeekBackDuration() = getSharedPreferences().getInt(
         SettingsKeys.seekBackDuration,
-        SettingsDataDefaults.seekBackDuration,
+        SettingsDefaults.seekBackDuration,
     )
 
     fun setSeekBackDuration(value: Int) {
         getSharedPreferences().edit {
             putInt(SettingsKeys.seekBackDuration, value)
         }
-        onChange.dispatch(SettingsKeys.seekBackDuration)
+        _seekBackDuration.tryEmit(getSeekBackDuration())
     }
 
-    fun getSeekForwardDuration() =
-        getSharedPreferences().getInt(
-            SettingsKeys.seekForwardDuration,
-            SettingsDataDefaults.seekForwardDuration,
-        )
+    fun getSeekForwardDuration() = getSharedPreferences().getInt(
+        SettingsKeys.seekForwardDuration,
+        SettingsDefaults.seekForwardDuration,
+    )
 
     fun setSeekForwardDuration(value: Int) {
         getSharedPreferences().edit {
             putInt(SettingsKeys.seekForwardDuration, value)
         }
-        onChange.dispatch(SettingsKeys.seekForwardDuration)
+        _seekForwardDuration.tryEmit(getSeekForwardDuration())
     }
 
-    fun getMiniPlayerTrackControls() =
-        getSharedPreferences().getBoolean(
-            SettingsKeys.miniPlayerTrackControls,
-            SettingsDataDefaults.miniPlayerTrackControls,
-        )
+    fun getMiniPlayerTrackControls() = getSharedPreferences().getBoolean(
+        SettingsKeys.miniPlayerTrackControls,
+        SettingsDefaults.miniPlayerTrackControls,
+    )
 
     fun setMiniPlayerTrackControls(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.miniPlayerTrackControls, value)
         }
-        onChange.dispatch(SettingsKeys.miniPlayerTrackControls)
+        _miniPlayerTrackControls.tryEmit(getMiniPlayerTrackControls())
     }
 
     fun getMiniPlayerSeekControls() = getSharedPreferences().getBoolean(
         SettingsKeys.miniPlayerSeekControls,
-        SettingsDataDefaults.miniPlayerSeekControls,
+        SettingsDefaults.miniPlayerSeekControls,
     )
 
     fun setMiniPlayerSeekControls(value: Boolean) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.miniPlayerSeekControls, value)
         }
-        onChange.dispatch(SettingsKeys.miniPlayerSeekControls)
+        _miniPlayerSeekControls.tryEmit(getMiniPlayerSeekControls())
     }
 
     fun getFontFamily() = getSharedPreferences().getString(SettingsKeys.fontFamily, null)
@@ -720,18 +772,30 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.fontFamily, language)
         }
-        onChange.dispatch(SettingsKeys.fontFamily)
+        _fontFamily.tryEmit(getFontFamily())
     }
 
     fun getNowPlayingControlsLayout() = getSharedPreferences()
         .getEnum(SettingsKeys.nowPlayingControlsLayout, null)
-        ?: SettingsDataDefaults.nowPlayingControlsLayout
+        ?: SettingsDefaults.nowPlayingControlsLayout
 
     fun setNowPlayingControlsLayout(controlsLayout: NowPlayingControlsLayout) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.nowPlayingControlsLayout, controlsLayout)
         }
-        onChange.dispatch(SettingsKeys.nowPlayingControlsLayout)
+        _nowPlayingControlsLayout.tryEmit(getNowPlayingControlsLayout())
+    }
+
+    fun getShowUpdateToast() = getSharedPreferences().getBoolean(
+        SettingsKeys.showUpdateToast,
+        SettingsDefaults.showUpdateToast,
+    )
+
+    fun setShowUpdateToast(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.showUpdateToast, value)
+        }
+        _showUpdateToast.tryEmit(getShowUpdateToast())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(

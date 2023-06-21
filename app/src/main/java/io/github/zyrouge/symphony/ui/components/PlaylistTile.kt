@@ -78,7 +78,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                                 )
                                 .then(Modifier.size(36.dp)),
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(playlist.songs)
+                                context.symphony.radio.shorty.playQueue(playlist.songIds)
                             }
                         ) {
                             Icon(Icons.Default.PlayArrow, null)
@@ -124,7 +124,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    playlist.songs,
+                    playlist.songIds,
                     shuffle = true,
                 )
             }
@@ -139,7 +139,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    playlist.songs,
+                    playlist.songIds,
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -215,13 +215,10 @@ fun PlaylistDropdownMenu(
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
             context,
-            selectedSongs = playlist.songs,
+            selectedSongIds = playlist.songIds,
             onDone = {
                 coroutineScope.launch {
-                    context.symphony.groove.playlist.updatePlaylistSongs(
-                        playlist = playlist,
-                        songs = it,
-                    )
+                    context.symphony.groove.playlist.update(playlist.id, it)
                     showSongsPicker = false
                 }
             }
@@ -242,7 +239,7 @@ fun PlaylistDropdownMenu(
                     showDeleteDialog = false
                     if (result) {
                         onDelete?.invoke()
-                        context.symphony.groove.playlist.removePlaylist(playlist)
+                        context.symphony.groove.playlist.delete(playlist.id)
                     }
                 }
             }
@@ -252,7 +249,7 @@ fun PlaylistDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songs = playlist.songs,
+            songIds = playlist.songIds,
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

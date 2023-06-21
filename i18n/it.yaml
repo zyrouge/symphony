@@ -1,4 +1,4 @@
-Locale: it
+LocaleCode: it
 Language: Italian
 
 Translations:
@@ -6,11 +6,13 @@ Translations:
     UnknownSymbol: "?"
     HelloThere: Ciao!
     IntroductoryMessage: |
-        Grazie per aver scelto Symphony! Se incontri difficoltà tecniche, il nostro Repository GitHub è il posto giusto per segnalarle.
+        Grazie per aver preso parte alle open-beta di Symphony. Se incontri qualche bug o vuoi suggerire dei miglioramenti, ti preghiamo di aprire una segnalazione nel nostro repository su GitHub
 
-        Unisciti alle nostre comunità Discord e Reddit per connetterti con altri amanti della musica, ricevere supporto, e restare aggiornato con gli ultimi aggiornamenti. La tua generosità aiuta a proseguire lo sviluppo di Symphony, ti prego quindi di considerare il supporto tramite donazioni su GitHub Sponsors.
+        Unisciti alle nostre comunità Discord e Reddit per condividere i tuoi feedback e rimanere aggiornato sullo sviluppo.
 
-        Di nuovo, goditi la musica!
+        Symphony è completamente supportata dalle donazioni effettuate tramite Github Sponsors, Ko-fi e Patreon.
+
+        Ancora una volta, grazie per aver scelto Symphony!
     Songs: Brani
     Artists: Artisti
     Albums: Album
@@ -68,14 +70,14 @@ Translations:
     Stop: Ferma
     All: Tutti
     FadePlaybackInOut: Dissolvenza in conclusione
-    RequireAudioFocus: Richiedere focus audio
+    RequireAudioFocus: Richiedi focus audio
     IgnoreAudioFocusLoss: Ignora perdita del focus audio
     Player: Lettore
     PlayOnHeadphonesConnect: Riproduzione in cuffia
-    PauseOnHeadphonesDisconnect: Pausa su diconnessione cuffie
+    PauseOnHeadphonesDisconnect: Pausa su disconnessione cuffie
     Genre: Genere
     DamnThisIsSoEmpty: Maledizione, è così vuoto!
-    PrimaryColor: Colore Primario
+    PrimaryColor: Colore primario
     PlayAll: Riproduci tutti
     ForYou: Per te
     SuggestedAlbums: Album suggeriti
@@ -114,7 +116,7 @@ Translations:
     Loading: Caricamento...
     Name: Nome
     AddFolder: Nuova cartella
-    BlacklistFolders: Cartelle ingorate
+    BlacklistFolders: Cartelle ignorate
     WhitelistFolders: Certelle considerate
     PickFolder: Scegli cartella
     InvalidM3UFile: File M3U non valido
@@ -147,6 +149,14 @@ Translations:
     ShowTrackControls: Mostra controlli brano
     ShowSeekControls: Mostra controlli ricerca
     Font: Carattere
+    Codec: Codec
+    ControlsLayout: Layout dei controlli
+    Default: Predefinito
+    Traditional: Tradizionale
+    Enabled: Attivata
+    Disabled: Disattivata
+    ShowUpdateToast: Mostra toast di aggiornamento
+    SponsorViaKoFi: Sponsor via Ko-fi
 
     # Dynamic
     PlayingXofY: Riproducendo $x di $y

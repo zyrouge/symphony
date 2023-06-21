@@ -6,28 +6,23 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import io.github.zyrouge.symphony.services.groove.Artist
-import io.github.zyrouge.symphony.services.groove.ArtistRepository
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.contextWrapped
 
 @Composable
 fun ArtistGrid(
     context: ViewContext,
-    artists: List<Artist>,
+    artistIds: List<String>,
     artistsCount: Int? = null,
 ) {
-    var sortBy by remember {
-        mutableStateOf(
-            context.symphony.settings.getLastUsedArtistsSortBy() ?: ArtistSortBy.ARTIST_NAME
-        )
-    }
-    var sortReverse by remember {
-        mutableStateOf(context.symphony.settings.getLastUsedArtistsSortReverse())
-    }
-    val sortedArtists by remember {
-        derivedStateOf { ArtistRepository.sort(artists, sortBy, sortReverse) }
+    val sortBy by context.symphony.settings.lastUsedArtistsSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedArtistsSortReverse.collectAsState()
+    val sortedArtistIds by remember {
+        derivedStateOf {
+            context.symphony.groove.artist.sort(artistIds, sortBy, sortReverse)
+        }
     }
 
     MediaSortBarScaffold(
@@ -36,23 +31,22 @@ fun ArtistGrid(
                 context,
                 reverse = sortReverse,
                 onReverseChange = {
-                    sortReverse = it
                     context.symphony.settings.setLastUsedArtistsSortReverse(it)
                 },
                 sort = sortBy,
-                sorts = ArtistSortBy.values().associateWith { x -> { x.label(it) } },
+                sorts = ArtistSortBy.values()
+                    .associateWith { x -> contextWrapped { x.label(it) } },
                 onSortChange = {
-                    sortBy = it
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XArtists((artistsCount ?: artists.size).toString()))
+                    Text(context.symphony.t.XArtists((artistsCount ?: artistIds.size).toString()))
                 },
             )
         },
         content = {
             when {
-                artists.isEmpty() -> IconTextBody(
+                artistIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Default.Person,
@@ -64,11 +58,13 @@ fun ArtistGrid(
                 )
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedArtists,
-                        key = { i, x -> "$i-${x.name}" },
+                        sortedArtistIds,
+                        key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.ARTIST }
-                    ) { _, artist ->
-                        ArtistTile(context, artist)
+                    ) { _, artistId ->
+                        context.symphony.groove.artist.get(artistId)?.let { artist ->
+                            ArtistTile(context, artist)
+                        }
                     }
                 }
             }

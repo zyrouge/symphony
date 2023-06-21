@@ -6,13 +6,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import io.github.zyrouge.symphony.services.SettingsKeys
-import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 enum class ThemeMode {
@@ -33,27 +34,10 @@ fun SymphonyTheme(
     context: ViewContext,
     content: @Composable () -> Unit,
 ) {
-    var themeMode by remember { mutableStateOf(context.symphony.settings.getThemeMode()) }
-    var useMaterialYou by remember { mutableStateOf(context.symphony.settings.getUseMaterialYou()) }
-    var primaryColorName by remember { mutableStateOf(context.symphony.settings.getPrimaryColor()) }
-    var fontName by remember { mutableStateOf(context.symphony.settings.getFontFamily()) }
-
-    EventerEffect(context.symphony.settings.onChange) {
-        when (it) {
-            SettingsKeys.themeMode -> {
-                themeMode = context.symphony.settings.getThemeMode()
-            }
-            SettingsKeys.materialYou -> {
-                useMaterialYou = context.symphony.settings.getUseMaterialYou()
-            }
-            SettingsKeys.primaryColor -> {
-                primaryColorName = context.symphony.settings.getPrimaryColor()
-            }
-            SettingsKeys.fontFamily -> {
-                fontName = context.symphony.settings.getFontFamily()
-            }
-        }
-    }
+    val themeMode by context.symphony.settings.themeMode.collectAsState()
+    val useMaterialYou by context.symphony.settings.useMaterialYou.collectAsState()
+    val primaryColorName by context.symphony.settings.primaryColor.collectAsState()
+    val fontName by context.symphony.settings.fontFamily.collectAsState()
 
     val colorSchemeMode = when (themeMode) {
         ThemeMode.SYSTEM -> if (isSystemInDarkTheme()) ColorSchemeMode.DARK else ColorSchemeMode.LIGHT

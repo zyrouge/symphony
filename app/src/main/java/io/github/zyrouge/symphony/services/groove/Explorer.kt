@@ -72,14 +72,14 @@ object GrooveExplorer {
                 }
             }
             a.addAll(b)
-            return Path(a.toList())
+            return Path(a)
         }
 
         override fun toString() = parts.joinToString("/")
 
         companion object {
             private val isFileRegex = Regex(""".+\..+""")
-            private val intoPartsRegex = Regex("""\\|\/""")
+            private val intoPartsRegex = Regex("""[\\/]""")
 
             fun isAbsolute(path: String) = path.startsWith("/")
 
@@ -88,11 +88,11 @@ object GrooveExplorer {
         }
     }
 
-    fun sort(paths: List<String>, by: PathSortBy, reversed: Boolean): List<String> {
+    fun sort(paths: List<String>, by: PathSortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
-            PathSortBy.CUSTOM -> paths.toList()
+            PathSortBy.CUSTOM -> paths
             PathSortBy.NAME -> paths.sorted()
         }
-        return if (reversed) sorted.reversed() else sorted
+        return if (reverse) sorted.reversed() else sorted
     }
 }

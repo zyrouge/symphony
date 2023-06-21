@@ -106,8 +106,8 @@ data class Song(
                         }
                         codec = extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
                             ?.let { prettyMimetype(it) }
+                        retriever.release()
                     }
-                    retriever.close()
                 }
                 return AdditionalMetadata(
                     albumArtist = albumArtist,
@@ -125,7 +125,7 @@ data class Song(
     val uri: Uri get() = buildUri(id)
 
     fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.album.createAlbumArtworkImageRequest(albumId)
+        symphony.groove.album.createArtworkImageRequest(albumId)
 
     companion object {
         fun buildUri(id: Long): Uri =

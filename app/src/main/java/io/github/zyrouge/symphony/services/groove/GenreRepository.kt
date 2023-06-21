@@ -1,7 +1,10 @@
 package io.github.zyrouge.symphony.services.groove
 
+import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 enum class GenreSortBy {
@@ -11,31 +14,22 @@ enum class GenreSortBy {
 }
 
 class GenreRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<String, Genre>()
-    val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    var isUpdating = false
-    val onUpdateStart = Eventer.nothing()
-    val onUpdate = Eventer.nothing()
-    val onUpdateEnd = Eventer.nothing()
-    val onUpdateRapidDispatcher = GrooveEventerRapidUpdateDispatcher(onUpdate)
+    private val cache = ConcurrentHashMap<String, Genre>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val searcher = FuzzySearcher<String>(
+        options = listOf(FuzzySearchOption({ get(it)?.name }))
+    )
 
-    fun ready() {
-        symphony.groove.mediaStore.onSong.subscribe { onSong(it) }
-        symphony.groove.mediaStore.onFetchStart.subscribe { onFetchStart() }
-        symphony.groove.mediaStore.onFetchEnd.subscribe { onFetchEnd() }
-    }
+    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    private val _all = mutableStateListOf<String>()
+    private val _allRapid = RapidMutableStateList(_all)
+    val all = _all.asList()
+    private val _count = MutableStateFlow(0)
+    val count = _count.asStateFlow()
 
-    private fun onFetchStart() {
-        isUpdating = true
-        onUpdateStart.dispatch()
-    }
+    private fun emitCount() = _count.tryEmit(cache.size)
 
-    private fun onFetchEnd() {
-        isUpdating = false
-        onUpdateEnd.dispatch()
-    }
-
-    private fun onSong(song: Song) {
+    internal fun onSong(song: Song) {
         if (song.additional.genre == null) return
         songIdsCache.compute(song.additional.genre) { _, value ->
             value?.apply { add(song.id) }
@@ -44,43 +38,47 @@ class GenreRepository(private val symphony: Symphony) {
         cache.compute(song.additional.genre) { _, value ->
             value?.apply {
                 numberOfTracks++
-            } ?: Genre(
-                name = song.additional.genre,
-                numberOfTracks = 1,
-            )
+            } ?: run {
+                _allRapid.add(song.additional.genre)
+                emitCount()
+                Genre(
+                    name = song.additional.genre,
+                    numberOfTracks = 1,
+                )
+            }
         }
-        onUpdateRapidDispatcher.dispatch()
     }
+
+    internal fun onFinish() = _allRapid.sync()
 
     fun reset() {
         cache.clear()
         songIdsCache.clear()
-        onUpdate.dispatch()
+        _all.clear()
+        emitCount()
+    }
+
+    fun search(genreIds: List<String>, terms: String, limit: Int? = 7) = searcher
+        .search(terms, genreIds)
+        .subListNonStrict(limit ?: genreIds.size)
+
+    fun sort(
+        genreIds: List<String>,
+        by: GenreSortBy,
+        reverse: Boolean
+    ): List<String> {
+        val sorted = when (by) {
+            GenreSortBy.CUSTOM -> genreIds
+            GenreSortBy.GENRE -> genreIds.sortedBy { get(it)?.name }
+            GenreSortBy.TRACKS_COUNT -> genreIds.sortedBy { get(it)?.numberOfTracks }
+        }
+        return if (reverse) sorted.reversed() else sorted
     }
 
     fun count() = cache.size
-    fun getAll() = cache.values.toList()
+    fun ids() = cache.keys.toList()
+    fun values() = cache.values.toList()
 
-    fun getSongIdsOfGenre(genre: String) = songIdsCache[genre] ?: listOf()
-    fun getSongsOfGenre(genre: String) = getSongIdsOfGenre(genre)
-        .mapNotNull { symphony.groove.song.getSongWithId(it) }
-
-    companion object {
-        val searcher = FuzzySearcher<Genre>(
-            options = listOf(FuzzySearchOption({ it.name }))
-        )
-
-        fun search(genres: List<Genre>, terms: String, limit: Int? = 7) = searcher
-            .search(terms, genres)
-            .subListNonStrict(limit ?: genres.size)
-
-        fun sort(genres: List<Genre>, by: GenreSortBy, reversed: Boolean): List<Genre> {
-            val sorted = when (by) {
-                GenreSortBy.CUSTOM -> genres.toList()
-                GenreSortBy.GENRE -> genres.sortedBy { it.name }
-                GenreSortBy.TRACKS_COUNT -> genres.sortedBy { it.numberOfTracks }
-            }
-            return if (reversed) sorted.reversed() else sorted
-        }
-    }
+    fun get(id: String) = cache[id]
+    fun getSongIds(genre: String) = songIdsCache[genre]?.toList() ?: emptyList()
 }

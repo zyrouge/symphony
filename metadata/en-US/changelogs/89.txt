@@ -1,0 +1,7 @@
+- Fix crash during start-up and library scanning.
+- Add monochrome icon.
+- Fix pause music on bluetooth headphone disconnect.
+- Add search in manage playlist dialog.
+- Ability to completely opt-in and opt-out of version checks.
+- Add Turkish and German translation.
+- Update Belarusian, Russian and Ukrainian translations.

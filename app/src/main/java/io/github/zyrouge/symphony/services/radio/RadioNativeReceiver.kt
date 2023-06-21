@@ -44,14 +44,14 @@ class RadioNativeReceiver(private val symphony: Symphony) : BroadcastReceiver() 
 
     private fun onHeadphonesConnect() {
         if (!symphony.radio.hasPlayer) return
-        if (!symphony.radio.isPlaying && symphony.settings.getPlayOnHeadphonesConnect()) {
+        if (!symphony.radio.isPlaying && symphony.settings.playOnHeadphonesConnect.value) {
             symphony.radio.resume()
         }
     }
 
     private fun onHeadphonesDisconnect() {
         if (!symphony.radio.hasPlayer) return
-        if (symphony.radio.isPlaying && symphony.settings.getPauseOnHeadphonesDisconnect()) {
+        if (symphony.radio.isPlaying && symphony.settings.pauseOnHeadphonesDisconnect.value) {
             symphony.radio.pauseInstant()
         }
     }

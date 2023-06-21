@@ -57,6 +57,7 @@ class RadioNotification(private val symphony: Symphony) {
                         symphony.t.Play,
                         RadioSession.ACTION_PLAY_PAUSE
                     )
+
                     else -> createAction(
                         R.drawable.material_icon_play,
                         symphony.t.Pause,
@@ -105,7 +106,7 @@ class RadioNotification(private val symphony: Symphony) {
     }
 
     companion object {
-        const val CHANNEL_ID = "${R.string.app_name}_media_notification"
+        val CHANNEL_ID = "${R.string.app_name}_media_notification"
         const val NOTIFICATION_ID = 69421
     }
 }

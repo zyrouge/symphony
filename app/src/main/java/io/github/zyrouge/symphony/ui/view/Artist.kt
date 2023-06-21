@@ -13,30 +13,24 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.asImmutableList
-import io.github.zyrouge.symphony.utils.swap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistView(context: ViewContext, artistName: String) {
-    var artist by remember {
-        mutableStateOf(context.symphony.groove.artist.getArtistFromArtistName(artistName))
+    val allArtistIds = context.symphony.groove.artist.all
+    val allSongIds = context.symphony.groove.song.all
+    val allAlbumIds = context.symphony.groove.album.all
+    val artist by remember(allArtistIds) {
+        derivedStateOf { context.symphony.groove.artist.get(artistName) }
     }
-    val songsMutable = remember {
-        context.symphony.groove.artist.getSongsOfArtistName(artistName).toMutableStateList()
+    val songIds by remember(artist, allSongIds) {
+        derivedStateOf { context.symphony.groove.artist.getSongIds(artistName) }
     }
-    val songs = songsMutable.asImmutableList()
-    val albumsMutable = remember {
-        context.symphony.groove.artist.getAlbumsOfArtistName(artistName).toMutableStateList()
+    val albumIds by remember(artist, allAlbumIds) {
+        derivedStateOf { context.symphony.groove.artist.getAlbumIds(artistName) }
     }
-    val albums = albumsMutable.asImmutableList()
-    var isViable by remember { mutableStateOf(artist != null) }
-
-    EventerEffect(context.symphony.groove.artist.onUpdateEnd) {
-        artist = context.symphony.groove.artist.getArtistFromArtistName(artistName)
-        songsMutable.swap(context.symphony.groove.artist.getSongsOfArtistName(artistName))
-        albumsMutable.swap(context.symphony.groove.artist.getAlbumsOfArtistName(artistName))
-        isViable = artist != null
+    val isViable by remember {
+        derivedStateOf { allArtistIds.contains(artistName) }
     }
 
     Scaffold(
@@ -73,15 +67,15 @@ fun ArtistView(context: ViewContext, artistName: String) {
                 if (isViable) {
                     SongList(
                         context,
-                        songs = songs,
+                        songIds = songIds,
                         leadingContent = {
                             item {
                                 ArtistHero(context, artist!!)
                             }
-                            if (albums.isNotEmpty()) {
+                            if (albumIds.isNotEmpty()) {
                                 item {
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    AlbumRow(context, albums)
+                                    AlbumRow(context, albumIds)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Divider()
                                 }

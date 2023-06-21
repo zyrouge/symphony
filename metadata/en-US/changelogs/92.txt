@@ -1,0 +1,5 @@
+- Fix incorrect song displayed when shuffled.
+- Fix error when empty playlist is played.
+- Fix monochrome round icons.
+- Add Simplified Chinese translation.
+- Update German and Italian translation.

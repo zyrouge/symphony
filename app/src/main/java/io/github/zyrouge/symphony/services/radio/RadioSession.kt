@@ -86,13 +86,13 @@ class RadioSession(val symphony: Symphony) {
 
                 override fun onRewind() {
                     super.onRewind()
-                    val duration = symphony.settings.getSeekBackDuration()
+                    val duration = symphony.settings.seekBackDuration.value
                     symphony.radio.shorty.seekFromCurrent(-duration)
                 }
 
                 override fun onFastForward() {
                     super.onFastForward()
-                    val duration = symphony.settings.getSeekForwardDuration()
+                    val duration = symphony.settings.seekForwardDuration.value
                     symphony.radio.shorty.seekFromCurrent(duration)
                 }
 
@@ -105,6 +105,7 @@ class RadioSession(val symphony: Symphony) {
                             KeyEvent::class.java,
                         )
                     } else {
+                        @Suppress("DEPRECATION")
                         intent?.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
                     }
                     return when (keyEvent?.keyCode) {
@@ -113,15 +114,18 @@ class RadioSession(val symphony: Symphony) {
                             handleAction(ACTION_PREVIOUS)
                             true
                         }
+
                         KeyEvent.KEYCODE_MEDIA_NEXT -> {
                             handleAction(ACTION_NEXT)
                             true
                         }
+
                         KeyEvent.KEYCODE_MEDIA_CLOSE,
                         KeyEvent.KEYCODE_MEDIA_STOP -> {
                             handleAction(ACTION_STOP)
                             true
                         }
+
                         else -> false
                     }
                 }
@@ -135,6 +139,7 @@ class RadioSession(val symphony: Symphony) {
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
                 RadioEvents.SongSeeked -> update()
+
                 RadioEvents.QueueEnded -> cancel()
                 else -> {}
             }
@@ -167,10 +172,11 @@ class RadioSession(val symphony: Symphony) {
     }
 
     private suspend fun updateAsync() {
-        val song = symphony.radio.queue.currentPlayingSong ?: return
+        val song = symphony.radio.queue.currentSongId
+            ?.let { symphony.groove.song.get(it) } ?: return
         currentSongId = song.id
 
-        val artworkUri = symphony.groove.album.getAlbumArtworkUri(song.albumId)
+        val artworkUri = symphony.groove.album.getArtworkUri(song.albumId)
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition
@@ -250,11 +256,11 @@ class RadioSession(val symphony: Symphony) {
     }
 
     companion object {
-        const val MEDIA_SESSION_ID = "${R.string.app_name}_media_session"
+        val MEDIA_SESSION_ID = "${R.string.app_name}_media_session"
 
-        const val ACTION_PLAY_PAUSE = "${R.string.app_name}_play_pause"
-        const val ACTION_PREVIOUS = "${R.string.app_name}_previous"
-        const val ACTION_NEXT = "${R.string.app_name}_next"
-        const val ACTION_STOP = "${R.string.app_name}_stop"
+        val ACTION_PLAY_PAUSE = "${R.string.app_name}_play_pause"
+        val ACTION_PREVIOUS = "${R.string.app_name}_previous"
+        val ACTION_NEXT = "${R.string.app_name}_next"
+        val ACTION_STOP = "${R.string.app_name}_stop"
     }
 }

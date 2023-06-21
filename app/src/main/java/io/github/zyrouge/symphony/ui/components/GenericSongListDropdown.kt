@@ -8,13 +8,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun GenericSongListDropdown(
     context: ViewContext,
-    songs: List<Song>,
+    songIds: List<Long>,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
 ) {
@@ -33,7 +32,7 @@ fun GenericSongListDropdown(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(songs, shuffle = true)
+                context.symphony.radio.shorty.playQueue(songIds, shuffle = true)
             }
         )
         DropdownMenuItem(
@@ -46,7 +45,7 @@ fun GenericSongListDropdown(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    songs,
+                    songIds,
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -60,7 +59,7 @@ fun GenericSongListDropdown(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(songs)
+                context.symphony.radio.queue.add(songIds)
             }
         )
         DropdownMenuItem(
@@ -80,7 +79,7 @@ fun GenericSongListDropdown(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songs = songs.map { it.id },
+            songIds = songIds,
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

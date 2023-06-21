@@ -10,18 +10,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.services.AppMeta
-import io.github.zyrouge.symphony.services.SettingsDataDefaults
+import io.github.zyrouge.symphony.services.SettingsDefaults
 import io.github.zyrouge.symphony.services.i18n.Translations
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
-import io.github.zyrouge.symphony.ui.components.EventerEffect
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.components.settings.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.home.ForYou
-import io.github.zyrouge.symphony.ui.view.settings.*
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -30,17 +29,39 @@ import kotlin.math.roundToInt
 fun SettingsView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    var settings by remember { mutableStateOf(context.symphony.settings.getSettings()) }
+
+    val language by context.symphony.settings.language.collectAsState()
+    val fontFamily by context.symphony.settings.fontFamily.collectAsState()
+    val themeMode by context.symphony.settings.themeMode.collectAsState()
+    val useMaterialYou by context.symphony.settings.useMaterialYou.collectAsState()
+    val primaryColor by context.symphony.settings.primaryColor.collectAsState()
+    val homeTabs by context.symphony.settings.homeTabs.collectAsState()
+    val forYouContents by context.symphony.settings.forYouContents.collectAsState()
+    val homePageBottomBarLabelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
+    val fadePlayback by context.symphony.settings.fadePlayback.collectAsState()
+    val fadePlaybackDuration by context.symphony.settings.fadePlaybackDuration.collectAsState()
+    val requireAudioFocus by context.symphony.settings.requireAudioFocus.collectAsState()
+    val ignoreAudioFocusLoss by context.symphony.settings.ignoreAudioFocusLoss.collectAsState()
+    val playOnHeadphonesConnect by context.symphony.settings.playOnHeadphonesConnect.collectAsState()
+    val pauseOnHeadphonesDisconnect by context.symphony.settings.pauseOnHeadphonesDisconnect.collectAsState()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
+    val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.collectAsState()
+    val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.collectAsState()
+    val nowPlayingControlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
+    val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
+    val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
+    val songsFilterPattern by context.symphony.settings.songsFilterPattern.collectAsState()
+    val blacklistFolders by context.symphony.settings.blacklistFolders.collectAsState()
+    val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
+    val checkForUpdates by context.symphony.settings.checkForUpdates.collectAsState()
+    val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
 
     val refetchLibrary = {
         context.symphony.radio.stop()
         coroutineScope.launch {
             context.symphony.groove.refetch()
         }
-    }
-
-    EventerEffect(context.symphony.settings.onChange) {
-        settings = context.symphony.settings.getSettings()
     }
 
     Scaffold(
@@ -88,12 +109,16 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.Language_)
                         },
-                        value = settings.language ?: context.symphony.t.Locale,
-                        values = Translations.all.associate {
-                            it.Locale to it.Language
+                        value = language ?: "",
+                        values = run {
+                            val defaultTranslation =
+                                context.symphony.translator.getDefaultTranslation()
+                            mapOf(
+                                "" to "${context.symphony.t.System} (${defaultTranslation.Language})"
+                            ) + Translations.all.values.associate { it.Locale to it.Language }
                         },
                         onChange = { value ->
-                            context.symphony.settings.setLanguage(value)
+                            context.symphony.settings.setLanguage(value.takeUnless { it == "" })
                         }
                     )
                     SettingsOptionTile(
@@ -103,7 +128,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.Font)
                         },
-                        value = SymphonyTypography.resolveFont(settings.fontFamily).fontName,
+                        value = SymphonyTypography.resolveFont(fontFamily).fontName,
                         values = SymphonyTypography.all.keys.associateWith { it },
                         onChange = { value ->
                             context.symphony.settings.setFontFamily(value)
@@ -116,7 +141,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.Theme)
                         },
-                        value = settings.themeMode,
+                        value = themeMode,
                         values = mapOf(
                             ThemeMode.SYSTEM to context.symphony.t.System,
                             ThemeMode.LIGHT to context.symphony.t.Light,
@@ -134,7 +159,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.MaterialYou)
                         },
-                        value = settings.useMaterialYou,
+                        value = useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.setUseMaterialYou(value)
                         }
@@ -146,9 +171,8 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.PrimaryColor)
                         },
-                        value = ThemeColors.resolvePrimaryColorKey(settings.primaryColor),
-                        values = PrimaryThemeColors.values()
-                            .associateWith { it.toHumanString() },
+                        value = ThemeColors.resolvePrimaryColorKey(primaryColor),
+                        values = PrimaryThemeColors.values().associateWith { it.toHumanString() },
                         onChange = { value ->
                             context.symphony.settings.setPrimaryColor(value.name)
                         }
@@ -164,7 +188,7 @@ fun SettingsView(context: ViewContext) {
                         note = {
                             Text(context.symphony.t.SelectAtleast2orAtmost5Tabs)
                         },
-                        value = settings.homeTabs,
+                        value = homeTabs,
                         values = HomePages.values().associateWith { it.label(context) },
                         satisfies = { it.size in 2..5 },
                         onChange = { value ->
@@ -179,7 +203,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ForYou)
                         },
-                        value = settings.forYouContents,
+                        value = forYouContents,
                         values = ForYou.values().associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.setForYouContents(value)
@@ -192,7 +216,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.BottomBarLabelVisibility)
                         },
-                        value = settings.homePageBottomBarLabelVisibility,
+                        value = homePageBottomBarLabelVisibility,
                         values = HomePageBottomBarLabelVisibility.values()
                             .associateWith { it.label(context) },
                         onChange = { value ->
@@ -208,7 +232,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.FadePlaybackInOut)
                         },
-                        value = settings.fadePlayback,
+                        value = fadePlayback,
                         onChange = { value ->
                             context.symphony.settings.setFadePlayback(value)
                         }
@@ -225,7 +249,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.XSecs(value.toString()))
                         },
                         range = 0.5f..6f,
-                        initialValue = settings.fadePlaybackDuration,
+                        initialValue = fadePlaybackDuration,
                         onValue = { value ->
                             value.times(2).roundToInt().toFloat().div(2)
                         },
@@ -234,7 +258,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         onReset = {
                             context.symphony.settings.setFadePlaybackDuration(
-                                SettingsDataDefaults.fadePlaybackDuration
+                                SettingsDefaults.fadePlaybackDuration
                             )
                         },
                     )
@@ -245,7 +269,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.RequireAudioFocus)
                         },
-                        value = settings.requireAudioFocus,
+                        value = requireAudioFocus,
                         onChange = { value ->
                             context.symphony.settings.setRequireAudioFocus(value)
                         }
@@ -257,7 +281,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.IgnoreAudioFocusLoss)
                         },
-                        value = settings.ignoreAudioFocusLoss,
+                        value = ignoreAudioFocusLoss,
                         onChange = { value ->
                             context.symphony.settings.setIgnoreAudioFocusLoss(value)
                         }
@@ -269,7 +293,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.PlayOnHeadphonesConnect)
                         },
-                        value = settings.playOnHeadphonesConnect,
+                        value = playOnHeadphonesConnect,
                         onChange = { value ->
                             context.symphony.settings.setPlayOnHeadphonesConnect(value)
                         }
@@ -281,7 +305,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.PauseOnHeadphonesDisconnect)
                         },
-                        value = settings.pauseOnHeadphonesDisconnect,
+                        value = pauseOnHeadphonesDisconnect,
                         onChange = { value ->
                             context.symphony.settings.setPauseOnHeadphonesDisconnect(value)
                         }
@@ -299,7 +323,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.XSecs(value.toString()))
                         },
                         range = seekDurationRange,
-                        initialValue = settings.seekBackDuration.toFloat(),
+                        initialValue = seekBackDuration.toFloat(),
                         onValue = { value ->
                             value.roundToInt().toFloat()
                         },
@@ -308,7 +332,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         onReset = {
                             context.symphony.settings.setSeekBackDuration(
-                                SettingsDataDefaults.seekBackDuration
+                                SettingsDefaults.seekBackDuration
                             )
                         },
                     )
@@ -324,7 +348,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.XSecs(value.toString()))
                         },
                         range = seekDurationRange,
-                        initialValue = settings.seekForwardDuration.toFloat(),
+                        initialValue = seekForwardDuration.toFloat(),
                         onValue = { value ->
                             value.roundToInt().toFloat()
                         },
@@ -333,7 +357,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         onReset = {
                             context.symphony.settings.setSeekForwardDuration(
-                                SettingsDataDefaults.seekForwardDuration
+                                SettingsDefaults.seekForwardDuration
                             )
                         },
                     )
@@ -346,7 +370,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ShowTrackControls)
                         },
-                        value = settings.miniPlayerTrackControls,
+                        value = miniPlayerTrackControls,
                         onChange = { value ->
                             context.symphony.settings.setMiniPlayerTrackControls(value)
                         }
@@ -358,7 +382,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ShowSeekControls)
                         },
-                        value = settings.miniPlayerSeekControls,
+                        value = miniPlayerSeekControls,
                         onChange = { value ->
                             context.symphony.settings.setMiniPlayerSeekControls(value)
                         }
@@ -372,7 +396,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ControlsLayout)
                         },
-                        value = settings.nowPlayingControlsLayout,
+                        value = nowPlayingControlsLayout,
                         values = NowPlayingControlsLayout.values()
                             .associateWith { it.label(context) },
                         onChange = { value ->
@@ -386,7 +410,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ShowAudioInformation)
                         },
-                        value = settings.nowPlayingAdditionalInfo,
+                        value = nowPlayingAdditionalInfo,
                         onChange = { value ->
                             context.symphony.settings.showNowPlayingAdditionalInfo(value)
                         }
@@ -398,7 +422,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.ShowSeekControls)
                         },
-                        value = settings.nowPlayingSeekControls,
+                        value = nowPlayingSeekControls,
                         onChange = { value ->
                             context.symphony.settings.setNowPlayingSeekControls(value)
                         }
@@ -414,7 +438,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.SongsFilterPattern)
                         },
-                        value = settings.songsFilterPattern ?: defaultSongsFilterPattern,
+                        value = songsFilterPattern ?: defaultSongsFilterPattern,
                         onReset = {
                             context.symphony.settings.setSongsFilterPattern(null)
                         },
@@ -437,7 +461,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.BlacklistFolders)
                         },
                         explorer = context.symphony.groove.mediaStore.explorer,
-                        initialValues = settings.blacklistFolders,
+                        initialValues = blacklistFolders,
                         onChange = { values ->
                             context.symphony.settings.setBlacklistFolders(values)
                             refetchLibrary()
@@ -452,7 +476,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.WhitelistFolders)
                         },
                         explorer = context.symphony.groove.mediaStore.explorer,
-                        initialValues = settings.whitelistFolders,
+                        initialValues = whitelistFolders,
                         onChange = { values ->
                             context.symphony.settings.setWhitelistFolders(values)
                             refetchLibrary()
@@ -467,7 +491,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         onClick = {
                             coroutineScope.launch {
-                                context.symphony.database.songCache.update(mapOf())
+                                context.symphony.database.songCache.update(emptyMap())
                                 refetchLibrary()
                                 snackbarHostState.showSnackbar(
                                     context.symphony.t.SongCacheCleared,
@@ -492,6 +516,7 @@ fun SettingsView(context: ViewContext) {
                             !isLatestVersion -> ({
                                 Text(context.symphony.t.NewVersionAvailableX(AppMeta.latestVersion!!))
                             })
+
                             else -> null
                         },
                         onClick = {
@@ -560,9 +585,19 @@ fun SettingsView(context: ViewContext) {
                             Icon(Icons.Default.Redeem, null)
                         },
                         title = {
+                            Text(context.symphony.t.SponsorViaKoFi)
+                        },
+                        url = AppMeta.koFiUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Redeem, null)
+                        },
+                        title = {
                             Text(context.symphony.t.SponsorViaPatreon)
                         },
-                        url = AppMeta.patreonSponsorsUrl
+                        url = AppMeta.patreonUrl
                     )
                     SettingsSwitchTile(
                         icon = {
@@ -571,9 +606,21 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.CheckForUpdates)
                         },
-                        value = settings.checkForUpdates,
+                        value = checkForUpdates,
                         onChange = { value ->
                             context.symphony.settings.setCheckForUpdates(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Update, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowUpdateToast)
+                        },
+                        value = showUpdateToast,
+                        onChange = { value ->
+                            context.symphony.settings.setShowUpdateToast(value)
                         }
                     )
                     SettingsLinkTile(
