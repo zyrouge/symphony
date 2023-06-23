@@ -31,13 +31,13 @@ class RadioFocus(val symphony: Symphony) {
                         }
                     }
                     AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                        restoreOnFocusGain = true
+                        restoreOnFocusGain = symphony.radio.isPlaying
                         if (!symphony.settings.ignoreAudioFocusLoss.value) {
                             symphony.radio.pause()
                         }
                     }
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                        restoreOnFocusGain = true
+                        restoreOnFocusGain = symphony.radio.isPlaying
                         if (symphony.radio.isPlaying) {
                             symphony.radio.duck()
                         }
