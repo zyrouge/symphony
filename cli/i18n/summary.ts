@@ -31,8 +31,7 @@ ${Object.entries(summary.individual)
         `.trim()
     );
     const translationPercent = Math.floor(
-        ((summary.total.set + summary.total.defaulted) / summary.total.total) *
-            100
+        (summary.total.set / summary.total.total) * 100
     );
     await fs.writeFile(
         path.join(outputDir, `badge-translated.json`),
