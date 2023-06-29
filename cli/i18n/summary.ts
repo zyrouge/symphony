@@ -18,15 +18,15 @@ const start = async () => {
 
 Read [Translations Guide](https://github.com/zyrouge/symphony/wiki/Translations-Guide) on how Symphony handles localization.
 
-| Status | Language | % Translated |
+| Status | Locale | % Translated |
 | --- | --- | --- |
 ${Object.entries(summary.individual)
-    .map(
-        ([locale, x]) =>
-            `| ${
-                x.set.percent === 100 ? "✅" : "⚠️"
-            } | \`${locale}\` | ${x.set.percent.toFixed(1)}% |`
-    )
+    .map(([locale, x]) => {
+        const status = x.set.percent === 100 ? "✅" : "⚠️";
+        const url = `https://github.com/zyrouge/symphony/blob/main/i18n/${locale}.toml`;
+        const percentage = `${x.set.percent.toFixed(1)}%`;
+        return `| ${status} | [\`${locale}\`](${url}) | ${percentage} |`;
+    })
     .join("\n")}
         `.trim()
     );
