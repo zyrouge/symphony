@@ -1,32 +1,19 @@
 package io.github.zyrouge.symphony.services.i18n
 
-import io.github.zyrouge.symphony.services.i18n.translations.BeTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.DeTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.EnTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.ITranslations
-import io.github.zyrouge.symphony.services.i18n.translations.ItTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.RuTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.TrTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.UkTranslation
-import io.github.zyrouge.symphony.services.i18n.translations.ZhCnTranslation
+import io.github.zyrouge.symphony.Symphony
+import org.json.JSONObject
 
-object Translations {
-    private val enTranslation = EnTranslation()
-    val all = map(
-        BeTranslation(),
-        DeTranslation(),
-        enTranslation,
-        ItTranslation(),
-        RuTranslation(),
-        TrTranslation(),
-        UkTranslation(),
-        ZhCnTranslation(),
-    )
+class Translations(private val symphony: Symphony) : TranslationsBase() {
+    val defaultLocaleCode = "en"
+    
+    fun supports(locale: String) = localeCodes.contains(locale)
 
-    fun get(locale: String) = all[locale]
-    fun default() = enTranslation
-
-    private fun map(vararg translations: ITranslations) = translations
-        .sortedBy { it.Language }
-        .associateBy { it.Locale }
+    fun parse(locale: String): Translation {
+        val content = symphony.applicationContext.assets
+            .open("i18n/${locale}.json")
+            .bufferedReader()
+            .use { it.readText() }
+        val json = JSONObject(content)
+        return Translation(json)
+    }
 }

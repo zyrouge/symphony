@@ -1,6 +1,6 @@
 package io.github.zyrouge.symphony.services.i18n.translations
 
-object CommonTranslations {
+object CommonTranslation {
     val SomethingWentHorriblyWrong = "Something went horribly wrong!"
 
     fun ErrorX(x: String) = "Error: $x"

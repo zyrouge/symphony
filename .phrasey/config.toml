@@ -11,3 +11,6 @@ default = "../i18n/en.toml"
 dir = "../app/src/main/assets/i18n"
 format = "json"
 stringFormat = "format-string"
+
+[hooks]
+files = ["./hooks.js"]

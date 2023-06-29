@@ -29,5 +29,5 @@ jobs:
             - name: 🚀 Push summary files
               uses: zyrouge/gh-push-action@v1.0.5
               with:
-                  directory: build-data/i18n-summary
+                  directory: phrasey-dist
                   branch: i18n-summary

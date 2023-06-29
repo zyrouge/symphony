@@ -1,64 +1,65 @@
 import path from "path";
 import fs from "fs/promises";
-import { PhraseyCircuit } from "phrasey";
-import { config } from "./config";
+import { PhraseySummaryJson } from "phrasey";
 import { Paths } from "../helpers/paths";
 
-const outputDir = path.join(Paths.rootDir, "build-data/i18n-summary");
+const outputDir = path.join(Paths.rootDir, "phrasey-dist");
+const summaryJsonPath = path.join(outputDir, "summary.json");
 
 const start = async () => {
-    await fs.rm(outputDir, {
-        recursive: true,
-        force: true,
-    });
-    await fs.mkdir(outputDir, {
-        recursive: true,
-    });
-    const circuit = PhraseyCircuit.create(config);
-    const summary = await circuit.getFullSummary();
+    const summaryContent = await fs.readFile(summaryJsonPath, "utf-8");
+    const summary: PhraseySummaryJson = JSON.parse(summaryContent);
     await fs.writeFile(
         path.join(outputDir, `README.md`),
         `
-# i18n
+# Symphony i18n
 
 > Last updated at ${new Date().toLocaleString()}
 
+Read [Translations Guide](https://github.com/zyrouge/symphony/wiki/Translations-Guide) on how Symphony handles localization.
+
 | Status | Language | % Translated |
 | --- | --- | --- |
-${Object.values(summary.summary)
+${Object.entries(summary.individual)
     .map(
-        (x) =>
-            `| ${x.keys.percents.set === 100 ? "✅" : "⚠️"} | ${
-                x.translation.language
-            } | ${x.keys.percents.set.toFixed(1)}% |`
+        ([locale, x]) =>
+            `| ${
+                x.set.percent === 100 ? "✅" : "⚠️"
+            } | \`${locale}\` | ${x.set.percent.toFixed(1)}% |`
     )
     .join("\n")}
         `.trim()
+    );
+    const translationPercent = Math.floor(
+        ((summary.total.set + summary.total.defaulted) / summary.total.total) *
+            100
     );
     await fs.writeFile(
         path.join(outputDir, `badge-translated.json`),
         JSON.stringify({
             schemaVersion: 1,
             label: "i18n",
-            message: `${Math.floor(summary.keys.percents.set)}%`,
+            message: `${translationPercent}%`,
             color: "#328fa8",
         })
     );
+    const languagesCount = Object.keys(summary.individual).length;
     await fs.writeFile(
         path.join(outputDir, `badge-languages.json`),
         JSON.stringify({
             schemaVersion: 1,
             label: "i18n languages",
-            message: `${circuit.client.translations.size}`,
+            message: `${languagesCount}`,
             color: "#3279a8",
         })
     );
+    const keysCount = summary.total.total / languagesCount;
     await fs.writeFile(
         path.join(outputDir, `badge-strings.json`),
         JSON.stringify({
             schemaVersion: 1,
             label: "i18n strings",
-            message: `${config.keys.length}`,
+            message: `${keysCount}`,
             color: "#3265a8",
         })
     );
