@@ -1,0 +1,13 @@
+[schema]
+file = "./schema.toml"
+format = "toml"
+
+[input]
+files = "../i18n/**.toml"
+format = "toml"
+default = "../i18n/en.toml"
+
+[output]
+dir = "../app/src/main/assets/i18n"
+format = "json"
+stringFormat = "format-string"

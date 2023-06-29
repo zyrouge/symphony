@@ -1,0 +1,526 @@
+[[keys]]
+name = "UnknownSymbol"
+description = "Symbol to represent unknown things"
+
+[[keys]]
+name = "HelloThere"
+
+[[keys]]
+name = "IntroductoryMessage"
+
+[[keys]]
+name = "Songs"
+
+[[keys]]
+name = "Artists"
+
+[[keys]]
+name = "Albums"
+
+[[keys]]
+name = "Settings"
+
+[[keys]]
+name = "Details"
+
+[[keys]]
+name = "Path"
+
+[[keys]]
+name = "Filename"
+
+[[keys]]
+name = "Size"
+
+[[keys]]
+name = "DateAdded"
+
+[[keys]]
+name = "LastModified"
+
+[[keys]]
+name = "Length"
+
+[[keys]]
+name = "Bitrate"
+
+[[keys]]
+name = "TrackName"
+
+[[keys]]
+name = "Artist"
+
+[[keys]]
+name = "Album"
+
+[[keys]]
+name = "AlbumArtist"
+
+[[keys]]
+name = "Composer"
+
+[[keys]]
+name = "NothingIsBeingPlayedRightNow"
+
+[[keys]]
+name = "AddToQueue"
+
+[[keys]]
+name = "Queue"
+
+[[keys]]
+name = "PlayNext"
+
+[[keys]]
+name = "NowPlaying"
+
+[[keys]]
+name = "Language_"
+
+[[keys]]
+name = "MaterialYou"
+
+[[keys]]
+name = "System"
+
+[[keys]]
+name = "Light"
+
+[[keys]]
+name = "Dark"
+
+[[keys]]
+name = "Black"
+
+[[keys]]
+name = "ViewArtist"
+
+[[keys]]
+name = "Title"
+
+[[keys]]
+name = "Duration"
+
+[[keys]]
+name = "Year"
+
+[[keys]]
+name = "ViewAlbum"
+
+[[keys]]
+name = "SearchYourMusic"
+
+[[keys]]
+name = "NoResultsFound"
+
+[[keys]]
+name = "AlbumCount"
+
+[[keys]]
+name = "TrackCount"
+
+[[keys]]
+name = "FilteringResults"
+
+[[keys]]
+name = "Appearance"
+
+[[keys]]
+name = "About"
+
+[[keys]]
+name = "GitHub"
+
+[[keys]]
+name = "Play"
+
+[[keys]]
+name = "Previous"
+
+[[keys]]
+name = "Next"
+
+[[keys]]
+name = "Pause"
+
+[[keys]]
+name = "Done"
+
+[[keys]]
+name = "Groove"
+
+[[keys]]
+name = "SongsFilterPattern"
+
+[[keys]]
+name = "Reset"
+
+[[keys]]
+name = "Theme"
+
+[[keys]]
+name = "CheckForUpdates"
+
+[[keys]]
+name = "Version"
+
+[[keys]]
+name = "ShufflePlay"
+
+[[keys]]
+name = "ViewAlbumArtist"
+
+[[keys]]
+name = "Stop"
+
+[[keys]]
+name = "All"
+
+[[keys]]
+name = "FadePlaybackInOut"
+
+[[keys]]
+name = "RequireAudioFocus"
+
+[[keys]]
+name = "IgnoreAudioFocusLoss"
+
+[[keys]]
+name = "Player"
+
+[[keys]]
+name = "PlayOnHeadphonesConnect"
+
+[[keys]]
+name = "PauseOnHeadphonesDisconnect"
+
+[[keys]]
+name = "Genre"
+
+[[keys]]
+name = "DamnThisIsSoEmpty"
+
+[[keys]]
+name = "PrimaryColor"
+
+[[keys]]
+name = "PlayAll"
+
+[[keys]]
+name = "ForYou"
+
+[[keys]]
+name = "SuggestedAlbums"
+
+[[keys]]
+name = "SuggestedArtists"
+
+[[keys]]
+name = "RecentlyAddedSongs"
+
+[[keys]]
+name = "SponsorViaGitHub"
+
+[[keys]]
+name = "ClearSongCache"
+
+[[keys]]
+name = "SongCacheCleared"
+
+[[keys]]
+name = "AlbumArtists"
+
+[[keys]]
+name = "Genres"
+
+[[keys]]
+name = "Cancel"
+
+[[keys]]
+name = "HomeTabs"
+
+[[keys]]
+name = "SelectAtleast2orAtmost5Tabs"
+
+[[keys]]
+name = "Folders"
+
+[[keys]]
+name = "Invisible"
+
+[[keys]]
+name = "AlwaysVisible"
+
+[[keys]]
+name = "VisibleWhenActive"
+
+[[keys]]
+name = "BottomBarLabelVisibility"
+
+[[keys]]
+name = "Playlists"
+
+[[keys]]
+name = "NewPlaylist"
+
+[[keys]]
+name = "ImportPlaylist"
+
+[[keys]]
+name = "NoInAppPlaylistsFound"
+
+[[keys]]
+name = "NoLocalPlaylistsFound"
+
+[[keys]]
+name = "Custom"
+
+[[keys]]
+name = "Playlist"
+
+[[keys]]
+name = "AddSongs"
+
+[[keys]]
+name = "AddToPlaylist"
+
+[[keys]]
+name = "IsLocalPlaylist"
+
+[[keys]]
+name = "Yes"
+
+[[keys]]
+name = "No"
+
+[[keys]]
+name = "ManageSongs"
+
+[[keys]]
+name = "Delete"
+
+[[keys]]
+name = "DeletePlaylist"
+
+[[keys]]
+name = "TrackNumber"
+
+[[keys]]
+name = "Tree"
+
+[[keys]]
+name = "Loading"
+
+[[keys]]
+name = "Name"
+
+[[keys]]
+name = "AddFolder"
+
+[[keys]]
+name = "BlacklistFolders"
+
+[[keys]]
+name = "WhitelistFolders"
+
+[[keys]]
+name = "PickFolder"
+
+[[keys]]
+name = "InvalidM3UFile"
+
+[[keys]]
+name = "Discord"
+
+[[keys]]
+name = "Reddit"
+
+[[keys]]
+name = "ReportAnIssue"
+
+[[keys]]
+name = "NoFoldersFound"
+
+[[keys]]
+name = "SleepTimer"
+
+[[keys]]
+name = "Hours"
+
+[[keys]]
+name = "Minutes"
+
+[[keys]]
+name = "QuitAppOnEnd"
+
+[[keys]]
+name = "Favorite"
+
+[[keys]]
+name = "Unfavorite"
+
+[[keys]]
+name = "BitDepth"
+
+[[keys]]
+name = "SamplingRate"
+
+[[keys]]
+name = "ShowAudioInformation"
+
+[[keys]]
+name = "FastRewindDuration"
+
+[[keys]]
+name = "FastForwardDuration"
+
+[[keys]]
+name = "SuggestedAlbumArtists"
+
+[[keys]]
+name = "AreYouSureThatYouWantToDeleteThisPlaylist"
+
+[[keys]]
+name = "RemoveFromPlaylist"
+
+[[keys]]
+name = "Speed"
+
+[[keys]]
+name = "Pitch"
+
+[[keys]]
+name = "PersistUntilQueueEnd"
+
+[[keys]]
+name = "NoLyrics"
+
+[[keys]]
+name = "SponsorViaPatreon"
+
+[[keys]]
+name = "FDroid"
+
+[[keys]]
+name = "IzzyOnDroid"
+
+[[keys]]
+name = "MiniPlayer"
+
+[[keys]]
+name = "ShowTrackControls"
+
+[[keys]]
+name = "ShowSeekControls"
+
+[[keys]]
+name = "Font"
+
+[[keys]]
+name = "Codec"
+
+[[keys]]
+name = "ControlsLayout"
+
+[[keys]]
+name = "Default"
+
+[[keys]]
+name = "Traditional"
+
+[[keys]]
+name = "Enabled"
+
+[[keys]]
+name = "Disabled"
+
+[[keys]]
+name = "ShowUpdateToast"
+
+[[keys]]
+name = "SponsorViaKoFi"
+
+[[keys]]
+name = "PlaylistStoreLocation"
+
+[[keys]]
+name = "AppBuiltIn"
+
+[[keys]]
+name = "LocalStorage"
+
+[[keys]]
+name = "PlayingXofY"
+parameters = ["x", "y"]
+
+[[keys]]
+name = "UnknownArtistX"
+parameters = ["x"]
+
+[[keys]]
+name = "XSongs"
+parameters = ["x"]
+
+[[keys]]
+name = "UnknownAlbumId"
+parameters = ["id"]
+
+[[keys]]
+name = "XArtists"
+parameters = ["x"]
+
+[[keys]]
+name = "XAlbums"
+parameters = ["x"]
+
+[[keys]]
+name = "MadeByX"
+parameters = ["x"]
+
+[[keys]]
+name = "NewVersionAvailableX"
+parameters = ["x"]
+
+[[keys]]
+name = "XKbps"
+parameters = ["x"]
+
+[[keys]]
+name = "XSecs"
+parameters = ["x"]
+
+[[keys]]
+name = "UnknownGenreX"
+parameters = ["x"]
+
+[[keys]]
+name = "XGenres"
+parameters = ["x"]
+
+[[keys]]
+name = "XFoldersYFiles"
+parameters = ["x", "y"]
+
+[[keys]]
+name = "XItems"
+parameters = ["x"]
+
+[[keys]]
+name = "XPlaylists"
+parameters = ["x"]
+
+[[keys]]
+name = "UnknownPlaylistX"
+parameters = ["x"]
+
+[[keys]]
+name = "XFolders"
+parameters = ["x"]
+
+[[keys]]
+name = "XBit"
+parameters = ["x"]
+
+[[keys]]
+name = "XKHz"
+parameters = ["x"]
