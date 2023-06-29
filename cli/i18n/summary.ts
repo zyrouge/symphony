@@ -24,7 +24,7 @@ ${Object.entries(summary.individual)
     .map(
         ([locale, x]) =>
             `| ${
-                x.set.percent === 100 ? "✅" : "⚠️"
+                x.set.percent === 100 ? "✔️" : "⚠️"
             } | \`${locale}\` | ${x.set.percent.toFixed(1)}% |`
     )
     .join("\n")}
