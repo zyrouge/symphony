@@ -5,6 +5,7 @@ on:
         branches:
             - main
         paths:
+            - .phrasey/**
             - i18n/**
     workflow_dispatch:
 
