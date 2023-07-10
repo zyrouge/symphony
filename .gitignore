@@ -16,3 +16,4 @@ local.properties
 node_modules
 *.g.kt
 phrasey-dist
+app/src/main/assets/i18n
