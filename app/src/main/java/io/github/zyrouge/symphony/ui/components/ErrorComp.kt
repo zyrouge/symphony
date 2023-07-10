@@ -1,7 +1,13 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ProvideTextStyle
@@ -14,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.zyrouge.symphony.services.i18n.translations.CommonTranslations
+import io.github.zyrouge.symphony.services.i18n.translations.CommonTranslation
 
 @Composable
 fun ErrorComp(message: String, stackTrace: String) {
@@ -37,14 +43,14 @@ fun ErrorComp(message: String, stackTrace: String) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                CommonTranslations.SomethingWentHorriblyWrong,
+                CommonTranslation.SomethingWentHorriblyWrong,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = boldTextStyle,
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                CommonTranslations.ErrorX(message),
+                CommonTranslation.ErrorX(message),
                 style = boldTextStyle,
             )
             Text(stackTrace)

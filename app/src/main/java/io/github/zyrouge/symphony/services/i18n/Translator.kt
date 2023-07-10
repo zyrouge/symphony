@@ -17,10 +17,14 @@ class Translator(private val symphony: Symphony) {
         ?: getDefaultTranslation()
 
     fun getDefaultTranslation(): Translation {
-        val systemLocale = LocaleListCompat.getDefault()[0]?.language
-        return translations.parse(
-            systemLocale?.takeIf { translations.supports(it) }
-                ?: translations.defaultLocaleCode
-        )
+        val localeCode = getDefaultLocaleCode()
+        return translations.parse(localeCode)
     }
+
+    fun getLocaleName(localeCode: String) = translations.localeNames[getDefaultLocaleCode()]
+
+    fun getDefaultLocaleName() = getLocaleName(getDefaultLocaleCode())!!
+    fun getDefaultLocaleCode() = LocaleListCompat.getDefault()[0]?.language
+        ?.takeIf { translations.supports(it) }
+        ?: translations.defaultLocaleCode
 }

@@ -2,35 +2,41 @@ const p = require("path");
 const fs = require("fs-extra");
 
 /**
- * @type {import("phrasey").PhraseyHooksPartialHandler}
+ * @type {import("phrasey").PhraseyHooksHandler}
  */
 const hook = {
-    afterBuild: async (phrasey) => {
-        if (phrasey.additional.source !== "build") return;
-        await createTranslationKt(phrasey);
-        await createTranslationsKt(phrasey);
+    afterBuild: async ({ phrasey, log }) => {
+        if (phrasey.options.source !== "build") {
+            log.info("Skipping post-build due to non-build source");
+            return;
+        }
+        await createTranslationKt(phrasey, log);
+        await createTranslationsKt(phrasey, log);
     },
 };
 
 module.exports = hook;
 
-const i18nDir = p.join(
-    __dirname,
-    "../app/src/main/java/io/github/zyrouge/symphony/services/i18n"
+const rootDir = p.resolve(__dirname, "..");
+const appI18nDir = p.join(
+    rootDir,
+    "app/src/main/java/io/github/zyrouge/symphony/services/i18n"
 );
 
 /**
  *
  * @param {import("phrasey").Phrasey} phrasey
+ * @param {import("phrasey").PhraseyLogger} log
  */
-async function createTranslationsKt(phrasey) {
+async function createTranslationsKt(phrasey, log) {
     const translations = [...phrasey.translations.values()];
     const content = `
 package io.github.zyrouge.symphony.services.i18n
 
-open class TranslationsBase {
+@Suppress("ClassName")
+open class _Translations {
     val localeCodes = listOf(
-${translations.map((x) => `        "${x.locale.code}",`).join("\n")}    
+${translations.map((x) => `        "${x.locale.code}",`).join("\n")}
     )
     val localeNames = mapOf(
 ${translations
@@ -39,14 +45,17 @@ ${translations
     )
 }
     `;
-    await fs.writeFile(p.join(i18nDir, "Translations.g.kt"), content);
+    const path = p.join(appI18nDir, "Translations.g.kt");
+    await fs.writeFile(path, content);
+    log.success(`Generated "${p.relative(rootDir, path)}".`);
 }
 
 /**
  *
  * @param {import("phrasey").Phrasey} phrasey
+ * @param {import("phrasey").PhraseyLogger} log
  */
-async function createTranslationKt(phrasey) {
+async function createTranslationKt(phrasey, log) {
     /**
      * @type {string[]}
      */
@@ -61,11 +70,11 @@ async function createTranslationKt(phrasey) {
             const params = x.parameters.map((x) => `${x}: String`).join(", ");
             const callArgs = x.parameters.join(", ");
             dynamicKeys.push(
-                `    fun ${x.name}(${params}): String = json.getString("${x.name}").format(${callArgs})`
+                `    fun ${x.name}(${params}): String = _keysJson.getString("${x.name}").format(${callArgs})`
             );
         } else {
             staticKeys.push(
-                `    val ${x.name}: String get() = json.getString("${x.name}")`
+                `    val ${x.name}: String get() = _keysJson.getString("${x.name}")`
             );
         }
     }
@@ -75,8 +84,11 @@ package io.github.zyrouge.symphony.services.i18n
 
 import org.json.JSONObject
 
-class TranslationBase(val json: JSONObject) {
-    private val _localeJson: JSONObject get() = json.getJSONObject("locale")
+@Suppress("ClassName")
+open class _Translation(val json: JSONObject) {
+    private val _localeJson = json.getJSONObject("locale")
+    private val _keysJson = json.getJSONObject("keys")
+
     val LocaleName: String get() = _localeJson.getString("name")
     val LocaleCode: String get() = _localeJson.getString("locale")
 
@@ -85,5 +97,7 @@ ${staticKeys.join("\n")}
 ${dynamicKeys.join("\n")}
 }
     `;
-    await fs.writeFile(p.join(i18nDir, "Translation.g.kt"), content);
+    const path = p.join(appI18nDir, "Translation.g.kt");
+    await fs.writeFile(path, content);
+    log.success(`Generated "${p.relative(rootDir, path)}".`);
 }
