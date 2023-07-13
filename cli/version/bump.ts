@@ -1,3 +1,4 @@
+import pico from "picocolors";
 import { Versioner } from "../helpers/version";
 
 const main = async () => {
@@ -11,7 +12,9 @@ const main = async () => {
     ].join(".");
     await Versioner.updateVersion({ versionCode, versionName });
     console.log(
-        `Version bumped from ${currentVersion.versionName} to ${versionName}!`
+        `Version bumped from ${pico.cyan(
+            currentVersion.versionName
+        )} to ${pico.cyan(versionName)}!`
     );
 };
 
