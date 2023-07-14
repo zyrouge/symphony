@@ -5,6 +5,8 @@ import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationChannelCompat
@@ -89,7 +91,15 @@ class RadioNotificationManager(val symphony: Symphony) {
         state = State.READY
         lastNotification?.let { notification ->
             lastNotification = null
-            service!!.startForeground(RadioNotification.NOTIFICATION_ID, notification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                // If running Android 10 or newer, specify that the foreground service is for
+                // media playback. This allows the app to function on Android 14, namely.
+                service!!.startForeground(RadioNotification.NOTIFICATION_ID, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            } else{
+                // We're running a version under Android 10; we cannot specify such attribute.
+                service!!.startForeground(RadioNotification.NOTIFICATION_ID, notification)
+            }
         }
     }
 
