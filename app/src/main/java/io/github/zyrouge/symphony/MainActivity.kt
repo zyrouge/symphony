@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.ui.view.BaseView
@@ -39,6 +40,9 @@ class MainActivity : ComponentActivity() {
         gSymphony = symphony
         symphony.ready()
         attachHandlers()
+
+        // Allow app to draw behind system bar decorations (e.g.: navbar)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // NOTE: disables action bar on orientation changes (esp. in miui)
         actionBar?.hide()
