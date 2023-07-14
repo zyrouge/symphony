@@ -1,5 +1,4 @@
 [versions]
-accompanist = '0.27.0'
 activity-compose = "1.8.0-alpha06"
 coil = "2.4.0"
 compose = "1.4.3"
@@ -22,7 +21,6 @@ min-sdk = "28"
 target-sdk = "34"
 
 [libraries]
-accompanist-navigation-animation = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose-material" }
