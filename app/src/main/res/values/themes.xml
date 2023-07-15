@@ -3,5 +3,14 @@
 
     <style name="Theme.Symphony" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+
+        <!-- Edge-to-edge display -->
+        <item name="android:navigationBarColor">
+            @android:color/transparent
+        </item>
+        <item name="android:statusBarColor">
+            @android:color/transparent
+        </item>
+
     </style>
 </resources>

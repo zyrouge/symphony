@@ -37,7 +37,7 @@ import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun NowPlayingBottomBar(context: ViewContext) {
+fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val queue = context.symphony.radio.observatory.queue
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val currentPlayingSong by remember {
@@ -202,6 +202,9 @@ fun NowPlayingBottomBar(context: ViewContext) {
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                     }
+                }
+                if(drawInset){
+                    Spacer(modifier = Modifier.navigationBarsPadding())
                 }
             }
         }

@@ -2,12 +2,12 @@ package io.github.zyrouge.symphony
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.ui.view.BaseView
@@ -41,6 +41,9 @@ class MainActivity : ComponentActivity() {
         symphony.ready()
         attachHandlers()
 
+        // Allow app to draw behind system bar decorations (e.g.: navbar)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         // NOTE: disables action bar on orientation changes (esp. in miui)
         actionBar?.hide()
         setContent {
@@ -65,9 +68,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun attachHandlers() {
-        onBackPressedDispatcher.addCallback {
-            moveTaskToBack(true)
-        }
+        // onBackPressedDispatcher.addCallback {
+        //     moveTaskToBack(true)
+        // }
+        // Interferes with the predictive back handling, and AFAIK the app works fine without this.
         gSymphony?.closeApp = {
             finish()
         }

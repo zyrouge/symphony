@@ -227,7 +227,7 @@ fun HomeView(context: ViewContext) {
         },
         bottomBar = {
             Column {
-                NowPlayingBottomBar(context)
+                NowPlayingBottomBar(context, false)
                 NavigationBar {
                     Spacer(modifier = Modifier.width(2.dp))
                     tabs.map { page ->

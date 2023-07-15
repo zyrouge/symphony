@@ -66,7 +66,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.accompanist.navigation.animation)
     implementation(libs.activity.compose)
     implementation(libs.coil)
     implementation(libs.compose.material.icons.extended)

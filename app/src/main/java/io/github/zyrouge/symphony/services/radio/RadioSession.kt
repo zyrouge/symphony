@@ -43,15 +43,34 @@ class RadioSession(val symphony: Symphony) {
     }
 
     fun start() {
-        symphony.applicationContext.registerReceiver(
-            receiver,
-            IntentFilter().apply {
-                addAction(ACTION_PLAY_PAUSE)
-                addAction(ACTION_PREVIOUS)
-                addAction(ACTION_NEXT)
-                addAction(ACTION_STOP)
-            }
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // As per Tiramisu requirements, we need to add Context attributes.
+            symphony.applicationContext.registerReceiver(
+                receiver,
+                IntentFilter().apply {
+                    addAction(ACTION_PLAY_PAUSE)
+                    addAction(ACTION_PREVIOUS)
+                    addAction(ACTION_NEXT)
+                    addAction(ACTION_STOP)
+                },
+                Context.RECEIVER_EXPORTED
+                // https://developer.android.com/reference/android/content/Context#RECEIVER_EXPORTED
+                // really, RECEIVER_EXPORTED and RECEIVER_NOT_EXPORTED makes no difference.
+                // the notification appears perfectly, Pano Scrobbler sees it,
+                // Wear OS can send signals to play/pause the app, other media apps can pause it,
+                // no clue what the difference here is... but here we are.
+            )
+        } else{
+            symphony.applicationContext.registerReceiver(
+                receiver,
+                IntentFilter().apply {
+                    addAction(ACTION_PLAY_PAUSE)
+                    addAction(ACTION_PREVIOUS)
+                    addAction(ACTION_NEXT)
+                    addAction(ACTION_STOP)
+                }
+            )
+        }
         mediaSession.setCallback(
             object : MediaSessionCompat.Callback() {
                 override fun onPlay() {
