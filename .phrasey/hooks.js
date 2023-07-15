@@ -35,10 +35,10 @@ package io.github.zyrouge.symphony.services.i18n
 
 @Suppress("ClassName")
 open class _Translations {
-    val localeCodes = listOf(
+    val localeCodes: List<String> = listOf(
 ${translations.map((x) => `        "${x.locale.code}",`).join("\n")}
     )
-    val localeNames = mapOf(
+    val localeNames: Map<String, String> = mapOf(
 ${translations
     .map((x) => `        "${x.locale.code}" to "${x.locale.name}",`)
     .join("\n")}
