@@ -1,5 +1,5 @@
-# not sure if its zh_HK or zh_HANS
-locale = "zh_HK"
+# not sure if this is correct
+locale = "zh-Hans"
 
 [keys]
 UnknownSymbol = "?"

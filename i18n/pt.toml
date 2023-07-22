@@ -1,4 +1,5 @@
-locale = "pt_BR"
+# "pt" is the default for "pt-BR" in CLDR standards
+locale = "pt"
 
 [keys]
 UnknownSymbol = "?"
