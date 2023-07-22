@@ -1,5 +1,6 @@
 const p = require("path");
 const fs = require("fs-extra");
+const { rootDir, appI18nDir } = require("./utils");
 
 /**
  * @type {import("phrasey").PhraseyHooksHandler}
@@ -17,12 +18,6 @@ const hook = {
 
 module.exports = hook;
 
-const rootDir = p.resolve(__dirname, "..");
-const appI18nDir = p.join(
-    rootDir,
-    "app/src/main/java/io/github/zyrouge/symphony/services/i18n"
-);
-
 /**
  *
  * @param {import("phrasey").Phrasey} phrasey
@@ -38,9 +33,14 @@ open class _Translations {
     val localeCodes: List<String> = listOf(
 ${translations.map((x) => `        "${x.locale.code}",`).join("\n")}
     )
-    val localeNames: Map<String, String> = mapOf(
+    val localeDisplayNames: Map<String, String> = mapOf(
 ${translations
-    .map((x) => `        "${x.locale.code}" to "${x.locale.name}",`)
+    .map((x) => `        "${x.locale.code}" to "${x.locale.display}",`)
+    .join("\n")}
+    )
+    val localeNativeNames: Map<String, String> = mapOf(
+${translations
+    .map((x) => `        "${x.locale.code}" to "${x.locale.native}",`)
     .join("\n")}
     )
 }

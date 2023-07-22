@@ -12,5 +12,9 @@ dir = "../app/src/main/assets/i18n"
 format = "json"
 stringFormat = "format-string"
 
+[locales]
+file = "../i18n/locales.g.json"
+format = "json"
+
 [hooks]
-files = ["./hooks.js"]
+files = ["./hooks/kt-sync.js", "./hooks/locales.js"]
