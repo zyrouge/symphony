@@ -8,8 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +24,7 @@ fun <T> SettingsOptionTile(
     captions: Map<T, String>? = null,
     onChange: (T) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var isOpen by remember { mutableStateOf(false) }
 
     Card(
@@ -44,10 +48,12 @@ fun <T> SettingsOptionTile(
             },
             title = title,
             content = {
+                val scrollState = rememberScrollState()
+
                 Column(
                     modifier = Modifier
                         .padding(0.dp, 8.dp)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(scrollState)
                 ) {
                     values.map { entry ->
                         val caption = captions?.get(entry.key)
@@ -55,11 +61,21 @@ fun <T> SettingsOptionTile(
                             caption != null -> 4.dp
                             else -> 0.dp
                         }
+                        val active = value == entry.key
 
                         Card(
                             colors = SettingsTileDefaults.cardColors(),
                             shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    if (active) {
+                                        val offset = coordinates.positionInParent()
+                                        coroutineScope.launch {
+                                            scrollState.scrollTo(offset.y.toInt())
+                                        }
+                                    }
+                                },
                             onClick = {
                                 onChange(entry.key)
                                 isOpen = false
@@ -70,7 +86,7 @@ fun <T> SettingsOptionTile(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
-                                    selected = value == entry.key,
+                                    selected = active,
                                     onClick = {
                                         onChange(entry.key)
                                         isOpen = false

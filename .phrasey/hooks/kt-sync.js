@@ -25,21 +25,24 @@ module.exports = hook;
  */
 async function createTranslationsKt(phrasey, log) {
     const translations = [...phrasey.translations.values()];
+    const sortedTranslations = translations.sort((a, b) =>
+        a.locale.display.localeCompare(b.locale.display)
+    );
     const content = `
 package io.github.zyrouge.symphony.services.i18n
 
 @Suppress("ClassName")
 open class _Translations {
     val localeCodes: List<String> = listOf(
-${translations.map((x) => `        "${x.locale.code}",`).join("\n")}
+${sortedTranslations.map((x) => `        "${x.locale.code}",`).join("\n")}
     )
     val localeDisplayNames: Map<String, String> = mapOf(
-${translations
+${sortedTranslations
     .map((x) => `        "${x.locale.code}" to "${x.locale.display}",`)
     .join("\n")}
     )
     val localeNativeNames: Map<String, String> = mapOf(
-${translations
+${sortedTranslations
     .map((x) => `        "${x.locale.code}" to "${x.locale.native}",`)
     .join("\n")}
     )
