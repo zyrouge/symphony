@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.SettingsDefaults
+import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.components.settings.*
@@ -110,11 +111,18 @@ fun SettingsView(context: ViewContext) {
                         },
                         value = language ?: "",
                         values = run {
-                            val defaultLocaleName =
-                                context.symphony.translator.getDefaultLocaleName()
+                            val defaultLocaleNativeName =
+                                context.symphony.translator.getDefaultLocaleNativeName()
                             mapOf(
-                                "" to "${context.symphony.t.System} (${defaultLocaleName})"
-                            ) + context.symphony.translator.translations.localeNames
+                                "" to "${context.symphony.t.System} (${defaultLocaleNativeName})"
+                            ) + context.symphony.translator.translations.localeNativeNames
+                        },
+                        captions = run {
+                            val defaultLocaleDisplayName =
+                                context.symphony.translator.getDefaultLocaleDisplayName()
+                            mapOf(
+                                "" to "${CommonTranslation.System} (${defaultLocaleDisplayName})"
+                            ) + context.symphony.translator.translations.localeDisplayNames
                         },
                         onChange = { value ->
                             context.symphony.settings.setLanguage(value.takeUnless { it == "" })

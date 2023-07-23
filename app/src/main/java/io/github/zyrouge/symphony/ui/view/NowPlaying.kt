@@ -1074,7 +1074,7 @@ private fun NowPlayingSleepTimerSetDialog(
                         val shape = RoundedCornerShape(4.dp)
 
                         Text(
-                            DurationFormatter.formatMinSec(hours, minutes),
+                            DurationFormatter.formatMinSec(0L, 0L, hours, minutes),
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier
                                 .background(

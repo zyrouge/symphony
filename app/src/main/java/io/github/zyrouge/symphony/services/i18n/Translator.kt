@@ -21,9 +21,14 @@ class Translator(private val symphony: Symphony) {
         return translations.parse(localeCode)
     }
 
-    fun getLocaleName(localeCode: String) = translations.localeNames[getDefaultLocaleCode()]
+    fun getLocaleDisplayName(localeCode: String) =
+        translations.localeDisplayNames[localeCode]
 
-    fun getDefaultLocaleName() = getLocaleName(getDefaultLocaleCode())!!
+    fun getLocaleNativeName(localeCode: String) =
+        translations.localeNativeNames[localeCode]
+
+    fun getDefaultLocaleDisplayName() = getLocaleDisplayName(getDefaultLocaleCode())!!
+    fun getDefaultLocaleNativeName() = getLocaleNativeName(getDefaultLocaleCode())!!
     fun getDefaultLocaleCode() = LocaleListCompat.getDefault()[0]?.language
         ?.takeIf { translations.supports(it) }
         ?: translations.defaultLocaleCode

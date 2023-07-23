@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.zyrouge.symphony.services.i18n.translations.CommonTranslation
+import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 
 @Composable
 fun ErrorComp(message: String, stackTrace: String) {

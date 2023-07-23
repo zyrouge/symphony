@@ -18,6 +18,7 @@ fun <T> SettingsOptionTile(
     title: @Composable () -> Unit,
     value: T,
     values: Map<T, String>,
+    captions: Map<T, String>? = null,
     onChange: (T) -> Unit,
 ) {
     var isOpen by remember { mutableStateOf(false) }
@@ -49,6 +50,12 @@ fun <T> SettingsOptionTile(
                         .verticalScroll(rememberScrollState())
                 ) {
                     values.map { entry ->
+                        val caption = captions?.get(entry.key)
+                        val verticalSpace = when {
+                            caption != null -> 4.dp
+                            else -> 0.dp
+                        }
+
                         Card(
                             colors = SettingsTileDefaults.cardColors(),
                             shape = MaterialTheme.shapes.small,
@@ -59,7 +66,7 @@ fun <T> SettingsOptionTile(
                             }
                         ) {
                             Row(
-                                modifier = Modifier.padding(12.dp, 0.dp),
+                                modifier = Modifier.padding(12.dp, verticalSpace),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
@@ -70,7 +77,18 @@ fun <T> SettingsOptionTile(
                                     }
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(entry.value)
+                                Column {
+                                    Text(entry.value)
+                                    caption?.let {
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            caption,
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                color = LocalContentColor.current.copy(alpha = 0.7f)
+                                            )
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
