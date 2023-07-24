@@ -1028,18 +1028,20 @@ private fun NowPlayingSleepTimerDialog(
     )
 }
 
+private val NowPlayingSleepTimerPresetDurations = listOf(
+    0L to 15L,
+    0L to 30L,
+    1L to 0L,
+    2L to 0L,
+    3L to 0L,
+)
+
 @Composable
 private fun NowPlayingSleepTimerSetDialog(
     context: ViewContext,
     onDismissRequest: () -> Unit,
 ) {
     val minDurationMs = Duration.ofMinutes(1).toMillis()
-    val presetDurations = remember {
-        // TODO: replace as single line when linter is fixed
-        //       https://issuetracker.google.com/issues/263887242?pli=1
-        val durations = listOf(0L to 15L, 0L to 30L, 1L to 0L, 2L to 0L, 3L to 0L)
-        durations
-    }
     var inputHours by remember { mutableLongStateOf(0L) }
     var inputMinutes by remember { mutableLongStateOf(10L) }
     var quitOnEnd by remember { mutableStateOf(false) }
@@ -1069,7 +1071,7 @@ private fun NowPlayingSleepTimerSetDialog(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    presetDurations.forEach { x ->
+                    NowPlayingSleepTimerPresetDurations.forEach { x ->
                         val hours = x.first
                         val minutes = x.second
                         val shape = RoundedCornerShape(4.dp)
