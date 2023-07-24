@@ -122,7 +122,7 @@ object SettingsDefaults {
     const val miniPlayerTrackControls = false
     const val miniPlayerSeekControls = false
     val nowPlayingControlsLayout = NowPlayingControlsLayout.Default
-    val showUpdateToast = true
+    const val showUpdateToast = true
 }
 
 class SettingsManager(private val symphony: Symphony) {

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NothingPlaying(context: ViewContext) {
     Scaffold(

@@ -256,7 +256,7 @@ private fun NowPlayingBodyCover(
     val coroutineScope = rememberCoroutineScope()
     val showLyrics by states.showLyrics.collectAsState()
     val currentSong by rememberUpdatedState(data.song)
-    var lyricsState by remember { mutableStateOf(0) }
+    var lyricsState by remember { mutableIntStateOf(0) }
     var lyricsSongId by remember { mutableStateOf<Long?>(null) }
     var lyrics by remember { mutableStateOf<String?>(null) }
 
@@ -963,8 +963,8 @@ private fun NowPlayingSleepTimerDialog(
     onDismissRequest: () -> Unit,
 ) {
     var updateTimer by remember { mutableStateOf<Timer?>(null) }
-    val endsAtMs by remember { mutableStateOf(sleepTimer.endsAt) }
-    var endsIn by remember { mutableStateOf(0L) }
+    val endsAtMs by remember { mutableLongStateOf(sleepTimer.endsAt) }
+    var endsIn by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(LocalContext.current) {
         updateTimer = kotlin.concurrent.timer(period = 500L) {
@@ -1029,7 +1029,6 @@ private fun NowPlayingSleepTimerDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NowPlayingSleepTimerSetDialog(
     context: ViewContext,
@@ -1039,8 +1038,8 @@ private fun NowPlayingSleepTimerSetDialog(
     val presetDurations = remember {
         listOf(0L to 15L, 0L to 30L, 1L to 0L, 2L to 0L, 3L to 0L)
     }
-    var inputHours by remember { mutableStateOf(0L) }
-    var inputMinutes by remember { mutableStateOf(10L) }
+    var inputHours by remember { mutableLongStateOf(0L) }
+    var inputMinutes by remember { mutableLongStateOf(10L) }
     var quitOnEnd by remember { mutableStateOf(false) }
     val inputDuration by remember {
         derivedStateOf {

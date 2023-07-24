@@ -72,7 +72,7 @@ class SongCache(val symphony: Symphony) {
         val output = mutableMapOf<Long, Attributes>()
         val parsed = JSONObject(content)
         for (x in parsed.keys()) {
-            output.put(x.toLong(), Attributes.fromJSONObject(parsed.getJSONObject(x)))
+            output[x.toLong()] = Attributes.fromJSONObject(parsed.getJSONObject(x))
         }
         return output
     }

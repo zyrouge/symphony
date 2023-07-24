@@ -112,7 +112,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         ) { song ->
                             BoxWithConstraints {
                                 val cardWidthPx = constraints.maxWidth
-                                var offsetX by remember { mutableStateOf(0f) }
+                                var offsetX by remember { mutableFloatStateOf(0f) }
                                 val cardOffsetX = animateIntAsState(offsetX.toInt())
                                 val cardOpacity = animateFloatAsState(
                                     if (offsetX != 0f) 0.7f else 1f,
@@ -133,11 +133,13 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                                                                 context.symphony.radio.shorty.skip()
                                                             if (changed) -cardWidthPx.toFloat() else 0f
                                                         }
+
                                                         offsetX > thresh -> {
                                                             val changed =
                                                                 context.symphony.radio.shorty.previous()
                                                             if (changed) cardWidthPx.toFloat() else 0f
                                                         }
+
                                                         else -> 0f
                                                     }
                                                 },
@@ -203,7 +205,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
-                if(drawInset){
+                if (drawInset) {
                     Spacer(modifier = Modifier.navigationBarsPadding())
                 }
             }

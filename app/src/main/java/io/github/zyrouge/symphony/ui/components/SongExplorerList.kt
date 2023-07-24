@@ -64,6 +64,7 @@ fun SongExplorerList(
                     val sorted = when (sortBy) {
                         SongSortBy.TITLE,
                         SongSortBy.FILENAME -> categorized.folders.sortedBy { it.basename }
+
                         else -> categorized.folders
                     }
                     if (sortReverse) sorted.reversed() else sorted
@@ -163,6 +164,7 @@ fun SongExplorerList(
                     },
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
+
                 else -> {
                     val lazyListState = rememberLazyListState()
 
@@ -260,7 +262,7 @@ private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategoriz
         when (entity) {
             is GrooveExplorer.Folder -> folders.add(entity)
             is GrooveExplorer.File -> {
-                files.put(entity.data as Long, entity)
+                files[entity.data as Long] = entity
             }
         }
     }

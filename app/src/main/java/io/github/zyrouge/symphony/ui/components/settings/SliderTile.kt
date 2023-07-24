@@ -30,8 +30,8 @@ fun SettingsSliderTile(
     onReset: (() -> Unit)? = null,
 ) {
     var isOpen by remember { mutableStateOf(false) }
-    var value by remember { mutableStateOf(initialValue) }
-    var ratio by remember { mutableStateOf(RangeUtils.calculateRatioFromValue(value, range)) }
+    var value by remember { mutableFloatStateOf(initialValue) }
+    var ratio by remember { mutableFloatStateOf(RangeUtils.calculateRatioFromValue(value, range)) }
 
     Card(
         colors = SettingsTileDefaults.cardColors(),
