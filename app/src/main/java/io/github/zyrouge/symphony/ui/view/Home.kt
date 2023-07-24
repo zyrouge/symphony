@@ -2,8 +2,7 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -133,7 +132,7 @@ enum class HomePageBottomBarLabelVisibility {
     INVISIBLE,
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(context: ViewContext) {
     val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.collectAsState()
@@ -209,7 +208,7 @@ fun HomeView(context: ViewContext) {
                     .fillMaxSize(),
                 transitionSpec = {
                     SlideTransition.slideUp.enterTransition()
-                        .with(ScaleTransition.scaleDown.exitTransition())
+                        .togetherWith(ScaleTransition.scaleDown.exitTransition())
                 },
             ) { page ->
                 when (page) {

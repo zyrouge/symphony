@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package io.github.zyrouge.symphony.ui.helpers
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec

@@ -102,12 +102,12 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             modifier = Modifier.weight(1f),
                             targetState = currentSong,
                             transitionSpec = {
-                                fadeIn(
+                                (fadeIn(
                                     animationSpec = tween(220, delayMillis = 90)
                                 ) + scaleIn(
                                     initialScale = 0.99f,
                                     animationSpec = tween(220, delayMillis = 90)
-                                ) with fadeOut(animationSpec = tween(90))
+                                )).togetherWith(fadeOut(animationSpec = tween(90)))
                             },
                         ) { song ->
                             BoxWithConstraints {

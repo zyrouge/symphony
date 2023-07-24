@@ -246,7 +246,6 @@ private fun NowPlayingBody(context: ViewContext, data: PlayerStateData) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun NowPlayingBodyCover(
     context: ViewContext,
@@ -292,7 +291,7 @@ private fun NowPlayingBodyCover(
                     targetState = showLyrics,
                     transitionSpec = {
                         FadeTransition.enterTransition()
-                            .with(FadeTransition.exitTransition())
+                            .togetherWith(FadeTransition.exitTransition())
                     },
                 ) { targetStateShowLyrics ->
                     when {
@@ -315,7 +314,7 @@ private fun NowPlayingBodyCover(
                                         targetState = lyrics ?: "",
                                         transitionSpec = {
                                             FadeTransition.enterTransition()
-                                                .with(FadeTransition.exitTransition())
+                                                .togetherWith(FadeTransition.exitTransition())
                                         },
                                     ) {
                                         Text(
@@ -340,7 +339,7 @@ private fun NowPlayingBodyCover(
                             targetState = song,
                             transitionSpec = {
                                 FadeTransition.enterTransition()
-                                    .with(FadeTransition.exitTransition())
+                                    .togetherWith(FadeTransition.exitTransition())
                             },
                         ) { targetStateSong ->
                             AsyncImage(
@@ -366,7 +365,7 @@ private fun NowPlayingBodyCover(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
     val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
@@ -383,7 +382,7 @@ private fun NowPlayingBodyContent(context: ViewContext, data: PlayerStateData) {
                     targetState = song,
                     transitionSpec = {
                         FadeTransition.enterTransition()
-                            .with(FadeTransition.exitTransition())
+                            .togetherWith(FadeTransition.exitTransition())
                     },
                 ) { targetStateSong ->
                     Column(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
