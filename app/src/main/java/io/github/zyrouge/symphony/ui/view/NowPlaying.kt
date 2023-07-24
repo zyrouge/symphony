@@ -1035,7 +1035,10 @@ private fun NowPlayingSleepTimerSetDialog(
 ) {
     val minDurationMs = Duration.ofMinutes(1).toMillis()
     val presetDurations = remember {
-        listOf(0L to 15L, 0L to 30L, 1L to 0L, 2L to 0L, 3L to 0L)
+        // TODO: replace as single line when linter is fixed
+        //       https://issuetracker.google.com/issues/263887242?pli=1
+        val durations = listOf(0L to 15L, 0L to 30L, 1L to 0L, 2L to 0L, 3L to 0L)
+        durations
     }
     var inputHours by remember { mutableLongStateOf(0L) }
     var inputMinutes by remember { mutableLongStateOf(10L) }
