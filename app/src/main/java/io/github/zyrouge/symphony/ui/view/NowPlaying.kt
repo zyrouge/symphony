@@ -776,7 +776,8 @@ private fun NowPlayingBodyBottomBar(
                     context.symphony.t.PlayingXofY(
                         (currentSongIndex + 1).toString(),
                         queueSize.toString(),
-                    )
+                    ),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
