@@ -68,10 +68,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun attachHandlers() {
-        // onBackPressedDispatcher.addCallback {
-        //     moveTaskToBack(true)
-        // }
-        // Interferes with the predictive back handling, and AFAIK the app works fine without this.
         gSymphony?.closeApp = {
             finish()
         }

@@ -30,7 +30,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Symphony.SplashScreen"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
