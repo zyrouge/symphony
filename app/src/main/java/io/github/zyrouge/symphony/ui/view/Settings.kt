@@ -24,6 +24,12 @@ import io.github.zyrouge.symphony.ui.view.home.ForYou
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+private val scalingPresets = listOf(
+    0.25f, 0.5f, 0.75f, 0.9f, 1f,
+    1.1f, 1.25f, 1.5f, 1.75f, 2f,
+    2.25f, 2.5f, 2.75f, 3f,
+).associateWith { "x$it" }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsView(context: ViewContext) {
@@ -56,6 +62,8 @@ fun SettingsView(context: ViewContext) {
     val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
     val checkForUpdates by context.symphony.settings.checkForUpdates.collectAsState()
     val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
+    val fontScale by context.symphony.settings.fontScale.collectAsState()
+    val contentScale by context.symphony.settings.contentScale.collectAsState()
 
     val refetchLibrary = {
         context.symphony.radio.stop()
@@ -139,6 +147,32 @@ fun SettingsView(context: ViewContext) {
                         values = SymphonyTypography.all.keys.associateWith { it },
                         onChange = { value ->
                             context.symphony.settings.setFontFamily(value)
+                        }
+                    )
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Default.TextIncrease, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.FontScale)
+                        },
+                        value = fontScale,
+                        values = scalingPresets,
+                        onChange = { value ->
+                            context.symphony.settings.setFontScale(value)
+                        }
+                    )
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Default.PhotoSizeSelectLarge, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ContentScale)
+                        },
+                        value = contentScale,
+                        values = scalingPresets,
+                        onChange = { value ->
+                            context.symphony.settings.setContentScale(value)
                         }
                     )
                     SettingsOptionTile(

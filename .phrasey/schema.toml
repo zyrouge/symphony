@@ -530,3 +530,9 @@ name = "SystemLightDark"
 
 [[keys]]
 name = "SystemLightBlack"
+
+[[keys]]
+name = "FontScale"
+
+[[keys]]
+name = "ContentScale"

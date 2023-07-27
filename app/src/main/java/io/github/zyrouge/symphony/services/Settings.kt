@@ -74,6 +74,8 @@ object SettingsKeys {
     const val fontFamily = "font_family"
     const val nowPlayingControlsLayout = "now_playing_controls_layout"
     const val showUpdateToast = "show_update_toast"
+    const val fontScale = "font_scale"
+    const val contentScale = "content_scale"
 }
 
 object SettingsDefaults {
@@ -123,6 +125,8 @@ object SettingsDefaults {
     const val miniPlayerSeekControls = false
     val nowPlayingControlsLayout = NowPlayingControlsLayout.Default
     const val showUpdateToast = true
+    const val fontScale = 1.0f
+    const val contentScale = 1.0f
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -229,6 +233,10 @@ class SettingsManager(private val symphony: Symphony) {
     val nowPlayingControlsLayout = _nowPlayingControlsLayout.asStateFlow()
     private val _showUpdateToast = MutableStateFlow(getShowUpdateToast())
     val showUpdateToast = _showUpdateToast.asStateFlow()
+    private val _fontScale = MutableStateFlow(getFontScale())
+    val fontScale = _fontScale.asStateFlow()
+    private val _contentScale = MutableStateFlow(getContentScale())
+    val contentScale = _contentScale.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -796,6 +804,30 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.showUpdateToast, value)
         }
         _showUpdateToast.tryEmit(getShowUpdateToast())
+    }
+
+    fun getFontScale() = getSharedPreferences().getFloat(
+        SettingsKeys.fontScale,
+        SettingsDefaults.fontScale,
+    )
+
+    fun setFontScale(value: Float) {
+        getSharedPreferences().edit {
+            putFloat(SettingsKeys.fontScale, value)
+        }
+        _fontScale.tryEmit(getFontScale())
+    }
+
+    fun getContentScale() = getSharedPreferences().getFloat(
+        SettingsKeys.contentScale,
+        SettingsDefaults.contentScale,
+    )
+
+    fun setContentScale(value: Float) {
+        getSharedPreferences().edit {
+            putFloat(SettingsKeys.contentScale, value)
+        }
+        _contentScale.tryEmit(getContentScale())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(

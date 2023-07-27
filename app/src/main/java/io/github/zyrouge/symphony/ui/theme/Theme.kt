@@ -7,12 +7,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -39,6 +42,8 @@ fun SymphonyTheme(
     val useMaterialYou by context.symphony.settings.useMaterialYou.collectAsState()
     val primaryColorName by context.symphony.settings.primaryColor.collectAsState()
     val fontName by context.symphony.settings.fontFamily.collectAsState()
+    val fontScale by context.symphony.settings.fontScale.collectAsState()
+    val contentScale by context.symphony.settings.contentScale.collectAsState()
 
     val colorSchemeMode = when (themeMode) {
         ThemeMode.SYSTEM -> if (isSystemInDarkTheme()) ColorSchemeMode.DARK else ColorSchemeMode.LIGHT
@@ -83,6 +88,15 @@ fun SymphonyTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = typography,
-        content = content
+        content = {
+            CompositionLocalProvider(
+                LocalDensity provides Density(
+                    LocalDensity.current.density * contentScale,
+                    LocalDensity.current.fontScale * fontScale,
+                )
+            ) {
+                content()
+            }
+        }
     )
 }
