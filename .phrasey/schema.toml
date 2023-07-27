@@ -524,3 +524,9 @@ parameters = ["x"]
 [[keys]]
 name = "XKHz"
 parameters = ["x"]
+
+[[keys]]
+name = "SystemLightDark"
+
+[[keys]]
+name = "SystemLightBlack"

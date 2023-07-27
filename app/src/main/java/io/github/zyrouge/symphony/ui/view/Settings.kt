@@ -150,7 +150,8 @@ fun SettingsView(context: ViewContext) {
                         },
                         value = themeMode,
                         values = mapOf(
-                            ThemeMode.SYSTEM to context.symphony.t.System,
+                            ThemeMode.SYSTEM to context.symphony.t.SystemLightDark,
+                            ThemeMode.SYSTEM_BLACK to context.symphony.t.SystemLightBlack,
                             ThemeMode.LIGHT to context.symphony.t.Light,
                             ThemeMode.DARK to context.symphony.t.Dark,
                             ThemeMode.BLACK to context.symphony.t.Black,

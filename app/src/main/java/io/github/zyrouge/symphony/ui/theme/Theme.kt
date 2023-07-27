@@ -18,6 +18,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 enum class ThemeMode {
     SYSTEM,
+    SYSTEM_BLACK,
     LIGHT,
     DARK,
     BLACK,
@@ -41,6 +42,7 @@ fun SymphonyTheme(
 
     val colorSchemeMode = when (themeMode) {
         ThemeMode.SYSTEM -> if (isSystemInDarkTheme()) ColorSchemeMode.DARK else ColorSchemeMode.LIGHT
+        ThemeMode.SYSTEM_BLACK -> if (isSystemInDarkTheme()) ColorSchemeMode.BLACK else ColorSchemeMode.LIGHT
         ThemeMode.LIGHT -> ColorSchemeMode.LIGHT
         ThemeMode.DARK -> ColorSchemeMode.DARK
         ThemeMode.BLACK -> ColorSchemeMode.BLACK
