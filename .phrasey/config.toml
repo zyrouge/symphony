@@ -10,7 +10,7 @@ fallback = "../i18n/en.toml"
 [output]
 dir = "../app/src/main/assets/i18n"
 format = "json"
-stringFormat = "format-string"
+stringFormat = "java-format-string"
 
 [locales]
 file = "../i18n/locales.g.json"
