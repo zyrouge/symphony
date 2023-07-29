@@ -93,7 +93,8 @@ class RadioQueue(private val symphony: Symphony) {
     fun remove(indices: List<Int>) {
         var deflection = 0
         var currentSongRemoved = false
-        for (i in indices.sorted()) {
+        val sortedIndices = indices.sortedDescending()
+        for (i in sortedIndices) {
             val index = i - deflection
             originalQueue.removeAt(index)
             currentQueue.removeAt(index)
