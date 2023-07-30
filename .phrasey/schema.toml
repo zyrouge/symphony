@@ -539,3 +539,6 @@ name = "ContentScale"
 
 [[keys]]
 name = "ViewGenre"
+
+[[keys]]
+name = "Interface"

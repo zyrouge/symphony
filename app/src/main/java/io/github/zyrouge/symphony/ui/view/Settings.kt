@@ -223,6 +223,8 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setPrimaryColor(value.name)
                         }
                     )
+                    HorizontalDivider()
+                    SettingsSideHeading(context.symphony.t.Interface)
                     SettingsMultiOptionTile(
                         context,
                         icon = {
