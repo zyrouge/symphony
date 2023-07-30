@@ -97,6 +97,7 @@ fun SongTreeList(
                     },
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
+
                 else -> SongTreeListContent(
                     context,
                     tree = sortedTree,
@@ -287,7 +288,7 @@ fun SongTreeListContent(
             }
 
             item {
-                Divider(modifier = Modifier.padding(top = sepPadding))
+                HorizontalDivider(modifier = Modifier.padding(top = sepPadding))
             }
         }
     }
@@ -357,7 +358,7 @@ private fun SongTreeListMediaSortBar(
                         modifier = Modifier.size(12.dp),
                     )
                     Text(pathsSortBy.label(context))
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier
                             .size(9.dp, 12.dp)
                             .padding(4.dp, 0.dp)
@@ -457,6 +458,7 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
                     },
                     onClick = onClick,
                 )
+
                 else -> RadioButton(
                     selected = false,
                     onClick = onClick,

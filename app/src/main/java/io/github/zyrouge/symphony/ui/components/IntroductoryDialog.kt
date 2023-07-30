@@ -14,7 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -47,7 +47,7 @@ fun IntroductoryDialog(
                     context.symphony.t.IntroductoryMessage,
                     modifier = Modifier.padding(16.dp, 12.dp),
                 )
-                Divider()
+                HorizontalDivider()
                 Box(modifier = Modifier.height(8.dp))
                 OptInTile(
                     content = { Text(context.symphony.t.CheckForUpdates) },

@@ -122,7 +122,7 @@ fun SongExplorerList(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Divider()
+                HorizontalDivider()
                 MediaSortBar(
                     context,
                     reverse = sortReverse,

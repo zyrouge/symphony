@@ -31,7 +31,7 @@ fun NowPlayingBody(context: ViewContext, data: NowPlayingPlayerStateData) {
 
     data.run {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            constraints;
+            constraints
             val orientation = ScreenOrientation.fromConstraints(this@BoxWithConstraints)
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
