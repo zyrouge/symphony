@@ -1,6 +1,8 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,11 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -44,10 +46,9 @@ fun IntroductoryDialog(
         content = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
-                    context.symphony.t.IntroductoryMessage,
+                    context.symphony.t.IntroductoryMessage.trim(),
                     modifier = Modifier.padding(16.dp, 12.dp),
                 )
-                HorizontalDivider()
                 Box(modifier = Modifier.height(8.dp))
                 OptInTile(
                     content = { Text(context.symphony.t.CheckForUpdates) },
@@ -56,7 +57,7 @@ fun IntroductoryDialog(
                         context.symphony.settings.setCheckForUpdates(value)
                     }
                 )
-                Box(modifier = Modifier.height(4.dp))
+                Box(modifier = Modifier.height(8.dp))
                 OptInTile(
                     content = { Text(context.symphony.t.ShowUpdateToast) },
                     value = showUpdateToast,
@@ -78,39 +79,47 @@ private fun OptInTile(
     onChange: (Boolean) -> Unit,
     enabled: Boolean = true,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .run {
-                when {
-                    enabled -> clickable { onChange(!value) }
-                    else -> alpha(0.7f)
+    Box(modifier = Modifier.padding(12.dp, 0.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .run {
+                    when {
+                        enabled -> clickable { onChange(!value) }
+                        else -> alpha(0.7f)
+                    }
                 }
-            }
-            .padding(16.dp, 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        when {
-            value -> Icon(
-                Icons.Default.Check,
-                null,
-                tint = when {
-                    enabled -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.surfaceVariant
-                },
-                modifier = Modifier.size(20.dp),
-            )
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(5.dp),
+                )
+                .padding(16.dp, 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            when {
+                value -> Icon(
+                    Icons.Default.Check,
+                    null,
+                    tint = when {
+                        enabled -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    },
+                    modifier = Modifier.size(20.dp),
+                )
 
-            else -> Icon(
-                Icons.Default.Close,
-                null,
-                tint = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-        Box(modifier = Modifier.width(8.dp))
-        ProvideTextStyle(MaterialTheme.typography.labelLarge) {
-            content()
+                else -> Icon(
+                    Icons.Default.Close,
+                    null,
+                    tint = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Box(modifier = Modifier.width(8.dp))
+            ProvideTextStyle(MaterialTheme.typography.labelLarge) {
+                content()
+            }
         }
     }
 }
