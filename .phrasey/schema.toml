@@ -536,3 +536,6 @@ name = "FontScale"
 
 [[keys]]
 name = "ContentScale"
+
+[[keys]]
+name = "ViewGenre"
