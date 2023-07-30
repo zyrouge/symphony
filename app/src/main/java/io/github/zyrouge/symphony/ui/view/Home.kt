@@ -57,7 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
-import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
@@ -73,6 +72,7 @@ import io.github.zyrouge.symphony.ui.view.home.GenresView
 import io.github.zyrouge.symphony.ui.view.home.PlaylistsView
 import io.github.zyrouge.symphony.ui.view.home.SongsView
 import io.github.zyrouge.symphony.ui.view.home.TreeView
+import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBottomBar
 
 enum class HomePages(
     val label: (context: ViewContext) -> String,
@@ -159,7 +159,10 @@ fun HomeView(context: ViewContext) {
                     )
                 },
                 title = {
-                    Crossfade(targetState = currentTab.label(context)) {
+                    Crossfade(
+                        label = "home-title",
+                        targetState = currentTab.label(context),
+                    ) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -202,6 +205,7 @@ fun HomeView(context: ViewContext) {
         },
         content = { contentPadding ->
             AnimatedContent(
+                label = "home-content",
                 targetState = currentTab,
                 modifier = Modifier
                     .padding(contentPadding)
@@ -236,7 +240,10 @@ fun HomeView(context: ViewContext) {
                             selected = isSelected,
                             alwaysShowLabel = labelVisibility == HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE,
                             icon = {
-                                Crossfade(targetState = isSelected) {
+                                Crossfade(
+                                    label = "home-bottom-bar",
+                                    targetState = isSelected,
+                                ) {
                                     Icon(
                                         if (it) page.selectedIcon() else page.unselectedIcon(),
                                         label,

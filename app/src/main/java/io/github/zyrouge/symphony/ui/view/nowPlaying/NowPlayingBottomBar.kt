@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.components
+package io.github.zyrouge.symphony.ui.view.nowPlaying
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,7 +35,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val queue = context.symphony.radio.observatory.queue

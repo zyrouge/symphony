@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.components.settings
+package io.github.zyrouge.symphony.ui.view.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.filled.*

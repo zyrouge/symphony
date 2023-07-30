@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.components.settings
+package io.github.zyrouge.symphony.ui.view.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll

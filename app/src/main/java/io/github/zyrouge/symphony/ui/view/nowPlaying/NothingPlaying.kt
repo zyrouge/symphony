@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view
+package io.github.zyrouge.symphony.ui.view.nowPlaying
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

@@ -1,0 +1,78 @@
+package io.github.zyrouge.symphony.ui.view.nowPlaying
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
+import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
+import io.github.zyrouge.symphony.ui.view.NowPlayingStates
+import kotlinx.coroutines.flow.MutableStateFlow
+
+internal val defaultHorizontalPadding = 20.dp
+
+@Composable
+fun NowPlayingBody(context: ViewContext, data: NowPlayingPlayerStateData) {
+    val states = remember {
+        NowPlayingStates(
+            showLyrics = MutableStateFlow(NowPlayingDefaults.showLyrics),
+        )
+    }
+
+    data.run {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            constraints;
+            val orientation = ScreenOrientation.fromConstraints(this@BoxWithConstraints)
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    if (orientation.isPortrait) {
+                        NowPlayingAppBar(context)
+                    }
+                },
+                content = { contentPadding ->
+                    Box(modifier = Modifier.padding(contentPadding)) {
+                        when (orientation) {
+                            ScreenOrientation.PORTRAIT -> Column(modifier = Modifier.fillMaxSize()) {
+                                Box(modifier = Modifier.weight(1f))
+                                NowPlayingBodyCover(context, data, states)
+                                Box(modifier = Modifier.weight(1f))
+                                Column {
+                                    NowPlayingBodyContent(context, data)
+                                    NowPlayingBodyBottomBar(context, data, states)
+                                }
+                            }
+
+                            ScreenOrientation.LANDSCAPE -> Row(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                            ) {
+                                Box(modifier = Modifier.padding(top = 12.dp, bottom = 20.dp)) {
+                                    NowPlayingBodyCover(context, data, states)
+                                }
+                                Box(modifier = Modifier.weight(1f)) {
+                                    Column {
+                                        NowPlayingLandscapeAppBar(context)
+                                        Box(modifier = Modifier.weight(1f))
+                                        NowPlayingBodyContent(context, data)
+                                        NowPlayingBodyBottomBar(context, data, states)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    }
+}

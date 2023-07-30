@@ -13,14 +13,15 @@ import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.SettingsDefaults
 import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
+import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.components.settings.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.home.ForYou
+import io.github.zyrouge.symphony.ui.view.settings.*
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -97,7 +98,10 @@ fun SettingsView(context: ViewContext) {
                     ) {
                         Icon(Icons.Default.ArrowBack, null)
                     }
-                }
+                },
+                actions = {
+                    IconButtonPlaceholder()
+                },
             )
         },
         content = { contentPadding ->
@@ -265,7 +269,7 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setHomePageBottomBarLabelVisibility(value)
                         }
                     )
-                    Divider()
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.Player)
                     SettingsSwitchTile(
                         icon = {
@@ -403,7 +407,7 @@ fun SettingsView(context: ViewContext) {
                             )
                         },
                     )
-                    Divider()
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.MiniPlayer)
                     SettingsSwitchTile(
                         icon = {
@@ -429,7 +433,7 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setMiniPlayerSeekControls(value)
                         }
                     )
-                    Divider()
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.NowPlaying)
                     SettingsOptionTile(
                         icon = {
@@ -469,7 +473,7 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setNowPlayingSeekControls(value)
                         }
                     )
-                    Divider()
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.Groove)
                     val defaultSongsFilterPattern = ".*"
                     SettingsTextInputTile(
@@ -542,7 +546,7 @@ fun SettingsView(context: ViewContext) {
                             }
                         }
                     )
-                    Divider()
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.About)
                     val isLatestVersion = AppMeta.latestVersion
                         ?.let { it == AppMeta.version }

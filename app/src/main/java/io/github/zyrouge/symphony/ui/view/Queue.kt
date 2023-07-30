@@ -16,9 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
+import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholderSize
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.view.nowPlaying.NothingPlayingBody
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +44,9 @@ fun QueueView(context: ViewContext) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    TopAppBarMinimalTitle {
+                    TopAppBarMinimalTitle(
+                        modifier = Modifier.padding(start = IconButtonPlaceholderSize)
+                    ) {
                         Text(context.symphony.t.Queue)
                     }
                 },
@@ -62,8 +67,8 @@ fun QueueView(context: ViewContext) {
                     }
                 },
                 actions = {
-                    if (selectedSongIndices.isNotEmpty()) {
-                        IconButton(
+                    when {
+                        selectedSongIndices.isNotEmpty() -> IconButton(
                             onClick = {
                                 context.symphony.radio.queue.remove(selectedSongIndices.toList())
                                 selectedSongIndices.clear()
@@ -71,7 +76,10 @@ fun QueueView(context: ViewContext) {
                         ) {
                             Icon(Icons.Default.Delete, null)
                         }
+
+                        else -> IconButtonPlaceholder()
                     }
+
                     IconButton(
                         onClick = {
                             context.symphony.radio.stop()

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +57,9 @@ fun ArtistView(context: ViewContext, artistName: String) {
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
                 ),
+                actions = {
+                    IconButtonPlaceholder()
+                },
             )
         },
         content = { contentPadding ->
@@ -77,7 +81,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
                                     Spacer(modifier = Modifier.height(4.dp))
                                     AlbumRow(context, albumIds)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Divider()
+                                    HorizontalDivider()
                                 }
                             }
                         }

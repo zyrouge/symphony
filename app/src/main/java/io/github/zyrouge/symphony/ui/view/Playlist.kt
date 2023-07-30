@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBottomBar
 import io.github.zyrouge.symphony.utils.mutate
 import kotlinx.coroutines.launch
 

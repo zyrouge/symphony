@@ -22,6 +22,7 @@ import io.github.zyrouge.symphony.services.groove.*
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBottomBar
 import kotlinx.coroutines.*
 
 private data class SearchResult(
