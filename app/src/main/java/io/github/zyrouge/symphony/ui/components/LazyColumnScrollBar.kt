@@ -30,11 +30,13 @@ fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
     var scrollPointerOffsetY by remember { mutableFloatStateOf(0f) }
     val scrollPointerOffsetYAnimated = animateFloatAsState(
         scrollPointerOffsetY,
-        animationSpec = tween(durationMillis = 50, easing = EaseInOut)
+        animationSpec = tween(durationMillis = 50, easing = EaseInOut),
+        label = "c-lazy-column-scroll-pointer-offset-y",
     )
     val showScrollPointerAnimated = animateFloatAsState(
         if (showScrollPointer) 1f else 0f,
-        animationSpec = tween(durationMillis = 500)
+        animationSpec = tween(durationMillis = 500),
+        label = "c-lazy-column-scroll-pointer",
     )
 
     drawWithContent {

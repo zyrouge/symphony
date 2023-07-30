@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 sealed class TransitionDurations(val milliseconds: Int) {
-    object Normal : TransitionDurations(300)
-    object Slow : TransitionDurations(500)
+    data object Normal : TransitionDurations(300)
+    data object Slow : TransitionDurations(500)
 
     fun <T> asTween(delayMillis: Int = 0, easing: Easing = FastOutSlowInEasing) =
         tween<T>(milliseconds, delayMillis, easing)

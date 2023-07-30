@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.AlbumArtist
 import io.github.zyrouge.symphony.ui.components.*
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

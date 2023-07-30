@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.nowPlaying
+package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
@@ -99,6 +99,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         modifier = Modifier.padding(0.dp, 8.dp),
                     ) {
                         AnimatedContent(
+                            label = "c-now-playing-card",
                             modifier = Modifier.weight(1f),
                             targetState = currentSong,
                             transitionSpec = {
@@ -113,9 +114,13 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             BoxWithConstraints {
                                 val cardWidthPx = constraints.maxWidth
                                 var offsetX by remember { mutableFloatStateOf(0f) }
-                                val cardOffsetX = animateIntAsState(offsetX.toInt())
+                                val cardOffsetX = animateIntAsState(
+                                    offsetX.toInt(),
+                                    label = "c-now-playing-card-offset-x",
+                                )
                                 val cardOpacity = animateFloatAsState(
                                     if (offsetX != 0f) 0.7f else 1f,
+                                    label = "c-now-playing-card-opacity",
                                 )
                                 Box(
                                     modifier = Modifier

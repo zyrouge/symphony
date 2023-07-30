@@ -36,11 +36,13 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
     var scrollPointerOffsetY by remember { mutableFloatStateOf(0f) }
     val scrollPointerOffsetYAnimated = animateFloatAsState(
         scrollPointerOffsetY,
-        animationSpec = tween(durationMillis = 150)
+        animationSpec = tween(durationMillis = 150),
+        label = "c-lazy-grid-scroll-pointer-offset-y",
     )
     val showScrollPointerAnimated = animateFloatAsState(
         if (showScrollPointer) 1f else 0f,
-        animationSpec = tween(durationMillis = 50, easing = EaseInOut)
+        animationSpec = tween(durationMillis = 50, easing = EaseInOut),
+        label = "c-lazy-grid-scroll-pointer-offset-y",
     )
 
     drawWithContent {
