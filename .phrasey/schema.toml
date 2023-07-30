@@ -542,3 +542,6 @@ name = "ViewGenre"
 
 [[keys]]
 name = "Interface"
+
+[[keys]]
+name = "Rescan"

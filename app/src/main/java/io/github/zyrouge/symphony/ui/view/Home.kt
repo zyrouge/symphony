@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SupervisorAccount
@@ -48,6 +49,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +75,7 @@ import io.github.zyrouge.symphony.ui.view.home.GenresView
 import io.github.zyrouge.symphony.ui.view.home.PlaylistsView
 import io.github.zyrouge.symphony.ui.view.home.SongsView
 import io.github.zyrouge.symphony.ui.view.home.TreeView
+import kotlinx.coroutines.launch
 
 enum class HomePages(
     val label: (context: ViewContext) -> String,
@@ -135,6 +138,7 @@ enum class HomePageBottomBarLabelVisibility {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(context: ViewContext) {
+    val coroutineScope = rememberCoroutineScope()
     val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.collectAsState()
     val tabs by context.symphony.settings.homeTabs.collectAsState()
     val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
@@ -182,8 +186,25 @@ fun HomeView(context: ViewContext) {
                                 DropdownMenuItem(
                                     leadingIcon = {
                                         Icon(
+                                            Icons.Default.Refresh,
+                                            context.symphony.t.Rescan,
+                                        )
+                                    },
+                                    text = {
+                                        Text(context.symphony.t.Rescan)
+                                    },
+                                    onClick = {
+                                        context.symphony.radio.stop()
+                                        coroutineScope.launch {
+                                            context.symphony.groove.refetch()
+                                        }
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(
                                             Icons.Default.Settings,
-                                            context.symphony.t.Settings
+                                            context.symphony.t.Settings,
                                         )
                                     },
                                     text = {
