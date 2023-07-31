@@ -1,0 +1,10 @@
+* Ability to set System with Dark or Black theme.
+* Fix crash on system theme changes.
+* Ability to set content and text scaling.
+* Fix crash when removing songs from queue.
+* For You page now suggests only after loading all the songs.
+* Ability to re-scan library.
+* Playback time now supports days and hours.
+* Fix audio focus regain.
+* Implement predictive back handling and edge-to-edge.
+* Added Spanish, Uchinaguchi, French, Japanese and Portuguese translation.
