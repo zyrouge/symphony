@@ -1,14 +1,22 @@
 package io.github.zyrouge.symphony.ui.view
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.twotone.Redeem
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.SettingsDefaults
 import io.github.zyrouge.symphony.services.i18n.CommonTranslation
@@ -29,7 +37,7 @@ private val scalingPresets = listOf(
     0.25f, 0.5f, 0.75f, 0.9f, 1f,
     1.1f, 1.25f, 1.5f, 1.75f, 2f,
     2.25f, 2.5f, 2.75f, 3f,
-).associateWith { "x$it" }
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,9 +118,61 @@ fun SettingsView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
+                val scrollState = rememberScrollState()
+                var donationsOffsetY: Int? = null
+
                 Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                    modifier = Modifier.verticalScroll(scrollState)
                 ) {
+                    val contentColor = MaterialTheme.colorScheme.onPrimary
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.primary)
+                            .clickable {
+                                donationsOffsetY?.let {
+                                    coroutineScope.launch {
+                                        scrollState.animateScrollTo(it)
+                                    }
+                                }
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp, 8.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.Favorite,
+                                null,
+                                tint = contentColor,
+                                modifier = Modifier.size(12.dp),
+                            )
+                            Box(modifier = Modifier.width(4.dp))
+                            Text(
+                                context.symphony.t.ConsiderDonating,
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = contentColor,
+                                ),
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(8.dp, 0.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.East,
+                                null,
+                                tint = contentColor,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+                    }
                     SettingsSideHeading(context.symphony.t.Appearance)
                     SettingsOptionTile(
                         icon = {
@@ -153,7 +213,8 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setFontFamily(value)
                         }
                     )
-                    SettingsOptionTile(
+                    SettingsFloatInputTile(
+                        context,
                         icon = {
                             Icon(Icons.Default.TextIncrease, null)
                         },
@@ -161,12 +222,19 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.FontScale)
                         },
                         value = fontScale,
-                        values = scalingPresets,
+                        presets = scalingPresets,
+                        labelText = { "x$it" },
+                        onReset = {
+                            context.symphony.settings.setFontScale(
+                                SettingsDefaults.fontScale
+                            )
+                        },
                         onChange = { value ->
                             context.symphony.settings.setFontScale(value)
                         }
                     )
-                    SettingsOptionTile(
+                    SettingsFloatInputTile(
+                        context,
                         icon = {
                             Icon(Icons.Default.PhotoSizeSelectLarge, null)
                         },
@@ -174,7 +242,13 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.ContentScale)
                         },
                         value = contentScale,
-                        values = scalingPresets,
+                        presets = scalingPresets,
+                        labelText = { "x$it" },
+                        onReset = {
+                            context.symphony.settings.setContentScale(
+                                SettingsDefaults.contentScale
+                            )
+                        },
                         onChange = { value ->
                             context.symphony.settings.setContentScale(value)
                         }
@@ -549,6 +623,32 @@ fun SettingsView(context: ViewContext) {
                         }
                     )
                     HorizontalDivider()
+                    SettingsSideHeading(context.symphony.t.Updates)
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Update, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.CheckForUpdates)
+                        },
+                        value = checkForUpdates,
+                        onChange = { value ->
+                            context.symphony.settings.setCheckForUpdates(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Default.Update, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowUpdateToast)
+                        },
+                        value = showUpdateToast,
+                        onChange = { value ->
+                            context.symphony.settings.setShowUpdateToast(value)
+                        }
+                    )
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.About)
                     val isLatestVersion = AppMeta.latestVersion
                         ?.let { it == AppMeta.version }
@@ -617,59 +717,27 @@ fun SettingsView(context: ViewContext) {
                         },
                         url = AppMeta.fdroidUrl
                     )
-                    SettingsLinkTile(
+                    Box(
+                        modifier = Modifier
+                            .onGloballyPositioned { coordinates ->
+                                donationsOffsetY = coordinates.positionInParent().y.toInt()
+                            }
+                    ) {
+                        SettingsDonationTile(
+                            context,
+                            text = context.symphony.t.SponsorViaGitHub,
+                            url = AppMeta.githubSponsorsUrl
+                        )
+                    }
+                    SettingsDonationTile(
                         context,
-                        icon = {
-                            Icon(Icons.Default.Redeem, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.SponsorViaGitHub)
-                        },
-                        url = AppMeta.githubSponsorsUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Default.Redeem, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.SponsorViaKoFi)
-                        },
+                        text = context.symphony.t.SponsorViaKoFi,
                         url = AppMeta.koFiUrl
                     )
-                    SettingsLinkTile(
+                    SettingsDonationTile(
                         context,
-                        icon = {
-                            Icon(Icons.Default.Redeem, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.SponsorViaPatreon)
-                        },
+                        text = context.symphony.t.SponsorViaPatreon,
                         url = AppMeta.patreonUrl
-                    )
-                    SettingsSwitchTile(
-                        icon = {
-                            Icon(Icons.Default.Update, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.CheckForUpdates)
-                        },
-                        value = checkForUpdates,
-                        onChange = { value ->
-                            context.symphony.settings.setCheckForUpdates(value)
-                        }
-                    )
-                    SettingsSwitchTile(
-                        icon = {
-                            Icon(Icons.Default.Update, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.ShowUpdateToast)
-                        },
-                        value = showUpdateToast,
-                        onChange = { value ->
-                            context.symphony.settings.setShowUpdateToast(value)
-                        }
                     )
                     SettingsLinkTile(
                         context,
@@ -720,4 +788,33 @@ fun NowPlayingControlsLayout.label(context: ViewContext): String {
         NowPlayingControlsLayout.Default -> context.symphony.t.Default
         NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
     }
+}
+
+@Composable
+private fun SettingsDonationTile(
+    context: ViewContext,
+    text: String,
+    url: String,
+) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    SettingsLinkTile(
+        context,
+        icon = {
+            Icon(
+                Icons.TwoTone.Redeem,
+                null,
+                tint = primaryColor,
+            )
+        },
+        title = {
+            Text(
+                text,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = primaryColor,
+                ),
+            )
+        },
+        url = url,
+    )
 }

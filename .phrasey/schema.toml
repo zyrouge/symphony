@@ -545,3 +545,9 @@ name = "Interface"
 
 [[keys]]
 name = "Rescan"
+
+[[keys]]
+name = "Updates"
+
+[[keys]]
+name = "ConsiderDonating"
