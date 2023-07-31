@@ -649,6 +649,38 @@ fun SettingsView(context: ViewContext) {
                         }
                     )
                     HorizontalDivider()
+                    SettingsSideHeading(context.symphony.t.Help)
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.BugReport, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ReportAnIssue)
+                        },
+                        url = AppMeta.githubIssuesUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Forum, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.Discord)
+                        },
+                        url = AppMeta.discordUrl
+                    )
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Default.Forum, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.Reddit)
+                        },
+                        url = AppMeta.redditUrl
+                    )
+                    HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.About)
                     val isLatestVersion = AppMeta.latestVersion
                         ?.let { it == AppMeta.version }
@@ -680,12 +712,38 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Favorite, null, tint = Color.Red)
+                            Icon(
+                                Icons.Default.Favorite,
+                                null,
+                                tint = Color.Red,
+                            )
                         },
                         title = {
                             Text(context.symphony.t.MadeByX(AppMeta.author))
                         },
                         url = AppMeta.githubProfileUrl
+                    )
+                    Box(
+                        modifier = Modifier
+                            .onGloballyPositioned { coordinates ->
+                                donationsOffsetY = coordinates.positionInParent().y.toInt()
+                            }
+                    ) {
+                        SettingsDonationTile(
+                            context,
+                            text = context.symphony.t.SponsorViaGitHub,
+                            url = AppMeta.githubSponsorsUrl
+                        )
+                    }
+                    SettingsDonationTile(
+                        context,
+                        text = context.symphony.t.SponsorViaKoFi,
+                        url = AppMeta.koFiUrl
+                    )
+                    SettingsDonationTile(
+                        context,
+                        text = context.symphony.t.SponsorViaPatreon,
+                        url = AppMeta.patreonUrl
                     )
                     SettingsLinkTile(
                         context,
@@ -716,58 +774,6 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.FDroid)
                         },
                         url = AppMeta.fdroidUrl
-                    )
-                    Box(
-                        modifier = Modifier
-                            .onGloballyPositioned { coordinates ->
-                                donationsOffsetY = coordinates.positionInParent().y.toInt()
-                            }
-                    ) {
-                        SettingsDonationTile(
-                            context,
-                            text = context.symphony.t.SponsorViaGitHub,
-                            url = AppMeta.githubSponsorsUrl
-                        )
-                    }
-                    SettingsDonationTile(
-                        context,
-                        text = context.symphony.t.SponsorViaKoFi,
-                        url = AppMeta.koFiUrl
-                    )
-                    SettingsDonationTile(
-                        context,
-                        text = context.symphony.t.SponsorViaPatreon,
-                        url = AppMeta.patreonUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Default.BugReport, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.ReportAnIssue)
-                        },
-                        url = AppMeta.githubIssuesUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Default.Forum, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.Discord)
-                        },
-                        url = AppMeta.discordUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Default.Forum, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.Reddit)
-                        },
-                        url = AppMeta.redditUrl
                     )
                 }
             }
