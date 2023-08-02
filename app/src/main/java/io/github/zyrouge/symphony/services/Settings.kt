@@ -89,7 +89,7 @@ object SettingsDefaults {
     val lastUsedFolderSortBy = SongSortBy.FILENAME
     val lastUsedPlaylistsSortBy = PlaylistSortBy.TITLE
     val lastUsedPlaylistSongsSortBy = SongSortBy.CUSTOM
-    val lastUsedAlbumSongsSortBy = SongSortBy.TITLE
+    val lastUsedAlbumSongsSortBy = SongSortBy.TRACK_NUMBER
     val lastUsedTreePathSortBy = PathSortBy.NAME
     const val checkForUpdates = false
     const val fadePlayback = false
