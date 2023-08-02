@@ -28,6 +28,7 @@ fun SongCard(
     disableHeartIcon: Boolean = false,
     leading: @Composable () -> Unit = {},
     thumbnailLabel: (@Composable () -> Unit)? = null,
+    thumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     onClick: () -> Unit,
 ) {
@@ -58,6 +59,11 @@ fun SongCard(
                             .clip(RoundedCornerShape(10.dp)),
                     )
                     thumbnailLabel?.let { it ->
+                        val backgroundColor =
+                            thumbnailLabelStyle.backgroundColor(MaterialTheme.colorScheme)
+                        val contentColor =
+                            thumbnailLabelStyle.contentColor(MaterialTheme.colorScheme)
+
                         Box(
                             modifier = Modifier
                                 .offset(y = 8.dp)
@@ -66,14 +72,14 @@ fun SongCard(
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        backgroundColor,
                                         RoundedCornerShape(4.dp)
                                     )
                                     .padding(3.dp, 0.dp)
                             ) {
                                 ProvideTextStyle(
                                     MaterialTheme.typography.labelSmall.copy(
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = contentColor
                                     )
                                 ) { it() }
                             }
@@ -304,3 +310,17 @@ fun SongDropdownMenu(
     }
 }
 
+enum class SongCardThumbnailLabelStyle {
+    Default,
+    Subtle,
+}
+
+private fun SongCardThumbnailLabelStyle.backgroundColor(colorScheme: ColorScheme) = when (this) {
+    SongCardThumbnailLabelStyle.Default -> colorScheme.surfaceVariant
+    SongCardThumbnailLabelStyle.Subtle -> colorScheme.surfaceVariant
+}
+
+private fun SongCardThumbnailLabelStyle.contentColor(colorScheme: ColorScheme) = when (this) {
+    SongCardThumbnailLabelStyle.Default -> colorScheme.primary
+    SongCardThumbnailLabelStyle.Subtle -> colorScheme.onSurfaceVariant
+}

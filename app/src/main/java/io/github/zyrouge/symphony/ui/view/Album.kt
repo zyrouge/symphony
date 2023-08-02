@@ -72,7 +72,11 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                             item {
                                 AlbumHero(context, album!!)
                             }
-                        }
+                        },
+                        cardThumbnailLabel = { _, song ->
+                            Text(song.trackNumber?.toString() ?: context.symphony.t.UnknownSymbol)
+                        },
+                        cardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Subtle,
                     )
                 } else UnknownAlbum(context, albumId)
             }

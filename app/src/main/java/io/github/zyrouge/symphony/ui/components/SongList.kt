@@ -9,7 +9,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.Song
@@ -32,6 +36,8 @@ fun SongList(
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
     trailingOptionsContent: (@Composable ColumnScope.(Int, Song, () -> Unit) -> Unit)? = null,
+    cardThumbnailLabel: (@Composable (Int, Song) -> Unit)? = null,
+    cardThumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     type: SongListType = SongListType.Default,
     disableHeartIcon: Boolean = false,
 ) {
@@ -77,6 +83,7 @@ fun SongList(
                     },
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
+
                 else -> {
                     val lazyListState = rememberLazyListState()
 
@@ -94,6 +101,10 @@ fun SongList(
                                 SongCard(
                                     context,
                                     song = song,
+                                    thumbnailLabel = cardThumbnailLabel?.let {
+                                        { it(i, song) }
+                                    },
+                                    thumbnailLabelStyle = cardThumbnailLabelStyle,
                                     disableHeartIcon = disableHeartIcon,
                                     trailingOptionsContent = trailingOptionsContent?.let {
                                         { onDismissRequest -> it(i, song, onDismissRequest) }
@@ -155,6 +166,7 @@ fun SongListType.setLastUsedSortReverse(context: ViewContext, reverse: Boolean) 
         SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortReverse(
             reverse
         )
+
         SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortReverse(reverse)
     }
 }
