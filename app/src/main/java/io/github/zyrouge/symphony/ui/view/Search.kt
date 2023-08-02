@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -128,7 +129,11 @@ fun SearchView(context: ViewContext) {
 
     Scaffold(
         topBar = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .windowInsetsPadding(TopAppBarDefaults.windowInsets)
+                    .clipToBounds()
+            ) {
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
