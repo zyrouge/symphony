@@ -53,6 +53,8 @@ Why was this created? As I was getting into offline music, most of the popular g
 
 ## Contributing
 
+Before contributing, please read the [Developer Guide](https://github.com/zyrouge/symphony/wiki/Developer-Guide).
+
 Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Sponsorships through [GitHub Sponsors](https://github.com/sponsors/zyrouge) or donations through [Ko-fi](https://ko-fi.com/zyrouge) or [Patreon](https://patreon.com/zyrouge) helps me to stay motivated.
 
 ## License
