@@ -1,5 +1,8 @@
 package io.github.zyrouge.symphony.ui.components
 
+import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -272,6 +275,29 @@ fun SongDropdownMenu(
                 context.navController.navigate(
                     RoutesBuilder.buildAlbumRoute(song.albumId)
                 )
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.Share, null)
+            },
+            text = {
+                Text(context.symphony.t.ShareSong)
+            },
+            onClick = {
+                try {
+                    context.activity.startActivity(Intent(Intent.ACTION_SEND).apply {
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        putExtra(Intent.EXTRA_STREAM, song.uri)
+                        type = context.activity.contentResolver.getType(song.uri)
+                    })
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context.activity,
+                        "${context.symphony.t.ShareFailed} ${e.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
         DropdownMenuItem(
