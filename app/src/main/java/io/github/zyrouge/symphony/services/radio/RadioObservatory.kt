@@ -25,6 +25,8 @@ class RadioObservatory(private val symphony: Symphony) {
     val shuffleMode = _shuffleMode.asStateFlow()
     private val _sleepTimer = MutableStateFlow<RadioSleepTimer?>(null)
     val sleepTimer = _sleepTimer.asStateFlow()
+    private val _pauseOnCurrentSongEnd = MutableStateFlow<Boolean>(false)
+    val pauseOnCurrentSongEnd = _pauseOnCurrentSongEnd.asStateFlow()
     private val _speed = MutableStateFlow(RadioPlayer.DEFAULT_SPEED)
     val speed = _speed.asStateFlow()
     private val _persistedSpeed = MutableStateFlow(RadioPlayer.DEFAULT_SPEED)
@@ -41,27 +43,34 @@ class RadioObservatory(private val symphony: Symphony) {
                 RadioEvents.StopPlaying,
                 RadioEvents.PausePlaying,
                 RadioEvents.ResumePlaying -> emitIsPlaying()
+
                 RadioEvents.SongSeeked -> emitPlaybackPosition()
                 RadioEvents.SongQueued,
                 RadioEvents.SongDequeued,
                 RadioEvents.QueueModified,
                 RadioEvents.QueueCleared -> emitQueue()
+
                 RadioEvents.QueueIndexChanged -> emitQueueIndex()
                 RadioEvents.LoopModeChanged -> emitLoopMode()
                 RadioEvents.ShuffleModeChanged -> emitShuffleMode()
                 RadioEvents.SongStaged,
                 RadioEvents.QueueEnded -> {
                 }
+
                 RadioEvents.SleepTimerSet,
                 RadioEvents.SleepTimerRemoved -> emitSleepTimer()
+
                 RadioEvents.SpeedChanged -> {
                     emitSpeed()
                     emitPersistedSpeed()
                 }
+
                 RadioEvents.PitchChanged -> {
                     emitPitch()
                     emitPersistedPitch()
                 }
+
+                RadioEvents.PauseOnCurrentSongEndChanged -> emitPauseOnCurrentSongEnd()
             }
         }
         playbackPositionUpdateSubscriber = symphony.radio.onPlaybackPositionUpdate.subscribe {
@@ -87,7 +96,9 @@ class RadioObservatory(private val symphony: Symphony) {
     private fun emitPersistedSpeed() = _speed.tryEmit(symphony.radio.persistedSpeed)
     private fun emitPitch() = _pitch.tryEmit(symphony.radio.currentPitch)
     private fun emitPersistedPitch() = _pitch.tryEmit(symphony.radio.persistedPitch)
-    
+    private fun emitPauseOnCurrentSongEnd() =
+        _pauseOnCurrentSongEnd.tryEmit(symphony.radio.pauseOnCurrentSongEnd)
+
     private fun emitQueue() {
         _queue.clear()
         _queue.addAll(symphony.radio.queue.currentQueue)

@@ -114,6 +114,7 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
                 )
                 fader?.start()
             }
+
             else -> {
                 setVolumeInstant(to)
                 onFinish(true)

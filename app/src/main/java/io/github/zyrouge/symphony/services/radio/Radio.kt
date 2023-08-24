@@ -29,6 +29,7 @@ enum class RadioEvents {
     SleepTimerRemoved,
     SpeedChanged,
     PitchChanged,
+    PauseOnCurrentSongEndChanged,
 }
 
 data class RadioSleepTimer(
@@ -66,6 +67,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED
     var persistedPitch: Float = RadioPlayer.DEFAULT_PITCH
     var sleepTimer: RadioSleepTimer? = null
+    var pauseOnCurrentSongEnd = false
 
     init {
         nativeReceiver.start()
@@ -256,6 +258,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         onUpdate.dispatch(RadioEvents.SleepTimerRemoved)
     }
 
+    @JvmName("setPauseOnCurrentSongEndTo")
+    fun setPauseOnCurrentSongEnd(value: Boolean) {
+        pauseOnCurrentSongEnd = value
+        onUpdate.dispatch(RadioEvents.PauseOnCurrentSongEndChanged)
+    }
+
     private fun stopCurrentSong() {
         player?.let {
             player = null
@@ -301,6 +309,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     autostart = queue.currentLoopMode == RadioLoopMode.Queue
                 }
             }
+        }
+        if (pauseOnCurrentSongEnd) {
+            autostart = false
+            setPauseOnCurrentSongEnd(false)
         }
         play(PlayOptions(nextSongIndex, autostart = autostart))
     }

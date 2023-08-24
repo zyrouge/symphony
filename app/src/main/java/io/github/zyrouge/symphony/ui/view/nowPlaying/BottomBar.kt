@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MotionPhotosPaused
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Shuffle
@@ -26,11 +27,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +46,7 @@ import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
 import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +55,7 @@ fun NowPlayingBodyBottomBar(
     data: NowPlayingPlayerStateData,
     states: NowPlayingStates,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsState()
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
@@ -188,14 +193,51 @@ fun NowPlayingBodyBottomBar(
         }
 
         if (showExtraOptions) {
+            val sheetState = rememberModalBottomSheetState()
+            val closeBottomSheet = {
+                showExtraOptions = false
+                coroutineScope.launch {
+                    sheetState.hide()
+                }
+            }
+            
             ModalBottomSheet(
+                sheetState = sheetState,
                 onDismissRequest = {
                     showExtraOptions = false
-                }
+                },
             ) {
                 Card(
                     onClick = {
-                        showExtraOptions = false
+                        closeBottomSheet()
+                        context.symphony.radio.setPauseOnCurrentSongEnd(!pauseOnCurrentSongEnd)
+                    }
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                Icons.Default.MotionPhotosPaused,
+                                null,
+                                tint = when {
+                                    pauseOnCurrentSongEnd -> MaterialTheme.colorScheme.primary
+                                    else -> LocalContentColor.current
+                                }
+                            )
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.PauseOnCurrentSongEnd)
+                        },
+                        supportingContent = {
+                            Text(
+                                if (pauseOnCurrentSongEnd) context.symphony.t.Enabled
+                                else context.symphony.t.Disabled
+                            )
+                        },
+                    )
+                }
+                Card(
+                    onClick = {
+                        closeBottomSheet()
                         showSleepTimerDialog = !showSleepTimerDialog
                     }
                 ) {
@@ -223,7 +265,7 @@ fun NowPlayingBodyBottomBar(
                 }
                 Card(
                     onClick = {
-                        showExtraOptions = false
+                        closeBottomSheet()
                         showSpeedDialog = !showSpeedDialog
                     }
                 ) {
@@ -241,7 +283,7 @@ fun NowPlayingBodyBottomBar(
                 }
                 Card(
                     onClick = {
-                        showExtraOptions = false
+                        closeBottomSheet()
                         showPitchDialog = !showPitchDialog
                     }
                 ) {

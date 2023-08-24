@@ -284,16 +284,18 @@ fun SongDropdownMenu(
                 Text(context.symphony.t.ShareSong)
             },
             onClick = {
+                onDismissRequest()
                 try {
-                    context.activity.startActivity(Intent(Intent.ACTION_SEND).apply {
+                    val indent = Intent(Intent.ACTION_SEND).apply {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         putExtra(Intent.EXTRA_STREAM, song.uri)
                         type = context.activity.contentResolver.getType(song.uri)
-                    })
+                    }
+                    context.activity.startActivity(indent)
                 } catch (e: Exception) {
                     Toast.makeText(
                         context.activity,
-                        String.format(context.symphony.t.ShareFailed, e.localizedMessage),
+                        context.symphony.t.ShareFailed(e.localizedMessage),
                         Toast.LENGTH_SHORT
                     ).show()
                 }

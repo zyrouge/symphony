@@ -554,3 +554,13 @@ name = "ConsiderDonating"
 
 [[keys]]
 name = "Help"
+
+[[keys]]
+name = "ShareSong"
+
+[[keys]]
+name = "ShareFailed"
+parameters = ["x"]
+
+[[keys]]
+name = "PauseOnCurrentSongEnd"

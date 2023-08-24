@@ -27,6 +27,7 @@ data class NowPlayingPlayerStateData(
     val persistedSpeed: Float,
     val persistedPitch: Float,
     val hasSleepTimer: Boolean,
+    val pauseOnCurrentSongEnd: Boolean,
     val showSongAdditionalInfo: Boolean,
     val enableSeekControls: Boolean,
     val seekBackDuration: Int,
@@ -64,6 +65,7 @@ fun NowPlayingView(context: ViewContext) {
     val persistedSpeed by context.symphony.radio.observatory.persistedSpeed.collectAsState()
     val persistedPitch by context.symphony.radio.observatory.persistedPitch.collectAsState()
     val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsState()
+    val pauseOnCurrentSongEnd by context.symphony.radio.observatory.pauseOnCurrentSongEnd.collectAsState()
     val showSongAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
     val enableSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
     val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
@@ -92,6 +94,7 @@ fun NowPlayingView(context: ViewContext) {
                 persistedSpeed = persistedSpeed,
                 persistedPitch = persistedPitch,
                 hasSleepTimer = sleepTimer != null,
+                pauseOnCurrentSongEnd = pauseOnCurrentSongEnd,
                 showSongAdditionalInfo = showSongAdditionalInfo,
                 enableSeekControls = enableSeekControls,
                 seekBackDuration = seekBackDuration,
