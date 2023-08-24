@@ -44,6 +44,10 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
+    internal fun onMediaStoreUpdate(value: Boolean) {
+        playlist.onMediaStoreUpdate(value)
+    }
+
     private suspend fun fetch() {
         coroutineScope.launch {
             mediaStore.fetch()

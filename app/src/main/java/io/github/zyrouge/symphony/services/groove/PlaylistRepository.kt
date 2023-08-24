@@ -239,6 +239,10 @@ class PlaylistRepository(private val symphony: Symphony) {
         return playlists
     }
 
+    internal fun onMediaStoreUpdate(value: Boolean) {
+        emitUpdate(value)
+    }
+
     private fun createFavorites(notifyRapid: Boolean = false): Playlist {
         val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
         cache[playlist.id] = playlist

@@ -15,7 +15,10 @@ class MediaStoreExposer(private val symphony: Symphony) {
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
 
-    private fun emitUpdate(value: Boolean) = _isUpdating.tryEmit(value)
+    private fun emitUpdate(value: Boolean) {
+        _isUpdating.tryEmit(value)
+        symphony.groove.onMediaStoreUpdate(value)
+    }
 
     fun fetch() {
         emitUpdate(true)
