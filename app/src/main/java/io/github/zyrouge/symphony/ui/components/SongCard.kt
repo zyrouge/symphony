@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -294,7 +293,7 @@ fun SongDropdownMenu(
                 } catch (e: Exception) {
                     Toast.makeText(
                         context.activity,
-                        "${context.symphony.t.ShareFailed} ${e.localizedMessage}",
+                        String.format(context.symphony.t.ShareFailed, e.localizedMessage),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
