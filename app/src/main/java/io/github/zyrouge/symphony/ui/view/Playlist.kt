@@ -18,12 +18,13 @@ import kotlinx.coroutines.launch
 fun PlaylistView(context: ViewContext, playlistId: String) {
     val coroutineScope = rememberCoroutineScope()
     val allPlaylistIds = context.symphony.groove.playlist.all
-    val playlist by remember(allPlaylistIds) {
+    var updateCounter by remember { mutableIntStateOf(0) }
+    val playlist by remember(allPlaylistIds, updateCounter) {
         derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
     }
-    val songIds by remember {
-        derivedStateOf { playlist?.songIds ?: emptyList() }
-    }
+//    val songIds = remember(updateCounter) {
+//        (playlist?.songIds ?: emptyList()).toMutableStateList()
+//    }
     val isViable by remember {
         derivedStateOf { allPlaylistIds.contains(playlistId) }
     }
@@ -34,6 +35,10 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 context.symphony.groove.playlist.isFavoritesPlaylist(it)
             } ?: false
         }
+    }
+
+    val incrementUpdateCounter = {
+        updateCounter = if (updateCounter > 25) 0 else updateCounter + 1
     }
 
     Scaffold(
@@ -67,6 +72,12 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                                 context,
                                 playlist!!,
                                 expanded = showOptionsMenu,
+                                onSongsChanged = {
+                                    incrementUpdateCounter()
+                                },
+                                onRename = {
+                                    incrementUpdateCounter()
+                                },
                                 onDelete = {
                                     context.navController.popBackStack()
                                 },
@@ -91,7 +102,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 when {
                     isViable -> SongList(
                         context,
-                        songIds = songIds,
+                        songIds = playlist?.songIds ?: emptyList(),
                         type = SongListType.Playlist,
                         disableHeartIcon = isFavoritesPlaylist,
                         trailingOptionsContent = { _, song, onDismissRequest ->

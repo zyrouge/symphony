@@ -22,7 +22,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.home.NewPlaylistDialog
 import io.github.zyrouge.symphony.utils.mutate
 import kotlinx.coroutines.launch
 

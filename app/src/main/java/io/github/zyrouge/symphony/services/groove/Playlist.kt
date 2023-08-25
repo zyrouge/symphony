@@ -50,6 +50,14 @@ data class Playlist(
     fun isLocal() = local != null
     fun isNotLocal() = local == null
 
+    fun renamed(title: String) = Playlist(
+        id = id,
+        title = title,
+        songIds = songIds,
+        numberOfTracks = numberOfTracks,
+        local = local,
+    )
+
     fun toJSONObject(): JSONObject {
         val json = JSONObject()
         json.put(PLAYLIST_ID_KEY, id)

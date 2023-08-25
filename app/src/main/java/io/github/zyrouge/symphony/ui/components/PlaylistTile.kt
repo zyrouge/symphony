@@ -105,7 +105,9 @@ fun PlaylistDropdownMenu(
     context: ViewContext,
     playlist: Playlist,
     expanded: Boolean,
-    onDelete: (() -> Unit)? = {},
+    onSongsChanged: (() -> Unit) = {},
+    onRename: (() -> Unit) = {},
+    onDelete: (() -> Unit) = {},
     onDismissRequest: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -136,6 +138,7 @@ fun PlaylistDropdownMenu(
     var showInfoDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
 
     DropdownMenu(
         expanded = expanded,
@@ -196,6 +199,20 @@ fun PlaylistDropdownMenu(
                     showSongsPicker = true
                 }
             )
+        }
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Default.Info, null)
+            },
+            text = {
+                Text(context.symphony.t.Details)
+            },
+            onClick = {
+                onDismissRequest()
+                showInfoDialog = true
+            }
+        )
+        if (playlist.isNotLocal()) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Default.Save, null)
@@ -218,19 +235,19 @@ fun PlaylistDropdownMenu(
                     }
                 }
             )
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Default.Edit, null)
+                },
+                text = {
+                    Text(context.symphony.t.Rename)
+                },
+                onClick = {
+                    onDismissRequest()
+                    showRenameDialog = true
+                }
+            )
         }
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Default.Info, null)
-            },
-            text = {
-                Text(context.symphony.t.Details)
-            },
-            onClick = {
-                onDismissRequest()
-                showInfoDialog = true
-            }
-        )
         if (!context.symphony.groove.playlist.isBuiltInPlaylist(playlist)) {
             DropdownMenuItem(
                 leadingIcon = {
@@ -268,6 +285,7 @@ fun PlaylistDropdownMenu(
             onDone = {
                 coroutineScope.launch {
                     context.symphony.groove.playlist.update(playlist.id, it)
+                    onSongsChanged()
                     showSongsPicker = false
                 }
             }
@@ -287,7 +305,7 @@ fun PlaylistDropdownMenu(
                 coroutineScope.launch {
                     showDeleteDialog = false
                     if (result) {
-                        onDelete?.invoke()
+                        onDelete()
                         context.symphony.groove.playlist.delete(playlist.id)
                     }
                 }
@@ -301,6 +319,17 @@ fun PlaylistDropdownMenu(
             songIds = playlist.songIds,
             onDismissRequest = {
                 showAddToPlaylistDialog = false
+            }
+        )
+    }
+
+    if (showRenameDialog) {
+        RenamePlaylistDialog(
+            context,
+            playlist = playlist,
+            onRename = onRename,
+            onDismissRequest = {
+                showRenameDialog = false
             }
         )
     }

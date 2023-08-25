@@ -575,3 +575,9 @@ parameters = ["x"]
 [[keys]]
 name = "ExportedX"
 parameters = ["x"]
+
+[[keys]]
+name = "RenamePlaylist"
+
+[[keys]]
+name = "Rename"

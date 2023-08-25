@@ -257,6 +257,14 @@ class PlaylistRepository(private val symphony: Symphony) {
         }
     }
 
+    suspend fun renamePlaylist(playlist: Playlist, title: String) {
+        val renamed = playlist.renamed(title)
+        cache[playlist.id] = renamed
+        _all.remove(playlist.id)
+        _all.add(playlist.id)
+        save()
+    }
+
     internal fun onMediaStoreUpdate(value: Boolean) {
         emitUpdate(value)
     }
