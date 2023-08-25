@@ -559,8 +559,19 @@ name = "Help"
 name = "ShareSong"
 
 [[keys]]
-name = "ShareFailed"
+name = "ShareFailedX"
 parameters = ["x"]
 
 [[keys]]
 name = "PauseOnCurrentSongEnd"
+
+[[keys]]
+name = "Export"
+
+[[keys]]
+name = "ExportFailedX"
+parameters = ["x"]
+
+[[keys]]
+name = "ExportedX"
+parameters = ["x"]

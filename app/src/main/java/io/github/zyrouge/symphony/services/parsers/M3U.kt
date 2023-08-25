@@ -11,12 +11,15 @@ data class M3U(val entries: List<M3UEntry>) {
         entries.forEach {
             buffer.append("\n\n\n#EXTINF:${it.index},${it.info}\n${it.path}")
         }
+        buffer.append("\n\n")
         return buffer.toString()
     }
 
     companion object {
         private val entryRegex = Regex("""#EXTINF:(\d+),(.+?)\n(.+)""")
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("m3u")
+        val mimeType = MimeTypeMap.getSingleton()
+            .getMimeTypeFromExtension("m3u")
+            ?: "application/x-mpegURL"
 
         fun parse(content: String): M3U {
             val entries = entryRegex.findAll(content).map {

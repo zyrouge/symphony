@@ -1,10 +1,12 @@
 package io.github.zyrouge.symphony.services.groove
 
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
+import io.github.zyrouge.symphony.services.parsers.M3UEntry
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.Logger
@@ -19,6 +21,7 @@ import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+
 
 enum class PlaylistSortBy {
     CUSTOM,
@@ -237,6 +240,21 @@ class PlaylistRepository(private val symphony: Symphony) {
             }
         }
         return playlists
+    }
+
+    fun savePlaylist(playlist: Playlist, uri: Uri) {
+        val outputStream = symphony.applicationContext.contentResolver.openOutputStream(uri, "w")
+        outputStream?.use { _ ->
+            val m3u = M3U(
+                playlist.songIds.mapIndexedNotNull { i, songId ->
+                    symphony.groove.song.get(songId)?.let { song ->
+                        val path = GrooveExplorer.Path(song.path)
+                        M3UEntry(i, path.basename, song.path)
+                    }
+                }
+            )
+            outputStream.write(m3u.stringify().toByteArray())
+        }
     }
 
     internal fun onMediaStoreUpdate(value: Boolean) {

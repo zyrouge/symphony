@@ -18,6 +18,8 @@ data class Playlist(
     val numberOfTracks: Int,
     val local: Local?,
 ) {
+    val basename: String get() = "$title.m3u"
+
     data class LocalExtended(val id: Long, val uri: Uri, val local: Local) {
         val path: String get() = local.path
     }

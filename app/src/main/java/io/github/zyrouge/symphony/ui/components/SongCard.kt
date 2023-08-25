@@ -292,11 +292,11 @@ fun SongDropdownMenu(
                         type = context.activity.contentResolver.getType(song.uri)
                     }
                     context.activity.startActivity(indent)
-                } catch (e: Exception) {
+                } catch (err: Exception) {
                     Toast.makeText(
                         context.activity,
-                        context.symphony.t.ShareFailed(e.localizedMessage),
-                        Toast.LENGTH_SHORT
+                        context.symphony.t.ShareFailedX(err.localizedMessage ?: err.toString()),
+                        Toast.LENGTH_SHORT,
                     ).show()
                 }
             }

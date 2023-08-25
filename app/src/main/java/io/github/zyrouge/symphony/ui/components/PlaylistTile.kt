@@ -1,5 +1,8 @@
 package io.github.zyrouge.symphony.ui.components
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
@@ -105,6 +109,29 @@ fun PlaylistDropdownMenu(
     onDismissRequest: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val savePlaylistLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument(M3U.mimeType)
+    ) { uri ->
+        uri?.let { _ ->
+            try {
+                context.symphony.groove.playlist.savePlaylist(playlist, uri)
+                Toast.makeText(
+                    context.activity,
+                    context.symphony.t.ExportedX(playlist.basename),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            } catch (err: Exception) {
+                Toast.makeText(
+                    context.activity,
+                    context.symphony.t.ExportFailedX(
+                        err.localizedMessage ?: err.toString()
+                    ),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+        }
+    }
+
     var showSongsPicker by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -167,6 +194,28 @@ fun PlaylistDropdownMenu(
                 onClick = {
                     onDismissRequest()
                     showSongsPicker = true
+                }
+            )
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Default.Save, null)
+                },
+                text = {
+                    Text(context.symphony.t.Export)
+                },
+                onClick = {
+                    onDismissRequest()
+                    try {
+                        savePlaylistLauncher.launch(playlist.basename)
+                    } catch (err: Exception) {
+                        Toast.makeText(
+                            context.activity,
+                            context.symphony.t.ExportFailedX(
+                                err.localizedMessage ?: err.toString()
+                            ),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             )
         }
