@@ -1,11 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Dela+Gothic+One&display=swap");
 
-:root {
-    font-family: "Inter", sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-    @apply bg-dark-900 text-light-200;
+    @apply bg-secondary-900 font-sans text-white;
+}
+
+hr {
+    @apply border-secondary-800;
 }
 
 ::-webkit-scrollbar {
@@ -13,9 +17,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply bg-dark-100 rounded;
+    @apply rounded bg-secondary-100;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    @apply bg-dark-50;
+    @apply bg-secondary-50;
+}
+
+.u-flex {
+    @apply flex items-center justify-center;
+}
+
+.u-container {
+    @apply max-w-[50rem] px-6;
 }

@@ -10,14 +10,17 @@
         "deploy": "gh workflow run deploy -r site"
     },
     "dependencies": {
-        "vue": "^3.2.45"
+        "vue": "^3.3.4"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^4.0.0",
-        "typescript": "^4.9.3",
-        "vite": "^4.1.0",
-        "vite-plugin-windicss": "^1.8.10",
-        "vue-tsc": "^1.0.24",
-        "windicss": "^3.5.6"
+        "@vitejs/plugin-vue": "^4.3.3",
+        "autoprefixer": "^10.4.15",
+        "postcss": "^8.4.28",
+        "prettier": "^3.0.2",
+        "prettier-plugin-tailwindcss": "^0.5.3",
+        "tailwindcss": "^3.3.3",
+        "typescript": "^5.2.2",
+        "vite": "^4.4.9",
+        "vue-tsc": "^1.8.8"
     }
 }
