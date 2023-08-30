@@ -34,6 +34,7 @@ const FDROID_URL = "https://f-droid.org/en/packages/io.github.zyrouge.symphony";
             </div>
             <p class="mt-4">
                 Get it from
+                <a :href="FDROID_URL" class="hero-link">GitHub Releases</a>,
                 <a :href="FDROID_URL" class="hero-link">F-Droid</a>
                 or
                 <a :href="IZZY_ON_DROID_URL" class="hero-link">IzzyOnDroid</a>.
