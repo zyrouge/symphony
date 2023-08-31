@@ -62,6 +62,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         get() = player?.speed ?: RadioPlayer.DEFAULT_SPEED
     val currentPitch: Float
         get() = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
+    val audioSessionId: Int?
+        get() = player?.audioSessionId
     val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
 
     var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED

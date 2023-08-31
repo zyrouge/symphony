@@ -50,6 +50,8 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         get() = mediaPlayer?.playbackParams?.speed?.takeIf { it != 0f } ?: DEFAULT_SPEED
     val pitch: Float
         get() = mediaPlayer?.playbackParams?.pitch?.takeIf { it != 0f } ?: DEFAULT_PITCH
+    val audioSessionId: Int?
+        get() = mediaPlayer?.audioSessionId
 
     private val fadePlaybackDuration: Int
         get() = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()

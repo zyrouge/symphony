@@ -581,3 +581,10 @@ name = "RenamePlaylist"
 
 [[keys]]
 name = "Rename"
+
+[[keys]]
+name = "Equalizer"
+
+[[keys]]
+name = "LaunchingEqualizerFailedX"
+parameters = ["x"]

@@ -1,5 +1,8 @@
 package io.github.zyrouge.symphony.ui.view.nowPlaying
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.launch
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.MotionPhotosPaused
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
@@ -46,6 +50,7 @@ import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
 import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
+import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,6 +61,10 @@ fun NowPlayingBodyBottomBar(
     states: NowPlayingStates,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val equalizerActivity = rememberLauncherForActivityResult(
+        context.symphony.radio.session.createEqualizerActivityContract()
+    ) {}
+
     val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsState()
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
@@ -200,13 +209,39 @@ fun NowPlayingBodyBottomBar(
                     sheetState.hide()
                 }
             }
-            
+
             ModalBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = {
                     showExtraOptions = false
                 },
             ) {
+                Card(
+                    onClick = {
+                        closeBottomSheet()
+                        try {
+                            equalizerActivity.launch()
+                        } catch (err: Exception) {
+                            Logger.error("NowPlayingBottomBar", "launching equalizer failed", err)
+                            Toast.makeText(
+                                context.activity,
+                                context.symphony.t.LaunchingEqualizerFailedX(
+                                    err.localizedMessage ?: err.toString()
+                                ),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                    }
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Default.GraphicEq, null)
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.Equalizer)
+                        },
+                    )
+                }
                 Card(
                     onClick = {
                         closeBottomSheet()

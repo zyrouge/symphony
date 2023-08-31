@@ -5,16 +5,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.media.audiofx.AudioEffect
 import android.net.Uri
 import android.os.Build
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.KeyEvent
+import androidx.activity.result.contract.ActivityResultContract
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import kotlinx.coroutines.launch
+
 
 data class RadioSessionUpdateRequest(
     val song: Song,
@@ -60,7 +63,7 @@ class RadioSession(val symphony: Symphony) {
                 // Wear OS can send signals to play/pause the app, other media apps can pause it,
                 // no clue what the difference here is... but here we are.
             )
-        } else{
+        } else {
             symphony.applicationContext.registerReceiver(
                 receiver,
                 IntentFilter().apply {
@@ -182,6 +185,23 @@ class RadioSession(val symphony: Symphony) {
     fun destroy() {
         cancel()
         symphony.applicationContext.unregisterReceiver(receiver)
+    }
+
+    fun createEqualizerActivityContract() = object : ActivityResultContract<Unit, Unit>() {
+        override fun createIntent(
+            context: Context,
+            input: Unit,
+        ) = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
+            putExtra(AudioEffect.EXTRA_PACKAGE_NAME, symphony.applicationContext.packageName)
+            putExtra(AudioEffect.EXTRA_AUDIO_SESSION, symphony.radio.audioSessionId ?: 0)
+            putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+        }
+
+        override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+        ) {
+        }
     }
 
     private fun update() {
