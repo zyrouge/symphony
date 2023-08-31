@@ -5,9 +5,9 @@
     "scripts": {
         "i18n:build": "phrasey build -p ./.phrasey/config.toml -f toml",
         "i18n:summary:base": "phrasey summary -p ./.phrasey/config.toml -f toml -o ./phrasey-dist/summary.json -s json -d",
-        "i18n:summary": "npm run i18n:summary:base && ts-node ./cli/i18n/summary.ts",
-        "version:bump": "ts-node ./cli/version/bump",
-        "version:print": "ts-node ./cli/version/print",
+        "i18n:summary": "npm run i18n:summary:base && tsx ./cli/i18n/summary.ts",
+        "version:bump": "tsx ./cli/version/bump",
+        "version:print": "tsx ./cli/version/print",
         "prebuild": "npm run i18n:build",
         "release": "gh workflow run release"
     },
@@ -27,7 +27,7 @@
         "picocolors": "^1.0.0",
         "prettier": "^2.8.8",
         "prettier-plugin-toml": "^0.3.1",
-        "ts-node": "^10.9.1",
+        "tsx": "^3.12.7",
         "typescript": "^5.0.4"
     }
 }
