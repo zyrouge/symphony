@@ -125,7 +125,7 @@ data class Song(
     val uri: Uri get() = buildUri(id)
 
     fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.album.createArtworkImageRequest(albumId)
+        symphony.groove.song.createArtworkImageRequest(id)
 
     companion object {
         fun buildUri(id: Long): Uri =
