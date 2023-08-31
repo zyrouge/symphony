@@ -19,6 +19,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.Logger
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -286,13 +287,14 @@ fun SongDropdownMenu(
             onClick = {
                 onDismissRequest()
                 try {
-                    val indent = Intent(Intent.ACTION_SEND).apply {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         putExtra(Intent.EXTRA_STREAM, song.uri)
                         type = context.activity.contentResolver.getType(song.uri)
                     }
-                    context.activity.startActivity(indent)
+                    context.activity.startActivity(intent)
                 } catch (err: Exception) {
+                    Logger.error("SongCard", "share failed", err)
                     Toast.makeText(
                         context.activity,
                         context.symphony.t.ShareFailedX(err.localizedMessage ?: err.toString()),

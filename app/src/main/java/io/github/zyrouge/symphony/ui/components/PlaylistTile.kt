@@ -23,6 +23,7 @@ import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
+import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,6 +124,7 @@ fun PlaylistDropdownMenu(
                     Toast.LENGTH_SHORT,
                 ).show()
             } catch (err: Exception) {
+                Logger.error("PlaylistTile", "export failed (activity result)", err)
                 Toast.makeText(
                     context.activity,
                     context.symphony.t.ExportFailedX(
@@ -225,6 +227,7 @@ fun PlaylistDropdownMenu(
                     try {
                         savePlaylistLauncher.launch(playlist.basename)
                     } catch (err: Exception) {
+                        Logger.error("PlaylistTile", "export failed", err)
                         Toast.makeText(
                             context.activity,
                             context.symphony.t.ExportFailedX(
