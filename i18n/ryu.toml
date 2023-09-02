@@ -196,3 +196,5 @@ ExportFailedX = "エクスポートんかいしっぺーさびたん（エラー
 ExportedX = "{x}エクスポートさびたん"
 RenamePlaylist = "プレイリストぬやーめーへいるかん"
 Rename = "やーめーへいるかん"
+Equalizer = "イコライザー"
+LaunchingEqualizerFailedX = "イコライザーぬきどうんかいしっぺーさびたん（エラー： {x}）"
