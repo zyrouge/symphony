@@ -193,4 +193,3 @@ RenamePlaylist = "Wiedergabeliste umbenennen"
 Rename = "Umbenennen"
 Equalizer = "Equalizer"
 LaunchingEqualizerFailedX = "Start des Equalizers fehlgeschlagen (Fehler: {x})"
-
