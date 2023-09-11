@@ -28,6 +28,6 @@
         "prettier": "^3.0.3",
         "prettier-plugin-toml": "^1.0.0",
         "tsx": "^3.12.7",
-        "typescript": "^5.0.4"
+        "typescript": "^5.2.2"
     }
 }
