@@ -27,7 +27,7 @@
         "picocolors": "^1.0.0",
         "prettier": "^3.0.3",
         "prettier-plugin-toml": "^1.0.0",
-        "tsx": "^3.12.7",
+        "tsx": "^3.12.8",
         "typescript": "^5.2.2"
     }
 }
