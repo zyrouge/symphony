@@ -75,7 +75,7 @@ object ThemeColors {
     )
 
     fun resolvePrimaryColorKey(value: String?) =
-        PrimaryThemeColors.values().find { it.name == value } ?: DefaultPrimaryColor
+        PrimaryThemeColors.entries.find { it.name == value } ?: DefaultPrimaryColor
 
     fun resolvePrimaryColor(value: PrimaryThemeColors) = PrimaryColorsMap[value]!!
     fun resolvePrimaryColor(value: String?) = resolvePrimaryColor(resolvePrimaryColorKey(value))

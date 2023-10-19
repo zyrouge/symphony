@@ -58,7 +58,7 @@ fun SongList(
                     type.setLastUsedSortReverse(context, it)
                 },
                 sort = sortBy,
-                sorts = SongSortBy.values()
+                sorts = SongSortBy.entries
                     .associateWith { x -> contextWrapped { x.label(it) } },
                 onSortChange = {
                     type.setLastUsedSortBy(context, it)
@@ -76,7 +76,7 @@ fun SongList(
                 songIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
-                            Icons.Default.MusicNote,
+                            Icons.Filled.MusicNote,
                             null,
                             modifier = modifier,
                         )

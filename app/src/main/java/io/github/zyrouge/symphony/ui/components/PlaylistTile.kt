@@ -4,12 +4,38 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,7 +85,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                         IconButton(
                             onClick = { showOptionsMenu = !showOptionsMenu }
                         ) {
-                            Icon(Icons.Default.MoreVert, null)
+                            Icon(Icons.Filled.MoreVert, null)
                             PlaylistDropdownMenu(
                                 context,
                                 playlist,
@@ -86,7 +112,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                                 context.symphony.radio.shorty.playQueue(playlist.songIds)
                             }
                         ) {
-                            Icon(Icons.Default.PlayArrow, null)
+                            Icon(Icons.Filled.PlayArrow, null)
                         }
                     }
                 }
@@ -148,7 +174,7 @@ fun PlaylistDropdownMenu(
     ) {
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.ShufflePlay)
@@ -163,7 +189,7 @@ fun PlaylistDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.PlayNext)
@@ -178,7 +204,7 @@ fun PlaylistDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistAdd, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
             },
             text = {
                 Text(context.symphony.t.AddToPlaylist)
@@ -191,7 +217,7 @@ fun PlaylistDropdownMenu(
         if (playlist.isNotLocal()) {
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Default.PlaylistAdd, null)
+                    Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
                 },
                 text = {
                     Text(context.symphony.t.ManageSongs)
@@ -204,7 +230,7 @@ fun PlaylistDropdownMenu(
         }
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.Info, null)
+                Icon(Icons.Filled.Info, null)
             },
             text = {
                 Text(context.symphony.t.Details)
@@ -217,7 +243,7 @@ fun PlaylistDropdownMenu(
         if (playlist.isNotLocal()) {
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Default.Save, null)
+                    Icon(Icons.Filled.Save, null)
                 },
                 text = {
                     Text(context.symphony.t.Export)
@@ -240,7 +266,7 @@ fun PlaylistDropdownMenu(
             )
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Default.Edit, null)
+                    Icon(Icons.Filled.Edit, null)
                 },
                 text = {
                     Text(context.symphony.t.Rename)
@@ -255,7 +281,7 @@ fun PlaylistDropdownMenu(
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(
-                        Icons.Default.DeleteForever,
+                        Icons.Filled.DeleteForever,
                         null,
                         tint = ThemeColors.Red,
                     )

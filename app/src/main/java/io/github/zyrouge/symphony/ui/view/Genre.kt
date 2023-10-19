@@ -1,15 +1,31 @@
 package io.github.zyrouge.symphony.ui.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.zyrouge.symphony.ui.components.*
+import io.github.zyrouge.symphony.ui.components.GenericSongListDropdown
+import io.github.zyrouge.symphony.ui.components.IconTextBody
+import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
+import io.github.zyrouge.symphony.ui.components.SongList
+import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +51,7 @@ fun GenreView(context: ViewContext, genreId: String) {
                     IconButton(
                         onClick = { context.navController.popBackStack() }
                     ) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 },
                 title = {
@@ -51,7 +67,7 @@ fun GenreView(context: ViewContext, genreId: String) {
                             showOptionsMenu = !showOptionsMenu
                         }
                     ) {
-                        Icon(Icons.Default.MoreVert, null)
+                        Icon(Icons.Filled.MoreVert, null)
                         GenericSongListDropdown(
                             context,
                             songIds = songIds,
@@ -90,7 +106,7 @@ private fun UnknownGenre(context: ViewContext, genre: String) {
     IconTextBody(
         icon = { modifier ->
             Icon(
-                Icons.Default.Tune,
+                Icons.Filled.Tune,
                 null,
                 modifier = modifier
             )

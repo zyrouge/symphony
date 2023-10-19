@@ -100,7 +100,7 @@ private fun OptInTile(
         ) {
             when {
                 value -> Icon(
-                    Icons.Default.Check,
+                    Icons.Filled.Check,
                     null,
                     tint = when {
                         enabled -> MaterialTheme.colorScheme.primary
@@ -110,7 +110,7 @@ private fun OptInTile(
                 )
 
                 else -> Icon(
-                    Icons.Default.Close,
+                    Icons.Filled.Close,
                     null,
                     tint = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.size(20.dp),

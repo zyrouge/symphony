@@ -2,14 +2,64 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.CenterFocusWeak
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Colorize
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.East
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.Forward30
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Headset
+import androidx.compose.material.icons.filled.HeadsetOff
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
+import androidx.compose.material.icons.filled.Recommend
+import androidx.compose.material.icons.filled.RuleFolder
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.TextFormat
+import androidx.compose.material.icons.filled.TextIncrease
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.twotone.Redeem
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +79,16 @@ import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.home.ForYou
-import io.github.zyrouge.symphony.ui.view.settings.*
+import io.github.zyrouge.symphony.ui.view.settings.SettingsFloatInputTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsLinkTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiFolderTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiOptionTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsOptionTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsSideHeading
+import io.github.zyrouge.symphony.ui.view.settings.SettingsSimpleTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsSliderTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsSwitchTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsTextInputTile
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -104,7 +163,7 @@ fun SettingsView(context: ViewContext) {
                             context.navController.popBackStack()
                         }
                     ) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 },
                 actions = {
@@ -146,7 +205,7 @@ fun SettingsView(context: ViewContext) {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
-                                Icons.Default.Favorite,
+                                Icons.Filled.Favorite,
                                 null,
                                 tint = contentColor,
                                 modifier = Modifier.size(12.dp),
@@ -166,7 +225,7 @@ fun SettingsView(context: ViewContext) {
                                 .padding(8.dp, 0.dp)
                         ) {
                             Icon(
-                                Icons.Default.East,
+                                Icons.Filled.East,
                                 null,
                                 tint = contentColor,
                                 modifier = Modifier.size(20.dp),
@@ -176,7 +235,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSideHeading(context.symphony.t.Appearance)
                     SettingsOptionTile(
                         icon = {
-                            Icon(Icons.Default.Language, null)
+                            Icon(Icons.Filled.Language, null)
                         },
                         title = {
                             Text(context.symphony.t.Language_)
@@ -202,7 +261,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsOptionTile(
                         icon = {
-                            Icon(Icons.Default.TextFormat, null)
+                            Icon(Icons.Filled.TextFormat, null)
                         },
                         title = {
                             Text(context.symphony.t.Font)
@@ -216,7 +275,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsFloatInputTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.TextIncrease, null)
+                            Icon(Icons.Filled.TextIncrease, null)
                         },
                         title = {
                             Text(context.symphony.t.FontScale)
@@ -236,7 +295,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsFloatInputTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.PhotoSizeSelectLarge, null)
+                            Icon(Icons.Filled.PhotoSizeSelectLarge, null)
                         },
                         title = {
                             Text(context.symphony.t.ContentScale)
@@ -255,7 +314,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsOptionTile(
                         icon = {
-                            Icon(Icons.Default.Palette, null)
+                            Icon(Icons.Filled.Palette, null)
                         },
                         title = {
                             Text(context.symphony.t.Theme)
@@ -274,7 +333,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Face, null)
+                            Icon(Icons.Filled.Face, null)
                         },
                         title = {
                             Text(context.symphony.t.MaterialYou)
@@ -286,13 +345,13 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsOptionTile(
                         icon = {
-                            Icon(Icons.Default.Colorize, null)
+                            Icon(Icons.Filled.Colorize, null)
                         },
                         title = {
                             Text(context.symphony.t.PrimaryColor)
                         },
                         value = ThemeColors.resolvePrimaryColorKey(primaryColor),
-                        values = PrimaryThemeColors.values().associateWith { it.toHumanString() },
+                        values = PrimaryThemeColors.entries.associateWith { it.toHumanString() },
                         onChange = { value ->
                             context.symphony.settings.setPrimaryColor(value.name)
                         }
@@ -302,7 +361,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsMultiOptionTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Home, null)
+                            Icon(Icons.Filled.Home, null)
                         },
                         title = {
                             Text(context.symphony.t.HomeTabs)
@@ -311,7 +370,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.SelectAtleast2orAtmost5Tabs)
                         },
                         value = homeTabs,
-                        values = HomePages.values().associateWith { it.label(context) },
+                        values = HomePages.entries.associateWith { it.label(context) },
                         satisfies = { it.size in 2..5 },
                         onChange = { value ->
                             context.symphony.settings.setHomeTabs(value)
@@ -320,26 +379,26 @@ fun SettingsView(context: ViewContext) {
                     SettingsMultiOptionTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Recommend, null)
+                            Icon(Icons.Filled.Recommend, null)
                         },
                         title = {
                             Text(context.symphony.t.ForYou)
                         },
                         value = forYouContents,
-                        values = ForYou.values().associateWith { it.label(context) },
+                        values = ForYou.entries.associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.setForYouContents(value)
                         }
                     )
                     SettingsOptionTile(
                         icon = {
-                            Icon(Icons.Default.Label, null)
+                            Icon(Icons.AutoMirrored.Filled.Label, null)
                         },
                         title = {
                             Text(context.symphony.t.BottomBarLabelVisibility)
                         },
                         value = homePageBottomBarLabelVisibility,
-                        values = HomePageBottomBarLabelVisibility.values()
+                        values = HomePageBottomBarLabelVisibility.entries
                             .associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.setHomePageBottomBarLabelVisibility(value)
@@ -349,7 +408,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSideHeading(context.symphony.t.Player)
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.GraphicEq, null)
+                            Icon(Icons.Filled.GraphicEq, null)
                         },
                         title = {
                             Text(context.symphony.t.FadePlaybackInOut)
@@ -362,7 +421,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSliderTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.GraphicEq, null)
+                            Icon(Icons.Filled.GraphicEq, null)
                         },
                         title = {
                             Text(context.symphony.t.FadePlaybackInOut)
@@ -386,7 +445,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.CenterFocusWeak, null)
+                            Icon(Icons.Filled.CenterFocusWeak, null)
                         },
                         title = {
                             Text(context.symphony.t.RequireAudioFocus)
@@ -398,7 +457,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.CenterFocusWeak, null)
+                            Icon(Icons.Filled.CenterFocusWeak, null)
                         },
                         title = {
                             Text(context.symphony.t.IgnoreAudioFocusLoss)
@@ -410,7 +469,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Headset, null)
+                            Icon(Icons.Filled.Headset, null)
                         },
                         title = {
                             Text(context.symphony.t.PlayOnHeadphonesConnect)
@@ -422,7 +481,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.HeadsetOff, null)
+                            Icon(Icons.Filled.HeadsetOff, null)
                         },
                         title = {
                             Text(context.symphony.t.PauseOnHeadphonesDisconnect)
@@ -436,7 +495,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSliderTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.FastRewind, null)
+                            Icon(Icons.Filled.FastRewind, null)
                         },
                         title = {
                             Text(context.symphony.t.FastRewindDuration)
@@ -461,7 +520,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSliderTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.FastForward, null)
+                            Icon(Icons.Filled.FastForward, null)
                         },
                         title = {
                             Text(context.symphony.t.FastForwardDuration)
@@ -487,7 +546,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSideHeading(context.symphony.t.MiniPlayer)
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.SkipNext, null)
+                            Icon(Icons.Filled.SkipNext, null)
                         },
                         title = {
                             Text(context.symphony.t.ShowTrackControls)
@@ -499,7 +558,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Forward30, null)
+                            Icon(Icons.Filled.Forward30, null)
                         },
                         title = {
                             Text(context.symphony.t.ShowSeekControls)
@@ -513,13 +572,13 @@ fun SettingsView(context: ViewContext) {
                     SettingsSideHeading(context.symphony.t.NowPlaying)
                     SettingsOptionTile(
                         icon = {
-                            Icon(Icons.Default.Dashboard, null)
+                            Icon(Icons.Filled.Dashboard, null)
                         },
                         title = {
                             Text(context.symphony.t.ControlsLayout)
                         },
                         value = nowPlayingControlsLayout,
-                        values = NowPlayingControlsLayout.values()
+                        values = NowPlayingControlsLayout.entries
                             .associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.setNowPlayingControlsLayout(value)
@@ -527,7 +586,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Wysiwyg, null)
+                            Icon(Icons.AutoMirrored.Filled.Wysiwyg, null)
                         },
                         title = {
                             Text(context.symphony.t.ShowAudioInformation)
@@ -539,7 +598,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Forward30, null)
+                            Icon(Icons.Filled.Forward30, null)
                         },
                         title = {
                             Text(context.symphony.t.ShowSeekControls)
@@ -555,7 +614,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsTextInputTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.FilterAlt, null)
+                            Icon(Icons.Filled.FilterAlt, null)
                         },
                         title = {
                             Text(context.symphony.t.SongsFilterPattern)
@@ -577,7 +636,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsMultiFolderTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.RuleFolder, null)
+                            Icon(Icons.Filled.RuleFolder, null)
                         },
                         title = {
                             Text(context.symphony.t.BlacklistFolders)
@@ -592,7 +651,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsMultiFolderTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.RuleFolder, null)
+                            Icon(Icons.Filled.RuleFolder, null)
                         },
                         title = {
                             Text(context.symphony.t.WhitelistFolders)
@@ -606,7 +665,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSimpleTile(
                         icon = {
-                            Icon(Icons.Default.Storage, null)
+                            Icon(Icons.Filled.Storage, null)
                         },
                         title = {
                             Text(context.symphony.t.ClearSongCache)
@@ -626,7 +685,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsSideHeading(context.symphony.t.Updates)
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Update, null)
+                            Icon(Icons.Filled.Update, null)
                         },
                         title = {
                             Text(context.symphony.t.CheckForUpdates)
@@ -638,7 +697,7 @@ fun SettingsView(context: ViewContext) {
                     )
                     SettingsSwitchTile(
                         icon = {
-                            Icon(Icons.Default.Update, null)
+                            Icon(Icons.Filled.Update, null)
                         },
                         title = {
                             Text(context.symphony.t.ShowUpdateToast)
@@ -653,7 +712,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.BugReport, null)
+                            Icon(Icons.Filled.BugReport, null)
                         },
                         title = {
                             Text(context.symphony.t.ReportAnIssue)
@@ -663,7 +722,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Forum, null)
+                            Icon(Icons.Filled.Forum, null)
                         },
                         title = {
                             Text(context.symphony.t.Discord)
@@ -673,7 +732,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Forum, null)
+                            Icon(Icons.Filled.Forum, null)
                         },
                         title = {
                             Text(context.symphony.t.Reddit)
@@ -687,7 +746,7 @@ fun SettingsView(context: ViewContext) {
                         ?: true
                     SettingsSimpleTile(
                         icon = {
-                            Icon(Icons.Default.MusicNote, null)
+                            Icon(Icons.Filled.MusicNote, null)
                         },
                         title = {
                             Text("${AppMeta.appName} ${AppMeta.version}")
@@ -713,7 +772,7 @@ fun SettingsView(context: ViewContext) {
                         context,
                         icon = {
                             Icon(
-                                Icons.Default.Favorite,
+                                Icons.Filled.Favorite,
                                 null,
                                 tint = Color.Red,
                             )
@@ -748,7 +807,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Code, null)
+                            Icon(Icons.Filled.Code, null)
                         },
                         title = {
                             Text(context.symphony.t.GitHub)
@@ -758,7 +817,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Store, null)
+                            Icon(Icons.Filled.Store, null)
                         },
                         title = {
                             Text(context.symphony.t.IzzyOnDroid)
@@ -768,7 +827,7 @@ fun SettingsView(context: ViewContext) {
                     SettingsLinkTile(
                         context,
                         icon = {
-                            Icon(Icons.Default.Store, null)
+                            Icon(Icons.Filled.Store, null)
                         },
                         title = {
                             Text(context.symphony.t.FDroid)

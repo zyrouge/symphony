@@ -39,7 +39,7 @@ fun NowPlayingAppBar(context: ViewContext) {
                 }
             ) {
                 Icon(
-                    Icons.Default.ExpandMore,
+                    Icons.Filled.ExpandMore,
                     null,
                     modifier = Modifier.size(32.dp)
                 )
@@ -69,7 +69,7 @@ fun NowPlayingLandscapeAppBar(context: ViewContext) {
             }
         ) {
             Icon(
-                Icons.Default.ExpandMore,
+                Icons.Filled.ExpandMore,
                 null,
                 modifier = Modifier.size(32.dp)
             )

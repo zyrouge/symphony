@@ -125,12 +125,12 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                     ) {
                         when {
                             isFavorite -> Icon(
-                                Icons.Default.Favorite,
+                                Icons.Filled.Favorite,
                                 null,
                                 tint = MaterialTheme.colorScheme.primary,
                             )
 
-                            else -> Icon(Icons.Default.FavoriteBorder, null)
+                            else -> Icon(Icons.Filled.FavoriteBorder, null)
                         }
                     }
 
@@ -140,7 +140,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                             showOptionsMenu = !showOptionsMenu
                         }
                     ) {
-                        Icon(Icons.Default.MoreVert, null)
+                        Icon(Icons.Filled.MoreVert, null)
                         SongDropdownMenu(
                             context,
                             song,
@@ -301,8 +301,8 @@ private fun NowPlayingPlayPauseButton(
         NowPlayingControlButton(
             style = style,
             icon = when {
-                !isPlaying -> Icons.Default.PlayArrow
-                else -> Icons.Default.Pause
+                !isPlaying -> Icons.Filled.PlayArrow
+                else -> Icons.Filled.Pause
             },
             onClick = {
                 context.symphony.radio.shorty.playPause()
@@ -320,7 +320,7 @@ private fun NowPlayingSkipPreviousButton(
     data.run {
         NowPlayingControlButton(
             style = style,
-            icon = Icons.Default.SkipPrevious,
+            icon = Icons.Filled.SkipPrevious,
             onClick = {
                 context.symphony.radio.shorty.previous()
             }
@@ -337,7 +337,7 @@ private fun NowPlayingSkipNextButton(
     data.run {
         NowPlayingControlButton(
             style = style,
-            icon = Icons.Default.SkipNext,
+            icon = Icons.Filled.SkipNext,
             onClick = {
                 context.symphony.radio.shorty.skip()
             }
@@ -354,7 +354,7 @@ private fun NowPlayingFastRewindButton(
     data.run {
         NowPlayingControlButton(
             style = style,
-            icon = Icons.Default.FastRewind,
+            icon = Icons.Filled.FastRewind,
             onClick = {
                 context.symphony.radio.shorty
                     .seekFromCurrent(-seekBackDuration)
@@ -372,7 +372,7 @@ private fun NowPlayingFastForwardButton(
     data.run {
         NowPlayingControlButton(
             style = style,
-            icon = Icons.Default.FastForward,
+            icon = Icons.Filled.FastForward,
             onClick = {
                 context.symphony.radio.shorty
                     .seekFromCurrent(seekForwardDuration)

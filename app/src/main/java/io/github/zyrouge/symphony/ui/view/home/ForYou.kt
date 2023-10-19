@@ -2,7 +2,20 @@ package io.github.zyrouge.symphony.ui.view.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,8 +24,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,7 +48,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.*
+import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -98,7 +123,7 @@ fun ForYouView(context: ViewContext) {
                 Row(modifier = Modifier.padding(20.dp, 0.dp)) {
                     Box(modifier = Modifier.weight(1f)) {
                         ForYouButton(
-                            icon = Icons.Default.PlayArrow,
+                            icon = Icons.Filled.PlayArrow,
                             text = {
                                 Text(context.symphony.t.PlayAll)
                             },
@@ -111,7 +136,7 @@ fun ForYouView(context: ViewContext) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(modifier = Modifier.weight(1f)) {
                         ForYouButton(
-                            icon = Icons.Default.Shuffle,
+                            icon = Icons.Filled.Shuffle,
                             text = {
                                 Text(context.symphony.t.ShufflePlay)
                             },
@@ -203,7 +228,7 @@ fun ForYouView(context: ViewContext) {
                                                             .padding(1.dp)
                                                     ) {
                                                         Icon(
-                                                            Icons.Default.PlayArrow,
+                                                            Icons.Filled.PlayArrow,
                                                             null,
                                                             modifier = Modifier.size(20.dp),
                                                         )
@@ -269,7 +294,7 @@ fun ForYouView(context: ViewContext) {
         else -> IconTextBody(
             icon = { modifier ->
                 Icon(
-                    Icons.Default.MusicNote,
+                    Icons.Filled.MusicNote,
                     null,
                     modifier = modifier,
                 )

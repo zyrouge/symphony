@@ -5,7 +5,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -34,7 +38,7 @@ fun ArtistGrid(
                     context.symphony.settings.setLastUsedArtistsSortReverse(it)
                 },
                 sort = sortBy,
-                sorts = ArtistSortBy.values()
+                sorts = ArtistSortBy.entries
                     .associateWith { x -> contextWrapped { x.label(it) } },
                 onSortChange = {
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
@@ -49,13 +53,14 @@ fun ArtistGrid(
                 artistIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
-                            Icons.Default.Person,
+                            Icons.Filled.Person,
                             null,
                             modifier = modifier,
                         )
                     },
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
+
                 else -> ResponsiveGrid {
                     itemsIndexed(
                         sortedArtistIds,

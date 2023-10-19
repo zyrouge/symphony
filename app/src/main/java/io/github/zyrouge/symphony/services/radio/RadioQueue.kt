@@ -9,7 +9,7 @@ enum class RadioLoopMode {
     Song;
 
     companion object {
-        val all = values()
+        val all = entries.toTypedArray()
     }
 }
 

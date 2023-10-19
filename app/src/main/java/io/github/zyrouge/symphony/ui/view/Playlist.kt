@@ -1,13 +1,35 @@
 package io.github.zyrouge.symphony.ui.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.zyrouge.symphony.ui.components.*
+import io.github.zyrouge.symphony.ui.components.IconTextBody
+import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
+import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
+import io.github.zyrouge.symphony.ui.components.SongList
+import io.github.zyrouge.symphony.ui.components.SongListType
+import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.mutate
@@ -49,7 +71,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                     IconButton(
                         onClick = { context.navController.popBackStack() }
                     ) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 },
                 title = {
@@ -67,7 +89,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                                 showOptionsMenu = true
                             }
                         ) {
-                            Icon(Icons.Default.MoreVert, null)
+                            Icon(Icons.Filled.MoreVert, null)
                             PlaylistDropdownMenu(
                                 context,
                                 playlist!!,
@@ -110,7 +132,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                                 DropdownMenuItem(
                                     leadingIcon = {
                                         Icon(
-                                            Icons.Default.DeleteForever,
+                                            Icons.Filled.DeleteForever,
                                             null,
                                             tint = ThemeColors.Red,
                                         )
@@ -149,7 +171,7 @@ private fun UnknownPlaylist(context: ViewContext, playlistId: String) {
     IconTextBody(
         icon = { modifier ->
             Icon(
-                Icons.Default.QueueMusic,
+                Icons.AutoMirrored.Filled.QueueMusic,
                 null,
                 modifier = modifier
             )

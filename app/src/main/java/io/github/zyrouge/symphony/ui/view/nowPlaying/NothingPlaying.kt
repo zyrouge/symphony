@@ -37,7 +37,7 @@ fun NothingPlayingBody(context: ViewContext) {
     IconTextBody(
         icon = { modifier ->
             Icon(
-                Icons.Default.Headphones,
+                Icons.Filled.Headphones,
                 null,
                 modifier = modifier
             )

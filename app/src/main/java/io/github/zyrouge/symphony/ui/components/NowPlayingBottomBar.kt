@@ -1,19 +1,57 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -166,7 +204,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             IconButton(
                                 onClick = { context.symphony.radio.shorty.previous() }
                             ) {
-                                Icon(Icons.Default.SkipPrevious, null)
+                                Icon(Icons.Filled.SkipPrevious, null)
                             }
                         }
                         if (showSeekControls) {
@@ -175,7 +213,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                                     context.symphony.radio.shorty.seekFromCurrent(-seekBackDuration)
                                 }
                             ) {
-                                Icon(Icons.Default.FastRewind, null)
+                                Icon(Icons.Filled.FastRewind, null)
                             }
                         }
                         IconButton(
@@ -183,8 +221,8 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         ) {
                             Icon(
                                 when {
-                                    !isPlaying -> Icons.Default.PlayArrow
-                                    else -> Icons.Default.Pause
+                                    !isPlaying -> Icons.Filled.PlayArrow
+                                    else -> Icons.Filled.Pause
                                 },
                                 null
                             )
@@ -197,14 +235,14 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                                     )
                                 }
                             ) {
-                                Icon(Icons.Default.FastForward, null)
+                                Icon(Icons.Filled.FastForward, null)
                             }
                         }
                         if (showTrackControls) {
                             IconButton(
                                 onClick = { context.symphony.radio.shorty.skip() }
                             ) {
-                                Icon(Icons.Default.SkipNext, null)
+                                Icon(Icons.Filled.SkipNext, null)
                             }
                         }
                         Spacer(modifier = Modifier.width(8.dp))

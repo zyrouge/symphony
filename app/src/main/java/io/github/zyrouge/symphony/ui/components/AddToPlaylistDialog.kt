@@ -60,7 +60,7 @@ fun AddToPlaylistDialog(
                             imageLabel = when {
                                 songIds.size == 1 && playlist.songIds.contains(songIds[0]) -> ({
                                     Icon(
-                                        Icons.Default.Check,
+                                        Icons.Filled.Check,
                                         null,
                                         modifier = Modifier.size(12.dp),
                                     )

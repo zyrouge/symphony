@@ -1,14 +1,42 @@
 package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PriorityHigh
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -19,11 +47,22 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.*
-import io.github.zyrouge.symphony.ui.components.*
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.ui.components.AlbumArtistDropdownMenu
+import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
+import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
+import io.github.zyrouge.symphony.ui.components.GenericGrooveCard
+import io.github.zyrouge.symphony.ui.components.IconTextBody
+import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
+import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
+import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private data class SearchResult(
     val songIds: List<Long>,
@@ -154,7 +193,7 @@ fun SearchView(context: ViewContext) {
                                 context.navController.popBackStack()
                             }
                         ) {
-                            Icon(Icons.Default.ArrowBack, null)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                         }
                     },
                     trailingIcon = {
@@ -162,7 +201,7 @@ fun SearchView(context: ViewContext) {
                             IconButton(
                                 onClick = { setTerms("") }
                             ) {
-                                Icon(Icons.Default.Close, null)
+                                Icon(Icons.Filled.Close, null)
                             }
                         }
                     }
@@ -183,7 +222,7 @@ fun SearchView(context: ViewContext) {
                             setTerms(terms)
                         }
                     )
-                    GrooveKinds.values().map {
+                    GrooveKinds.entries.map {
                         FilterChip(
                             selected = selectedChip == it,
                             label = {
@@ -225,7 +264,7 @@ fun SearchView(context: ViewContext) {
                                     IconTextBody(
                                         icon = { modifier ->
                                             Icon(
-                                                Icons.Default.Search,
+                                                Icons.Filled.Search,
                                                 null,
                                                 modifier = modifier
                                             )
@@ -242,7 +281,7 @@ fun SearchView(context: ViewContext) {
                                     IconTextBody(
                                         icon = { modifier ->
                                             Icon(
-                                                Icons.Default.PriorityHigh,
+                                                Icons.Filled.PriorityHigh,
                                                 null,
                                                 modifier = modifier
                                             )

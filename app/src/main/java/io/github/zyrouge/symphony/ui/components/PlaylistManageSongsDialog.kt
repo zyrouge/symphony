@@ -68,7 +68,7 @@ fun PlaylistManageSongsDialog(
                     },
             ) {
                 Icon(
-                    Icons.Default.Close,
+                    Icons.Filled.Close,
                     null,
                     modifier = Modifier.padding(8.dp)
                 )
@@ -84,7 +84,7 @@ fun PlaylistManageSongsDialog(
                     },
             ) {
                 Icon(
-                    Icons.Default.Done,
+                    Icons.Filled.Done,
                     null,
                     modifier = Modifier.padding(8.dp)
                 )
@@ -129,7 +129,7 @@ fun PlaylistManageSongsDialog(
                                         thumbnailLabel = when {
                                             nSelectedSongIds.contains(song.id) -> ({
                                                 Icon(
-                                                    Icons.Default.Check,
+                                                    Icons.Filled.Check,
                                                     null,
                                                     modifier = Modifier.size(12.dp),
                                                 )

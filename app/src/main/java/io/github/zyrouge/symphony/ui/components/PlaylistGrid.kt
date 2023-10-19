@@ -3,10 +3,13 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -38,7 +41,7 @@ fun PlaylistGrid(
                         context.symphony.settings.setLastUsedPlaylistsSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = PlaylistSortBy.values()
+                    sorts = PlaylistSortBy.entries
                         .associateWith { x -> contextWrapped { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedPlaylistsSortBy(it)
@@ -58,7 +61,7 @@ fun PlaylistGrid(
                 playlistIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
-                            Icons.Default.QueueMusic,
+                            Icons.Filled.QueueMusic,
                             null,
                             modifier = modifier,
                         )
@@ -67,6 +70,7 @@ fun PlaylistGrid(
                         Text(context.symphony.t.DamnThisIsSoEmpty)
                     }
                 )
+
                 else -> ResponsiveGrid {
                     itemsIndexed(
                         sortedPlaylistIds,

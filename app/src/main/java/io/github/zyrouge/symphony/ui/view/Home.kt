@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Face
@@ -17,7 +19,6 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.MusicNote
-import androidx.compose.material.icons.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.SupervisorAccount
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -119,8 +119,8 @@ enum class HomePages(
     ),
     Playlists(
         label = { it.symphony.t.Playlists },
-        selectedIcon = { Icons.Filled.QueueMusic },
-        unselectedIcon = { Icons.Outlined.QueueMusic }
+        selectedIcon = { Icons.AutoMirrored.Filled.QueueMusic },
+        unselectedIcon = { Icons.AutoMirrored.Outlined.QueueMusic }
     ),
     Tree(
         label = { it.symphony.t.Tree },
@@ -155,7 +155,7 @@ fun HomeView(context: ViewContext) {
                 navigationIcon = {
                     IconButton(
                         content = {
-                            Icon(Icons.Default.Search, null)
+                            Icon(Icons.Filled.Search, null)
                         },
                         onClick = {
                             context.navController.navigate(Routes.Search)
@@ -178,7 +178,7 @@ fun HomeView(context: ViewContext) {
                 actions = {
                     IconButton(
                         content = {
-                            Icon(Icons.Default.MoreVert, null)
+                            Icon(Icons.Filled.MoreVert, null)
                             DropdownMenu(
                                 expanded = showOptionsDropdown,
                                 onDismissRequest = { showOptionsDropdown = false },
@@ -186,7 +186,7 @@ fun HomeView(context: ViewContext) {
                                 DropdownMenuItem(
                                     leadingIcon = {
                                         Icon(
-                                            Icons.Default.Refresh,
+                                            Icons.Filled.Refresh,
                                             context.symphony.t.Rescan,
                                         )
                                     },
@@ -203,7 +203,7 @@ fun HomeView(context: ViewContext) {
                                 DropdownMenuItem(
                                     leadingIcon = {
                                         Icon(
-                                            Icons.Default.Settings,
+                                            Icons.Filled.Settings,
                                             context.symphony.t.Settings,
                                         )
                                     },

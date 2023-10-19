@@ -3,16 +3,51 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.ArrowCircleUp
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,7 +55,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.*
+import io.github.zyrouge.symphony.services.groove.GrooveExplorer
+import io.github.zyrouge.symphony.services.groove.PathSortBy
+import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -90,7 +127,7 @@ fun SongTreeList(
                 songIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
-                            Icons.Default.MusicNote,
+                            Icons.Filled.MusicNote,
                             null,
                             modifier = modifier,
                         )
@@ -157,8 +194,8 @@ fun SongTreeListContent(
                             )
                     ) {
                         Icon(
-                            if (show) Icons.Default.ExpandMore
-                            else Icons.Default.ChevronRight,
+                            if (show) Icons.Filled.ExpandMore
+                            else Icons.Filled.ChevronRight,
                             null,
                             modifier = Modifier.size(20.dp),
                         )
@@ -170,7 +207,7 @@ fun SongTreeListContent(
                         SongTreeListSongCardIconButton(
                             icon = { modifier ->
                                 Icon(
-                                    Icons.Default.MoreVert,
+                                    Icons.Filled.MoreVert,
                                     null,
                                     modifier = modifier,
                                 )
@@ -246,7 +283,7 @@ fun SongTreeListContent(
                                     SongTreeListSongCardIconButton(
                                         icon = { modifier ->
                                             Icon(
-                                                Icons.Default.Favorite,
+                                                Icons.Filled.Favorite,
                                                 null,
                                                 modifier = modifier,
                                                 tint = MaterialTheme.colorScheme.primary,
@@ -263,7 +300,7 @@ fun SongTreeListContent(
                                 SongTreeListSongCardIconButton(
                                     icon = { modifier ->
                                         Icon(
-                                            Icons.Default.MoreVert,
+                                            Icons.Filled.MoreVert,
                                             null,
                                             modifier = modifier,
                                         )
@@ -352,8 +389,8 @@ private fun SongTreeListMediaSortBar(
                     modifier = Modifier.padding(end = 2.dp),
                 ) {
                     Icon(
-                        if (pathsSortReverse) Icons.Default.ArrowDownward
-                        else Icons.Default.ArrowUpward,
+                        if (pathsSortReverse) Icons.Filled.ArrowDownward
+                        else Icons.Filled.ArrowUpward,
                         null,
                         modifier = Modifier.size(12.dp),
                     )
@@ -364,8 +401,8 @@ private fun SongTreeListMediaSortBar(
                             .padding(4.dp, 0.dp)
                     )
                     Icon(
-                        if (songsSortReverse) Icons.Default.ArrowDownward
-                        else Icons.Default.ArrowUpward,
+                        if (songsSortReverse) Icons.Filled.ArrowDownward
+                        else Icons.Filled.ArrowUpward,
                         null,
                         modifier = Modifier.size(12.dp),
                     )
@@ -385,7 +422,7 @@ private fun SongTreeListMediaSortBar(
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
-                        PathSortBy.values().forEach { sortBy ->
+                        PathSortBy.entries.forEach { sortBy ->
                             SongTreeListMediaSortBarDropdownMenuItem(
                                 selected = pathsSortBy == sortBy,
                                 reversed = pathsSortReverse,
@@ -405,7 +442,7 @@ private fun SongTreeListMediaSortBar(
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
-                        SongSortBy.values().forEach { sortBy ->
+                        SongSortBy.entries.forEach { sortBy ->
                             SongTreeListMediaSortBarDropdownMenuItem(
                                 selected = songsSortBy == sortBy,
                                 reversed = songsSortReverse,
@@ -450,8 +487,8 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
                 selected -> IconButton(
                     content = {
                         Icon(
-                            if (reversed) Icons.Default.ArrowCircleDown
-                            else Icons.Default.ArrowCircleUp,
+                            if (reversed) Icons.Filled.ArrowCircleDown
+                            else Icons.Filled.ArrowCircleUp,
                             null,
                             tint = MaterialTheme.colorScheme.primary,
                         )

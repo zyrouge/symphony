@@ -2,7 +2,13 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -10,8 +16,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -60,7 +79,7 @@ fun QueueView(context: ViewContext) {
                         }
                     ) {
                         Icon(
-                            Icons.Default.ExpandMore,
+                            Icons.Filled.ExpandMore,
                             null,
                             modifier = Modifier.size(32.dp)
                         )
@@ -74,7 +93,7 @@ fun QueueView(context: ViewContext) {
                                 selectedSongIndices.clear()
                             }
                         ) {
-                            Icon(Icons.Default.Delete, null)
+                            Icon(Icons.Filled.Delete, null)
                         }
 
                         else -> IconButtonPlaceholder()
@@ -85,7 +104,7 @@ fun QueueView(context: ViewContext) {
                             context.symphony.radio.stop()
                         }
                     ) {
-                        Icon(Icons.Default.ClearAll, null)
+                        Icon(Icons.Filled.ClearAll, null)
                     }
                 }
             )

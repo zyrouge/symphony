@@ -1,11 +1,19 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.PlaylistPlay
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.zyrouge.symphony.services.groove.Album
@@ -68,7 +76,7 @@ fun AlbumDropdownMenu(
     ) {
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.ShufflePlay)
@@ -83,7 +91,7 @@ fun AlbumDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.PlayNext)
@@ -98,7 +106,7 @@ fun AlbumDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.AddToQueue)
@@ -112,7 +120,7 @@ fun AlbumDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistAdd, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
             },
             text = {
                 Text(context.symphony.t.AddToPlaylist)
@@ -125,7 +133,7 @@ fun AlbumDropdownMenu(
         album.artist?.let { artistName ->
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Default.Person, null)
+                    Icon(Icons.Filled.Person, null)
                 },
                 text = {
                     Text(context.symphony.t.ViewArtist)

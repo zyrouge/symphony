@@ -3,12 +3,43 @@ package io.github.zyrouge.symphony.ui.components
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -122,7 +153,7 @@ fun SongCard(
                             }
                         ) {
                             Icon(
-                                Icons.Default.Favorite,
+                                Icons.Filled.Favorite,
                                 null,
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.primary,
@@ -135,7 +166,7 @@ fun SongCard(
                         onClick = { showOptionsMenu = !showOptionsMenu }
                     ) {
                         Icon(
-                            Icons.Default.MoreVert,
+                            Icons.Filled.MoreVert,
                             null,
                             modifier = Modifier.size(24.dp),
                         )
@@ -174,7 +205,7 @@ fun SongDropdownMenu(
     ) {
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.Favorite, null)
+                Icon(Icons.Filled.Favorite, null)
             },
             text = {
                 Text(
@@ -194,7 +225,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.PlayNext)
@@ -209,7 +240,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistPlay, null)
+                Icon(Icons.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.AddToQueue)
@@ -221,7 +252,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.PlaylistAdd, null)
+                Icon(Icons.Filled.PlaylistAdd, null)
             },
             text = {
                 Text(context.symphony.t.AddToPlaylist)
@@ -234,7 +265,7 @@ fun SongDropdownMenu(
         song.artistName?.let { artistName ->
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Default.Person, null)
+                    Icon(Icons.Filled.Person, null)
                 },
                 text = {
                     Text(context.symphony.t.ViewArtist)
@@ -250,7 +281,7 @@ fun SongDropdownMenu(
         song.additional.albumArtist?.let { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Default.Person, null)
+                    Icon(Icons.Filled.Person, null)
                 },
                 text = {
                     Text(context.symphony.t.ViewAlbumArtist)
@@ -265,7 +296,7 @@ fun SongDropdownMenu(
         }
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.Album, null)
+                Icon(Icons.Filled.Album, null)
             },
             text = {
                 Text(context.symphony.t.ViewAlbum)
@@ -279,7 +310,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.Share, null)
+                Icon(Icons.Filled.Share, null)
             },
             text = {
                 Text(context.symphony.t.ShareSong)
@@ -305,7 +336,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Default.Info, null)
+                Icon(Icons.Filled.Info, null)
             },
             text = {
                 Text(context.symphony.t.Details)

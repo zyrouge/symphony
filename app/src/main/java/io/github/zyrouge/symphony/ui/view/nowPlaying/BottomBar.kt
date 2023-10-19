@@ -16,8 +16,6 @@ import androidx.compose.material.icons.filled.MotionPhotosPaused
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Timer
@@ -88,7 +86,7 @@ fun NowPlayingBodyBottomBar(
                 }
             ) {
                 Icon(
-                    Icons.Default.Sort,
+                    Icons.AutoMirrored.Filled.Sort,
                     null,
                     modifier = Modifier.size(20.dp),
                 )
@@ -113,7 +111,7 @@ fun NowPlayingBodyBottomBar(
                     }
                 ) {
                     Icon(
-                        Icons.Outlined.Article,
+                        Icons.AutoMirrored.Outlined.Article,
                         null,
                         tint = when {
                             showLyrics -> MaterialTheme.colorScheme.primary
@@ -129,8 +127,8 @@ fun NowPlayingBodyBottomBar(
             ) {
                 Icon(
                     when (currentLoopMode) {
-                        RadioLoopMode.Song -> Icons.Default.RepeatOne
-                        else -> Icons.Default.Repeat
+                        RadioLoopMode.Song -> Icons.Filled.RepeatOne
+                        else -> Icons.Filled.Repeat
                     },
                     null,
                     tint = when (currentLoopMode) {
@@ -145,7 +143,7 @@ fun NowPlayingBodyBottomBar(
                 }
             ) {
                 Icon(
-                    Icons.Default.Shuffle,
+                    Icons.Filled.Shuffle,
                     null,
                     tint = if (!currentShuffleMode) LocalContentColor.current
                     else MaterialTheme.colorScheme.primary
@@ -235,7 +233,7 @@ fun NowPlayingBodyBottomBar(
                 ) {
                     ListItem(
                         leadingContent = {
-                            Icon(Icons.Default.GraphicEq, null)
+                            Icon(Icons.Filled.GraphicEq, null)
                         },
                         headlineContent = {
                             Text(context.symphony.t.Equalizer)
@@ -251,7 +249,7 @@ fun NowPlayingBodyBottomBar(
                     ListItem(
                         leadingContent = {
                             Icon(
-                                Icons.Default.MotionPhotosPaused,
+                                Icons.Filled.MotionPhotosPaused,
                                 null,
                                 tint = when {
                                     pauseOnCurrentSongEnd -> MaterialTheme.colorScheme.primary
