@@ -1,6 +1,8 @@
 package io.github.zyrouge.symphony.services.groove
 
+import android.net.Uri
 import android.provider.MediaStore
+import androidx.activity.result.contract.ActivityResultContracts
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.SongCache
 import io.github.zyrouge.symphony.utils.Logger
@@ -28,7 +30,8 @@ class MediaStoreExposer(private val symphony: Symphony) {
                 null,
                 MediaStore.Audio.Media.IS_MUSIC + " != 0",
                 null,
-                MediaStore.Audio.Media.TITLE + " ASC"
+                null,
+//                MediaStore.Audio.Media.TITLE + " ASC"
             )
             cursor?.use {
                 val blacklisted = symphony.settings.blacklistFolders.value.toSortedSet()
@@ -42,9 +45,11 @@ class MediaStoreExposer(private val symphony: Symphony) {
                 val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
 
                 while (it.moveToNext()) {
+//                    Log.i("SymLog", "cursor!")
                     kotlin
                         .runCatching {
                             Song.fromCursor(symphony, it) { id ->
+//                                Log.i("SymLog", "${id}")
                                 additionalMetadataCache?.get(id)
                             }
                         }

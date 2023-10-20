@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,7 +62,7 @@ fun PlaylistGrid(
                 playlistIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
-                            Icons.Filled.QueueMusic,
+                            Icons.AutoMirrored.Filled.QueueMusic,
                             null,
                             modifier = modifier,
                         )

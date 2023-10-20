@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
@@ -225,7 +227,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Filled.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.PlayNext)
@@ -240,7 +242,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Filled.PlaylistPlay, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
             },
             text = {
                 Text(context.symphony.t.AddToQueue)
@@ -252,7 +254,7 @@ fun SongDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
-                Icon(Icons.Filled.PlaylistAdd, null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
             },
             text = {
                 Text(context.symphony.t.AddToPlaylist)
