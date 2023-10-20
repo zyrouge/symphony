@@ -7,12 +7,13 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.services.parsers.M3UEntry
+import io.github.zyrouge.symphony.utils.CursorShorty
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.RapidMutableStateList
 import io.github.zyrouge.symphony.utils.asList
-import io.github.zyrouge.symphony.utils.getColumnValue
+import io.github.zyrouge.symphony.utils.getColumnIndices
 import io.github.zyrouge.symphony.utils.mutate
 import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -223,13 +224,10 @@ class PlaylistRepository(private val symphony: Symphony) {
             arrayOf(M3U.mimeType),
             null,
         )?.use { cursor ->
+            val shorty = CursorShorty(cursor, cursor.getColumnIndices(projectedColumns))
             while (cursor.moveToNext()) {
-                val id = cursor.getColumnValue(MediaStore.Files.FileColumns._ID) {
-                    cursor.getLong(it)
-                }
-                val path = cursor.getColumnValue(MediaStore.Files.FileColumns.DATA) {
-                    cursor.getString(it)
-                }
+                val id = shorty.getLong(MediaStore.Files.FileColumns._ID)
+                val path = shorty.getString(MediaStore.Files.FileColumns.DATA)
                 if (!cache.containsKey(path)) {
                     playlists[path] = Playlist.LocalExtended(
                         id = id,
@@ -283,6 +281,11 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     companion object {
         private const val FILES_EXTERNAL_VOLUME = "external"
+
+        val projectedColumns = listOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DATA
+        )
 
         fun generatePlaylistId() = UUID.randomUUID().toString()
 

@@ -1,11 +1,12 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.net.Uri
 import android.provider.MediaStore
-import androidx.activity.result.contract.ActivityResultContracts
+import android.provider.MediaStore.Audio.AudioColumns
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.SongCache
+import io.github.zyrouge.symphony.utils.CursorShorty
 import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.utils.getColumnIndices
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
@@ -27,13 +28,14 @@ class MediaStoreExposer(private val symphony: Symphony) {
         try {
             val cursor = symphony.applicationContext.contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projectedColumns.toTypedArray(),
+                MediaStore.Audio.Media.IS_MUSIC + " = 1",
                 null,
-                MediaStore.Audio.Media.IS_MUSIC + " != 0",
-                null,
-                null,
-//                MediaStore.Audio.Media.TITLE + " ASC"
+                null
             )
             cursor?.use {
+                val shorty = CursorShorty(it, it.getColumnIndices(projectedColumns))
+
                 val blacklisted = symphony.settings.blacklistFolders.value.toSortedSet()
                 val whitelisted = symphony.settings.whitelistFolders.value.toSortedSet()
                 val regex = symphony.settings.songsFilterPattern.value
@@ -45,31 +47,33 @@ class MediaStoreExposer(private val symphony: Symphony) {
                 val nAdditionalMetadata = mutableMapOf<Long, SongCache.Attributes>()
 
                 while (it.moveToNext()) {
-//                    Log.i("SymLog", "cursor!")
+                    val path = shorty.getString(AudioColumns.DATA)
+                    explorer.addRelativePath(GrooveExplorer.Path(path))
+                    
+                    val isWhitelisted = true
+                        .takeIf { regex?.containsMatchIn(path) ?: true }
+                        .takeIf {
+                            blacklisted
+                                .find { x -> path.startsWith(x) }
+                                ?.let { match ->
+                                    whitelisted.any { x ->
+                                        x.startsWith(match) && path.startsWith(x)
+                                    }
+                                } ?: true
+                        } ?: false
+                    if (!isWhitelisted) {
+                        continue
+                    }
+
                     kotlin
                         .runCatching {
-                            Song.fromCursor(symphony, it) { id ->
-//                                Log.i("SymLog", "${id}")
+                            Song.fromCursor(symphony, shorty) { id ->
                                 additionalMetadataCache?.get(id)
                             }
                         }
                         .getOrNull()
                         ?.also { song ->
-                            explorer.addRelativePath(GrooveExplorer.Path(song.path))
                             cache[song.id] = song
-                        }
-                        ?.takeIf { song -> regex?.containsMatchIn(song.path) != false }
-                        ?.takeIf { song ->
-                            blacklisted
-                                .find { x -> song.path.startsWith(x) }
-                                ?.let { match ->
-                                    whitelisted.any { x ->
-                                        x.startsWith(match) && song.path.startsWith(x)
-                                    }
-                                }
-                                ?: true
-                        }
-                        ?.also { song ->
                             nAdditionalMetadata[song.id] = SongCache.Attributes.fromSong(song)
                             emitSong(song)
                         }
@@ -108,6 +112,43 @@ class MediaStoreExposer(private val symphony: Symphony) {
     }
 
     companion object {
+        val projectedColumns = listOf(
+            AudioColumns._ID,
+            AudioColumns.DATE_MODIFIED,
+            AudioColumns.TITLE,
+            AudioColumns.TRACK,
+            AudioColumns.YEAR,
+            AudioColumns.DURATION,
+            AudioColumns.ALBUM_ID,
+            AudioColumns.ALBUM,
+            AudioColumns.ARTIST_ID,
+            AudioColumns.ARTIST,
+            AudioColumns.COMPOSER,
+            AudioColumns.DATE_ADDED,
+            AudioColumns.SIZE,
+            AudioColumns.DATA
+        )
+
         fun createExplorer() = GrooveExplorer.Folder("root")
+
+        fun isWhitelisted(
+            path: String,
+            regex: Regex?,
+            blacklisted: List<String>,
+            whitelisted: List<String>,
+        ): Boolean {
+            regex?.let {
+                if (!it.containsMatchIn(path)) {
+                    return false
+                }
+            }
+            return blacklisted
+                .find { x -> path.startsWith(x) }
+                ?.let { match ->
+                    whitelisted.any { x ->
+                        x.startsWith(match) && path.startsWith(x)
+                    }
+                } ?: true
+        }
     }
 }

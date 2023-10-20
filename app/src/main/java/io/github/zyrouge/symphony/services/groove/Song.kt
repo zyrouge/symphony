@@ -1,18 +1,14 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.database.Cursor
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AudioColumns
 import androidx.compose.runtime.Immutable
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getStringOrNull
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.SongCache
-import io.github.zyrouge.symphony.utils.getColumnValue
-import io.github.zyrouge.symphony.utils.getColumnValueNullable
+import io.github.zyrouge.symphony.utils.CursorShorty
 import java.math.RoundingMode
 import kotlin.io.path.Path
 
@@ -133,54 +129,26 @@ data class Song(
 
         fun fromCursor(
             symphony: Symphony,
-            cursor: Cursor,
+            shorty: CursorShorty,
             fetchCachedAttributes: (Long) -> SongCache.Attributes?,
         ): Song {
-            val id = cursor.getColumnValue(AudioColumns._ID) {
-                cursor.getLong(it)
-            }
-            val dateModified = cursor.getColumnValue(AudioColumns.DATE_MODIFIED) {
-                cursor.getLong(it)
-            }
+            val id = shorty.getLong(AudioColumns._ID)
+            val dateModified = shorty.getLong(AudioColumns.DATE_MODIFIED)
             return Song(
                 id = id,
-                title = cursor.getColumnValue(AudioColumns.TITLE) {
-                    cursor.getString(it)
-                },
-                trackNumber = cursor.getColumnValueNullable(AudioColumns.TRACK) {
-                    cursor.getIntOrNull(it)
-                },
-                year = cursor.getColumnValueNullable(AudioColumns.YEAR) {
-                    cursor.getIntOrNull(it)
-                },
-                duration = cursor.getColumnValue(AudioColumns.DURATION) {
-                    cursor.getLong(it)
-                },
-                albumId = cursor.getColumnValue(AudioColumns.ALBUM_ID) {
-                    cursor.getLong(it)
-                },
-                albumName = cursor.getColumnValueNullable(AudioColumns.ALBUM) {
-                    cursor.getStringOrNull(it)
-                },
-                artistId = cursor.getColumnValue(AudioColumns.ARTIST_ID) {
-                    cursor.getLong(it)
-                },
-                artistName = cursor.getColumnValueNullable(AudioColumns.ARTIST) {
-                    cursor.getStringOrNull(it)
-                },
-                composer = cursor.getColumnValueNullable(AudioColumns.COMPOSER) {
-                    cursor.getStringOrNull(it)
-                },
-                dateAdded = cursor.getColumnValue(AudioColumns.DATE_ADDED) {
-                    cursor.getLong(it)
-                },
+                title = shorty.getString(AudioColumns.TITLE),
+                trackNumber = shorty.getIntNullable(AudioColumns.TRACK),
+                year = shorty.getIntNullable(AudioColumns.YEAR),
+                duration = shorty.getLong(AudioColumns.DURATION),
+                albumId = shorty.getLong(AudioColumns.ALBUM_ID),
+                albumName = shorty.getStringNullable(AudioColumns.ALBUM),
+                artistId = shorty.getLong(AudioColumns.ARTIST_ID),
+                artistName = shorty.getStringNullable(AudioColumns.ARTIST),
+                composer = shorty.getStringNullable(AudioColumns.COMPOSER),
+                dateAdded = shorty.getLong(AudioColumns.DATE_ADDED),
                 dateModified = dateModified,
-                size = cursor.getColumnValue(AudioColumns.SIZE) {
-                    cursor.getLong(it)
-                },
-                path = cursor.getColumnValue(AudioColumns.DATA) {
-                    cursor.getString(it)
-                },
+                size = shorty.getLong(AudioColumns.SIZE),
+                path = shorty.getString(AudioColumns.DATA),
                 additional = fetchCachedAttributes(id)
                     ?.takeIf { it.lastModified == dateModified }
                     ?.runCatching { AdditionalMetadata.fromSongCacheAttributes(this) }
