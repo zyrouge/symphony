@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.services.radio
 
-import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,8 +14,6 @@ class RadioNativeReceiver(private val symphony: Symphony) : BroadcastReceiver() 
             IntentFilter().apply {
                 addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
                 addAction(Intent.ACTION_HEADSET_PLUG)
-                addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
-                addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
             }
         )
     }
@@ -39,8 +36,6 @@ class RadioNativeReceiver(private val symphony: Symphony) : BroadcastReceiver() 
                 }
 
                 AudioManager.ACTION_AUDIO_BECOMING_NOISY -> onHeadphonesDisconnect()
-                BluetoothDevice.ACTION_ACL_CONNECTED -> onHeadphonesConnect()
-                BluetoothDevice.ACTION_ACL_DISCONNECTED -> onHeadphonesDisconnect()
                 else -> {}
             }
         }
