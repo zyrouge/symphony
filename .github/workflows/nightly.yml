@@ -7,7 +7,7 @@ on:
 
 env:
     SKIP_RELEASE: "yes"
-    SIGNING_KEYSTORE_FILE: ./signing_key.jks
+    SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
     OUTPUT_DIR: ./dist
 
@@ -43,7 +43,9 @@ jobs:
 
             - name: 🔨 Generate certificate
               if: env.SKIP_RELEASE == 'no'
-              run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
+              run: |
+                  echo "SIGNING_KEYSTORE_FILE=$(readlink -f $SIGNING_KEYSTORE_FILE)" >> $GITHUB_ENV
+                  echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
@@ -54,6 +56,7 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew build
               env:
+                  SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILE }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}

@@ -39,7 +39,9 @@ jobs:
                   TAG_NAME: v${{ steps.app_version.outputs.version }}
 
             - name: 🔨 Generate certificate
-              run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
+              run: |
+                  echo "SIGNING_KEYSTORE_FILE=$(readlink -f $SIGNING_KEYSTORE_FILE)" >> $GITHUB_ENV
+                  echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
