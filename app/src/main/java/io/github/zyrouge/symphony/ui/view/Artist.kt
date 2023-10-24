@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,9 +39,9 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistView(context: ViewContext, artistName: String) {
-    val allArtistIds = context.symphony.groove.artist.all
-    val allSongIds = context.symphony.groove.song.all
-    val allAlbumIds = context.symphony.groove.album.all
+    val allArtistIds by context.symphony.groove.artist.all.collectAsState()
+    val allSongIds by context.symphony.groove.song.all.collectAsState()
+    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
     val artist by remember(allArtistIds) {
         derivedStateOf { context.symphony.groove.artist.get(artistName) }
     }

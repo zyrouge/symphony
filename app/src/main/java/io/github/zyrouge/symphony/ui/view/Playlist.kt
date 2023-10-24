@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,11 +42,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlaylistView(context: ViewContext, playlistId: String) {
     val coroutineScope = rememberCoroutineScope()
-    val allPlaylistIds = context.symphony.groove.playlist.all
+    val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
     var updateCounter by remember { mutableIntStateOf(0) }
-    val playlist by remember(allPlaylistIds, updateCounter) {
-        derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
-    }
+    val playlist by context.symphony.groove.playlist.getAndObserve(coroutineScope, playlistId)
+        .collectAsState()
 //    val songIds = remember(updateCounter) {
 //        (playlist?.songIds ?: emptyList()).toMutableStateList()
 //    }

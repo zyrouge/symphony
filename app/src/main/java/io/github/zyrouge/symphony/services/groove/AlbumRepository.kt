@@ -2,13 +2,16 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.content.ContentUris
 import android.provider.MediaStore
-import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
-import io.github.zyrouge.symphony.utils.*
+import io.github.zyrouge.symphony.utils.ConcurrentSet
+import io.github.zyrouge.symphony.utils.FuzzySearchOption
+import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
 
 enum class AlbumSortBy {
@@ -29,13 +32,14 @@ class AlbumRepository(private val symphony: Symphony) {
     )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
-    private val _all = mutableStateListOf<Long>()
-    private val _allRapid = RapidMutableStateList(_all)
-    val all = _all.asList()
+    private val _all = MutableStateFlow<List<Long>>(emptyList())
+    val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
     val count = _count.asStateFlow()
 
-    private fun emitCount() = _count.tryEmit(cache.size)
+    private fun emitCount() = _count.update {
+        cache.size
+    }
 
     internal fun onSong(song: Song) {
         if (song.albumName == null || song.artistName == null) return
@@ -46,7 +50,9 @@ class AlbumRepository(private val symphony: Symphony) {
             value?.apply {
                 numberOfTracks++
             } ?: run {
-                _allRapid.add(song.albumId)
+                _all.update {
+                    it + song.albumId
+                }
                 emitCount()
                 Album(
                     id = song.albumId,
@@ -58,12 +64,14 @@ class AlbumRepository(private val symphony: Symphony) {
         }
     }
 
-    internal fun onFinish() = _allRapid.sync()
+    internal fun onFinish() {}
 
     fun reset() {
         cache.clear()
         songIdsCache.clear()
-        _all.clear()
+        _all.update {
+            emptyList()
+        }
         emitCount()
     }
 

@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,10 +39,10 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumArtistView(context: ViewContext, artistId: String) {
-    val allAlbumArtistIds = context.symphony.groove.albumArtist.all
-    val allSongIds = context.symphony.groove.song.all
+    val allAlbumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
+    val allSongIds by context.symphony.groove.song.all.collectAsState()
     val allAlbumIds = context.symphony.groove.album.all
-    val albumArtist by remember(allAlbumArtistIds) {
+    val albumArtist by remember(allAlbumArtistIds, artistId) {
         derivedStateOf { context.symphony.groove.albumArtist.get(artistId) }
     }
     val songIds by remember(albumArtist, allSongIds) {
@@ -50,8 +51,8 @@ fun AlbumArtistView(context: ViewContext, artistId: String) {
     val albumIds by remember(albumArtist, allAlbumIds) {
         derivedStateOf { context.symphony.groove.albumArtist.getAlbumIds(artistId) }
     }
-    val isViable by remember {
-        derivedStateOf { allAlbumArtistIds.contains(artistId) }
+    val isViable by remember(albumArtist) {
+        derivedStateOf { albumArtist != null }
     }
 
     Scaffold(

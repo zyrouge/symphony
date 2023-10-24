@@ -12,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,8 +34,8 @@ fun AddToPlaylistDialog(
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showNewPlaylistDialog by remember { mutableStateOf(false) }
-    val allPlaylistsIds = context.symphony.groove.playlist.all
-    val playlists by remember {
+    val allPlaylistsIds by context.symphony.groove.playlist.all.collectAsState()
+    val playlists by remember(allPlaylistsIds) {
         derivedStateOf {
             allPlaylistsIds
                 .mapNotNull { context.symphony.groove.playlist.get(it) }

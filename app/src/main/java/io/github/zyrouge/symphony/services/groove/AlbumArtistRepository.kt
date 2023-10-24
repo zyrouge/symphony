@@ -1,17 +1,15 @@
 package io.github.zyrouge.symphony.services.groove
 
-import androidx.compose.runtime.mutableStateListOf
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.RapidMutableStateList
-import io.github.zyrouge.symphony.utils.asList
 import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
 
 enum class AlbumArtistSortBy {
@@ -30,13 +28,14 @@ class AlbumArtistRepository(private val symphony: Symphony) {
     )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
-    private val _all = mutableStateListOf<String>()
-    private val _allRapid = RapidMutableStateList(_all)
-    val all = _all.asList()
+    private val _all = MutableStateFlow<List<String>>(emptyList())
+    val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
     val count = _count.asStateFlow()
 
-    private fun emitCount() = _count.tryEmit(cache.size)
+    private fun emitCount() = _count.update {
+        cache.size
+    }
 
     internal fun onSong(song: Song) {
         if (song.additional.albumArtist == null) return
@@ -55,7 +54,9 @@ class AlbumArtistRepository(private val symphony: Symphony) {
                 numberOfAlbums = nNumberOfAlbums
                 numberOfTracks++
             } ?: run {
-                _allRapid.add(song.additional.albumArtist)
+                _all.update {
+                    it + song.additional.albumArtist
+                }
                 emitCount()
                 AlbumArtist(
                     name = song.additional.albumArtist,
@@ -66,11 +67,13 @@ class AlbumArtistRepository(private val symphony: Symphony) {
         }
     }
 
-    internal fun onFinish() = _allRapid.sync()
+    internal fun onFinish() {}
 
     fun reset() {
         cache.clear()
-        _all.clear()
+        _all.update {
+            emptyList()
+        }
         emitCount()
     }
 
