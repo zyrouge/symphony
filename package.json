@@ -20,8 +20,8 @@
     "author": "Zyrouge",
     "license": "AGPL-3.0",
     "devDependencies": {
-        "@types/fs-extra": "^11.0.2",
-        "@types/node": "^20.8.6",
+        "@types/fs-extra": "^11.0.3",
+        "@types/node": "^20.8.8",
         "@zyrouge/phrasey-json": "^1.0.3",
         "@zyrouge/phrasey-toml": "^1.0.3",
         "fs-extra": "^11.1.1",
@@ -29,7 +29,7 @@
         "picocolors": "^1.0.0",
         "prettier": "^3.0.3",
         "prettier-plugin-toml": "^1.0.0",
-        "tsx": "^3.13.0",
+        "tsx": "^3.14.0",
         "typescript": "^5.2.2"
     }
 }
