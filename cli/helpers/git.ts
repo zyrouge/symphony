@@ -34,7 +34,7 @@ export class Git {
             "origin",
             tag,
         ]);
-        return proc.status !== 0;
+        return proc.status === 0;
     }
 
     static async spawn(args: string[]) {
