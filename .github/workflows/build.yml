@@ -19,6 +19,12 @@ jobs:
                   node-version: 18.x
                   cache: npm
 
+            - uses: actions/setup-java@v3
+              with:
+                  distribution: zulu
+                  java-version: 17
+                  cache: gradle
+
             - name: 🚧 Do prerequisites
               run: npm ci
 
