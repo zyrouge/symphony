@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
 
 env:
-    SIGNING_KEYSTORE_FILE: ./signing_key.jks
+    SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
 
 jobs:
@@ -30,6 +30,7 @@ jobs:
 
             - name: 🔨 Generate certificate
               run: |
+                  mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
                   echo "SIGNING_KEYSTORE_FILE=$(readlink -f $SIGNING_KEYSTORE_FILE)" >> $GITHUB_ENV
                   echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:

@@ -44,6 +44,7 @@ jobs:
             - name: 🔨 Generate certificate
               if: env.SKIP_RELEASE == 'no'
               run: |
+                  mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
                   echo "SIGNING_KEYSTORE_FILE=$(readlink -f $SIGNING_KEYSTORE_FILE)" >> $GITHUB_ENV
                   echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
