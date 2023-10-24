@@ -18,3 +18,4 @@ node_modules
 *.g.json
 phrasey-dist
 app/src/main/assets/i18n
+dist
