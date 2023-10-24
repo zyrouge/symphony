@@ -28,6 +28,7 @@ const start = async () => {
         throw new Error("Phrasey summary failed due to errors");
     }
     const summary = summaryResult.data.json();
+    await fs.mkdir(outputDir, { recursive: true });
     const mdPath = path.join(outputDir, `README.md`);
     await fs.writeFile(
         mdPath,
