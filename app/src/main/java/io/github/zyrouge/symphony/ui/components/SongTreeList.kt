@@ -168,7 +168,7 @@ fun SongTreeListContent(
     val currentPlayingSongId by remember {
         derivedStateOf { queue.getOrNull(queueIndex) }
     }
-    val favoriteIds = context.symphony.groove.playlist.favorites
+    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsState()
 
     LazyColumn(
         state = lazyListState,

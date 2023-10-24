@@ -76,6 +76,7 @@ import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
@@ -195,7 +196,10 @@ fun SettingsView(context: ViewContext) {
                             .clickable {
                                 donationsOffsetY?.let {
                                     coroutineScope.launch {
-                                        scrollState.animateScrollTo(it)
+                                        scrollState.animateScrollTo(
+                                            it,
+                                            TransitionDurations.Slow.asTween()
+                                        )
                                     }
                                 }
                             }

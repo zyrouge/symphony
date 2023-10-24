@@ -10,7 +10,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun TreeView(context: ViewContext) {
     val isUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val songIds = context.symphony.groove.song.all
+    val songIds by context.symphony.groove.song.all.collectAsState()
     val songsCount by context.symphony.groove.song.count.collectAsState()
     val disabledTreePaths by context.symphony.settings.lastDisabledTreePaths.collectAsState()
 

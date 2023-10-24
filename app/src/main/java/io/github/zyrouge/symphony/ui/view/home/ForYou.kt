@@ -70,10 +70,10 @@ fun ForYouView(context: ViewContext) {
     val albumsIsUpdating by context.symphony.groove.album.isUpdating.collectAsState()
     val artistsIsUpdating by context.symphony.groove.artist.isUpdating.collectAsState()
     val songsIsUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val albumArtistIds = context.symphony.groove.albumArtist.all
-    val albumIds = context.symphony.groove.album.all
-    val artistIds = context.symphony.groove.artist.all
-    val songIds = context.symphony.groove.song.all
+    val albumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
+    val albumIds by context.symphony.groove.album.all.collectAsState()
+    val artistIds by context.symphony.groove.artist.all.collectAsState()
+    val songIds by context.symphony.groove.song.all.collectAsState()
     val sortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
 

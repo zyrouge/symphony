@@ -73,7 +73,7 @@ fun SongCard(
     val isCurrentPlaying by remember {
         derivedStateOf { autoHighlight && song.id == queue.getOrNull(queueIndex) }
     }
-    val favoriteSongIds = context.symphony.groove.playlist.favorites
+    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
     val isFavorite by remember {
         derivedStateOf { favoriteSongIds.contains(song.id) }
     }

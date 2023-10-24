@@ -22,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,7 @@ fun PlaylistManageSongsDialog(
     selectedSongIds: List<Long>,
     onDone: (List<Long>) -> Unit,
 ) {
-    val allSongIds = context.symphony.groove.song.all
+    val allSongIds by context.symphony.groove.song.all.collectAsState()
     val nSelectedSongIds = remember { selectedSongIds.toMutableStateList() }
     var terms by remember { mutableStateOf("") }
     val songIds by remember {

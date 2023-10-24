@@ -43,7 +43,7 @@ fun SongList(
 ) {
     val sortBy by type.getLastUsedSortBy(context).collectAsState()
     val sortReverse by type.getLastUsedSortReverse(context).collectAsState()
-    val sortedSongIds by remember {
+    val sortedSongIds by remember(songIds, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.song.sort(songIds, sortBy, sortReverse)
         }
