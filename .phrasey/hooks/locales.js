@@ -1,12 +1,13 @@
 const p = require("path");
 const fs = require("fs-extra");
+const { PhraseyLocaleBuilder } = require("@zyrouge/phrasey-locales-builder");
 const { rootDir, rootI18nDir } = require("./utils");
 
 /**
  * @type {import("phrasey").PhraseyHooksHandler}
  */
 const hook = {
-    beforeLoadLocales: async ({ phrasey, log }) => {
+    beforeLocalesParsing: async ({ phrasey, log }) => {
         await createLocalesJson(phrasey, log);
     },
 };
@@ -24,18 +25,16 @@ async function createLocalesJson(phrasey, log) {
         log.info(`Skipping generation of locales as it already exists.`);
         return;
     }
-    const defaultLocalesPath = p.join(
-        rootDir,
-        `node_modules/@zyrouge/phrasey-locales/dist/data.json`
-    );
     const additionalLocalesPath = p.resolve(
         __dirname,
-        `../additional-locales.json`
+        `../additional-locales.json`,
     );
     /**
      * @type {import("phrasey").PhraseyLocaleType[]}
      */
-    const defaultLocales = await fs.readJSON(defaultLocalesPath);
+    const defaultLocales = await PhraseyLocaleBuilder.build({
+        displayLocaleCode: "en",
+    });
     /**
      * @type {import("phrasey").PhraseyLocaleType[]}
      */

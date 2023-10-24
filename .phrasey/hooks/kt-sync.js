@@ -6,13 +6,13 @@ const { rootDir, appI18nDir } = require("./utils");
  * @type {import("phrasey").PhraseyHooksHandler}
  */
 const hook = {
-    afterBuild: async ({ phrasey, log }) => {
+    onTranslationsBuildFinished: async ({ phrasey, state, log }) => {
         if (phrasey.options.source !== "build") {
             log.info("Skipping post-build due to non-build source");
             return;
         }
-        await createTranslationKt(phrasey, log);
-        await createTranslationsKt(phrasey, log);
+        await createTranslationKt(phrasey, state, log);
+        await createTranslationsKt(phrasey, state, log);
     },
 };
 
@@ -21,12 +21,13 @@ module.exports = hook;
 /**
  *
  * @param {import("phrasey").Phrasey} phrasey
+ * @param {import("phrasey").PhraseyState} state
  * @param {import("phrasey").PhraseyLogger} log
  */
-async function createTranslationsKt(phrasey, log) {
-    const translations = [...phrasey.translations.values()];
+async function createTranslationsKt(phrasey, state, log) {
+    const translations = [...state.getTranslations().values()];
     const sortedTranslations = translations.sort((a, b) =>
-        a.locale.display.localeCompare(b.locale.display)
+        a.locale.display.localeCompare(b.locale.display),
     );
     const content = `
 package io.github.zyrouge.symphony.services.i18n
@@ -56,9 +57,10 @@ ${sortedTranslations
 /**
  *
  * @param {import("phrasey").Phrasey} phrasey
+ * @param {import("phrasey").PhraseyState} state
  * @param {import("phrasey").PhraseyLogger} log
  */
-async function createTranslationKt(phrasey, log) {
+async function createTranslationKt(phrasey, state, log) {
     /**
      * @type {string[]}
      */
@@ -68,16 +70,16 @@ async function createTranslationKt(phrasey, log) {
      */
     const dynamicKeys = [];
 
-    for (const x of phrasey.schema.z.keys) {
+    for (const x of state.getSchema().z.keys) {
         if (x.parameters && x.parameters.length > 0) {
             const params = x.parameters.map((x) => `${x}: String`).join(", ");
             const callArgs = x.parameters.join(", ");
             dynamicKeys.push(
-                `    fun ${x.name}(${params}): String = _keysJson.getString("${x.name}").format(${callArgs})`
+                `    fun ${x.name}(${params}): String = _keysJson.getString("${x.name}").format(${callArgs})`,
             );
         } else {
             staticKeys.push(
-                `    val ${x.name}: String get() = _keysJson.getString("${x.name}")`
+                `    val ${x.name}: String get() = _keysJson.getString("${x.name}")`,
             );
         }
     }
