@@ -1,15 +1,33 @@
 import path from "path";
 import pico from "picocolors";
 import fs from "fs/promises";
-import { PhraseySummaryJson } from "phrasey";
+import { PhraseyBuilder, PhraseyLogger } from "phrasey";
 import { Paths } from "../helpers/paths";
 
+const phraseyConfig = path.join(Paths.rootDir, ".phrasey/config.toml");
 const outputDir = path.join(Paths.rootDir, "phrasey-dist");
-const summaryJsonPath = path.join(outputDir, "summary.json");
 
 const start = async () => {
-    const summaryContent = await fs.readFile(summaryJsonPath, "utf-8");
-    const summary: PhraseySummaryJson = JSON.parse(summaryContent);
+    const summaryResult = await PhraseyBuilder.summary({
+        phrasey: {
+            cwd: path.dirname(phraseyConfig),
+            log: PhraseyLogger.console(),
+        },
+        builder: {
+            config: {
+                file: phraseyConfig,
+                format: path.extname(phraseyConfig).slice(1),
+            },
+        },
+    });
+    if (!summaryResult.success) {
+        const errors = Array.isArray(summaryResult.error)
+            ? summaryResult.error
+            : [summaryResult.error];
+        errors.forEach((x) => console.log(x));
+        throw new Error("Phrasey summary failed due to errors");
+    }
+    const summary = summaryResult.data.json();
     const mdPath = path.join(outputDir, `README.md`);
     await fs.writeFile(
         mdPath,
@@ -30,12 +48,12 @@ ${Object.entries(summary.individual)
         return `| ${status} | [\`${locale}\`](${url}) | ${percentage} |`;
     })
     .join("\n")}
-        `.trim()
+        `.trim(),
     );
     printGenerated(mdPath);
 
     const translationPercent = Math.floor(
-        (summary.full.setCount / summary.full.total) * 100
+        (summary.full.setCount / summary.full.total) * 100,
     );
     const badgeTranslatedPath = path.join(outputDir, `badge-translated.json`);
     await fs.writeFile(
@@ -45,7 +63,7 @@ ${Object.entries(summary.individual)
             label: "i18n",
             message: `${translationPercent}%`,
             color: "#328fa8",
-        })
+        }),
     );
     printGenerated(badgeTranslatedPath);
 
@@ -58,7 +76,7 @@ ${Object.entries(summary.individual)
             label: "i18n languages",
             message: `${languagesCount}`,
             color: "#3279a8",
-        })
+        }),
     );
     printGenerated(mdPath);
 
@@ -71,7 +89,7 @@ ${Object.entries(summary.individual)
             label: "i18n strings",
             message: `${keysCount}`,
             color: "#3265a8",
-        })
+        }),
     );
     printGenerated(mdPath);
 };
