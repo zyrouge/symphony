@@ -6,6 +6,7 @@ on:
     workflow_dispatch:
 
 env:
+    SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
     OUTPUT_DIR: ./dist
@@ -36,16 +37,18 @@ jobs:
               run: echo "version=$(npm run --silent version:print-nightly)" >> $GITHUB_OUTPUT
 
             - name: 🔎 Check for release
-              run: npm run --silent git:tag-exists -- $TAG_NAME
+              run: echo "SKIP_RELEASE=$(npm run --silent git:tag-exists-yn -- $TAG_NAME)" >> $GITHUB_ENV
               env:
                   TAG_NAME: v${{ steps.app_version.outputs.version }}
 
             - name: 🔨 Generate certificate
+              if: env.SKIP_RELEASE == 'no'
               run: echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
             - name: 🔨 Build apk
+              if: env.SKIP_RELEASE == 'no'
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
@@ -56,11 +59,13 @@ jobs:
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
             - name: 📝 Rename apk
+              if: env.SKIP_RELEASE == 'no'
               run: mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-nightly-v$APP_VERSION_NAME.apk
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
             - name: 🚀 Upload apk
+              if: env.SKIP_RELEASE == 'no'
               uses: ncipollo/release-action@v1
               with:
                   tag: v${{ steps.app_version.outputs.version }}
@@ -69,3 +74,9 @@ jobs:
                   draft: false
                   prerelease: true
                   artifactErrorsFailBuild: true
+
+            - name: 🔖 Release skipped
+              if: env.SKIP_RELEASE == 'yes'
+              run: echo "Skipping since tag $TAG_NAME already exists"
+              env:
+                  TAG_NAME: v${{ steps.app_version.outputs.version }}
