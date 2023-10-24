@@ -10,7 +10,7 @@ const main = async () => {
         "origin",
         tag,
     ]);
-    if (proc.status !== 0) throw new Error(`Tag ${tag} already exists`);
+    if (proc.status === 0) throw new Error(`Tag ${tag} already exists`);
     console.log(`Tag ${tag} is available`);
 };
 

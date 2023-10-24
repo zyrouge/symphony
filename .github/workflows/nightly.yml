@@ -33,7 +33,7 @@ jobs:
 
             - name: 🔢 Get version
               id: app_version
-              run: echo "version=$(npm run --silent git:ref)" >> $GITHUB_OUTPUT
+              run: echo "version=$(npm run --silent version:print-nightly)" >> $GITHUB_OUTPUT
 
             - name: 🔎 Check for release
               run: npm run --silent git:tag-exists -- $TAG_NAME

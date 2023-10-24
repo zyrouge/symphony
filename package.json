@@ -8,7 +8,7 @@
         "i18n:summary": "npm run i18n:summary:base && tsx ./cli/i18n/summary.ts",
         "version:bump": "tsx ./cli/version/bump.ts",
         "version:print": "tsx ./cli/version/print.ts",
-        "git:ref": "tsx ./cli/git/ref.ts",
+        "version:print-nightly": "tsx ./cli/version/print-nightly.ts",
         "git:tag-exists": "tsx ./cli/git/tag-exists.ts",
         "prebuild": "npm run i18n:build",
         "release": "gh workflow run release"
