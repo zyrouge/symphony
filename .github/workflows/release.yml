@@ -50,6 +50,7 @@ jobs:
                   npm run prebuild
                   chmod +x ./gradlew
                   keystore_file=$(realpath --relative-to="./app" "$SIGNING_KEYSTORE_FILE")
+                  echo $keystore_file
                   SIGNING_KEYSTORE_FILE="$keystore_file" ./gradlew build
               env:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
