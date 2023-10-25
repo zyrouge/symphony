@@ -78,7 +78,7 @@ jobs:
                   prerelease: true
                   artifactErrorsFailBuild: true
 
-            - name: 🔖 Release skipped
+            - name: 🔖 Was Release skipped?
               if: env.SKIP_RELEASE == 'yes'
               run: echo "Skipping since tag $TAG_NAME already exists"
               env:
