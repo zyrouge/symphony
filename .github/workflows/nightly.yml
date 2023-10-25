@@ -44,9 +44,8 @@ jobs:
             - name: 🔨 Generate certificate
               if: env.SKIP_RELEASE == 'no'
               run: |
-                  keystore_file=$(realpath --relative-to="./app" "$SIGNING_KEYSTORE_FILE")
-                  echo $keystore_file
-                  SIGNING_KEYSTORE_FILE="$keystore_file" ./gradlew build
+                  mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
+                  echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
@@ -55,7 +54,8 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  ./gradlew build
+                  keystore_file=$(realpath --relative-to="./app" "$SIGNING_KEYSTORE_FILE")
+                  SIGNING_KEYSTORE_FILE="$keystore_file" ./gradlew build
               env:
                   SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILE }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
