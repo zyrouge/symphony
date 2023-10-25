@@ -75,7 +75,7 @@ jobs:
               with:
                   tag: v${{ steps.app_version.outputs.version }}
                   artifacts: ${{ env.OUTPUT_DIR }}/*
-                  generateReleaseNotes: true
+                  generateReleaseNotes: false
                   draft: false
                   prerelease: true
                   artifactErrorsFailBuild: true
