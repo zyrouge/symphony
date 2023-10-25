@@ -63,7 +63,9 @@ jobs:
 
             - name: 📝 Rename apk
               if: env.SKIP_RELEASE == 'no'
-              run: mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-nightly-v$APP_VERSION_NAME.apk
+              run: |
+                  mkdir -p $OUTPUT_DIR  
+                  mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-nightly-v$APP_VERSION_NAME.apk
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
