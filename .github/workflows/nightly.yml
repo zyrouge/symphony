@@ -46,8 +46,6 @@ jobs:
               run: |
                   mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
                   echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
-                  ls $(dirname $SIGNING_KEYSTORE_FILE)
-                  readlink -f $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
@@ -58,7 +56,7 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew build
               env:
-                  SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILE }}
+                  APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}

@@ -14,6 +14,7 @@ android {
 
         versionCode = 105
         versionName = "2023.8.105"
+        versionName = System.getenv("APP_VERSION_NAME") ?: versionName
 
         vectorDrawables {
             useSupportLibrary = true
