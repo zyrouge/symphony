@@ -46,6 +46,8 @@ jobs:
               run: |
                   mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
                   echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
+                  ls $(dirname $SIGNING_KEYSTORE_FILE)
+                  readlink -f $SIGNING_KEYSTORE_FILE
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
