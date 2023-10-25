@@ -30,9 +30,9 @@ jobs:
 
             - name: 🔨 Generate certificate
               run: |
-                  mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
-                  echo "SIGNING_KEYSTORE_FILE=$(readlink -f $SIGNING_KEYSTORE_FILE)" >> $GITHUB_ENV
-                  echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
+                  keystore_file=$(realpath --relative-to="./app" "$SIGNING_KEYSTORE_FILE")
+                  echo $keystore_file
+                  SIGNING_KEYSTORE_FILE="$keystore_file" ./gradlew build
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
