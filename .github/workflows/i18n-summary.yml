@@ -10,7 +10,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    build:
+    i18n-summary:
         runs-on: ubuntu-latest
 
         steps:

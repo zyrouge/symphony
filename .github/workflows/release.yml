@@ -9,7 +9,7 @@ env:
     OUTPUT_DIR: ./dist
 
 jobs:
-    build:
+    release-build:
         runs-on: ubuntu-latest
 
         steps:

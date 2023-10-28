@@ -12,7 +12,7 @@ env:
     OUTPUT_DIR: ./dist
 
 jobs:
-    build:
+    nightly-build:
         runs-on: ubuntu-latest
 
         steps:
