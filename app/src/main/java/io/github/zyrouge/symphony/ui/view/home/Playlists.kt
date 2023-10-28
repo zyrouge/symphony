@@ -46,10 +46,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistsView(context: ViewContext) {
+    val coroutineScope = rememberCoroutineScope()
     val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
     val playlists by context.symphony.groove.playlist.all.collectAsState()
     val playlistsCount by context.symphony.groove.playlist.count.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
     var showPlaylistCreator by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
 

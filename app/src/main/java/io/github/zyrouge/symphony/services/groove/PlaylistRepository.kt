@@ -2,7 +2,6 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.PlaylistsBox
 import io.github.zyrouge.symphony.services.parsers.M3U
@@ -11,25 +10,16 @@ import io.github.zyrouge.symphony.utils.CursorShorty
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.Logger
-import io.github.zyrouge.symphony.utils.emitTimed
 import io.github.zyrouge.symphony.utils.getColumnIndices
-import io.github.zyrouge.symphony.utils.mapTimed
 import io.github.zyrouge.symphony.utils.mutate
 import io.github.zyrouge.symphony.utils.subListNonStrict
-import io.github.zyrouge.symphony.utils.timedFlow
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-
 
 enum class PlaylistSortBy {
     CUSTOM,
@@ -46,8 +36,8 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
-    private val _onUpdate = timedFlow<String>()
-    val onUpdate = _onUpdate.asSharedFlow()
+    private val _updateId = MutableStateFlow(0L)
+    val updateId = _updateId.asStateFlow()
     private val _all = MutableStateFlow<List<String>>(emptyList())
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
@@ -57,6 +47,10 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     private fun emitUpdate(value: Boolean) = _isUpdating.update {
         value
+    }
+
+    private fun emitUpdateId() = _updateId.update {
+        System.currentTimeMillis()
     }
 
     private fun emitCount() = _count.update {
@@ -73,6 +67,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 _all.update {
                     it + playlist.id
                 }
+                emitUpdateId()
                 emitCount()
             }
             data.local.forEach {
@@ -83,6 +78,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                             _all.update {
                                 it + playlist.id
                             }
+                            emitUpdateId()
                             emitCount()
                         }
                     }
@@ -95,6 +91,7 @@ class PlaylistRepository(private val symphony: Symphony) {
             _all.update {
                 it + data.favorites.id
             }
+            emitUpdateId()
             emitCount()
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
@@ -106,6 +103,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         _favorites.update {
             getFavorites().songIds
         }
+        emitUpdateId()
         emitUpdate(false)
     }
 
@@ -119,6 +117,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         _favorites.update {
             emptyList()
         }
+        emitUpdateId()
         emitUpdate(false)
     }
 
@@ -149,10 +148,6 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun get(ids: List<String>) = ids.mapNotNull { get(it) }
     fun getFavorites() = favoritesId?.let { cache[it] } ?: createFavorites()
 
-    fun getAndObserve(coroutineScope: CoroutineScope, id: String) = onUpdate.mapTimed(id)
-        .map { Log.i("SymLog", it);cache[it] }
-        .stateIn(coroutineScope, SharingStarted.WhileSubscribed(), get(id))
-
     fun parseLocal(local: Playlist.LocalExtended) = kotlin.runCatching {
         Playlist.fromM3U(symphony, local)
     }.getOrNull()
@@ -170,6 +165,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         _all.update {
             it + playlist.id
         }
+        emitUpdateId()
         emitCount()
         save()
     }
@@ -179,6 +175,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         _all.update {
             it - id
         }
+        emitUpdateId()
         emitCount()
         save()
     }
@@ -196,7 +193,7 @@ class PlaylistRepository(private val symphony: Symphony) {
 //        TODO
 //        _all.remove(id)
 //        _all.add(id)
-        _onUpdate.emitTimed(id)
+        emitUpdateId()
         emitCount()
         if (id == favoritesId) {
             _favorites.update {
@@ -294,6 +291,7 @@ class PlaylistRepository(private val symphony: Symphony) {
 // TODO
 //        _all.remove(playlist.id)
 //        _all.add(playlist.id)
+        emitUpdateId()
         save()
     }
 
@@ -308,6 +306,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         _all.update {
             it + playlist.id
         }
+        emitUpdateId()
         emitCount()
         return playlist
     }

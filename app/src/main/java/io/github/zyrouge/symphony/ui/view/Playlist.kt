@@ -43,17 +43,19 @@ import kotlinx.coroutines.launch
 fun PlaylistView(context: ViewContext, playlistId: String) {
     val coroutineScope = rememberCoroutineScope()
     val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
+    val updateId by context.symphony.groove.playlist.updateId.collectAsState()
     var updateCounter by remember { mutableIntStateOf(0) }
-    val playlist by context.symphony.groove.playlist.getAndObserve(coroutineScope, playlistId)
-        .collectAsState()
-//    val songIds = remember(updateCounter) {
-//        (playlist?.songIds ?: emptyList()).toMutableStateList()
-//    }
-    val isViable by remember {
+    val playlist by remember(playlistId, updateId) {
+        derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
+    }
+    val songIds by remember(playlist) {
+        derivedStateOf { playlist?.songIds ?: emptyList() }
+    }
+    val isViable by remember(allPlaylistIds, playlistId) {
         derivedStateOf { allPlaylistIds.contains(playlistId) }
     }
     var showOptionsMenu by remember { mutableStateOf(false) }
-    val isFavoritesPlaylist by remember {
+    val isFavoritesPlaylist by remember(playlist) {
         derivedStateOf {
             playlist?.let {
                 context.symphony.groove.playlist.isFavoritesPlaylist(it)
@@ -126,7 +128,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                 when {
                     isViable -> SongList(
                         context,
-                        songIds = playlist?.songIds ?: emptyList(),
+                        songIds = songIds,
                         type = SongListType.Playlist,
                         disableHeartIcon = isFavoritesPlaylist,
                         trailingOptionsContent = { _, song, onDismissRequest ->
