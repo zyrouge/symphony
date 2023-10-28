@@ -75,6 +75,7 @@ jobs:
               with:
                   tag: v${{ steps.app_version.outputs.version }}
                   artifacts: ${{ env.OUTPUT_DIR }}/*
+                  body: "Refer [commits of v${{ steps.app_version.outputs.version }}](https://github.com/zyrouge/symphony/commits/v${{ steps.app_version.outputs.version }}) for the changes."
                   generateReleaseNotes: false
                   draft: false
                   prerelease: true
