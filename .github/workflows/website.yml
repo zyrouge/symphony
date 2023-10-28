@@ -1,10 +1,10 @@
-name: Deploy
+name: Website
 
 on:
     workflow_dispatch:
 
 jobs:
-    deploy:
+    website-deploy:
         runs-on: ubuntu-latest
 
         steps:
