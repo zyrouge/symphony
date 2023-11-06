@@ -45,6 +45,14 @@ export class Git {
         return proc.stdout.split("\n");
     }
 
+    static async latestTag() {
+        const proc = await Git.spawn(["describe", "--abbrev=0", "--tags"]);
+        if (proc.status !== 0) {
+            throw new Error(`Unable to get latest tag (${proc.stderr})`);
+        }
+        return proc.stdout;
+    }
+
     static async spawn(args: string[]) {
         const proc = spawnSync("git", args);
         const result: GitSpawnResult = {
