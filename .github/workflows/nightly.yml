@@ -9,7 +9,7 @@ env:
     SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
-    BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app.aab
+    BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app-release.aab
     OUTPUT_DIR: ./dist
 
 jobs:
@@ -43,7 +43,6 @@ jobs:
               run: |
                   last_tag=$(npm run --silent git:latest-tag)
                   echo "SKIP_RELEASE=$(npm run --silent git:no-affects-app-yn -- $last_tag)" >> $GITHUB_ENV
-                  echo "SKIP_RELEASE=no" >> $GITHUB_ENV
               env:
                   TAG_NAME: v${{ steps.app_version.outputs.version }}
 
@@ -67,9 +66,6 @@ jobs:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-
-            - run: find ./app/build -type f
-            - run: ls -a ./app/build/outputs/bundle/release/app.aab
 
             - name: 📝 Rename apk and bundle
               if: env.SKIP_RELEASE == 'no'
