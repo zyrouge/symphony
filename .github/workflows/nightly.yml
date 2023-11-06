@@ -54,7 +54,7 @@ jobs:
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
-            - name: 🔨 Build apk and bundle
+            - name: 🔨 Build assets
               if: env.SKIP_RELEASE == 'no'
               run: |
                   npm run prebuild
@@ -63,11 +63,12 @@ jobs:
                   ./gradlew bundle
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
+                  SIGNING_KEYSTORE_FILE: ../${{ env.SIGNING_KEYSTORE_FILE }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-            - name: 📝 Rename apk and bundle
+            - name: 📝 Rename assets
               if: env.SKIP_RELEASE == 'no'
               run: |
                   mkdir -p $OUTPUT_DIR
@@ -76,7 +77,7 @@ jobs:
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
-            - name: 🚀 Upload apk
+            - name: 🚀 Upload assets
               if: env.SKIP_RELEASE == 'no'
               uses: ncipollo/release-action@v1
               with:
