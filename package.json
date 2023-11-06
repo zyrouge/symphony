@@ -10,6 +10,7 @@
         "version:print-nightly": "tsx ./cli/version/print-nightly.ts",
         "git:tag-exists": "tsx ./cli/git/tag-exists.ts",
         "git:tag-exists-yn": "tsx ./cli/git/tag-exists-yn.ts",
+        "git:no-affects-app-yn": "tsx ./cli/git/no-affects-app-yn.ts",
         "prebuild": "npm run i18n:build",
         "release": "gh workflow run release"
     },

@@ -37,6 +37,14 @@ export class Git {
         return proc.status === 0;
     }
 
+    static async diffNames(tag: string) {
+        const proc = await Git.spawn(["diff", "--name-only", tag, "."]);
+        if (proc.status !== 0) {
+            throw new Error(`Unable to get diff (${proc.stderr})`);
+        }
+        return proc.stdout.split("\n");
+    }
+
     static async spawn(args: string[]) {
         const proc = spawnSync("git", args);
         const result: GitSpawnResult = {

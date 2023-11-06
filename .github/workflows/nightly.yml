@@ -37,7 +37,7 @@ jobs:
               run: echo "version=$(npm run --silent version:print-nightly)" >> $GITHUB_OUTPUT
 
             - name: 🔎 Check for release
-              run: echo "SKIP_RELEASE=$(npm run --silent git:tag-exists-yn -- $TAG_NAME)" >> $GITHUB_ENV
+              run: echo "SKIP_RELEASE=$(npm run --silent git:no-affects-app-yn -- $TAG_NAME)" >> $GITHUB_ENV
               env:
                   TAG_NAME: v${{ steps.app_version.outputs.version }}
 
