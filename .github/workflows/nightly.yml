@@ -9,6 +9,7 @@ env:
     SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
+    BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app.aab
     OUTPUT_DIR: ./dist
 
 jobs:
@@ -51,7 +52,7 @@ jobs:
               env:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
-            - name: 🔨 Build apk
+            - name: 🔨 Build apk and bundle
               if: env.SKIP_RELEASE == 'no'
               run: |
                   npm run prebuild
@@ -63,11 +64,15 @@ jobs:
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-            - name: 📝 Rename apk
+            - run: find ./app/build -type f
+            - run: ls -a ./app/build/outputs/bundle/release/app.aab
+
+            - name: 📝 Rename apk and bundle
               if: env.SKIP_RELEASE == 'no'
               run: |
-                  mkdir -p $OUTPUT_DIR  
+                  mkdir -p $OUTPUT_DIR
                   mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-nightly-v$APP_VERSION_NAME.apk
+                  mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-nightly-v$APP_VERSION_NAME.aab
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
