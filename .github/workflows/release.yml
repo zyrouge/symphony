@@ -61,7 +61,7 @@ jobs:
               run: |
                   mkdir -p $OUTPUT_DIR
                   mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
-                  mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-nightly-v$APP_VERSION_NAME.aab
+                  mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
