@@ -28,7 +28,7 @@ jobs:
               run: npm run i18n:summary
 
             - name: 🚀 Push summary files
-              uses: zyrouge/gh-push-action@v1.0.9
+              uses: zyrouge/gh-push-action@v1.0.12
               with:
                   directory: phrasey-dist
                   branch: i18n-summary
