@@ -6,6 +6,7 @@ on:
 env:
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
+    BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app-release.aab
 
 jobs:
     build:
@@ -39,7 +40,8 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  SIGNING_KEYSTORE_FILE="../$SIGNING_KEYSTORE_FILE" ./gradlew build
+                  ./gradlew build
+                  ./gradlew bundle
               env:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
@@ -48,4 +50,6 @@ jobs:
             - name: 🚀 Upload apk
               uses: actions/upload-artifact@v3
               with:
-                  path: ${{ env.BUILD_APK_FILE }}
+                  path: |
+                      ${{ env.BUILD_APK_FILE }}
+                      ${{ env.BUILD_AAB_FILE }}
