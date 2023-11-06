@@ -61,6 +61,7 @@ jobs:
                   npm run prebuild
                   chmod +x ./gradlew
                   ./gradlew build
+                  ./gradlew bundle
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
