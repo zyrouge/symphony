@@ -39,6 +39,7 @@ jobs:
 
             - name: 🔎 Check for release
               run: |
+                  git fetch --tags origin
                   last_tag=$(npm run --silent git:latest-tag)
                   echo "SKIP_RELEASE=$(npm run --silent git:no-affects-app-yn -- $last_tag)" >> $GITHUB_ENV
                   echo "SKIP_RELEASE=no" >> $GITHUB_ENV
