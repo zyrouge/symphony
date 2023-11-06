@@ -41,6 +41,7 @@ jobs:
               run: |
                   last_tag=$(npm run --silent git:latest-tag)
                   echo "SKIP_RELEASE=$(npm run --silent git:no-affects-app-yn -- $last_tag)" >> $GITHUB_ENV
+                  echo "SKIP_RELEASE=no" >> $GITHUB_ENV
               env:
                   TAG_NAME: v${{ steps.app_version.outputs.version }}
 
