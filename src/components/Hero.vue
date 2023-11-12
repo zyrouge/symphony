@@ -4,6 +4,8 @@ import Icon from "/icon.svg";
 const GITHUB_URL = "https://github.com/zyrouge/symphony";
 const GITHUB_RELEASES_URL =
     "https://github.com/zyrouge/symphony/releases/latest";
+const GITHUB_README_DONATIONS_URL =
+    "https://github.com/zyrouge/symphony#contributing";
 const IZZY_ON_DROID_URL =
     "https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony";
 const FDROID_URL = "https://f-droid.org/en/packages/io.github.zyrouge.symphony";
@@ -28,7 +30,7 @@ const FDROID_URL = "https://f-droid.org/en/packages/io.github.zyrouge.symphony";
                 music player to enhance your
                 <span class="hero-slant">offline music experience</span>.
             </p>
-            <div class="u-flex mt-12 gap-4">
+            <div class="u-flex mt-12 flex-wrap !justify-start gap-2">
                 <a :href="GITHUB_URL" class="hero-btn">Source Code</a>
                 <a :href="GITHUB_RELEASES_URL" class="hero-btn">Download</a>
             </div>
@@ -38,6 +40,18 @@ const FDROID_URL = "https://f-droid.org/en/packages/io.github.zyrouge.symphony";
                 <a :href="FDROID_URL" class="hero-link">F-Droid</a>
                 or
                 <a :href="IZZY_ON_DROID_URL" class="hero-link">IzzyOnDroid</a>.
+            </p>
+        </div>
+    </div>
+    <div class="u-flex bg-secondary-800 py-4">
+        <div class="u-container u-flex w-max gap-4">
+            <p class="text-2xl">❤️</p>
+            <p>
+                Consider
+                <a :href="GITHUB_README_DONATIONS_URL" class="hero-link"
+                    >contributing or donating</a
+                >
+                to support the development.
             </p>
         </div>
     </div>
