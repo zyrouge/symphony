@@ -22,7 +22,7 @@
     "author": "Zyrouge",
     "license": "AGPL-3.0",
     "devDependencies": {
-        "@types/fs-extra": "^11.0.3",
+        "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.8.10",
         "@zyrouge/phrasey-json": "^1.0.3",
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
