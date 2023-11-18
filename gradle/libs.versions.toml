@@ -1,6 +1,6 @@
 [versions]
 activity-compose = "1.8.1"
-coil = "2.4.0"
+coil = "2.5.0"
 compose = "1.6.0-beta01"
 compose-compiler = "1.5.3"
 compose-material = "1.5.4"
