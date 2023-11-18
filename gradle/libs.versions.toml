@@ -2,7 +2,7 @@
 activity-compose = "1.8.1"
 coil = "2.5.0"
 compose = "1.6.0-beta01"
-compose-compiler = "1.5.3"
+compose-compiler = "1.5.4"
 compose-material = "1.5.4"
 compose-material3 = "1.2.0-alpha11"
 compose-navigation = "2.7.5"
