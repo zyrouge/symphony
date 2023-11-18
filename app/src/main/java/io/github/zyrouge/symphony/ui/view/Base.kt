@@ -4,11 +4,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.helpers.*
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.ui.helpers.FadeTransition
+import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.RoutesParameters
+import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
+import io.github.zyrouge.symphony.ui.helpers.SlideTransition
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.getRouteArgument
 import io.github.zyrouge.symphony.ui.theme.SymphonyTheme
 
 @Composable
@@ -80,8 +87,13 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                     Routes.Search.route,
                     enterTransition = { SlideTransition.slideDown.enterTransition() },
                     exitTransition = { SlideTransition.slideUp.exitTransition() },
-                ) {
-                    SearchView(context)
+                ) { backStackEntry ->
+                    SearchView(
+                        context,
+                        backStackEntry.getRouteArgument(RoutesParameters.SearchRouteInitialChip)
+                            ?.takeIf { it != "null" }
+                            ?.let { GrooveKinds.valueOf(it) }
+                    )
                 }
                 composable(
                     Routes.AlbumArtist.route,

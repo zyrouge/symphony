@@ -58,10 +58,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -78,6 +80,7 @@ import io.github.zyrouge.symphony.ui.view.home.TreeView
 import kotlinx.coroutines.launch
 
 enum class HomePages(
+    val kind: GrooveKinds? = null,
     val label: (context: ViewContext) -> String,
     val selectedIcon: @Composable () -> ImageVector,
     val unselectedIcon: @Composable () -> ImageVector,
@@ -88,26 +91,31 @@ enum class HomePages(
         unselectedIcon = { Icons.Outlined.Face }
     ),
     Songs(
+        kind = GrooveKinds.SONG,
         label = { it.symphony.t.Songs },
         selectedIcon = { Icons.Filled.MusicNote },
         unselectedIcon = { Icons.Outlined.MusicNote }
     ),
     Artists(
+        kind = GrooveKinds.ARTIST,
         label = { it.symphony.t.Artists },
         selectedIcon = { Icons.Filled.Group },
         unselectedIcon = { Icons.Outlined.Group }
     ),
     Albums(
+        kind = GrooveKinds.ALBUM,
         label = { it.symphony.t.Albums },
         selectedIcon = { Icons.Filled.Album },
         unselectedIcon = { Icons.Outlined.Album }
     ),
     AlbumArtists(
+        kind = GrooveKinds.ALBUM_ARTIST,
         label = { it.symphony.t.AlbumArtists },
         selectedIcon = { Icons.Filled.SupervisorAccount },
         unselectedIcon = { Icons.Outlined.SupervisorAccount }
     ),
     Genres(
+        kind = GrooveKinds.GENRE,
         label = { it.symphony.t.Genres },
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
@@ -118,6 +126,7 @@ enum class HomePages(
         unselectedIcon = { Icons.Outlined.Folder }
     ),
     Playlists(
+        kind = GrooveKinds.PLAYLIST,
         label = { it.symphony.t.Playlists },
         selectedIcon = { Icons.AutoMirrored.Filled.QueueMusic },
         unselectedIcon = { Icons.AutoMirrored.Outlined.QueueMusic }
@@ -158,7 +167,9 @@ fun HomeView(context: ViewContext) {
                             Icon(Icons.Filled.Search, null)
                         },
                         onClick = {
-                            context.navController.navigate(Routes.Search)
+                            context.navController.navigate(
+                                RoutesBuilder.buildSearchRoute(currentTab.kind)
+                            )
                         }
                     )
                 },

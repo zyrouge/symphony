@@ -76,13 +76,13 @@ private data class SearchResult(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchView(context: ViewContext) {
+fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
     val coroutineScope = rememberCoroutineScope()
     var terms by rememberSaveable { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<SearchResult?>(null) }
 
-    var selectedChip by rememberSaveable { mutableStateOf<GrooveKinds?>(null) }
+    var selectedChip by rememberSaveable { mutableStateOf(initialChip) }
     fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
 
     var currentTermsRoutine: Job? = null

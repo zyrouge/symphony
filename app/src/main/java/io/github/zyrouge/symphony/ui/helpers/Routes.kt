@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.ui.helpers
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import io.github.zyrouge.symphony.services.groove.GrooveKinds
 
 object RoutesParameters {
     const val ArtistRouteArtistName = "artistName"
@@ -9,6 +10,7 @@ object RoutesParameters {
     const val AlbumArtistRouteArtistName = "albumArtistName"
     const val GenreRouteGenre = "genre"
     const val PlaylistRoutePlaylistId = "playlistId"
+    const val SearchRouteInitialChip = "initialChip"
 }
 
 object RoutesBuilder {
@@ -18,6 +20,9 @@ object RoutesBuilder {
     fun buildAlbumArtistRoute(artistName: String) = "album_artist/${encodeParam(artistName)}"
     fun buildGenreRoute(genre: String) = "genre/${encodeParam(genre)}"
     fun buildPlaylistRoute(playlistId: String) = "playlist/${encodeParam(playlistId)}"
+    fun buildSearchRoute(kind: GrooveKinds? = null) = RoutesBuilder.buildSearchRoute(kind?.name)
+    fun buildSearchRoute(initialChip: String? = null) =
+        "search/${encodeParam(initialChip ?: "null")}"
 
     private val encodeParamChars = object {
         val percent = "%" to "%25"
@@ -42,8 +47,7 @@ sealed class Routes(val route: String) {
     data object NowPlaying : Routes("now_playing")
     data object Queue : Routes("queue")
     data object Settings : Routes("settings")
-    data object Search : Routes("search")
-
+    data object Search : Routes({ b, p -> b.buildSearchRoute("{${p.SearchRouteInitialChip}}") })
     data object Artist : Routes({ b, p -> b.buildArtistRoute("{${p.ArtistRouteArtistName}}") })
     data object Album : Routes({ b, p -> b.buildAlbumRoute("{${p.AlbumRouteAlbumId}}") })
     data object AlbumArtist :

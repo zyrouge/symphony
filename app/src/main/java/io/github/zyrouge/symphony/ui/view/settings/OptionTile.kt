@@ -65,6 +65,9 @@ fun <T> SettingsOptionTile(
             title = title,
             content = {
                 val scrollState = rememberScrollState()
+                var initialScroll by remember {
+                    mutableStateOf(false)
+                }
 
                 Column(
                     modifier = Modifier
@@ -85,11 +88,12 @@ fun <T> SettingsOptionTile(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .onGloballyPositioned { coordinates ->
-                                    if (active) {
+                                    if (active && !initialScroll) {
                                         val offset = coordinates.positionInParent()
                                         coroutineScope.launch {
                                             scrollState.scrollTo(offset.y.toInt())
                                         }
+                                        initialScroll = true
                                     }
                                 },
                             onClick = {
