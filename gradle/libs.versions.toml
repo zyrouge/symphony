@@ -11,7 +11,7 @@ core-splashscreen = "1.0.1"
 jaudiotagger = "3.0.1"
 lifecycle-runtime = "2.6.2"
 media = "1.6.0"
-okhttp3 = "4.11.0"
+okhttp3 = "4.12.0"
 
 android-gradle-plugin = "8.1.4"
 kotlin-gradle-plugin = "1.9.10"
