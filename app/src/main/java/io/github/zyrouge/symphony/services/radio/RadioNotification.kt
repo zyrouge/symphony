@@ -10,20 +10,16 @@ import io.github.zyrouge.symphony.Symphony
 
 class RadioNotification(private val symphony: Symphony) {
     private var manager = RadioNotificationManager(symphony)
-    private var usable = false
 
     fun start() {
         manager.prepare()
-        usable = true
     }
 
     fun cancel() {
-        usable = false
         manager.cancel()
     }
 
     fun update(req: RadioSessionUpdateRequest) {
-        if (!usable) return
         NotificationCompat.Builder(
             symphony.applicationContext,
             CHANNEL_ID
