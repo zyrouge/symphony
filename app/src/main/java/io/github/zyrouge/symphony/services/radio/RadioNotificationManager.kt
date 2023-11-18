@@ -11,6 +11,7 @@ import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.Eventer
@@ -53,7 +54,7 @@ class RadioNotificationManager(val symphony: Symphony) {
     }
 
     fun cancel() {
-        destroy()
+        destroyNotification()
         RadioNotificationService.destroy()
     }
 
@@ -73,7 +74,7 @@ class RadioNotificationManager(val symphony: Symphony) {
         }
     }
 
-    private fun destroy() {
+    private fun destroyNotification() {
         if (state == State.DESTROYED) return
         state = State.DESTROYED
         lastNotification = null
@@ -91,20 +92,21 @@ class RadioNotificationManager(val symphony: Symphony) {
         state = State.READY
         lastNotification?.let { notification ->
             lastNotification = null
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                // If running Android 10 or newer, specify that the foreground service is for
-                // media playback. This allows the app to function on Android 14, namely.
-                service!!.startForeground(RadioNotification.NOTIFICATION_ID, notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-            } else{
-                // We're running a version under Android 10; we cannot specify such attribute.
-                service!!.startForeground(RadioNotification.NOTIFICATION_ID, notification)
-            }
+            ServiceCompat.startForeground(
+                service!!,
+                RadioNotification.NOTIFICATION_ID,
+                notification,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                } else {
+                    0
+                }
+            )
         }
     }
 
     private fun onServiceStop() {
-        destroy()
+        destroyNotification()
     }
 }
 
@@ -122,15 +124,22 @@ class RadioNotificationService : Service() {
         return START_NOT_STICKY
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        destroy(false)
+    }
+
     companion object {
         val events = Eventer<RadioNotificationServiceEvents>()
         var instance: RadioNotificationService? = null
 
-        fun destroy() {
+        fun destroy(stop: Boolean = true) {
             instance?.let {
                 instance = null
-                it.stopForeground(STOP_FOREGROUND_REMOVE)
-                it.stopSelf()
+                if (stop) {
+                    it.stopForeground(STOP_FOREGROUND_REMOVE)
+                    it.stopSelf()
+                }
                 events.dispatch(RadioNotificationServiceEvents.STOP)
             }
         }
