@@ -76,7 +76,7 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
-    val queue = context.symphony.radio.observatory.queue
+    val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val currentPlayingSong by remember {
         derivedStateOf {

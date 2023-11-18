@@ -9,6 +9,7 @@ import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.getColumnIndices
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
 
 class MediaStoreExposer(private val symphony: Symphony) {
@@ -19,7 +20,9 @@ class MediaStoreExposer(private val symphony: Symphony) {
     val isUpdating = _isUpdating.asStateFlow()
 
     private fun emitUpdate(value: Boolean) {
-        _isUpdating.tryEmit(value)
+        _isUpdating.update {
+            value
+        }
         symphony.groove.onMediaStoreUpdate(value)
     }
 

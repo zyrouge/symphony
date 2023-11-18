@@ -20,6 +20,7 @@ import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 object SettingsKeys {
     const val identifier = "settings"
@@ -246,7 +247,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.themeMode, themeMode.name)
         }
-        _themeMode.tryEmit(getThemeMode())
+        _themeMode.updateUsingValue(getThemeMode())
     }
 
     fun getLanguage() = getSharedPreferences().getString(SettingsKeys.language, null)
@@ -254,7 +255,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.language, language)
         }
-        _language.tryEmit(getLanguage())
+        _language.updateUsingValue(getLanguage())
     }
 
     fun getUseMaterialYou() = getSharedPreferences().getBoolean(
@@ -266,7 +267,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.useMaterialYou, value)
         }
-        _useMaterialYou.tryEmit(getUseMaterialYou())
+        _useMaterialYou.updateUsingValue(getUseMaterialYou())
     }
 
     fun getLastUsedSongsSortBy() = getSharedPreferences()
@@ -277,7 +278,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedSongsSortBy, sortBy)
         }
-        _lastUsedSongsSortBy.tryEmit(getLastUsedSongsSortBy())
+        _lastUsedSongsSortBy.updateUsingValue(getLastUsedSongsSortBy())
     }
 
     fun getLastUsedSongsSortReverse() =
@@ -287,7 +288,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedSongsSortReverse, reverse)
         }
-        _lastUsedSongsSortReverse.tryEmit(getLastUsedSongsSortReverse())
+        _lastUsedSongsSortReverse.updateUsingValue(getLastUsedSongsSortReverse())
     }
 
     fun getLastUsedArtistsSortBy() = getSharedPreferences()
@@ -298,7 +299,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedArtistsSortBy, sortBy)
         }
-        _lastUsedArtistsSortBy.tryEmit(getLastUsedArtistsSortBy())
+        _lastUsedArtistsSortBy.updateUsingValue(getLastUsedArtistsSortBy())
     }
 
     fun getLastUsedArtistsSortReverse() =
@@ -308,7 +309,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedArtistsSortReverse, reverse)
         }
-        _lastUsedArtistsSortReverse.tryEmit(getLastUsedArtistsSortReverse())
+        _lastUsedArtistsSortReverse.updateUsingValue(getLastUsedArtistsSortReverse())
     }
 
     fun getLastUsedAlbumArtistsSortBy() = getSharedPreferences()
@@ -319,7 +320,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumArtistsSortBy, sortBy)
         }
-        _lastUsedAlbumArtistsSortBy.tryEmit(getLastUsedAlbumArtistsSortBy())
+        _lastUsedAlbumArtistsSortBy.updateUsingValue(getLastUsedAlbumArtistsSortBy())
     }
 
     fun getLastUsedAlbumArtistsSortReverse() =
@@ -329,7 +330,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedAlbumArtistsSortReverse, reverse)
         }
-        _lastUsedAlbumArtistsSortReverse.tryEmit(getLastUsedAlbumArtistsSortReverse())
+        _lastUsedAlbumArtistsSortReverse.updateUsingValue(getLastUsedAlbumArtistsSortReverse())
     }
 
     fun getLastUsedAlbumsSortBy() = getSharedPreferences()
@@ -340,7 +341,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumsSortBy, sortBy)
         }
-        _lastUsedAlbumsSortBy.tryEmit(getLastUsedAlbumsSortBy())
+        _lastUsedAlbumsSortBy.updateUsingValue(getLastUsedAlbumsSortBy())
     }
 
     fun getLastUsedAlbumsSortReverse() =
@@ -350,7 +351,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedAlbumsSortReverse, reverse)
         }
-        _lastUsedAlbumsSortReverse.tryEmit(getLastUsedAlbumsSortReverse())
+        _lastUsedAlbumsSortReverse.updateUsingValue(getLastUsedAlbumsSortReverse())
     }
 
     fun getLastUsedGenresSortBy() = getSharedPreferences()
@@ -361,7 +362,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedGenresSortBy, sortBy)
         }
-        _lastUsedGenresSortBy.tryEmit(getLastUsedGenresSortBy())
+        _lastUsedGenresSortBy.updateUsingValue(getLastUsedGenresSortBy())
     }
 
     fun getLastUsedGenresSortReverse() =
@@ -371,7 +372,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedGenresSortReverse, reverse)
         }
-        _lastUsedGenresSortReverse.tryEmit(getLastUsedGenresSortReverse())
+        _lastUsedGenresSortReverse.updateUsingValue(getLastUsedGenresSortReverse())
     }
 
     fun getLastUsedFolderSortBy() = getSharedPreferences()
@@ -382,7 +383,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedFolderSortBy, sortBy)
         }
-        _lastUsedFolderSortBy.tryEmit(getLastUsedFolderSortBy())
+        _lastUsedFolderSortBy.updateUsingValue(getLastUsedFolderSortBy())
     }
 
     fun getLastUsedFolderSortReverse() =
@@ -392,7 +393,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedFolderSortReverse, reverse)
         }
-        _lastUsedFolderSortReverse.tryEmit(getLastUsedFolderSortReverse())
+        _lastUsedFolderSortReverse.updateUsingValue(getLastUsedFolderSortReverse())
     }
 
     fun getLastUsedFolderPath() =
@@ -403,7 +404,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.lastUsedFolderPath, path.joinToString("/"))
         }
-        _lastUsedFolderPath.tryEmit(getLastUsedFolderPath())
+        _lastUsedFolderPath.updateUsingValue(getLastUsedFolderPath())
     }
 
     fun getLastUsedPlaylistsSortBy() = getSharedPreferences()
@@ -414,7 +415,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedPlaylistsSortBy, sortBy)
         }
-        _lastUsedPlaylistsSortBy.tryEmit(getLastUsedPlaylistsSortBy())
+        _lastUsedPlaylistsSortBy.updateUsingValue(getLastUsedPlaylistsSortBy())
     }
 
     fun getLastUsedPlaylistsSortReverse() =
@@ -424,7 +425,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedPlaylistsSortReverse, reverse)
         }
-        _lastUsedPlaylistsSortReverse.tryEmit(getLastUsedPlaylistsSortReverse())
+        _lastUsedPlaylistsSortReverse.updateUsingValue(getLastUsedPlaylistsSortReverse())
     }
 
     fun getLastUsedPlaylistSongsSortBy() = getSharedPreferences()
@@ -435,7 +436,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedPlaylistSongsSortBy, sortBy)
         }
-        _lastUsedPlaylistSongsSortBy.tryEmit(getLastUsedPlaylistSongsSortBy())
+        _lastUsedPlaylistSongsSortBy.updateUsingValue(getLastUsedPlaylistSongsSortBy())
     }
 
     fun getLastUsedPlaylistSongsSortReverse() =
@@ -445,7 +446,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedPlaylistSongsSortReverse, reverse)
         }
-        _lastUsedPlaylistSongsSortReverse.tryEmit(getLastUsedPlaylistSongsSortReverse())
+        _lastUsedPlaylistSongsSortReverse.updateUsingValue(getLastUsedPlaylistSongsSortReverse())
     }
 
     fun getLastUsedAlbumSongsSortBy() = getSharedPreferences()
@@ -456,7 +457,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumSongsSortBy, sortBy)
         }
-        _lastUsedAlbumSongsSortBy.tryEmit(getLastUsedAlbumSongsSortBy())
+        _lastUsedAlbumSongsSortBy.updateUsingValue(getLastUsedAlbumSongsSortBy())
     }
 
     fun getLastUsedAlbumSongsSortReverse() =
@@ -466,7 +467,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedAlbumSongsSortReverse, reverse)
         }
-        _lastUsedAlbumSongsSortReverse.tryEmit(getLastUsedAlbumSongsSortReverse())
+        _lastUsedAlbumSongsSortReverse.updateUsingValue(getLastUsedAlbumSongsSortReverse())
     }
 
     fun getLastUsedTreePathSortBy() = getSharedPreferences()
@@ -477,7 +478,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedTreePathSortBy, sortBy)
         }
-        _lastUsedTreePathSortBy.tryEmit(getLastUsedTreePathSortBy())
+        _lastUsedTreePathSortBy.updateUsingValue(getLastUsedTreePathSortBy())
     }
 
     fun getLastUsedTreePathSortReverse() =
@@ -487,7 +488,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.lastUsedTreePathSortReverse, reverse)
         }
-        _lastUsedTreePathSortReverse.tryEmit(getLastUsedTreePathSortReverse())
+        _lastUsedTreePathSortReverse.updateUsingValue(getLastUsedTreePathSortReverse())
     }
 
     fun getPreviousSongQueue() = getSharedPreferences()
@@ -508,7 +509,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.homeLastTab, value)
         }
-        _homeLastTab.tryEmit(getHomeLastTab())
+        _homeLastTab.updateUsingValue(getHomeLastTab())
     }
 
     fun getLastDisabledTreePaths(): List<String> = getSharedPreferences()
@@ -519,7 +520,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putStringSet(SettingsKeys.lastDisabledTreePaths, paths.toSet())
         }
-        _lastDisabledTreePaths.tryEmit(getLastDisabledTreePaths())
+        _lastDisabledTreePaths.updateUsingValue(getLastDisabledTreePaths())
     }
 
     fun getSongsFilterPattern() =
@@ -529,7 +530,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.songsFilterPattern, value)
         }
-        _songsFilterPattern.tryEmit(getSongsFilterPattern())
+        _songsFilterPattern.updateUsingValue(getSongsFilterPattern())
     }
 
     fun getCheckForUpdates() = getSharedPreferences().getBoolean(
@@ -541,7 +542,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.checkForUpdates, value)
         }
-        _checkForUpdates.tryEmit(getCheckForUpdates())
+        _checkForUpdates.updateUsingValue(getCheckForUpdates())
     }
 
     fun getFadePlayback() = getSharedPreferences().getBoolean(
@@ -553,7 +554,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.fadePlayback, value)
         }
-        _fadePlayback.tryEmit(getFadePlayback())
+        _fadePlayback.updateUsingValue(getFadePlayback())
     }
 
     fun getRequireAudioFocus() = getSharedPreferences().getBoolean(
@@ -565,7 +566,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.requireAudioFocus, value)
         }
-        _requireAudioFocus.tryEmit(getRequireAudioFocus())
+        _requireAudioFocus.updateUsingValue(getRequireAudioFocus())
     }
 
     fun getIgnoreAudioFocusLoss() = getSharedPreferences().getBoolean(
@@ -577,7 +578,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.ignoreAudioFocusLoss, value)
         }
-        _ignoreAudioFocusLoss.tryEmit(getIgnoreAudioFocusLoss())
+        _ignoreAudioFocusLoss.updateUsingValue(getIgnoreAudioFocusLoss())
     }
 
     fun getPlayOnHeadphonesConnect() = getSharedPreferences().getBoolean(
@@ -589,7 +590,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.playOnHeadphonesConnect, value)
         }
-        _playOnHeadphonesConnect.tryEmit(getPlayOnHeadphonesConnect())
+        _playOnHeadphonesConnect.updateUsingValue(getPlayOnHeadphonesConnect())
     }
 
     fun getPauseOnHeadphonesDisconnect() = getSharedPreferences().getBoolean(
@@ -601,7 +602,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.pauseOnHeadphonesDisconnect, value)
         }
-        _pauseOnHeadphonesDisconnect.tryEmit(getPauseOnHeadphonesDisconnect())
+        _pauseOnHeadphonesDisconnect.updateUsingValue(getPauseOnHeadphonesDisconnect())
     }
 
     fun getPrimaryColor() = getSharedPreferences().getString(SettingsKeys.primaryColor, null)
@@ -610,7 +611,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.primaryColor, value)
         }
-        _primaryColor.tryEmit(getPrimaryColor())
+        _primaryColor.updateUsingValue(getPrimaryColor())
     }
 
     fun getFadePlaybackDuration() = getSharedPreferences().getFloat(
@@ -622,7 +623,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putFloat(SettingsKeys.fadePlaybackDuration, value)
         }
-        _fadePlaybackDuration.tryEmit(getFadePlaybackDuration())
+        _fadePlaybackDuration.updateUsingValue(getFadePlaybackDuration())
     }
 
     fun getHomeTabs() = getSharedPreferences()
@@ -636,7 +637,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.homeTabs, tabs.joinToString(",") { it.name })
         }
-        _homeTabs.tryEmit(getHomeTabs())
+        _homeTabs.updateUsingValue(getHomeTabs())
         if (getHomeLastTab() !in tabs) {
             setHomeLastTab(tabs.first())
         }
@@ -650,7 +651,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.homePageBottomBarLabelVisibility, value)
         }
-        _homePageBottomBarLabelVisibility.tryEmit(getHomePageBottomBarLabelVisibility())
+        _homePageBottomBarLabelVisibility.updateUsingValue(getHomePageBottomBarLabelVisibility())
     }
 
     fun getForYouContents() = getSharedPreferences()
@@ -664,7 +665,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.forYouContents, forYouContents.joinToString(",") { it.name })
         }
-        _forYouContents.tryEmit(getForYouContents())
+        _forYouContents.updateUsingValue(getForYouContents())
     }
 
     fun getBlacklistFolders() = getSharedPreferences()
@@ -676,7 +677,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putStringSet(SettingsKeys.blacklistFolders, values)
         }
-        _blacklistFolders.tryEmit(getBlacklistFolders())
+        _blacklistFolders.updateUsingValue(getBlacklistFolders())
     }
 
     fun getWhitelistFolders() = getSharedPreferences()
@@ -688,7 +689,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putStringSet(SettingsKeys.whitelistFolders, values)
         }
-        _whitelistFolders.tryEmit(getWhitelistFolders())
+        _whitelistFolders.updateUsingValue(getWhitelistFolders())
     }
 
     fun getReadIntroductoryMessage() = getSharedPreferences().getBoolean(
@@ -700,7 +701,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.readIntroductoryMessage, value)
         }
-        _readIntroductoryMessage.tryEmit(getReadIntroductoryMessage())
+        _readIntroductoryMessage.updateUsingValue(getReadIntroductoryMessage())
     }
 
     fun getNowPlayingAdditionalInfo() = getSharedPreferences().getBoolean(
@@ -712,7 +713,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.nowPlayingAdditionalInfo, value)
         }
-        _nowPlayingAdditionalInfo.tryEmit(getNowPlayingAdditionalInfo())
+        _nowPlayingAdditionalInfo.updateUsingValue(getNowPlayingAdditionalInfo())
     }
 
     fun getNowPlayingSeekControls() = getSharedPreferences().getBoolean(
@@ -724,7 +725,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.nowPlayingSeekControls, value)
         }
-        _nowPlayingSeekControls.tryEmit(getNowPlayingSeekControls())
+        _nowPlayingSeekControls.updateUsingValue(getNowPlayingSeekControls())
     }
 
     fun getSeekBackDuration() = getSharedPreferences().getInt(
@@ -736,7 +737,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putInt(SettingsKeys.seekBackDuration, value)
         }
-        _seekBackDuration.tryEmit(getSeekBackDuration())
+        _seekBackDuration.updateUsingValue(getSeekBackDuration())
     }
 
     fun getSeekForwardDuration() = getSharedPreferences().getInt(
@@ -748,7 +749,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putInt(SettingsKeys.seekForwardDuration, value)
         }
-        _seekForwardDuration.tryEmit(getSeekForwardDuration())
+        _seekForwardDuration.updateUsingValue(getSeekForwardDuration())
     }
 
     fun getMiniPlayerTrackControls() = getSharedPreferences().getBoolean(
@@ -760,7 +761,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.miniPlayerTrackControls, value)
         }
-        _miniPlayerTrackControls.tryEmit(getMiniPlayerTrackControls())
+        _miniPlayerTrackControls.updateUsingValue(getMiniPlayerTrackControls())
     }
 
     fun getMiniPlayerSeekControls() = getSharedPreferences().getBoolean(
@@ -772,7 +773,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.miniPlayerSeekControls, value)
         }
-        _miniPlayerSeekControls.tryEmit(getMiniPlayerSeekControls())
+        _miniPlayerSeekControls.updateUsingValue(getMiniPlayerSeekControls())
     }
 
     fun getFontFamily() = getSharedPreferences().getString(SettingsKeys.fontFamily, null)
@@ -780,7 +781,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putString(SettingsKeys.fontFamily, language)
         }
-        _fontFamily.tryEmit(getFontFamily())
+        _fontFamily.updateUsingValue(getFontFamily())
     }
 
     fun getNowPlayingControlsLayout() = getSharedPreferences()
@@ -791,7 +792,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.nowPlayingControlsLayout, controlsLayout)
         }
-        _nowPlayingControlsLayout.tryEmit(getNowPlayingControlsLayout())
+        _nowPlayingControlsLayout.updateUsingValue(getNowPlayingControlsLayout())
     }
 
     fun getShowUpdateToast() = getSharedPreferences().getBoolean(
@@ -803,7 +804,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putBoolean(SettingsKeys.showUpdateToast, value)
         }
-        _showUpdateToast.tryEmit(getShowUpdateToast())
+        _showUpdateToast.updateUsingValue(getShowUpdateToast())
     }
 
     fun getFontScale() = getSharedPreferences().getFloat(
@@ -815,7 +816,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putFloat(SettingsKeys.fontScale, value)
         }
-        _fontScale.tryEmit(getFontScale())
+        _fontScale.updateUsingValue(getFontScale())
     }
 
     fun getContentScale() = getSharedPreferences().getFloat(
@@ -827,7 +828,7 @@ class SettingsManager(private val symphony: Symphony) {
         getSharedPreferences().edit {
             putFloat(SettingsKeys.contentScale, value)
         }
-        _contentScale.tryEmit(getContentScale())
+        _contentScale.updateUsingValue(getContentScale())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(
@@ -854,3 +855,7 @@ private inline fun <reified T : Enum<T>> SharedPreferences.Editor.putEnum(
 
 private inline fun <reified T : Enum<T>> parseEnumValue(value: String): T? =
     T::class.java.enumConstants?.find { it.name == value }
+
+private fun <T> MutableStateFlow<T>.updateUsingValue(value: T) = update {
+    value
+}

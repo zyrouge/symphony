@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    val queue = context.symphony.radio.observatory.queue
+    val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val selectedSongIndices = remember { mutableStateListOf<Int>() }
     val listState = rememberLazyListState(

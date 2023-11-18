@@ -25,7 +25,7 @@ fun PlaylistGrid(
 ) {
     val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.collectAsState()
-    val sortedPlaylistIds by remember {
+    val sortedPlaylistIds by remember(playlistIds, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.playlist.sort(playlistIds, sortBy, sortReverse)
         }
