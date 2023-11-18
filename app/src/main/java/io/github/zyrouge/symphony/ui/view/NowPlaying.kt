@@ -50,7 +50,7 @@ enum class NowPlayingControlsLayout {
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
-    val queue = context.symphony.radio.observatory.queue
+    val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val song by remember {
         derivedStateOf {

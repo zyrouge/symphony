@@ -68,7 +68,7 @@ fun SongCard(
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    val queue = context.symphony.radio.observatory.queue
+    val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val isCurrentPlaying by remember {
         derivedStateOf { autoHighlight && song.id == queue.getOrNull(queueIndex) }

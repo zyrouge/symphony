@@ -50,7 +50,10 @@ class SongRepository(private val symphony: Symphony) {
     var explorer = MediaStoreExposer.createExplorer()
 
     private fun emitCount() = _count.update { cache.size }
-    private fun emitIds() = _id.tryEmit(System.currentTimeMillis())
+
+    private fun emitIds() = _id.update {
+        System.currentTimeMillis()
+    }
 
     internal fun onSong(song: Song) {
         cache[song.id] = song
