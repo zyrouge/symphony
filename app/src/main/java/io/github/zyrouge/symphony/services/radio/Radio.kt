@@ -110,6 +110,14 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 setOnFinishListener {
                     onSongFinish(SongFinishSource.Finish)
                 }
+                setOnErrorListener { what, extra ->
+                    Logger.warn(
+                        "Radio",
+                        "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $what + $extra"
+                    )
+                    queue.remove(queue.currentSongIndex)
+                    onSongFinish(SongFinishSource.Exception)
+                }
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
             player!!.prepare {

@@ -3,7 +3,7 @@ package io.github.zyrouge.symphony.services.radio
 import android.media.MediaPlayer
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
-import java.util.*
+import java.util.Timer
 
 data class PlaybackPosition(
     val played: Int,
@@ -20,6 +20,7 @@ data class PlaybackPosition(
 typealias RadioPlayerOnPreparedListener = () -> Unit
 typealias RadioPlayerOnPlaybackPositionUpdateListener = (PlaybackPosition) -> Unit
 typealias RadioPlayerOnFinishListener = () -> Unit
+typealias RadioPlayerOnErrorListener = (Int, Int) -> Unit
 
 class RadioPlayer(val symphony: Symphony, uri: Uri) {
     var usable = false
@@ -30,6 +31,8 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     private var onPrepared: RadioPlayerOnPreparedListener? = null
     private var onPlaybackPositionUpdate: RadioPlayerOnPlaybackPositionUpdateListener? = null
     private var onFinish: RadioPlayerOnFinishListener? = null
+    private var onError: RadioPlayerOnErrorListener? = null
+
     private var playbackPositionUpdater: Timer? = null
     val playbackPosition: PlaybackPosition?
         get() = mediaPlayer?.let {
@@ -70,7 +73,9 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
                 usable = false
                 onFinish?.invoke()
             }
-            setOnErrorListener { _, _, _ ->
+            setOnErrorListener { _, what, extra ->
+                usable = false
+                onError?.invoke(what, extra)
                 true
             }
             setDataSource(symphony.applicationContext, uri)
@@ -159,6 +164,12 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         listener: RadioPlayerOnFinishListener?
     ) {
         onFinish = listener
+    }
+
+    fun setOnErrorListener(
+        listener: RadioPlayerOnErrorListener?
+    ) {
+        onError = listener
     }
 
     private fun createDurationTimer() {
