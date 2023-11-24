@@ -31,7 +31,7 @@ object AppMeta {
     const val izzyOnDroidUrl = "https://apt.izzysoft.de/fdroid/index/apk/$packageName"
     const val fdroidUrl = "https://f-droid.org/en/packages/$packageName"
 
-    fun isNightlyBuild() = Regex("""-\w{7}$""").containsMatchIn(version)
+    fun isNightlyBuild() = version.contains("-nightly")
 
     fun fetchLatestVersion() = when {
         isNightlyBuild() -> fetchLatestNightlyVersion()
