@@ -49,14 +49,13 @@ Why was this created? As I was getting into offline music, most of the popular g
 -   [Discord](https://discord.gg/5k9Hdq7ycm)
 -   [Reddit](https://reddit.com/r/symphony_app)
 -   [Github Sponsors](https://github.com/sponsors/zyrouge)
--   [Ko-fi](https://ko-fi.com/zyrouge)
 -   [Patreon](https://patreon.com/zyrouge)
 
 ## Contributing
 
 Before contributing, please read the [Developer Guide](https://github.com/zyrouge/symphony/wiki/Developer-Guide).
 
-Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Sponsorships through [GitHub Sponsors](https://github.com/sponsors/zyrouge) or donations through [Ko-fi](https://ko-fi.com/zyrouge) or [Patreon](https://patreon.com/zyrouge) helps me to stay motivated.
+Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Donations through [GitHub Sponsors](https://github.com/sponsors/zyrouge) or [Patreon](https://patreon.com/zyrouge) helps me to stay motivated to keep working on this project.
 
 ## License
 
