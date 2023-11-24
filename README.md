@@ -24,9 +24,9 @@
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/v/release/zyrouge/symphony?label=latest"></a>
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/v/tag/zyrouge/symphony?label=latest-nightly&color=c9833c"></a>
     <a href=""><img src="https://img.shields.io/badge/supports-Android%209+-AD2A5A"></a>
-    <a href=""><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-translated.json"></a>
-    <a href=""><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-languages.json"></a>
-    <a href=""><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-strings.json"></a>
+    <a href="https://github.com/zyrouge/symphony/tree/i18n-summary"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-translated.json"></a>
+    <a href="https://github.com/zyrouge/symphony/tree/i18n-summary"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-languages.json"></a>
+    <a href="https://github.com/zyrouge/symphony/tree/i18n-summary"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-strings.json"></a>
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/actions/workflows/release.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg"></a>
