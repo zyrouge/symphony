@@ -188,9 +188,6 @@ class PlaylistRepository(private val symphony: Symphony) {
             local = null,
         )
         cache[id] = new
-//        TODO
-//        _all.remove(id)
-//        _all.add(id)
         emitUpdateId()
         emitCount()
         if (id == favoritesId) {
@@ -286,9 +283,6 @@ class PlaylistRepository(private val symphony: Symphony) {
     suspend fun renamePlaylist(playlist: Playlist, title: String) {
         val renamed = playlist.renamed(title)
         cache[playlist.id] = renamed
-// TODO
-//        _all.remove(playlist.id)
-//        _all.add(playlist.id)
         emitUpdateId()
         save()
     }

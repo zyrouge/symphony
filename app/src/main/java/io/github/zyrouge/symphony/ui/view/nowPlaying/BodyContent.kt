@@ -3,9 +3,10 @@ package io.github.zyrouge.symphony.ui.view.nowPlaying
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
@@ -30,8 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,9 +44,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.components.noRippleClickable
@@ -246,47 +246,152 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(defaultHorizontalPadding))
+            Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
             Row(
                 modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val interactionSource = remember { MutableInteractionSource() }
-                var sliderPosition by remember { mutableStateOf<Int?>(null) }
-                Text(
-                    DurationFormatter.formatMs(sliderPosition ?: playbackPosition.played),
-                    style = MaterialTheme.typography.labelMedium
+                var seekRatio by remember { mutableStateOf<Float?>(null) }
+                val seekDuration by remember(seekRatio) {
+                    derivedStateOf {
+                        seekRatio?.let { it * playbackPosition.total }?.toInt()
+                    }
+                }
+
+                NowPlayingPlaybackPositionText(
+                    seekDuration ?: playbackPosition.played,
+                    Alignment.CenterStart,
                 )
                 Box(modifier = Modifier.weight(1f)) {
-                    Slider(
-                        value = (sliderPosition ?: playbackPosition.played).toFloat(),
-                        valueRange = 0f..playbackPosition.total.toFloat(),
-                        onValueChange = {
-                            sliderPosition = it.toInt()
+                    NowPlayingSeekBar(
+                        ratio = playbackPosition.ratio,
+                        onSeekStart = {
+                            seekRatio = 0f
                         },
-                        onValueChangeFinished = {
-                            sliderPosition?.let {
+                        onSeek = {
+                            seekRatio = it
+                        },
+                        onSeekEnd = {
+                            seekDuration?.let {
                                 context.symphony.radio.seek(it)
-                                sliderPosition = null
                             }
-                        },
-                        interactionSource = interactionSource,
-                        thumb = {
-                            SliderDefaults.Thumb(
-                                interactionSource = interactionSource,
-                                thumbSize = DpSize(12.dp, 12.dp),
-                                // NOTE: pad top to fix stupid layout
-                                modifier = Modifier.padding(top = 4.dp),
-                            )
+                            seekRatio = null
                         }
                     )
                 }
-                Text(
-                    DurationFormatter.formatMs(playbackPosition.total),
-                    style = MaterialTheme.typography.labelMedium
+                NowPlayingPlaybackPositionText(
+                    playbackPosition.total,
+                    Alignment.CenterEnd,
                 )
             }
+            Spacer(modifier = Modifier.height(defaultHorizontalPadding))
+        }
+    }
+}
+
+@Composable
+private fun NowPlayingPlaybackPositionText(
+    duration: Int,
+    alignment: Alignment,
+) {
+    val textStyle = MaterialTheme.typography.labelMedium
+    val durationFormatted = DurationFormatter.formatMs(duration)
+
+    Box(contentAlignment = alignment) {
+        Text(
+            "0".repeat(durationFormatted.length),
+            style = textStyle.copy(color = Color.Transparent),
+        )
+        Text(
+            durationFormatted,
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingSeekBar(
+    ratio: Float,
+    onSeekStart: () -> Unit,
+    onSeek: (Float) -> Unit,
+    onSeekEnd: () -> Unit,
+) {
+    val sliderHeight = 12.dp
+    val thumbSize = 12.dp
+    val thumbSizeHalf = thumbSize.div(2)
+    val trackHeight = 4.dp
+
+    var dragging by remember { mutableStateOf(false) }
+    var dragRatio by remember { mutableStateOf(0f) }
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(sliderHeight),
+        contentAlignment = Alignment.Center,
+    ) {
+        val dragMaxWidth = maxWidth
+
+        Box(
+            modifier = Modifier
+                .height(sliderHeight)
+                .fillMaxWidth()
+                .pointerInput(Unit) {
+                    var offsetX = 0f
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            offsetX = offset.x
+                            dragging = true
+                            onSeekStart()
+                        },
+                        onDragEnd = {
+                            onSeekEnd()
+                            offsetX = 0f
+                            dragging = false
+                            dragRatio = 0f
+                        },
+                        onDrag = { pointer, offset ->
+                            pointer.consume()
+                            offsetX += offset.x
+                            dragRatio = (offsetX / dragMaxWidth.toPx()).coerceIn(0f..1f)
+                            onSeek(dragRatio)
+                        },
+                    )
+                }
+        )
+        Box(
+            modifier = Modifier
+                .padding(thumbSizeHalf, 0.dp)
+                .height(trackHeight)
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(thumbSizeHalf)
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .height(trackHeight)
+                    .fillMaxWidth(if (dragging) dragRatio else ratio)
+                    .background(
+                        MaterialTheme.colorScheme.primary,
+                        RoundedCornerShape(thumbSizeHalf)
+                    )
+            )
+        }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .size(thumbSize)
+                    .offset(
+                        dragMaxWidth
+                            .minus(thumbSizeHalf.times(2))
+                            .times(if (dragging) dragRatio else ratio),
+                        0.dp
+                    )
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+            )
         }
     }
 }
@@ -295,7 +400,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
 private fun NowPlayingPlayPauseButton(
     context: ViewContext,
     data: NowPlayingPlayerStateData,
-    style: NowPlayingControlButtonStyle
+    style: NowPlayingControlButtonStyle,
 ) {
     data.run {
         NowPlayingControlButton(
@@ -315,7 +420,7 @@ private fun NowPlayingPlayPauseButton(
 private fun NowPlayingSkipPreviousButton(
     context: ViewContext,
     data: NowPlayingPlayerStateData,
-    style: NowPlayingControlButtonStyle
+    style: NowPlayingControlButtonStyle,
 ) {
     data.run {
         NowPlayingControlButton(
@@ -332,7 +437,7 @@ private fun NowPlayingSkipPreviousButton(
 private fun NowPlayingSkipNextButton(
     context: ViewContext,
     data: NowPlayingPlayerStateData,
-    style: NowPlayingControlButtonStyle
+    style: NowPlayingControlButtonStyle,
 ) {
     data.run {
         NowPlayingControlButton(
@@ -349,7 +454,7 @@ private fun NowPlayingSkipNextButton(
 private fun NowPlayingFastRewindButton(
     context: ViewContext,
     data: NowPlayingPlayerStateData,
-    style: NowPlayingControlButtonStyle
+    style: NowPlayingControlButtonStyle,
 ) {
     data.run {
         NowPlayingControlButton(
@@ -367,7 +472,7 @@ private fun NowPlayingFastRewindButton(
 private fun NowPlayingFastForwardButton(
     context: ViewContext,
     data: NowPlayingPlayerStateData,
-    style: NowPlayingControlButtonStyle
+    style: NowPlayingControlButtonStyle,
 ) {
     data.run {
         NowPlayingControlButton(
