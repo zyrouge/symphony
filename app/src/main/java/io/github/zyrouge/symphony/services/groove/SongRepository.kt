@@ -7,7 +7,6 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -81,9 +80,8 @@ class SongRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun search(songIds: List<Long>, terms: String, limit: Int? = 7) = searcher
-        .search(terms, songIds)
-        .subListNonStrict(limit ?: songIds.size)
+    fun search(songIds: List<Long>, terms: String, limit: Int = 7) = searcher
+        .search(terms, songIds, maxLength = limit)
 
     fun sort(songIds: List<Long>, by: SongSortBy, reverse: Boolean): List<Long> {
         val sorted = when (by) {

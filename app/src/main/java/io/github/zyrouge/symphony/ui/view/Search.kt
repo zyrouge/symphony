@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.AlbumArtistDropdownMenu
@@ -160,6 +162,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
 
     val textFieldFocusRequester = FocusRequester()
     val configuration = LocalConfiguration.current
+
     LaunchedEffect(LocalContext.current) {
         textFieldFocusRequester.requestFocus()
         snapshotFlow { configuration.orientation }.collect {
@@ -178,6 +181,9 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(textFieldFocusRequester),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search,
+                    ),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,

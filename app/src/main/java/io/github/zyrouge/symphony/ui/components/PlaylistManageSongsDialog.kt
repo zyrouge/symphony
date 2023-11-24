@@ -46,7 +46,7 @@ fun PlaylistManageSongsDialog(
     var terms by remember { mutableStateOf("") }
     val songIds by remember {
         derivedStateOf {
-            context.symphony.groove.song.search(allSongIds, terms, null)
+            context.symphony.groove.song.search(allSongIds, terms, limit = -1)
                 .map { it.entity }
                 .sortedBy { !selectedSongIds.contains(it) }
         }

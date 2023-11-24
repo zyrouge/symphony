@@ -8,7 +8,6 @@ import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -88,9 +87,8 @@ class AlbumRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
-    fun search(albumIds: List<Long>, terms: String, limit: Int? = 7) = searcher
-        .search(terms, albumIds)
-        .subListNonStrict(limit ?: albumIds.size)
+    fun search(albumIds: List<Long>, terms: String, limit: Int = 7) = searcher
+        .search(terms, albumIds, maxLength = limit)
 
     fun sort(
         albumIds: List<Long>,

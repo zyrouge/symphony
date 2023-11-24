@@ -4,7 +4,6 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -66,9 +65,8 @@ class GenreRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun search(genreIds: List<String>, terms: String, limit: Int? = 7) = searcher
-        .search(terms, genreIds)
-        .subListNonStrict(limit ?: genreIds.size)
+    fun search(genreIds: List<String>, terms: String, limit: Int = 7) = searcher
+        .search(terms, genreIds, maxLength = limit)
 
     fun sort(
         genreIds: List<String>,

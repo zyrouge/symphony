@@ -12,7 +12,6 @@ import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.getColumnIndices
 import io.github.zyrouge.symphony.utils.mutate
-import io.github.zyrouge.symphony.utils.subListNonStrict
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -121,9 +120,8 @@ class PlaylistRepository(private val symphony: Symphony) {
         emitUpdate(false)
     }
 
-    fun search(playlistIds: List<String>, terms: String, limit: Int? = 7) = searcher
-        .search(terms, playlistIds)
-        .subListNonStrict(limit ?: playlistIds.size)
+    fun search(playlistIds: List<String>, terms: String, limit: Int = 7) = searcher
+        .search(terms, playlistIds, maxLength = limit)
 
     fun sort(playlistIds: List<String>, by: PlaylistSortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
