@@ -4,7 +4,7 @@ locale = "ryu"
 UnknownSymbol = "？"
 HelloThere = "はいさい！"
 IntroductoryMessage = """
-Symphonyオープンベータぐりよういただきにふぇーでーびる。バグぬはっせいさーあい、あらんでぃかいじんていあんさるいばあえー、GitHubリポジトリっしissueふぃらちくぃみそーれー。
+Symphonyオープンベータぐりよういただきにふぇーでーびる。バグぬはっせいさーあい、あらんでぃかいじんていあんさるいばあえー、Githubリポジトリっしissueふぃらちくぃみそーれー。
 
 DiscordうゆびRedditコミュニティなさんがしフィードバックちゅーゆーいんし、さいしんじょうほうをんかいゅうしゅしください。
 
@@ -52,7 +52,7 @@ TrackCount = "トラックすーいん"
 FilteringResults = "きっかフィルタリングちゅう..."
 Appearance = "やしがいかん"
 About = "symphonyにちいてぃ"
-GitHub = "GitHub"
+Github = "Github"
 Play = "さいせい"
 Previous = "めーぬきょく"
 Next = "ちぎぬきょく"
@@ -82,7 +82,7 @@ ForYou = "うんじゅがたみに"
 SuggestedAlbums = "うすすみぬアルバム"
 SuggestedArtists = "うすすみぬアーティスト"
 RecentlyAddedSongs = "さいきんちいからさったるきょく"
-SponsorViaGitHub = "GitHubけいゆでいスポンサーすん"
+SponsorViaGithub = "Githubけいゆでいスポンサーすん"
 ClearSongCache = "きょくぬキャッシュさちゅるじょ"
 SongCacheCleared = "きょくぬキャッシュぬさちゅるじょさりやびたん"
 AlbumArtists = "アルバムアーティスト"

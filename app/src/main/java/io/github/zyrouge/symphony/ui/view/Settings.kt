@@ -799,7 +799,7 @@ fun SettingsView(context: ViewContext) {
                                 Icon(Icons.Filled.Code, null)
                             },
                             title = {
-                                Text(context.symphony.t.GitHub)
+                                Text(context.symphony.t.Github)
                             },
                             url = AppMeta.githubRepositoryUrl
                         )

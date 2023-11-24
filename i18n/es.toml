@@ -4,7 +4,7 @@ locale = "es"
 UnknownSymbol = "?"
 HelloThere = "Hola!"
 IntroductoryMessage = """
-Gracias por formar parte de la open-beta de Symphony. Si encuentras un bug o quieres sugerir alguna mejora, por favor crea un "problema" en nuestro repositorio de GitHub.
+Gracias por formar parte de la open-beta de Symphony. Si encuentras un bug o quieres sugerir alguna mejora, por favor crea un "problema" en nuestro repositorio de Github.
 
 Unete a nuestro Discord y comunidad de Reddit para compartir tus comentarios y mantenerte actualizado con el desarrollo del proyecto.
 
@@ -52,7 +52,7 @@ TrackCount = "Número de pista"
 FilteringResults = "Filtrando resultados..."
 Appearance = "Apariencia"
 About = "Información"
-GitHub = "GitHub"
+Github = "Github"
 Play = "Reproducir"
 Previous = "Anterior"
 Next = "Siguiente"
@@ -82,7 +82,7 @@ ForYou = "Para ti"
 SuggestedAlbums = "Álbumes sugeridos"
 SuggestedArtists = "Artistas sugeridos"
 RecentlyAddedSongs = "Añadido recientemente"
-SponsorViaGitHub = "Sponsor via GitHub"
+SponsorViaGithub = "Sponsor via Github"
 ClearSongCache = "Limpiar caché de canciones"
 SongCacheCleared = "Caché de canciones limpio"
 AlbumArtists = "Artistas del álbum"

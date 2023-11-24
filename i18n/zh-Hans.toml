@@ -5,11 +5,11 @@ locale = "zh-Hans"
 UnknownSymbol = "?"
 HelloThere = "您好！"
 IntroductoryMessage = """
-感谢您试用Symphony公开测试版。如果您遇到了任何问题，或想提出任何建议，请您在我们的GitHub仓库中创建新的Issue。
+感谢您试用Symphony公开测试版。如果您遇到了任何问题，或想提出任何建议，请您在我们的Github仓库中创建新的Issue。
 
 您也可以加入我们的Discord或Reddit社区以分享您的使用体验并获得开发的最新进度。
 
-Symphony由来自GitHub Sponsors，Ko-fi和Patreon的捐赠支持开发。
+Symphony由来自Github Sponsors，Ko-fi和Patreon的捐赠支持开发。
 
 再一次感谢您试用Symphony！
 """
@@ -53,7 +53,7 @@ TrackCount = "曲目数量"
 FilteringResults = "正在搜索..."
 Appearance = "外观"
 About = "关于"
-GitHub = "GitHub"
+Github = "Github"
 Play = "播放"
 Previous = "上一首"
 Next = "下一首"
@@ -83,7 +83,7 @@ ForYou = "为你推荐"
 SuggestedAlbums = "推荐专辑"
 SuggestedArtists = "推荐艺术家"
 RecentlyAddedSongs = "最近添加的歌曲"
-SponsorViaGitHub = "通过GitHub支持"
+SponsorViaGithub = "通过Github支持"
 ClearSongCache = "清除歌曲缓存"
 SongCacheCleared = "歌曲缓存已清除"
 AlbumArtists = "专辑艺术家"

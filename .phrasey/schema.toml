@@ -129,7 +129,7 @@ name = "Appearance"
 name = "About"
 
 [[keys]]
-name = "GitHub"
+name = "Github"
 
 [[keys]]
 name = "Play"
@@ -218,8 +218,8 @@ name = "SuggestedArtists"
 [[keys]]
 name = "RecentlyAddedSongs"
 
-[[keys]]
-name = "SponsorViaGitHub"
+# [[keys]]
+# name = "SponsorViaGithub"
 
 [[keys]]
 name = "ClearSongCache"
@@ -395,8 +395,8 @@ name = "PersistUntilQueueEnd"
 [[keys]]
 name = "NoLyrics"
 
-[[keys]]
-name = "SponsorViaPatreon"
+# [[keys]]
+# name = "SponsorViaPatreon"
 
 [[keys]]
 name = "FDroid"
@@ -437,8 +437,8 @@ name = "Disabled"
 [[keys]]
 name = "ShowUpdateToast"
 
-[[keys]]
-name = "SponsorViaKoFi"
+# [[keys]]
+# name = "SponsorViaKoFi"
 
 [[keys]]
 name = "PlaylistStoreLocation"
@@ -549,8 +549,8 @@ name = "Rescan"
 [[keys]]
 name = "Updates"
 
-[[keys]]
-name = "ConsiderDonating"
+# [[keys]]
+# name = "ConsiderDonating"
 
 [[keys]]
 name = "Help"

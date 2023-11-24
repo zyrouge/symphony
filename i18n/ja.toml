@@ -4,7 +4,7 @@ locale = "ja"
 UnknownSymbol = "？"
 HelloThere = "こんにちは！"
 IntroductoryMessage = """
-Symphonyオープンベータをご利用いただきありがとうございます。バグが発生した場合、または改善を提案したい場合は、GitHubリポジトリでissueを開いてください。
+Symphonyオープンベータをご利用いただきありがとうございます。バグが発生した場合、または改善を提案したい場合は、Githubリポジトリでissueを開いてください。
 
 DiscordおよびRedditコミュニティに参加してフィードバックを共有し、最新情報を入手してください。
 
@@ -52,7 +52,7 @@ TrackCount = "トラック数"
 FilteringResults = "結果をフィルタリング中..."
 Appearance = "外観"
 About = "symphonyについて"
-GitHub = "GitHub"
+Github = "Github"
 Play = "再生"
 Previous = "前の曲"
 Next = "次の曲"
@@ -82,7 +82,7 @@ ForYou = "あなたのために"
 SuggestedAlbums = "おすすめのアルバム"
 SuggestedArtists = "おすすめのアーティスト"
 RecentlyAddedSongs = "最近追加された曲"
-SponsorViaGitHub = "GitHub経由でスポンサーする"
+SponsorViaGithub = "Github経由でスポンサーする"
 ClearSongCache = "曲のキャッシュを削除"
 SongCacheCleared = "曲のキャッシュが削除されました"
 AlbumArtists = "アルバムアーティスト"

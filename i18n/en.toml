@@ -4,11 +4,11 @@ locale = "en"
 UnknownSymbol = "?"
 HelloThere = "Hello there!"
 IntroductoryMessage = """
-Thank you for being a part of Symphony open-beta. If you encounter any bugs or want to suggest improvements, kindly open an issue in our GitHub Repository.
+Thank you for being a part of Symphony open-beta. If you encounter any bugs or want to suggest improvements, kindly open an issue in our Github Repository.
 
 Join our Discord and Reddit community to share you feedback and to stay up-to-date with the development.
 
-Symphony is entirely supported by donations made via Github Sponsors, Ko-fi and Patreon.
+Symphony is totally free-to-use and entirely supported by contributions made by kindhearted individuals. Any contribution will be highly appreciated.
 
 Once again, thank you for trying out Symphony!
 """
@@ -52,7 +52,7 @@ TrackCount = "Track count"
 FilteringResults = "Filtering results..."
 Appearance = "Appearance"
 About = "About"
-GitHub = "GitHub"
+Github = "Github"
 Play = "Play"
 Previous = "Previous"
 Next = "Next"
@@ -82,7 +82,7 @@ ForYou = "For you"
 SuggestedAlbums = "Suggested albums"
 SuggestedArtists = "Suggested artists"
 RecentlyAddedSongs = "Recently added songs"
-SponsorViaGitHub = "Sponsor via GitHub"
+SponsorViaGithub = "Sponsor via Github"
 ClearSongCache = "Clear song cache"
 SongCacheCleared = "Song cache cleared"
 AlbumArtists = "Album artists"

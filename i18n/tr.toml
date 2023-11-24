@@ -4,8 +4,8 @@ locale = "tr"
 UnknownSymbol = "?"
 HelloThere = "Merhaba!"
 IntroductoryMessage = """
-Symphony'yi seçtiğiniz için teşekkürler! Herhangi bir teknik sorunla karşılaşırsanız, GitHub Repo'muza bildirebilirsiniz.
-Diğer müzik severlerle bağlantı kurmak, destek almak ve en son güncellemelerden haberdar olmak için Discord ve Reddit topluluğumuza katılın. Cömertliğiniz, Symphony'nin gelişiminin devam etmesine yardımcı oluyor, bu nedenle lütfen GitHub Sponsors üzerinden bağış yaparak bizi desteklemeyi düşünün.
+Symphony'yi seçtiğiniz için teşekkürler! Herhangi bir teknik sorunla karşılaşırsanız, Github Repo'muza bildirebilirsiniz.
+Diğer müzik severlerle bağlantı kurmak, destek almak ve en son güncellemelerden haberdar olmak için Discord ve Reddit topluluğumuza katılın. Cömertliğiniz, Symphony'nin gelişiminin devam etmesine yardımcı oluyor, bu nedenle lütfen Github Sponsors üzerinden bağış yaparak bizi desteklemeyi düşünün.
 Son olarak, Müziğin keyfini Çıkarın!
 """
 Songs = "Müzikler"
@@ -48,7 +48,7 @@ TrackCount = "Parça Sayısı"
 FilteringResults = "Sonuçlar filtreleniyor..."
 Appearance = "Görünüm"
 About = "Hakkında"
-GitHub = "GitHub"
+Github = "Github"
 Play = "Oynat"
 Previous = "Önceki"
 Next = "Sonraki"
@@ -78,7 +78,7 @@ ForYou = "Senin için"
 SuggestedAlbums = "Önerilen Albümler"
 SuggestedArtists = "Önerilen Sanatçılar"
 RecentlyAddedSongs = "Son eklenen şarkılar"
-SponsorViaGitHub = "Github Üzerinden Sponsor Olun"
+SponsorViaGithub = "Github Üzerinden Sponsor Olun"
 ClearSongCache = "Şarkı önbelleğini temizle"
 SongCacheCleared = "Şarkı önbelleği temizlendi"
 AlbumArtists = "Albüm sanatçıları"

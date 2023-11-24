@@ -4,7 +4,7 @@ locale = "ro"
 UnknownSymbol = "?"
 HelloThere = "Salut!"
 IntroductoryMessage = """
-Mulțumim că faci parte din open-beta-ul aplicației Symphony. Dacă întâmpini bug-uri sau vrei să sugerezi îmbunătățiri, te rugăm să deschizi un issue pe GitHub.
+Mulțumim că faci parte din open-beta-ul aplicației Symphony. Dacă întâmpini bug-uri sau vrei să sugerezi îmbunătățiri, te rugăm să deschizi un issue pe Github.
 
 Alătură-te comunității noastre de Discord și Reddit pentru a-ți împărtăși ideile și pentru a fi la curent cu dezvoltarea aplicației.
 
@@ -52,7 +52,7 @@ TrackCount = "Număr de piese"
 FilteringResults = "Căutăm..."
 Appearance = "Aspect"
 About = "Despre"
-GitHub = "GitHub"
+Github = "Github"
 Play = "Redă"
 Previous = "Anterior"
 Next = "Următor"
@@ -82,7 +82,7 @@ ForYou = "Pentru tine"
 SuggestedAlbums = "Albume recomandate"
 SuggestedArtists = "Artiști recomandați"
 RecentlyAddedSongs = "Piese adăugate recent"
-SponsorViaGitHub = "Sponsorizează prin GitHub"
+SponsorViaGithub = "Sponsorizează prin Github"
 ClearSongCache = "Curăța cache-ul"
 SongCacheCleared = "Cache-ul a fost curățat"
 AlbumArtists = "Artiștii de albume"
