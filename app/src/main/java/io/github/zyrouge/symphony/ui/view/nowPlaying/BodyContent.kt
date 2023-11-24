@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -253,14 +254,10 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 var seekRatio by remember { mutableStateOf<Float?>(null) }
-                val seekDuration by remember(seekRatio) {
-                    derivedStateOf {
-                        seekRatio?.let { it * playbackPosition.total }?.toInt()
-                    }
-                }
 
                 NowPlayingPlaybackPositionText(
-                    seekDuration ?: playbackPosition.played,
+                    seekRatio?.let { it * playbackPosition.total }?.toInt()
+                        ?: playbackPosition.played,
                     Alignment.CenterStart,
                 )
                 Box(modifier = Modifier.weight(1f)) {
@@ -273,11 +270,12 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                             seekRatio = it
                         },
                         onSeekEnd = {
-                            seekDuration?.let {
-                                context.symphony.radio.seek(it)
-                            }
+                            context.symphony.radio.seek((it * playbackPosition.total).toInt())
                             seekRatio = null
-                        }
+                        },
+                        onSeekCancel = {
+                            seekRatio = null
+                        },
                     )
                 }
                 NowPlayingPlaybackPositionText(
@@ -315,7 +313,8 @@ private fun NowPlayingSeekBar(
     ratio: Float,
     onSeekStart: () -> Unit,
     onSeek: (Float) -> Unit,
-    onSeekEnd: () -> Unit,
+    onSeekEnd: (Float) -> Unit,
+    onSeekCancel: () -> Unit,
 ) {
     val sliderHeight = 12.dp
     val thumbSize = 12.dp
@@ -331,7 +330,7 @@ private fun NowPlayingSeekBar(
             .height(sliderHeight),
         contentAlignment = Alignment.Center,
     ) {
-        val dragMaxWidth = maxWidth
+        val sliderWidth = maxWidth
 
         Box(
             modifier = Modifier
@@ -339,6 +338,12 @@ private fun NowPlayingSeekBar(
                 .fillMaxWidth()
                 .pointerInput(Unit) {
                     var offsetX = 0f
+                    detectTapGestures(
+                        onTap = { offset ->
+                            val tapRatio = (offset.x / sliderWidth.toPx()).coerceIn(0f..1f)
+                            onSeekEnd(tapRatio)
+                        }
+                    )
                     detectDragGestures(
                         onDragStart = { offset ->
                             offsetX = offset.x
@@ -346,15 +351,21 @@ private fun NowPlayingSeekBar(
                             onSeekStart()
                         },
                         onDragEnd = {
-                            onSeekEnd()
+                            onSeekEnd(dragRatio)
                             offsetX = 0f
                             dragging = false
                             dragRatio = 0f
                         },
-                        onDrag = { pointer, offset ->
+                        onDragCancel = {
+                            onSeekCancel()
+                            offsetX = 0f
+                            dragging = false
+                            dragRatio = 0f
+                        },
+                        onDrag = { pointer, dragAmount ->
                             pointer.consume()
-                            offsetX += offset.x
-                            dragRatio = (offsetX / dragMaxWidth.toPx()).coerceIn(0f..1f)
+                            offsetX += dragAmount.x
+                            dragRatio = (offsetX / sliderWidth.toPx()).coerceIn(0f..1f)
                             onSeek(dragRatio)
                         },
                     )
@@ -385,7 +396,7 @@ private fun NowPlayingSeekBar(
                 modifier = Modifier
                     .size(thumbSize)
                     .offset(
-                        dragMaxWidth
+                        sliderWidth
                             .minus(thumbSizeHalf.times(2))
                             .times(if (dragging) dragRatio else ratio),
                         0.dp
