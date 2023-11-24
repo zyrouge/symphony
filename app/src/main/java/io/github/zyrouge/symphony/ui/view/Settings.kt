@@ -42,11 +42,9 @@ import androidx.compose.material.icons.filled.Recommend
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.twotone.Redeem
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -182,7 +180,7 @@ fun SettingsView(context: ViewContext) {
                     .fillMaxSize()
             ) {
                 val scrollState = rememberScrollState()
-                var donationsOffsetY: Int? = null
+                var contributeOffsetY: Int? = null
 
                 Column(
                     modifier = Modifier.verticalScroll(scrollState)
@@ -194,7 +192,7 @@ fun SettingsView(context: ViewContext) {
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.primary)
                             .clickable {
-                                donationsOffsetY?.let {
+                                contributeOffsetY?.let {
                                     coroutineScope.launch {
                                         scrollState.animateScrollTo(
                                             it,
@@ -219,7 +217,7 @@ fun SettingsView(context: ViewContext) {
                             )
                             Box(modifier = Modifier.width(4.dp))
                             Text(
-                                context.symphony.t.ConsiderDonating,
+                                context.symphony.t.ConsiderContributing,
                                 style = MaterialTheme.typography.labelLarge.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = contentColor,
@@ -792,55 +790,20 @@ fun SettingsView(context: ViewContext) {
                     Box(
                         modifier = Modifier
                             .onGloballyPositioned { coordinates ->
-                                donationsOffsetY = coordinates.positionInParent().y.toInt()
+                                contributeOffsetY = coordinates.positionInParent().y.toInt()
                             }
                     ) {
-                        SettingsDonationTile(
+                        SettingsLinkTile(
                             context,
-                            text = context.symphony.t.SponsorViaGitHub,
-                            url = AppMeta.githubSponsorsUrl
+                            icon = {
+                                Icon(Icons.Filled.Code, null)
+                            },
+                            title = {
+                                Text(context.symphony.t.GitHub)
+                            },
+                            url = AppMeta.githubRepositoryUrl
                         )
                     }
-                    SettingsDonationTile(
-                        context,
-                        text = context.symphony.t.SponsorViaKoFi,
-                        url = AppMeta.koFiUrl
-                    )
-                    SettingsDonationTile(
-                        context,
-                        text = context.symphony.t.SponsorViaPatreon,
-                        url = AppMeta.patreonUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Filled.Code, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.GitHub)
-                        },
-                        url = AppMeta.githubRepositoryUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Filled.Store, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.IzzyOnDroid)
-                        },
-                        url = AppMeta.izzyOnDroidUrl
-                    )
-                    SettingsLinkTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Filled.Store, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.FDroid)
-                        },
-                        url = AppMeta.fdroidUrl
-                    )
                 }
             }
         }
@@ -860,33 +823,4 @@ fun NowPlayingControlsLayout.label(context: ViewContext): String {
         NowPlayingControlsLayout.Default -> context.symphony.t.Default
         NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
     }
-}
-
-@Composable
-private fun SettingsDonationTile(
-    context: ViewContext,
-    text: String,
-    url: String,
-) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-
-    SettingsLinkTile(
-        context,
-        icon = {
-            Icon(
-                Icons.TwoTone.Redeem,
-                null,
-                tint = primaryColor,
-            )
-        },
-        title = {
-            Text(
-                text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = primaryColor,
-                ),
-            )
-        },
-        url = url,
-    )
 }

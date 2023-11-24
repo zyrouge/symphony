@@ -205,6 +205,7 @@ fun HomeView(context: ViewContext) {
                                         Text(context.symphony.t.Rescan)
                                     },
                                     onClick = {
+                                        showOptionsDropdown = false
                                         context.symphony.radio.stop()
                                         coroutineScope.launch {
                                             context.symphony.groove.refetch()
