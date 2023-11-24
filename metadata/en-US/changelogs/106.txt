@@ -1,0 +1,11 @@
+- Added option to view equalizer.
+- Album covers are now taken directly from songs.
+- Playlist titles can now be edited.
+- Local playlists can now be exported.
+- Fixed delayed playlist loading indicator.
+- Option to pause at end of current song.
+- Show track number in album view.
+- Fixed auto play/pause by accessories.
+- Fixed delayed pause when audio devices are unplugged.
+- Fixed uncached re-scanning of blacklisted songs.
+- Added option to share songs.

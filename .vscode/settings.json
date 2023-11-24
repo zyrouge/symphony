@@ -4,5 +4,8 @@
     "[toml]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "[plaintext]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "js/ts.implicitProjectConfig.checkJs": true
 }
