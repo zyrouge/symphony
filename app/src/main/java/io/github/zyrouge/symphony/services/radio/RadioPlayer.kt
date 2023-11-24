@@ -155,19 +155,19 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     }
 
     fun setOnPlaybackPositionUpdateListener(
-        listener: RadioPlayerOnPlaybackPositionUpdateListener?
+        listener: RadioPlayerOnPlaybackPositionUpdateListener?,
     ) {
         onPlaybackPositionUpdate = listener
     }
 
     fun setOnFinishListener(
-        listener: RadioPlayerOnFinishListener?
+        listener: RadioPlayerOnFinishListener?,
     ) {
         onFinish = listener
     }
 
     fun setOnErrorListener(
-        listener: RadioPlayerOnErrorListener?
+        listener: RadioPlayerOnErrorListener?,
     ) {
         onError = listener
     }

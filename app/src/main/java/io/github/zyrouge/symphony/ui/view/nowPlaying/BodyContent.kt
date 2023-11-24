@@ -63,7 +63,7 @@ import io.github.zyrouge.symphony.utils.DurationFormatter
 fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData) {
     val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
     val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
-    val isFavorite by remember {
+    val isFavorite by remember(data) {
         derivedStateOf { favoriteSongIds.contains(data.song.id) }
     }
 

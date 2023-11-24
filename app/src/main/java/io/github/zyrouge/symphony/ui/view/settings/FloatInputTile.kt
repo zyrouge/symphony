@@ -72,13 +72,13 @@ fun SettingsFloatInputTile(
         var input by remember {
             mutableStateOf(value.toString())
         }
-        val inputValue by remember {
+        val inputValue by remember(input) {
             derivedStateOf { input.toFloatOrNull() }
         }
-        val isError by remember {
+        val isError by remember(inputValue) {
             derivedStateOf { inputValue == null }
         }
-        val modified by remember {
+        val modified by remember(inputValue, value) {
             derivedStateOf { inputValue != null && value != inputValue }
         }
 

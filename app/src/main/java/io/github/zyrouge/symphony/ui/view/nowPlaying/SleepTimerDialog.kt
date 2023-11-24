@@ -135,7 +135,7 @@ fun NowPlayingSleepTimerSetDialog(
     var inputHours by remember { mutableLongStateOf(0L) }
     var inputMinutes by remember { mutableLongStateOf(10L) }
     var quitOnEnd by remember { mutableStateOf(false) }
-    val inputDuration by remember {
+    val inputDuration by remember(inputHours, inputMinutes) {
         derivedStateOf {
             Duration
                 .ofHours(inputHours)
@@ -143,7 +143,7 @@ fun NowPlayingSleepTimerSetDialog(
                 .toMillis()
         }
     }
-    val isValidDuration by remember {
+    val isValidDuration by remember(inputDuration, minDurationMs) {
         derivedStateOf { inputDuration >= minDurationMs }
     }
 

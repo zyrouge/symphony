@@ -67,7 +67,7 @@ fun <T> SettingsMultiOptionTile(
 
     if (isOpen) {
         val nValue = remember { value.toMutableStateList() }
-        val sortedValues by remember {
+        val sortedValues by remember(nValue, values) {
             derivedStateOf {
                 mutableSetOf<T>().apply {
                     addAll(nValue)
@@ -75,10 +75,10 @@ fun <T> SettingsMultiOptionTile(
                 }
             }
         }
-        val satisfied by remember {
+        val satisfied by remember(nValue) {
             derivedStateOf { satisfies(nValue.toSet()) }
         }
-        val modified by remember {
+        val modified by remember(nValue, value) {
             derivedStateOf { nValue.toSet() != value }
         }
 

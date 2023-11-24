@@ -42,7 +42,7 @@ fun AlbumArtistView(context: ViewContext, artistId: String) {
     val allAlbumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val allAlbumIds = context.symphony.groove.album.all
-    val albumArtist by remember(allAlbumArtistIds, artistId) {
+    val albumArtist by remember(allAlbumArtistIds) {
         derivedStateOf { context.symphony.groove.albumArtist.get(artistId) }
     }
     val songIds by remember(albumArtist, allSongIds) {

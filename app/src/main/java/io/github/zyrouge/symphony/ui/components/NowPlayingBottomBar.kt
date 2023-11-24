@@ -78,7 +78,7 @@ import kotlin.math.absoluteValue
 fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
-    val currentPlayingSong by remember {
+    val currentPlayingSong by remember(queue, queueIndex) {
         derivedStateOf {
             queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
         }

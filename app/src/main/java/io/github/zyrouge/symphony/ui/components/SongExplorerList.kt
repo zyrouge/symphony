@@ -88,7 +88,8 @@ fun SongExplorerList(
                 folders = run {
                     val sorted = when (sortBy) {
                         SongSortBy.TITLE,
-                        SongSortBy.FILENAME -> categorized.folders.sortedBy { it.basename }
+                        SongSortBy.FILENAME,
+                        -> categorized.folders.sortedBy { it.basename }
 
                         else -> categorized.folders
                     }
@@ -100,7 +101,9 @@ fun SongExplorerList(
             )
         }
     }
-    val currentPath by remember { derivedStateOf { currentFolder.fullPath } }
+    val currentPath by remember(currentFolder) {
+        derivedStateOf { currentFolder.fullPath }
+    }
     val currentPathScrollState = rememberScrollState()
 
     LaunchedEffect(LocalContext.current) {

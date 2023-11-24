@@ -23,7 +23,7 @@ fun AlbumGrid(
 ) {
     val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.collectAsState()
-    val sortedAlbumIds by remember {
+    val sortedAlbumIds by remember(albumIds, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
         }

@@ -79,14 +79,14 @@ fun ForYouView(context: ViewContext) {
 
     when {
         songIds.isNotEmpty() -> {
-            val sortedSongIds by remember {
+            val sortedSongIds by remember(songsIsUpdating, songIds, sortBy, sortReverse) {
                 derivedStateOf {
                     runIfTrueOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(songIds.toList(), sortBy, sortReverse)
                     }
                 }
             }
-            val recentlyAddedSongs by remember(!songsIsUpdating) {
+            val recentlyAddedSongs by remember(songsIsUpdating, songIds) {
                 derivedStateOf {
                     runIfTrueOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(
@@ -97,21 +97,21 @@ fun ForYouView(context: ViewContext) {
                     }
                 }
             }
-            val randomAlbums by remember {
+            val randomAlbums by remember(albumsIsUpdating, albumIds) {
                 derivedStateOf {
                     runIfTrueOrDefault(!albumsIsUpdating, listOf()) {
                         albumIds.randomSubList(6)
                     }
                 }
             }
-            val randomArtists by remember {
+            val randomArtists by remember(artistsIsUpdating, artistIds) {
                 derivedStateOf {
                     runIfTrueOrDefault(!artistsIsUpdating, listOf()) {
                         artistIds.randomSubList(6)
                     }
                 }
             }
-            val randomAlbumArtists by remember {
+            val randomAlbumArtists by remember(albumArtistsIsUpdating, albumArtistIds) {
                 derivedStateOf {
                     runIfTrueOrDefault(!albumArtistsIsUpdating, listOf()) {
                         albumArtistIds.randomSubList(6)

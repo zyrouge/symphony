@@ -69,7 +69,7 @@ fun SongTreeList(
     initialDisabled: List<String>,
     onDisable: ((List<String>) -> Unit),
 ) {
-    val tree by remember {
+    val tree by remember(songIds) {
         derivedStateOf { createLinearTree(context, songIds) }
     }
     val disabled = remember {
@@ -81,7 +81,7 @@ fun SongTreeList(
     val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.collectAsState()
     val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
     val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
-    val sortedTree by remember {
+    val sortedTree by remember(tree, pathsSortBy, pathsSortReverse, songsSortBy, songsSortReverse) {
         derivedStateOf {
             val pairs =
                 GrooveExplorer.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
@@ -95,7 +95,7 @@ fun SongTreeList(
             mapOf(*pairs.toTypedArray())
         }
     }
-    val sortedSongIds by remember {
+    val sortedSongIds by remember(sortedTree) {
         derivedStateOf { sortedTree.values.flatten() }
     }
 
@@ -165,7 +165,7 @@ fun SongTreeListContent(
     val lazyListState = rememberLazyListState()
     val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
-    val currentPlayingSongId by remember {
+    val currentPlayingSongId by remember(queue, queueIndex) {
         derivedStateOf { queue.getOrNull(queueIndex) }
     }
     val favoriteIds by context.symphony.groove.playlist.favorites.collectAsState()
@@ -231,10 +231,10 @@ fun SongTreeListContent(
             if (show) {
                 items(childSongIds) { songId ->
                     context.symphony.groove.song.get(songId)?.let { song ->
-                        val isCurrentPlaying by remember {
+                        val isCurrentPlaying by remember(song, currentPlayingSongId) {
                             derivedStateOf { song.id == currentPlayingSongId }
                         }
-                        val isFavorite by remember {
+                        val isFavorite by remember(favoriteIds, song) {
                             derivedStateOf { favoriteIds.contains(song.id) }
                         }
 
@@ -514,7 +514,7 @@ private fun PathSortBy.label(context: ViewContext) = when (this) {
 
 private fun createLinearTree(
     context: ViewContext,
-    songIds: List<Long>
+    songIds: List<Long>,
 ): Map<String, List<Long>> {
     val result = mutableMapOf<String, MutableList<Long>>()
     songIds.forEach { songId ->

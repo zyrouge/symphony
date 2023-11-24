@@ -52,7 +52,7 @@ enum class NowPlayingControlsLayout {
 fun NowPlayingView(context: ViewContext) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
-    val song by remember {
+    val song by remember(queue, queueIndex) {
         derivedStateOf {
             queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
         }
@@ -71,7 +71,7 @@ fun NowPlayingView(context: ViewContext) {
     val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
     val controlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
-    val isViable by remember {
+    val isViable by remember(song) {
         derivedStateOf { song != null }
     }
 

@@ -175,7 +175,7 @@ private fun SettingsFolderTilePickerDialog(
     onSelect: (List<String>?) -> Unit,
 ) {
     var currentFolder by remember { mutableStateOf(explorer) }
-    val sortedEntities by remember {
+    val sortedEntities by remember(currentFolder) {
         derivedStateOf {
             currentFolder.children.values.mapNotNull { entity ->
                 when (entity) {
@@ -185,7 +185,9 @@ private fun SettingsFolderTilePickerDialog(
             }
         }
     }
-    val currentPath by remember { derivedStateOf { currentFolder.fullPath } }
+    val currentPath by remember(currentFolder) {
+        derivedStateOf { currentFolder.fullPath }
+    }
     val currentPathScrollState = rememberScrollState()
 
     LaunchedEffect(LocalContext.current) {

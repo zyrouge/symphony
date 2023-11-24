@@ -44,7 +44,7 @@ fun PlaylistManageSongsDialog(
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val nSelectedSongIds = remember { selectedSongIds.toMutableStateList() }
     var terms by remember { mutableStateOf("") }
-    val songIds by remember {
+    val songIds by remember(allSongIds, terms, selectedSongIds) {
         derivedStateOf {
             context.symphony.groove.song.search(allSongIds, terms, limit = -1)
                 .map { it.entity }
