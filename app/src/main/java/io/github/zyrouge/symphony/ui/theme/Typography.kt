@@ -4,6 +4,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import io.github.zyrouge.symphony.R
 
 class SymphonyFont(
@@ -72,25 +73,70 @@ object SymphonyTypography {
 
     fun resolveFont(name: String?) = all[name] ?: defaultFont
 
-    fun toTypography(font: SymphonyFont): Typography {
+    fun toTypography(font: SymphonyFont, textDirection: TextDirection): Typography {
         val fontFamily = font.fontFamily()
         return Typography().run {
             copy(
-                displayLarge = displayLarge.copy(fontFamily = fontFamily),
-                displayMedium = displayMedium.copy(fontFamily = fontFamily),
-                displaySmall = displaySmall.copy(fontFamily = fontFamily),
-                headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
-                headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
-                headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
-                titleLarge = titleLarge.copy(fontFamily = fontFamily),
-                titleMedium = titleMedium.copy(fontFamily = fontFamily),
-                titleSmall = titleSmall.copy(fontFamily = fontFamily),
-                bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
-                bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
-                bodySmall = bodySmall.copy(fontFamily = fontFamily),
-                labelLarge = labelLarge.copy(fontFamily = fontFamily),
-                labelMedium = labelMedium.copy(fontFamily = fontFamily),
-                labelSmall = labelSmall.copy(fontFamily = fontFamily)
+                displayLarge = displayLarge.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                displayMedium = displayMedium.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                displaySmall = displaySmall.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                headlineLarge = headlineLarge.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                headlineMedium = headlineMedium.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                headlineSmall = headlineSmall.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                titleLarge = titleLarge.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                titleMedium = titleMedium.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                titleSmall = titleSmall.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                bodyLarge = bodyLarge.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                bodyMedium = bodyMedium.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                bodySmall = bodySmall.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                labelLarge = labelLarge.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                labelMedium = labelMedium.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
+                labelSmall = labelSmall.copy(
+                    fontFamily = fontFamily,
+                    textDirection = textDirection,
+                ),
             )
         }
     }

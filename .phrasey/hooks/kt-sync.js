@@ -96,7 +96,8 @@ open class _Translation(val json: JSONObject) {
 
     val LocaleDisplayName: String get() = _localeJson.getString("display")
     val LocaleNativeName: String get() = _localeJson.getString("native")
-    val LocaleCode: String get() = _localeJson.getString("locale")
+    val LocaleCode: String get() = _localeJson.getString("code")
+    val LocaleDirection: String get() = _localeJson.getString("direction")
 
 ${staticKeys.join("\n")}
 
