@@ -3,7 +3,7 @@ package io.github.zyrouge.symphony.ui.view.nowPlaying
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -347,7 +347,7 @@ private fun NowPlayingSeekBar(
                 }
                 .pointerInput(Unit) {
                     var offsetX = 0f
-                    detectDragGestures(
+                    detectHorizontalDragGestures(
                         onDragStart = { offset ->
                             offsetX = offset.x
                             dragging = true
@@ -365,7 +365,7 @@ private fun NowPlayingSeekBar(
                             dragging = false
                             dragRatio = 0f
                         },
-                        onDrag = { pointer, dragAmount ->
+                        onHorizontalDrag = { pointer, dragAmount ->
                             pointer.consume()
                             offsetX += dragAmount.x
                             dragRatio = (offsetX / sliderWidth.toPx()).coerceIn(0f..1f)

@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.ui.view.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -108,13 +108,13 @@ fun SettingsSliderTile(
                                     )
                                 }
                                 .pointerInput(Unit) {
-                                    detectDragGestures(
+                                    detectHorizontalDragGestures(
                                         onDragStart = { offset ->
                                             pointerOffsetX = offset.x
                                         },
-                                        onDrag = { pointer, offset ->
+                                        onHorizontalDrag = { pointer, dragAmount ->
                                             pointer.consume()
-                                            pointerOffsetX += offset.x
+                                            pointerOffsetX += dragAmount
                                             val widthPx = maxWidth.toPx()
                                             val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
                                             val nValue =
