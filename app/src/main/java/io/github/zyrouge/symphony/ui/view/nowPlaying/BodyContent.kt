@@ -367,7 +367,7 @@ private fun NowPlayingSeekBar(
                         },
                         onHorizontalDrag = { pointer, dragAmount ->
                             pointer.consume()
-                            offsetX += dragAmount.x
+                            offsetX += dragAmount
                             dragRatio = (offsetX / sliderWidth.toPx()).coerceIn(0f..1f)
                             onSeek(dragRatio)
                         },

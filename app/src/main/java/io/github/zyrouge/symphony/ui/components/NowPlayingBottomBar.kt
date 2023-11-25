@@ -136,8 +136,26 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(0.dp, 8.dp),
                     ) {
+                        Spacer(modifier = Modifier.width(12.dp))
                         AnimatedContent(
-                            label = "c-now-playing-card",
+                            label = "c-now-playing-card-image",
+                            targetState = currentSong,
+                            transitionSpec = {
+                                fadeIn(animationSpec = tween(300, delayMillis = 150))
+                                    .togetherWith(fadeOut(animationSpec = tween(150)))
+                            },
+                        ) { song ->
+                            AsyncImage(
+                                song.createArtworkImageRequest(context.symphony).build(),
+                                null,
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(15.dp))
+                        AnimatedContent(
+                            label = "c-now-playing-card-content",
                             modifier = Modifier.weight(1f),
                             targetState = currentSong,
                             transitionSpec = {
@@ -149,55 +167,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                                 )).togetherWith(fadeOut(animationSpec = tween(150)))
                             },
                         ) { song ->
-                            BoxWithConstraints {
-                                val cardWidthPx = constraints.maxWidth
-                                var offsetX by remember { mutableFloatStateOf(0f) }
-                                val cardOffsetX = animateIntAsState(
-                                    offsetX.toInt(),
-                                    label = "c-now-playing-card-offset-x",
-                                )
-                                val cardOpacity = animateFloatAsState(
-                                    if (offsetX != 0f) 0.7f else 1f,
-                                    label = "c-now-playing-card-opacity",
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .alpha(cardOpacity.value)
-                                        .absoluteOffset {
-                                            IntOffset(cardOffsetX.value.div(2), 0)
-                                        }
-                                        .pointerInput(Unit) {
-                                            detectHorizontalDragGestures(
-                                                onDragEnd = {
-                                                    val thresh = cardWidthPx / 4
-                                                    offsetX = when {
-                                                        -offsetX > thresh -> {
-                                                            val changed =
-                                                                context.symphony.radio.shorty.skip()
-                                                            if (changed) -cardWidthPx.toFloat() else 0f
-                                                        }
-
-                                                        offsetX > thresh -> {
-                                                            val changed =
-                                                                context.symphony.radio.shorty.previous()
-                                                            if (changed) cardWidthPx.toFloat() else 0f
-                                                        }
-
-                                                        else -> 0f
-                                                    }
-                                                },
-                                                onDragCancel = {
-                                                    offsetX = 0f
-                                                },
-                                                onHorizontalDrag = { _, dragAmount ->
-                                                    offsetX += dragAmount
-                                                },
-                                            )
-                                        },
-                                ) {
-                                    NowPlayingBottomBarContent(context, song = song)
-                                }
-                            }
+                            NowPlayingBottomBarContent(context, song = song)
                         }
                         Spacer(modifier = Modifier.width(15.dp))
                         if (showTrackControls) {
@@ -258,26 +228,62 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
 
 @Composable
 private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Spacer(modifier = Modifier.width(12.dp))
-        AsyncImage(
-            song.createArtworkImageRequest(context.symphony).build(),
-            null,
-            modifier = Modifier
-                .size(45.dp)
-                .clip(RoundedCornerShape(10.dp))
+    BoxWithConstraints {
+        val cardWidthPx = constraints.maxWidth
+        var offsetX by remember { mutableFloatStateOf(0f) }
+        val cardOffsetX = animateIntAsState(
+            offsetX.toInt(),
+            label = "c-now-playing-card-offset-x",
         )
-        Spacer(modifier = Modifier.width(15.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            NowPlayingBottomBarContentText(
-                song.title,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            song.artistName?.let { artistName ->
+        val cardOpacity = animateFloatAsState(
+            if (offsetX != 0f) 0.7f else 1f,
+            label = "c-now-playing-card-opacity",
+        )
+
+        Box(
+            modifier = Modifier
+                .alpha(cardOpacity.value)
+                .absoluteOffset {
+                    IntOffset(cardOffsetX.value.div(2), 0)
+                }
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            val thresh = cardWidthPx / 4
+                            offsetX = when {
+                                -offsetX > thresh -> {
+                                    val changed = context.symphony.radio.shorty.skip()
+                                    if (changed) -cardWidthPx.toFloat() else 0f
+                                }
+
+                                offsetX > thresh -> {
+                                    val changed = context.symphony.radio.shorty.previous()
+                                    if (changed) cardWidthPx.toFloat() else 0f
+                                }
+
+                                else -> 0f
+                            }
+                        },
+                        onDragCancel = {
+                            offsetX = 0f
+                        },
+                        onHorizontalDrag = { _, dragAmount ->
+                            offsetX += dragAmount
+                        },
+                    )
+                },
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 NowPlayingBottomBarContentText(
-                    artistName,
-                    style = MaterialTheme.typography.bodySmall,
+                    song.title,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
+                song.artistName?.let { artistName ->
+                    NowPlayingBottomBarContentText(
+                        artistName,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
     }
