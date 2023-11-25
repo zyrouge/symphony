@@ -50,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
-import io.github.zyrouge.symphony.ui.components.noRippleClickable
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -92,10 +91,12 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                                 it,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.noRippleClickable {
-                                    context.navController.navigate(
-                                        RoutesBuilder.buildArtistRoute(it)
-                                    )
+                                modifier = Modifier.pointerInput(Unit) {
+                                    detectTapGestures { _ ->
+                                        context.navController.navigate(
+                                            RoutesBuilder.buildArtistRoute(it)
+                                        )
+                                    }
                                 },
                             )
                         }

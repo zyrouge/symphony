@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -75,7 +76,6 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.components.noRippleClickable
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
@@ -281,8 +281,10 @@ fun HomeView(context: ViewContext) {
                 NowPlayingBottomBar(context, false)
                 NavigationBar(
                     modifier = Modifier
-                        .noRippleClickable {
-                            showTabsSheet = true
+                        .pointerInput(Unit) {
+                            detectTapGestures {
+                                showTabsSheet = true
+                            }
                         }
                         .pointerInput(Unit) {
                             var offsetY = 0f
