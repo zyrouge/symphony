@@ -1,0 +1,10 @@
+- Tapping active home page or swiping bottom bar will show all tabs.
+- Context aware search button.
+- Search results now have a minimal score filter.
+- Handle playback errors.
+- Fixed buggy playback position slider.
+- Enforce text direction.
+- Fixed unexpected speed and pitch behavior.
+- Removed bluetooth permission.
+- Sliders in settings page now support taps.
+- Improved mini-player animation.
