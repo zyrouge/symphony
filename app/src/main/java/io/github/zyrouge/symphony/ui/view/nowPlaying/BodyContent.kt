@@ -337,13 +337,15 @@ private fun NowPlayingSeekBar(
                 .height(sliderHeight)
                 .fillMaxWidth()
                 .pointerInput(Unit) {
-                    var offsetX = 0f
                     detectTapGestures(
                         onTap = { offset ->
                             val tapRatio = (offset.x / sliderWidth.toPx()).coerceIn(0f..1f)
                             onSeekEnd(tapRatio)
                         }
                     )
+                }
+                .pointerInput(Unit) {
+                    var offsetX = 0f
                     detectDragGestures(
                         onDragStart = { offset ->
                             offsetX = offset.x
