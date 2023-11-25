@@ -3,12 +3,21 @@ package io.github.zyrouge.symphony.ui.view
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.automirrored.outlined.QueueMusic
@@ -39,11 +48,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,8 +64,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -62,6 +75,7 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.components.noRippleClickable
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
@@ -153,6 +167,7 @@ fun HomeView(context: ViewContext) {
     val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
     val currentTab by context.symphony.settings.homeLastTab.collectAsState()
     var showOptionsDropdown by remember { mutableStateOf(false) }
+    var showTabsSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -264,11 +279,35 @@ fun HomeView(context: ViewContext) {
         bottomBar = {
             Column {
                 NowPlayingBottomBar(context, false)
-                NavigationBar {
+                NavigationBar(
+                    modifier = Modifier
+                        .noRippleClickable {
+                            showTabsSheet = true
+                        }
+                        .pointerInput(Unit) {
+                            var offsetY = 0f
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { pointer, dragAmount ->
+                                    pointer.consume()
+                                    offsetY += dragAmount
+                                },
+                                onDragEnd = {
+                                    if (offsetY < -50) {
+                                        showTabsSheet = true
+                                    }
+                                    offsetY = 0f
+                                },
+                                onDragCancel = {
+                                    offsetY = 0f
+                                }
+                            )
+                        }
+                ) {
                     Spacer(modifier = Modifier.width(2.dp))
-                    tabs.map { page ->
-                        val isSelected = currentTab == page
-                        val label = page.label(context)
+                    tabs.map { x ->
+                        val isSelected = currentTab == x
+                        val label = x.label(context)
+
                         NavigationBarItem(
                             selected = isSelected,
                             alwaysShowLabel = labelVisibility == HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE,
@@ -278,7 +317,7 @@ fun HomeView(context: ViewContext) {
                                     targetState = isSelected,
                                 ) {
                                     Icon(
-                                        if (it) page.selectedIcon() else page.unselectedIcon(),
+                                        if (it) x.selectedIcon() else x.unselectedIcon(),
                                         label,
                                     )
                                 }
@@ -296,7 +335,13 @@ fun HomeView(context: ViewContext) {
                                 })
                             },
                             onClick = {
-                                context.symphony.settings.setHomeLastTab(page)
+                                when {
+                                    isSelected -> {
+                                        showTabsSheet = true
+                                    }
+
+                                    else -> context.symphony.settings.setHomeLastTab(x)
+                                }
                             }
                         )
                     }
@@ -305,6 +350,69 @@ fun HomeView(context: ViewContext) {
             }
         }
     )
+
+    if (showTabsSheet) {
+        val sheetState = rememberModalBottomSheetState()
+        val orderedTabs = remember {
+            setOf<HomePages>(*tabs.toTypedArray(), *HomePages.entries.toTypedArray())
+        }
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                showTabsSheet = false
+            },
+        ) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(6.dp),
+                columns = GridCells.Fixed(tabs.size),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(orderedTabs.toList(), key = { it.ordinal }) { x ->
+                    val isSelected = x == currentTab
+                    val label = x.label(context)
+
+                    val containerColor = when {
+                        isSelected -> MaterialTheme.colorScheme.secondaryContainer
+                        else -> Color.Unspecified
+                    }
+                    val contentColor = when {
+                        isSelected -> MaterialTheme.colorScheme.onSecondaryContainer
+                        else -> Color.Unspecified
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(2.dp, 0.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                context.symphony.settings.setHomeLastTab(x)
+                                showTabsSheet = false
+                            }
+                            .background(containerColor)
+                            .padding(0.dp, 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        when {
+                            isSelected -> Icon(x.selectedIcon(), label, tint = contentColor)
+                            else -> Icon(x.unselectedIcon(), label)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.bodySmall.copy(color = contentColor),
+                            modifier = Modifier.padding(8.dp, 0.dp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
 
     if (!readIntroductoryMessage) {
         IntroductoryDialog(
