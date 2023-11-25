@@ -104,7 +104,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         try {
             queue.currentSongIndex = options.index
             player = RadioPlayer(symphony, song.uri).apply {
-                setOnPlaybackPositionUpdateListener {
+                setOnPlaybackPositionListener {
                     onPlaybackPositionUpdate.dispatch(it)
                 }
                 setOnFinishListener {
@@ -121,12 +121,11 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
             player!!.prepare {
-                options.startPosition?.let { seek(it) }
+                seek(options.startPosition ?: 0)
                 player!!.setSpeed(persistedSpeed)
                 player!!.setPitch(persistedPitch)
                 if (options.autostart) {
-                    start(0)
-                    onUpdate.dispatch(RadioEvents.StartPlaying)
+                    start()
                 }
             }
         } catch (err: Exception) {
@@ -138,8 +137,9 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         }
     }
 
-    fun resume() = start(1)
-    private fun start(source: Int) {
+    fun resume() = start()
+
+    private fun start() {
         player?.let {
             val hasFocus = requestFocus()
             if (hasFocus || !symphony.settings.requireAudioFocus.value) {
@@ -149,8 +149,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 it.setVolume(RadioPlayer.MAX_VOLUME) {}
                 it.start()
                 onUpdate.dispatch(
-                    when (source) {
-                        0 -> RadioEvents.StartPlaying
+                    when {
+                        !it.hasPlayedOnce -> RadioEvents.StartPlaying
                         else -> RadioEvents.ResumePlaying
                     }
                 )
@@ -277,7 +277,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     private fun stopCurrentSong() {
         player?.let {
             player = null
-            it.setOnPlaybackPositionUpdateListener {}
+            it.setOnPlaybackPositionListener {}
             it.setVolume(RadioPlayer.MIN_VOLUME) { _ ->
                 it.stop()
                 onUpdate.dispatch(RadioEvents.StopPlaying)

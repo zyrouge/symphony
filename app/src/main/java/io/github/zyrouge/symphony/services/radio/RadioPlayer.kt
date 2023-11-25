@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.radio
 
 import android.media.MediaPlayer
+import android.media.PlaybackParams
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
 import java.util.Timer
@@ -18,22 +19,26 @@ data class PlaybackPosition(
 }
 
 typealias RadioPlayerOnPreparedListener = () -> Unit
-typealias RadioPlayerOnPlaybackPositionUpdateListener = (PlaybackPosition) -> Unit
+typealias RadioPlayerOnPlaybackPositionListener = (PlaybackPosition) -> Unit
 typealias RadioPlayerOnFinishListener = () -> Unit
 typealias RadioPlayerOnErrorListener = (Int, Int) -> Unit
 
 class RadioPlayer(val symphony: Symphony, uri: Uri) {
     var usable = false
+    var hasPlayedOnce = false
+
     private val unsafeMediaPlayer: MediaPlayer
     private val mediaPlayer: MediaPlayer?
         get() = if (usable) unsafeMediaPlayer else null
 
+    private var initialSpeed: Float? = null
+    private var initialPitch: Float? = null
     private var onPrepared: RadioPlayerOnPreparedListener? = null
-    private var onPlaybackPositionUpdate: RadioPlayerOnPlaybackPositionUpdateListener? = null
+    private var onPlaybackPosition: RadioPlayerOnPlaybackPositionListener? = null
     private var onFinish: RadioPlayerOnFinishListener? = null
     private var onError: RadioPlayerOnErrorListener? = null
-
     private var playbackPositionUpdater: Timer? = null
+
     val playbackPosition: PlaybackPosition?
         get() = mediaPlayer?.let {
             try {
@@ -65,6 +70,7 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     init {
         unsafeMediaPlayer = MediaPlayer().apply {
             setOnPreparedListener {
+                playbackParams.setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
                 usable = true
                 createDurationTimer()
                 onPrepared?.invoke()
@@ -95,7 +101,21 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         unsafeMediaPlayer.release()
     }
 
-    fun start() = mediaPlayer?.start()
+    fun start() = mediaPlayer?.let {
+        it.start()
+        if (!hasPlayedOnce) {
+            hasPlayedOnce = true
+            initialSpeed?.let { speed ->
+                setSpeed(speed)
+                initialSpeed = null
+            }
+            initialPitch?.let { pitch ->
+                setPitch(pitch)
+                initialPitch = null
+            }
+        }
+    }
+
     fun pause() = mediaPlayer?.pause()
     fun seek(to: Int) = mediaPlayer?.seekTo(to)
 
@@ -135,6 +155,10 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     }
 
     fun setSpeed(speed: Float) {
+        if (!hasPlayedOnce) {
+            initialSpeed = speed
+            return
+        }
         mediaPlayer?.let {
             val isPlaying = it.isPlaying
             it.playbackParams = it.playbackParams.setSpeed(speed)
@@ -145,6 +169,10 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     }
 
     fun setPitch(pitch: Float) {
+        if (!hasPlayedOnce) {
+            initialPitch = speed
+            return
+        }
         mediaPlayer?.let {
             val isPlaying = it.isPlaying
             it.playbackParams = it.playbackParams.setPitch(pitch)
@@ -154,28 +182,22 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
     }
 
-    fun setOnPlaybackPositionUpdateListener(
-        listener: RadioPlayerOnPlaybackPositionUpdateListener?,
-    ) {
-        onPlaybackPositionUpdate = listener
+    fun setOnPlaybackPositionListener(listener: RadioPlayerOnPlaybackPositionListener?) {
+        onPlaybackPosition = listener
     }
 
-    fun setOnFinishListener(
-        listener: RadioPlayerOnFinishListener?,
-    ) {
+    fun setOnFinishListener(listener: RadioPlayerOnFinishListener?) {
         onFinish = listener
     }
 
-    fun setOnErrorListener(
-        listener: RadioPlayerOnErrorListener?,
-    ) {
+    fun setOnErrorListener(listener: RadioPlayerOnErrorListener?) {
         onError = listener
     }
 
     private fun createDurationTimer() {
         playbackPositionUpdater = kotlin.concurrent.timer(period = 100L) {
             playbackPosition?.let {
-                onPlaybackPositionUpdate?.invoke(it)
+                onPlaybackPosition?.invoke(it)
             }
         }
     }
