@@ -38,19 +38,21 @@ fun <T> SettingsOptionTile(
     value: T,
     values: Map<T, String>,
     captions: Map<T, String>? = null,
+    enabled: Boolean = true,
     onChange: (T) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isOpen by remember { mutableStateOf(false) }
 
     Card(
+        enabled = enabled,
         colors = SettingsTileDefaults.cardColors(),
         onClick = {
             isOpen = !isOpen
         }
     ) {
         ListItem(
-            colors = SettingsTileDefaults.listItemColors(),
+            colors = SettingsTileDefaults.listItemColors(enabled = enabled),
             leadingContent = { icon() },
             headlineContent = { title() },
             supportingContent = { Text(values[value]!!) },

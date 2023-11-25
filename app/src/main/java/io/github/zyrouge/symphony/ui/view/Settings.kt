@@ -357,6 +357,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         value = ThemeColors.resolvePrimaryColorKey(primaryColor),
                         values = PrimaryThemeColors.entries.associateWith { it.toHumanString() },
+                        enabled = !useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.setPrimaryColor(value.name)
                         }

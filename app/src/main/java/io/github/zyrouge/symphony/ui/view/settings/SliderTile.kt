@@ -2,13 +2,32 @@ package io.github.zyrouge.symphony.ui.view.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -30,8 +49,6 @@ fun SettingsSliderTile(
     onReset: (() -> Unit)? = null,
 ) {
     var isOpen by remember { mutableStateOf(false) }
-    var value by remember { mutableFloatStateOf(initialValue) }
-    var ratio by remember { mutableFloatStateOf(RangeUtils.calculateRatioFromValue(value, range)) }
 
     Card(
         colors = SettingsTileDefaults.cardColors(),
@@ -48,6 +65,12 @@ fun SettingsSliderTile(
     }
 
     if (isOpen) {
+        var value by remember { mutableFloatStateOf(initialValue) }
+        var ratio by remember {
+            mutableFloatStateOf(RangeUtils.calculateRatioFromValue(value, range))
+        }
+        var pointerOffsetX = 0f
+
         ScaffoldDialog(
             onDismissRequest = {
                 isOpen = false
@@ -72,16 +95,28 @@ fun SettingsSliderTile(
                                 .fillMaxWidth()
                                 .height(height)
                                 .pointerInput(Unit) {
-                                    var offsetX = 0f
+                                    detectTapGestures(
+                                        onTap = { offset ->
+                                            pointerOffsetX = offset.x
+                                            val widthPx = maxWidth.toPx()
+                                            val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
+                                            val nValue =
+                                                RangeUtils.calculateValueFromRatio(nRatio, range)
+                                            value = onValue(nValue)
+                                            ratio = RangeUtils.calculateRatioFromValue(value, range)
+                                        }
+                                    )
+                                }
+                                .pointerInput(Unit) {
                                     detectDragGestures(
                                         onDragStart = { offset ->
-                                            offsetX = offset.x
+                                            pointerOffsetX = offset.x
                                         },
                                         onDrag = { pointer, offset ->
                                             pointer.consume()
-                                            offsetX += offset.x
+                                            pointerOffsetX += offset.x
                                             val widthPx = maxWidth.toPx()
-                                            val nRatio = (offsetX / widthPx).coerceIn(0f..1f)
+                                            val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
                                             val nValue =
                                                 RangeUtils.calculateValueFromRatio(nRatio, range)
                                             value = onValue(nValue)
