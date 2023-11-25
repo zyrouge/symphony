@@ -4,6 +4,7 @@ import android.media.MediaPlayer
 import android.media.PlaybackParams
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.utils.Logger
 import java.util.Timer
 
 data class PlaybackPosition(
@@ -31,8 +32,6 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     private val mediaPlayer: MediaPlayer?
         get() = if (usable) unsafeMediaPlayer else null
 
-    private var initialSpeed: Float? = null
-    private var initialPitch: Float? = null
     private var onPrepared: RadioPlayerOnPreparedListener? = null
     private var onPlaybackPosition: RadioPlayerOnPlaybackPositionListener? = null
     private var onFinish: RadioPlayerOnFinishListener? = null
@@ -52,12 +51,10 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
 
     var volume: Float = MAX_VOLUME
+    var speed: Float = DEFAULT_SPEED
+    var pitch: Float = DEFAULT_PITCH
     val fadePlayback: Boolean
         get() = symphony.settings.fadePlayback.value
-    val speed: Float
-        get() = mediaPlayer?.playbackParams?.speed?.takeIf { it != 0f } ?: DEFAULT_SPEED
-    val pitch: Float
-        get() = mediaPlayer?.playbackParams?.pitch?.takeIf { it != 0f } ?: DEFAULT_PITCH
     val audioSessionId: Int?
         get() = mediaPlayer?.audioSessionId
 
@@ -68,23 +65,23 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         get() = mediaPlayer?.isPlaying ?: false
 
     init {
-        unsafeMediaPlayer = MediaPlayer().apply {
-            setOnPreparedListener {
-                playbackParams.setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
+        unsafeMediaPlayer = MediaPlayer().also { ump ->
+            ump.setOnPreparedListener {
                 usable = true
+                ump.playbackParams.setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
                 createDurationTimer()
                 onPrepared?.invoke()
             }
-            setOnCompletionListener {
+            ump.setOnCompletionListener {
                 usable = false
                 onFinish?.invoke()
             }
-            setOnErrorListener { _, what, extra ->
+            ump.setOnErrorListener { _, what, extra ->
                 usable = false
                 onError?.invoke(what, extra)
                 true
             }
-            setDataSource(symphony.applicationContext, uri)
+            ump.setDataSource(symphony.applicationContext, uri)
         }
     }
 
@@ -105,14 +102,8 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         it.start()
         if (!hasPlayedOnce) {
             hasPlayedOnce = true
-            initialSpeed?.let { speed ->
-                setSpeed(speed)
-                initialSpeed = null
-            }
-            initialPitch?.let { pitch ->
-                setPitch(pitch)
-                initialPitch = null
-            }
+            setSpeed(speed)
+            setPitch(pitch)
         }
     }
 
@@ -154,28 +145,40 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         mediaPlayer?.setVolume(to, to)
     }
 
-    fun setSpeed(speed: Float) {
+    @JvmName("setSpeedTo")
+    fun setSpeed(to: Float) {
         if (!hasPlayedOnce) {
-            initialSpeed = speed
+            speed = to
             return
         }
         mediaPlayer?.let {
             val isPlaying = it.isPlaying
-            it.playbackParams = it.playbackParams.setSpeed(speed)
+            try {
+                it.playbackParams = it.playbackParams.setSpeed(to)
+                speed = to
+            } catch (err: Exception) {
+                Logger.error("RadioPlayer", "changing speed failed", err)
+            }
             if (!isPlaying) {
                 it.pause()
             }
         }
     }
 
-    fun setPitch(pitch: Float) {
+    @JvmName("setPitchTo")
+    fun setPitch(to: Float) {
         if (!hasPlayedOnce) {
-            initialPitch = speed
+            pitch = to
             return
         }
         mediaPlayer?.let {
             val isPlaying = it.isPlaying
-            it.playbackParams = it.playbackParams.setPitch(pitch)
+            try {
+                it.playbackParams = it.playbackParams.setPitch(to)
+                pitch = to
+            } catch (err: Exception) {
+                Logger.error("RadioPlayer", "changing pitch failed", err)
+            }
             if (!isPlaying) {
                 it.pause()
             }

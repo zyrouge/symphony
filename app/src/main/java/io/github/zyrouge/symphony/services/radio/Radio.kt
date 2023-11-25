@@ -115,15 +115,21 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                         "Radio",
                         "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $what + $extra"
                     )
-                    queue.remove(queue.currentSongIndex)
-                    onSongFinish(SongFinishSource.Exception)
+                    when {
+                        // happens when change playback params fail, we skip it since its non-critical
+                        what == 1 && extra == -22 -> onSongFinish(SongFinishSource.Finish)
+                        else -> {
+                            queue.remove(queue.currentSongIndex)
+                            onSongFinish(SongFinishSource.Exception)
+                        }
+                    }
                 }
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
             player!!.prepare {
                 seek(options.startPosition ?: 0)
-                player!!.setSpeed(persistedSpeed)
-                player!!.setPitch(persistedPitch)
+                setSpeed(persistedSpeed, true)
+                setPitch(persistedPitch, true)
                 if (options.autostart) {
                     start()
                 }

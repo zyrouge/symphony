@@ -34,7 +34,7 @@ fun NowPlayingSpeedDialog(
     onDismissRequest: () -> Unit,
 ) {
     val allowedSpeeds = listOf(0.5f, 1f, 1.5f, 2f, 3f)
-    var isPersistent by remember {
+    var persistent by remember {
         mutableStateOf(currentSpeed == persistedSpeed)
     }
 
@@ -48,7 +48,7 @@ fun NowPlayingSpeedDialog(
                 allowedSpeeds.map { speed ->
                     val onClick = {
                         onDismissRequest()
-                        context.symphony.radio.setSpeed(speed, isPersistent)
+                        context.symphony.radio.setSpeed(speed, persistent)
                     }
 
                     Card(
@@ -77,10 +77,10 @@ fun NowPlayingSpeedDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = isPersistent,
+                        checked = persistent,
                         onCheckedChange = {
-                            isPersistent = !isPersistent
-                            context.symphony.radio.setSpeed(currentSpeed, isPersistent)
+                            persistent = !persistent
+                            context.symphony.radio.setSpeed(currentSpeed, persistent)
                         }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -100,7 +100,7 @@ fun NowPlayingPitchDialog(
     onDismissRequest: () -> Unit,
 ) {
     val allowedPitches = listOf(0.5f, 1f, 1.5f, 2f, 3f)
-    var isPersistent by remember {
+    var persistent by remember {
         mutableStateOf(currentPitch == persistedPitch)
     }
 
@@ -114,7 +114,7 @@ fun NowPlayingPitchDialog(
                 allowedPitches.map { pitch ->
                     val onClick = {
                         onDismissRequest()
-                        context.symphony.radio.setPitch(pitch, isPersistent)
+                        context.symphony.radio.setPitch(pitch, persistent)
                     }
 
                     Card(
@@ -143,10 +143,10 @@ fun NowPlayingPitchDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = isPersistent,
+                        checked = persistent,
                         onCheckedChange = {
-                            isPersistent = !isPersistent
-                            context.symphony.radio.setPitch(currentPitch, isPersistent)
+                            persistent = !persistent
+                            context.symphony.radio.setPitch(currentPitch, persistent)
                         }
                     )
                     Spacer(modifier = Modifier.width(8.dp))

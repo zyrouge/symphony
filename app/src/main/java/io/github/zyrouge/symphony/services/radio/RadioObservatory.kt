@@ -41,23 +41,27 @@ class RadioObservatory(private val symphony: Symphony) {
                 RadioEvents.StartPlaying,
                 RadioEvents.StopPlaying,
                 RadioEvents.PausePlaying,
-                RadioEvents.ResumePlaying -> emitIsPlaying()
+                RadioEvents.ResumePlaying,
+                -> emitIsPlaying()
 
                 RadioEvents.SongSeeked -> emitPlaybackPosition()
                 RadioEvents.SongQueued,
                 RadioEvents.SongDequeued,
                 RadioEvents.QueueModified,
-                RadioEvents.QueueCleared -> emitQueue()
+                RadioEvents.QueueCleared,
+                -> emitQueue()
 
                 RadioEvents.QueueIndexChanged -> emitQueueIndex()
                 RadioEvents.LoopModeChanged -> emitLoopMode()
                 RadioEvents.ShuffleModeChanged -> emitShuffleMode()
                 RadioEvents.SongStaged,
-                RadioEvents.QueueEnded -> {
+                RadioEvents.QueueEnded,
+                -> {
                 }
 
                 RadioEvents.SleepTimerSet,
-                RadioEvents.SleepTimerRemoved -> emitSleepTimer()
+                RadioEvents.SleepTimerRemoved,
+                -> emitSleepTimer()
 
                 RadioEvents.SpeedChanged -> {
                     emitSpeed()
@@ -110,7 +114,7 @@ class RadioObservatory(private val symphony: Symphony) {
         symphony.radio.currentSpeed
     }
 
-    private fun emitPersistedSpeed() = _speed.update {
+    private fun emitPersistedSpeed() = _persistedSpeed.update {
         symphony.radio.persistedSpeed
     }
 
@@ -118,7 +122,7 @@ class RadioObservatory(private val symphony: Symphony) {
         symphony.radio.currentPitch
     }
 
-    private fun emitPersistedPitch() = _pitch.update {
+    private fun emitPersistedPitch() = _persistedPitch.update {
         symphony.radio.persistedPitch
     }
 
