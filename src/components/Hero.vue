@@ -2,13 +2,16 @@
 import Icon from "/icon.svg";
 
 const GITHUB_URL = "https://github.com/zyrouge/symphony";
-const GITHUB_RELEASES_URL =
+const GITHUB_RELEASES_URL = "https://github.com/zyrouge/symphony/releases";
+const GITHUB_RELEASES_LATEST_URL =
     "https://github.com/zyrouge/symphony/releases/latest";
 const GITHUB_README_DONATIONS_URL =
     "https://github.com/zyrouge/symphony#contributing";
 const IZZY_ON_DROID_URL =
     "https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony";
 const FDROID_URL = "https://f-droid.org/en/packages/io.github.zyrouge.symphony";
+const PLAY_STORE_URL =
+    "https://play.google.com/store/apps/details?id=io.github.zyrouge.symphony";
 </script>
 
 <template>
@@ -32,14 +35,18 @@ const FDROID_URL = "https://f-droid.org/en/packages/io.github.zyrouge.symphony";
             </p>
             <div class="u-flex mt-12 flex-wrap !justify-start gap-2">
                 <a :href="GITHUB_URL" class="hero-btn">Source Code</a>
-                <a :href="GITHUB_RELEASES_URL" class="hero-btn">Download</a>
+                <a :href="GITHUB_RELEASES_LATEST_URL" class="hero-btn"
+                    >Download</a
+                >
             </div>
             <p class="mt-4">
                 Get it from
-                <a :href="FDROID_URL" class="hero-link">GitHub Releases</a>,
-                <a :href="FDROID_URL" class="hero-link">F-Droid</a>
+                <a :href="GITHUB_RELEASES_URL" class="hero-link"
+                    >GitHub Releases</a
+                >, <a :href="FDROID_URL" class="hero-link">F-Droid</a>,
+                <a :href="IZZY_ON_DROID_URL" class="hero-link">IzzyOnDroid</a>
                 or
-                <a :href="IZZY_ON_DROID_URL" class="hero-link">IzzyOnDroid</a>.
+                <a :href="PLAY_STORE_URL" class="hero-link">Play Store</a>.
             </p>
         </div>
     </div>
