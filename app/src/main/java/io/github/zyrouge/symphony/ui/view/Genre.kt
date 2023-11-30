@@ -58,7 +58,8 @@ fun GenreView(context: ViewContext, genreId: String) {
                 },
                 title = {
                     TopAppBarMinimalTitle {
-                        Text("${context.symphony.t.Genre} - $genre")
+                        Text(context.symphony.t.Genre
+                                + (genre?.let { " - ${it.name}" } ?: ""))
                     }
                 },
                 actions = {
