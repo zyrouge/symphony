@@ -58,6 +58,8 @@ Before contributing, please read the [Developer Guide](https://github.com/zyroug
 
 Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Donations through [GitHub Sponsors](https://github.com/sponsors/zyrouge) or [Patreon](https://patreon.com/zyrouge) helps me to stay motivated to keep working on this project.
 
+[![](https://contrib.rocks/image?repo=zyrouge/symphony)](https://github.com/zyrouge/symphony/graphs/contributors)
+
 ## License
 
 [AGPL-3.0](./LICENSE)
