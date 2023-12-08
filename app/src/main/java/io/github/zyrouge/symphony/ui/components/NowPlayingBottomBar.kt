@@ -91,6 +91,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
 
     AnimatedContent(
+        label = "c-now-playing-container",
         modifier = Modifier.fillMaxWidth(),
         targetState = currentPlayingSong,
         contentKey = { it != null },
