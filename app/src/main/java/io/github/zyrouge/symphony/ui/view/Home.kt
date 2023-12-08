@@ -6,7 +6,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,6 +75,7 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
@@ -286,24 +286,9 @@ fun HomeView(context: ViewContext) {
                                 showTabsSheet = true
                             }
                         }
-                        .pointerInput(Unit) {
-                            var offsetY = 0f
-                            detectVerticalDragGestures(
-                                onVerticalDrag = { pointer, dragAmount ->
-                                    pointer.consume()
-                                    offsetY += dragAmount
-                                },
-                                onDragEnd = {
-                                    if (offsetY < -50) {
-                                        showTabsSheet = true
-                                    }
-                                    offsetY = 0f
-                                },
-                                onDragCancel = {
-                                    offsetY = 0f
-                                }
-                            )
-                        }
+                        .swipeable(onSwipeUp = {
+                            showTabsSheet = true
+                        })
                 ) {
                     Spacer(modifier = Modifier.width(2.dp))
                     tabs.map { x ->

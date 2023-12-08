@@ -8,8 +8,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -90,15 +90,15 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
 
-    AnimatedVisibility(
-        visible = currentPlayingSong != null,
-        enter = slideIn {
-            IntOffset(0, it.height / 2)
-        } + fadeIn(),
-        exit = slideOut {
-            IntOffset(0, it.height / 2)
-        } + fadeOut()
-    ) {
+    AnimatedContent(
+        modifier = Modifier.fillMaxWidth(),
+        targetState = currentPlayingSong,
+        contentKey = { it != null },
+        transitionSpec = {
+            slideInVertically().plus(fadeIn())
+                .togetherWith(slideOutVertically().plus(fadeOut()))
+        }
+    ) { currentPlayingSong ->
         currentPlayingSong?.let { currentSong ->
             Column(
                 modifier = Modifier
@@ -126,7 +126,15 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight()
+                        .swipeable(
+                            onSwipeUp = {
+                                context.navController.navigate(Routes.NowPlaying)
+                            },
+                            onSwipeDown = {
+                                context.symphony.radio.stop()
+                            },
+                        ),
                     shape = RectangleShape,
                     onClick = {
                         context.navController.navigate(Routes.NowPlaying)
