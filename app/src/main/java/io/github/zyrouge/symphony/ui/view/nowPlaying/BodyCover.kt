@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -81,11 +81,7 @@ fun NowPlayingBodyCover(
         BoxWithConstraints(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
             val dimension = min(maxHeight, maxWidth)
 
-            Box(
-                modifier = Modifier
-                    .size(dimension)
-                    .aspectRatio(1f)
-            ) {
+            Box(modifier = Modifier.size(dimension)) {
                 AnimatedContent(
                     label = "now-playing-body-cover",
                     modifier = Modifier.matchParentSize(),
@@ -154,6 +150,19 @@ fun NowPlayingBodyCover(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(12.dp))
+                                    .swipeable(
+                                        minimumDragAmount = 100f,
+                                        onSwipeLeft = {
+                                            if (context.symphony.radio.canJumpToPrevious()) {
+                                                context.symphony.radio.jumpToPrevious()
+                                            }
+                                        },
+                                        onSwipeRight = {
+                                            if (context.symphony.radio.canJumpToNext()) {
+                                                context.symphony.radio.jumpToNext()
+                                            }
+                                        },
+                                    )
                                     .pointerInput(Unit) {
                                         detectTapGestures {
                                             context.navController.navigate(
