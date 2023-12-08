@@ -78,63 +78,63 @@ fun NowPlayingBodyCover(
     }
 
     data.run {
-        BoxWithConstraints(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
-            val dimension = min(maxHeight, maxWidth)
-
-            Box(modifier = Modifier.size(dimension)) {
-                AnimatedContent(
-                    label = "now-playing-body-cover",
-                    modifier = Modifier.matchParentSize(),
-                    targetState = showLyrics,
-                    transitionSpec = {
-                        FadeTransition.enterTransition()
-                            .togetherWith(FadeTransition.exitTransition())
-                    },
-                ) { targetStateShowLyrics ->
-                    when {
-                        targetStateShowLyrics -> Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    RoundedCornerShape(12.dp),
-                                )
-                                .padding(16.dp, 12.dp)
+        Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
+            AnimatedContent(
+                label = "now-playing-body-cover",
+                targetState = showLyrics,
+                transitionSpec = {
+                    FadeTransition.enterTransition()
+                        .togetherWith(FadeTransition.exitTransition())
+                },
+            ) { targetStateShowLyrics ->
+                when {
+                    targetStateShowLyrics -> Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(0.dp, 8.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                RoundedCornerShape(12.dp),
+                            )
+                            .padding(16.dp, 12.dp)
+                    ) {
+                        ProvideTextStyle(
+                            MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
                         ) {
-                            ProvideTextStyle(
-                                MaterialTheme.typography.bodyLarge.copy(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            ) {
-                                when {
-                                    lyricsState == 2 && lyrics != null -> AnimatedContent(
-                                        label = "now-playing-body-cover-lyrics",
-                                        targetState = lyrics ?: "",
-                                        transitionSpec = {
-                                            FadeTransition.enterTransition()
-                                                .togetherWith(FadeTransition.exitTransition())
-                                        },
-                                    ) {
-                                        Text(
-                                            it,
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .verticalScroll(rememberScrollState()),
-                                        )
-                                    }
-
-                                    else -> Text(
-                                        if (lyricsState == 1) context.symphony.t.Loading
-                                        else context.symphony.t.NoLyrics,
-                                        modifier = Modifier.align(Alignment.Center),
+                            when {
+                                lyricsState == 2 && lyrics != null -> AnimatedContent(
+                                    label = "now-playing-body-cover-lyrics",
+                                    targetState = lyrics ?: "",
+                                    transitionSpec = {
+                                        FadeTransition.enterTransition()
+                                            .togetherWith(FadeTransition.exitTransition())
+                                    },
+                                ) {
+                                    Text(
+                                        it,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .verticalScroll(rememberScrollState()),
                                     )
                                 }
+
+                                else -> Text(
+                                    if (lyricsState == 1) context.symphony.t.Loading
+                                    else context.symphony.t.NoLyrics,
+                                    modifier = Modifier.align(Alignment.Center),
+                                )
                             }
                         }
+                    }
 
-                        else -> AnimatedContent(
+                    else -> BoxWithConstraints {
+                        val dimension = min(maxHeight, maxWidth)
+
+                        AnimatedContent(
                             label = "now-playing-body-cover-artwork",
-                            modifier = Modifier.matchParentSize(),
+                            modifier = Modifier.size(dimension),
                             targetState = song,
                             transitionSpec = {
                                 FadeTransition.enterTransition()
@@ -172,6 +172,7 @@ fun NowPlayingBodyCover(
                                     }
                             )
                         }
+
                     }
                 }
             }
