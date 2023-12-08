@@ -54,7 +54,7 @@ fun NowPlayingBody(context: ViewContext, data: NowPlayingPlayerStateData) {
                                         .padding(bottom = 20.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    NowPlayingBodyCover(context, data, states)
+                                    NowPlayingBodyCover(context, data, states, orientation)
                                 }
                                 Column {
                                     NowPlayingBodyContent(context, data)
@@ -73,7 +73,7 @@ fun NowPlayingBody(context: ViewContext, data: NowPlayingPlayerStateData) {
                                         .padding(top = 12.dp, bottom = 20.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    NowPlayingBodyCover(context, data, states)
+                                    NowPlayingBodyCover(context, data, states, orientation)
                                 }
                                 Box(modifier = Modifier.weight(1f)) {
                                     Column {

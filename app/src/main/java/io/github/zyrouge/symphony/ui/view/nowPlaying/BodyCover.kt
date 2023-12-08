@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
@@ -51,6 +52,7 @@ fun NowPlayingBodyCover(
     context: ViewContext,
     data: NowPlayingPlayerStateData,
     states: NowPlayingStates,
+    orientation: ScreenOrientation,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showLyrics by states.showLyrics.collectAsState()
@@ -82,6 +84,7 @@ fun NowPlayingBodyCover(
             AnimatedContent(
                 label = "now-playing-body-cover",
                 targetState = showLyrics,
+                contentAlignment = Alignment.Center,
                 transitionSpec = {
                     FadeTransition.enterTransition()
                         .togetherWith(FadeTransition.exitTransition())
@@ -91,7 +94,10 @@ fun NowPlayingBodyCover(
                     targetStateShowLyrics -> Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(0.dp, 8.dp)
+                            .padding(
+                                0.dp,
+                                if (orientation == ScreenOrientation.LANDSCAPE) 0.dp else 8.dp
+                            )
                             .background(
                                 MaterialTheme.colorScheme.surfaceContainer,
                                 RoundedCornerShape(12.dp),
