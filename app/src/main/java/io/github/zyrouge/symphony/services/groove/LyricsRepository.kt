@@ -25,7 +25,11 @@ class LyricsRepository(private val symphony: Symphony) {
         currentSaveCache.clear()
     }
 
-    suspend fun getLyrics(song: Song): String? = run {
+    suspend fun getLyrics(song: Song): String? {
+        val cacheKey = constructSongCacheKey(song)
+        cache[cacheKey]?.let { lyrics ->
+            return lyrics
+        }
         try {
             val outputFile = symphony.applicationContext.cacheDir
                 .toPath()
@@ -42,7 +46,7 @@ class LyricsRepository(private val symphony: Symphony) {
             outputFile.delete()
             lyrics?.let {
                 cache[song.id] = lyrics
-                currentSaveCache[constructSongCacheKey(song)] = lyrics
+                currentSaveCache[cacheKey] = lyrics
                 symphony.database.lyricsCache.update(currentSaveCache)
             }
             return lyrics
