@@ -20,14 +20,14 @@ class ErrorActivity : ComponentActivity() {
     }
 
     companion object {
-        const val error_message_key = "error_message"
-        const val error_stack_trace_key = "error_stack_trace"
+        const val errorMessageKey = "error_message"
+        const val errorStackTraceKey = "error_stack_trace"
 
         fun start(context: Context, error: Throwable) {
             val intent = Intent(context, ErrorActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-            intent.putExtra(error_message_key, error.toString())
-            intent.putExtra(error_stack_trace_key, error.stackTraceToString())
+            intent.putExtra(errorMessageKey, error.toString())
+            intent.putExtra(errorStackTraceKey, error.stackTraceToString())
             context.startActivity(intent)
         }
     }

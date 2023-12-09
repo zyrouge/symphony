@@ -5,29 +5,30 @@ import io.github.zyrouge.symphony.utils.AudioTaggerX
 import io.github.zyrouge.symphony.utils.FileX
 import io.github.zyrouge.symphony.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class LyricsRepository(private val symphony: Symphony) {
-    val cache = ConcurrentHashMap<Long, String>()
-    val previousSaveCache = ConcurrentHashMap<String, String>()
-    val currentSaveCache = ConcurrentHashMap<String, String>()
+    private val compactCacheKeys = ConcurrentLinkedQueue<String>()
+    val cache = ConcurrentHashMap<String, String>()
 
-    internal fun onSong(song: Song) {
-        val saveCacheKey = constructSongCacheKey(song)
-        previousSaveCache[saveCacheKey]?.let { lyrics ->
-            cache[song.id] = lyrics
-            currentSaveCache[saveCacheKey] = lyrics
-        }
+    fun fetch() {
+        kotlin
+            .runCatching { symphony.database.lyricsCache.read() }
+            .getOrNull()
+            ?.let {
+                compactCacheKeys.addAll(it.keys)
+                cache.putAll(it)
+            }
     }
 
     fun reset() {
         cache.clear()
-        previousSaveCache.clear()
-        currentSaveCache.clear()
     }
 
     suspend fun getLyrics(song: Song): String? {
         val cacheKey = constructSongCacheKey(song)
         cache[cacheKey]?.let { lyrics ->
+            hitCompactCache(cacheKey)
             return lyrics
         }
         try {
@@ -45,9 +46,9 @@ class LyricsRepository(private val symphony: Symphony) {
             val lyrics = AudioTaggerX.getLyrics(outputFile)
             outputFile.delete()
             lyrics?.let {
-                cache[song.id] = lyrics
-                currentSaveCache[cacheKey] = lyrics
-                symphony.database.lyricsCache.update(currentSaveCache)
+                cache[cacheKey] = lyrics
+                hitCompactCache(cacheKey)
+                symphony.database.lyricsCache.update(getCompactCache())
             }
             return lyrics
         } catch (err: Exception) {
@@ -56,5 +57,26 @@ class LyricsRepository(private val symphony: Symphony) {
         return null
     }
 
-    fun constructSongCacheKey(song: Song) = "${song.id}-${song.dateModified}"
+    private fun hitCompactCache(cacheKey: String) {
+        while (compactCacheKeys.size > MAX_CACHE_SIZE) {
+            compactCacheKeys.remove()
+        }
+        compactCacheKeys.add(cacheKey)
+    }
+
+    private fun getCompactCache(): Map<String, String> {
+        val output = mutableMapOf<String, String>()
+        compactCacheKeys.forEach { cacheKey ->
+            cache[cacheKey]?.let { lyrics ->
+                output[cacheKey] = lyrics
+            }
+        }
+        return output
+    }
+
+    companion object {
+        const val MAX_CACHE_SIZE = 50
+
+        fun constructSongCacheKey(song: Song) = "${song.id}-${song.dateModified}"
+    }
 }

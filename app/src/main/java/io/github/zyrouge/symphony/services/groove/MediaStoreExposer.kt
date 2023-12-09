@@ -102,7 +102,6 @@ class MediaStoreExposer(private val symphony: Symphony) {
         symphony.groove.album.onSong(song)
         symphony.groove.artist.onSong(song)
         symphony.groove.genre.onSong(song)
-        symphony.groove.lyrics.onSong(song)
         symphony.groove.song.onSong(song)
     }
 
