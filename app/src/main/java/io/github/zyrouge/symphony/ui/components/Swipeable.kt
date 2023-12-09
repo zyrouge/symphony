@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlin.math.absoluteValue
 
 fun Modifier.swipeable(
     minimumDragAmount: Float = 50f,
@@ -19,11 +20,18 @@ fun Modifier.swipeable(
             offset += dragAmount
         },
         onDragEnd = {
+            val xAbs = offset.x.absoluteValue
+            val yAbs = offset.y.absoluteValue
             when {
-                offset.x > minimumDragAmount -> onSwipeRight?.invoke()
-                offset.x < -minimumDragAmount -> onSwipeLeft?.invoke()
-                offset.y > minimumDragAmount -> onSwipeDown?.invoke()
-                offset.y < -minimumDragAmount -> onSwipeUp?.invoke()
+                xAbs > minimumDragAmount && xAbs > yAbs -> when {
+                    offset.x > 0 -> onSwipeRight?.invoke()
+                    else -> onSwipeLeft?.invoke()
+                }
+
+                yAbs > minimumDragAmount -> when {
+                    offset.y > 0 -> onSwipeDown?.invoke()
+                    else -> onSwipeUp?.invoke()
+                }
             }
             offset = Offset.Zero
         },

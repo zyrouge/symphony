@@ -159,13 +159,13 @@ fun NowPlayingBodyCover(
                                     .swipeable(
                                         minimumDragAmount = 100f,
                                         onSwipeLeft = {
-                                            if (context.symphony.radio.canJumpToPrevious()) {
-                                                context.symphony.radio.jumpToPrevious()
+                                            if (context.symphony.radio.canJumpToNext()) {
+                                                context.symphony.radio.jumpToNext()
                                             }
                                         },
                                         onSwipeRight = {
-                                            if (context.symphony.radio.canJumpToNext()) {
-                                                context.symphony.radio.jumpToNext()
+                                            if (context.symphony.radio.canJumpToPrevious()) {
+                                                context.symphony.radio.jumpToPrevious()
                                             }
                                         },
                                     )
