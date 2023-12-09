@@ -12,7 +12,7 @@ fun Modifier.swipeable(
     onSwipeRight: (() -> Unit)? = null,
     onSwipeUp: (() -> Unit)? = null,
     onSwipeDown: (() -> Unit)? = null,
-) = pointerInput(kotlin.Unit) {
+) = pointerInput(Unit) {
     var offset = Offset.Zero
     detectDragGestures(
         onDrag = { pointer, dragAmount ->
