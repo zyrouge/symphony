@@ -54,7 +54,7 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.randomSubList
-import io.github.zyrouge.symphony.utils.runIfTrueOrDefault
+import io.github.zyrouge.symphony.utils.runIfOrDefault
 import io.github.zyrouge.symphony.utils.subListNonStrict
 
 enum class ForYou(val label: (context: ViewContext) -> String) {
@@ -81,14 +81,14 @@ fun ForYouView(context: ViewContext) {
         songIds.isNotEmpty() -> {
             val sortedSongIds by remember(songsIsUpdating, songIds, sortBy, sortReverse) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!songsIsUpdating, listOf()) {
+                    runIfOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(songIds.toList(), sortBy, sortReverse)
                     }
                 }
             }
             val recentlyAddedSongs by remember(songsIsUpdating, songIds) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!songsIsUpdating, listOf()) {
+                    runIfOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(
                             songIds.toList(),
                             SongSortBy.DATE_ADDED,
@@ -99,21 +99,21 @@ fun ForYouView(context: ViewContext) {
             }
             val randomAlbums by remember(albumsIsUpdating, albumIds) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!albumsIsUpdating, listOf()) {
+                    runIfOrDefault(!albumsIsUpdating, listOf()) {
                         albumIds.randomSubList(6)
                     }
                 }
             }
             val randomArtists by remember(artistsIsUpdating, artistIds) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!artistsIsUpdating, listOf()) {
+                    runIfOrDefault(!artistsIsUpdating, listOf()) {
                         artistIds.randomSubList(6)
                     }
                 }
             }
             val randomAlbumArtists by remember(albumArtistsIsUpdating, albumArtistIds) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!albumArtistsIsUpdating, listOf()) {
+                    runIfOrDefault(!albumArtistsIsUpdating, listOf()) {
                         albumArtistIds.randomSubList(6)
                     }
                 }

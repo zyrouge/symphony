@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import io.github.zyrouge.symphony.utils.applyMultiple
 
 object ScaffoldDialogDefaults {
     const val PreferredMaxHeight = 0.8f
@@ -46,13 +45,11 @@ fun ScaffoldDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.applyMultiple {
-                applySingle {
-                    val maxHeight = (configuration.screenHeightDp * 0.9f).dp
-                    when {
-                        contentHeight != null -> height(maxHeight.times(contentHeight))
-                        else -> requiredHeightIn(max = maxHeight)
-                    }
+            modifier = Modifier.run {
+                val maxHeight = (configuration.screenHeightDp * 0.9f).dp
+                when {
+                    contentHeight != null -> height(maxHeight.times(contentHeight))
+                    else -> requiredHeightIn(max = maxHeight)
                 }
             },
         ) {
@@ -81,10 +78,8 @@ fun ScaffoldDialog(
                 HorizontalDivider()
                 topBar?.invoke()
                 Box(
-                    modifier = Modifier.applyMultiple {
-                        contentHeight?.let {
-                            applySingle { weight(it) }
-                        }
+                    modifier = Modifier.run {
+                        contentHeight?.let { weight(it) } ?: this
                     }
                 ) {
                     content()
