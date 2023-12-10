@@ -5,8 +5,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
-class ModifierBuilder(var modifier: Modifier) {
-    fun apply(fn: Modifier.() -> Modifier) {
+class ModifierApplyMultiple(var modifier: Modifier) {
+    fun applySingle(fn: Modifier.() -> Modifier) {
         modifier = fn(modifier)
     }
 
@@ -14,8 +14,8 @@ class ModifierBuilder(var modifier: Modifier) {
     fun build() = modifier
 }
 
-fun Modifier.applyAll(fn: ModifierBuilder.() -> Unit): Modifier {
-    val builder = ModifierBuilder(this)
+fun Modifier.applyMultiple(fn: ModifierApplyMultiple.() -> Unit): Modifier {
+    val builder = ModifierApplyMultiple(this)
     fn.invoke(builder)
     return builder.build()
 }

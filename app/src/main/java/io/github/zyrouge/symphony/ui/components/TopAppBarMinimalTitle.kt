@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.zyrouge.symphony.utils.applyAll
+import io.github.zyrouge.symphony.utils.applyMultiple
 
 @Composable
 fun TopAppBarMinimalTitle(
@@ -21,11 +21,11 @@ fun TopAppBarMinimalTitle(
     content: @Composable () -> Unit,
 ) {
     Box(
-        modifier = modifier.applyAll {
+        modifier = modifier.applyMultiple {
             if (fillMaxWidth) {
-                apply { fillMaxWidth() }
+                applySingle { fillMaxWidth() }
             }
-            apply { padding(8.dp) }
+            applySingle { padding(8.dp) }
         },
         contentAlignment = Alignment.Center,
     ) {

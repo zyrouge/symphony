@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
+import android.content.ContentUris
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
@@ -124,8 +125,10 @@ data class Song(
         symphony.groove.song.createArtworkImageRequest(id)
 
     companion object {
-        fun buildUri(id: Long): Uri =
-            Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
+        fun buildUri(id: Long) = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            id,
+        )
 
         fun fromCursor(
             symphony: Symphony,

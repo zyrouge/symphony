@@ -11,8 +11,8 @@ class ErrorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val errorMessage = intent?.extras?.getString(error_message_key) ?: "Unknown"
-        val errorStackTrace = intent?.extras?.getString(error_stack_trace_key) ?: "-"
+        val errorMessage = intent?.extras?.getString(errorMessageKey) ?: "Unknown"
+        val errorStackTrace = intent?.extras?.getString(errorStackTraceKey) ?: "-"
 
         setContent {
             ErrorComp(errorMessage, errorStackTrace)

@@ -46,7 +46,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun NowPlayingBodyCover(
     context: ViewContext,
@@ -101,36 +100,43 @@ fun NowPlayingBodyCover(
                             .background(
                                 MaterialTheme.colorScheme.surfaceContainer,
                                 RoundedCornerShape(12.dp),
-                            )
-                            .padding(16.dp, 12.dp)
+                            ),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        ProvideTextStyle(
-                            MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        ) {
-                            when {
-                                lyricsState == 2 && lyrics != null -> AnimatedContent(
-                                    label = "now-playing-body-cover-lyrics",
-                                    targetState = lyrics ?: "",
-                                    transitionSpec = {
-                                        FadeTransition.enterTransition()
-                                            .togetherWith(FadeTransition.exitTransition())
-                                    },
-                                ) {
-                                    Text(
-                                        it,
+                        AnimatedContent(
+                            label = "now-playing-body-cover-lyrics",
+                            targetState = lyricsState to lyrics,
+                            transitionSpec = {
+                                FadeTransition.enterTransition()
+                                    .togetherWith(FadeTransition.exitTransition())
+                            },
+                        ) { targetState ->
+                            val hasLyrics = targetState.first == 2 && targetState.second != null
+
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            ) {
+                                when {
+                                    hasLyrics -> Text(
+                                        targetState.second ?: "",
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .verticalScroll(rememberScrollState()),
+                                            .verticalScroll(rememberScrollState())
+                                            .padding(16.dp, 12.dp),
                                     )
-                                }
 
-                                else -> Text(
-                                    if (lyricsState == 1) context.symphony.t.Loading
-                                    else context.symphony.t.NoLyrics,
-                                    modifier = Modifier.align(Alignment.Center),
-                                )
+                                    else -> Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            if (targetState.first == 1) context.symphony.t.Loading
+                                            else context.symphony.t.NoLyrics
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
