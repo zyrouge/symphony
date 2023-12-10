@@ -33,7 +33,7 @@ import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.contextWrapped
+import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private object GenreTile {
     val colors = mutableListOf(
@@ -84,7 +84,7 @@ fun GenreGrid(
                     },
                     sort = sortBy,
                     sorts = GenreSortBy.entries
-                        .associateWith { x -> contextWrapped { x.label(it) } },
+                        .associateWith { x -> wrapInViewContext { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedGenresSortBy(it)
                     },

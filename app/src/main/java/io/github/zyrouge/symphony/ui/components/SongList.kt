@@ -20,7 +20,7 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.contextWrapped
+import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 enum class SongListType {
     Default,
@@ -59,7 +59,7 @@ fun SongList(
                 },
                 sort = sortBy,
                 sorts = SongSortBy.entries
-                    .associateWith { x -> contextWrapped { x.label(it) } },
+                    .associateWith { x -> wrapInViewContext { x.label(it) } },
                 onSortChange = {
                     type.setLastUsedSortBy(context, it)
                 },

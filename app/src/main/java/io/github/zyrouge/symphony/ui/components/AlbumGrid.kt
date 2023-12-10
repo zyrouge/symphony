@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import io.github.zyrouge.symphony.services.groove.AlbumSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.contextWrapped
+import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 @Composable
 fun AlbumGrid(
@@ -38,7 +38,7 @@ fun AlbumGrid(
                     context.symphony.settings.setLastUsedAlbumsSortReverse(it)
                 },
                 sort = sortBy,
-                sorts = AlbumSortBy.entries.associateWith { x -> contextWrapped { x.label(it) } },
+                sorts = AlbumSortBy.entries.associateWith { x -> wrapInViewContext { x.label(it) } },
                 onSortChange = {
                     context.symphony.settings.setLastUsedAlbumsSortBy(it)
                 },

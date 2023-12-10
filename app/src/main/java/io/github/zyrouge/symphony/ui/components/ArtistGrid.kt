@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import io.github.zyrouge.symphony.services.groove.ArtistSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.contextWrapped
+import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 @Composable
 fun ArtistGrid(
@@ -39,7 +39,7 @@ fun ArtistGrid(
                 },
                 sort = sortBy,
                 sorts = ArtistSortBy.entries
-                    .associateWith { x -> contextWrapped { x.label(it) } },
+                    .associateWith { x -> wrapInViewContext { x.label(it) } },
                 onSortChange = {
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
                 },
