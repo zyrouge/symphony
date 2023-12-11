@@ -6,12 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
@@ -35,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.ui.components.LyricsText
 import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
@@ -42,6 +42,7 @@ import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
+import io.github.zyrouge.symphony.utils.TimedContent
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -58,14 +59,16 @@ fun NowPlayingBodyCover(
     val currentSong by rememberUpdatedState(data.song)
     var lyricsState by remember { mutableIntStateOf(0) }
     var lyricsSongId by remember { mutableStateOf<Long?>(null) }
-    var lyrics by remember { mutableStateOf<String?>(null) }
+    var lyrics by remember { mutableStateOf<TimedContent?>(null) }
 
     val fetchLyrics = { check: Boolean ->
         if (check && (lyricsSongId != currentSong.id || lyricsState == 0)) {
             lyricsState = 1
             coroutineScope.launch {
                 lyricsSongId = currentSong.id
-                lyrics = context.symphony.groove.lyrics.getLyrics(currentSong)
+                lyrics = context.symphony.groove.lyrics.getLyrics(currentSong)?.let {
+                    TimedContent.fromLyrics(it)
+                }
                 lyricsState = 2
             }
         }
@@ -119,12 +122,13 @@ fun NowPlayingBodyCover(
                                 )
                             ) {
                                 when {
-                                    hasLyrics -> Text(
-                                        targetState.second ?: "",
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .verticalScroll(rememberScrollState())
-                                            .padding(16.dp, 12.dp),
+                                    hasLyrics -> LyricsText(
+                                        context,
+                                        content = targetState.second!!,
+                                        padding = PaddingValues(
+                                            horizontal = 12.dp,
+                                            vertical = 8.dp,
+                                        ),
                                     )
 
                                     else -> Box(

@@ -99,8 +99,8 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
             slideInVertically().plus(fadeIn())
                 .togetherWith(slideOutVertically().plus(fadeOut()))
         }
-    ) { currentPlayingSong ->
-        currentPlayingSong?.let { currentSong ->
+    ) { currentPlayingSongTarget ->
+        currentPlayingSongTarget?.let { currentSong ->
             Column(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))

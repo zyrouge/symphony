@@ -103,7 +103,7 @@ class RadioSession(val symphony: Symphony) {
 
                 override fun onSeekTo(pos: Long) {
                     super.onSeekTo(pos)
-                    symphony.radio.seek(pos.toInt())
+                    symphony.radio.seek(pos)
                 }
 
                 override fun onRewind() {
@@ -132,7 +132,8 @@ class RadioSession(val symphony: Symphony) {
                     }
                     return when (keyEvent?.keyCode) {
                         KeyEvent.KEYCODE_MEDIA_PREVIOUS,
-                        KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                        KeyEvent.KEYCODE_MEDIA_REWIND,
+                        -> {
                             handleAction(ACTION_PREVIOUS)
                             true
                         }
@@ -143,7 +144,8 @@ class RadioSession(val symphony: Symphony) {
                         }
 
                         KeyEvent.KEYCODE_MEDIA_CLOSE,
-                        KeyEvent.KEYCODE_MEDIA_STOP -> {
+                        KeyEvent.KEYCODE_MEDIA_STOP,
+                        -> {
                             handleAction(ACTION_STOP)
                             true
                         }
@@ -160,7 +162,8 @@ class RadioSession(val symphony: Symphony) {
                 RadioEvents.PausePlaying,
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
-                RadioEvents.SongSeeked -> update()
+                RadioEvents.SongSeeked,
+                -> update()
 
                 RadioEvents.QueueEnded -> cancel()
                 else -> {}
@@ -199,7 +202,7 @@ class RadioSession(val symphony: Symphony) {
 
         override fun parseResult(
             resultCode: Int,
-            intent: Intent?
+            intent: Intent?,
         ) {
         }
     }
@@ -219,7 +222,7 @@ class RadioSession(val symphony: Symphony) {
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition
-            ?: PlaybackPosition(played = 0, total = song.duration.toInt())
+            ?: PlaybackPosition(played = 0L, total = song.duration)
         val isPlaying = symphony.radio.isPlaying
 
         val req = RadioSessionUpdateRequest(

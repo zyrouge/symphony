@@ -257,7 +257,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                 var seekRatio by remember { mutableStateOf<Float?>(null) }
 
                 NowPlayingPlaybackPositionText(
-                    seekRatio?.let { it * playbackPosition.total }?.toInt()
+                    seekRatio?.let { it * playbackPosition.total }?.toLong()
                         ?: playbackPosition.played,
                     Alignment.CenterStart,
                 )
@@ -271,7 +271,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                             seekRatio = it
                         },
                         onSeekEnd = {
-                            context.symphony.radio.seek((it * playbackPosition.total).toInt())
+                            context.symphony.radio.seek((it * playbackPosition.total).toLong())
                             seekRatio = null
                         },
                         onSeekCancel = {
@@ -291,7 +291,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
 
 @Composable
 private fun NowPlayingPlaybackPositionText(
-    duration: Int,
+    duration: Long,
     alignment: Alignment,
 ) {
     val textStyle = MaterialTheme.typography.labelMedium

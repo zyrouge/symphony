@@ -51,7 +51,7 @@ class RadioQueue(private val symphony: Symphony) {
     fun add(
         songIds: List<Long>,
         index: Int? = null,
-        options: Radio.PlayOptions = Radio.PlayOptions()
+        options: Radio.PlayOptions = Radio.PlayOptions(),
     ) {
         index?.let {
             originalQueue.addAll(it, songIds)
@@ -69,7 +69,7 @@ class RadioQueue(private val symphony: Symphony) {
     fun add(
         songId: Long,
         index: Int? = null,
-        options: Radio.PlayOptions = Radio.PlayOptions()
+        options: Radio.PlayOptions = Radio.PlayOptions(),
     ) = add(listOf(songId), index, options)
 
     private fun afterAdd(options: Radio.PlayOptions) {
@@ -143,7 +143,7 @@ class RadioQueue(private val symphony: Symphony) {
 
     data class Serialized(
         val currentSongIndex: Int,
-        val playedDuration: Int,
+        val playedDuration: Long,
         val originalQueue: List<Long>,
         val currentQueue: List<Long>,
         val shuffled: Boolean,
@@ -172,7 +172,7 @@ class RadioQueue(private val symphony: Symphony) {
                     val semi = data.split(";")
                     return Serialized(
                         currentSongIndex = semi[0].toInt(),
-                        playedDuration = semi[1].toInt(),
+                        playedDuration = semi[1].toLong(),
                         originalQueue = semi[2].split(",").map { it.toLong() },
                         currentQueue = semi[3].split(",").map { it.toLong() },
                         shuffled = semi[4].toBoolean(),

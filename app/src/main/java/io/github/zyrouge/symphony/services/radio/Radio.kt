@@ -91,7 +91,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     data class PlayOptions(
         val index: Int = 0,
         val autostart: Boolean = true,
-        val startPosition: Int? = null,
+        val startPosition: Long? = null,
     )
 
     fun play(options: PlayOptions) {
@@ -127,7 +127,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
             player!!.prepare {
-                seek(options.startPosition ?: 0)
+                seek(options.startPosition ?: 0L)
                 setSpeed(persistedSpeed, true)
                 setPitch(persistedPitch, true)
                 if (options.autostart) {
@@ -201,9 +201,9 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun canJumpToPrevious() = queue.hasSongAt(queue.currentSongIndex - 1)
     fun canJumpToNext() = queue.hasSongAt(queue.currentSongIndex + 1)
 
-    fun seek(position: Int) {
+    fun seek(position: Long) {
         player?.let {
-            it.seek(position)
+            it.seek(position.toInt())
             onUpdate.dispatch(RadioEvents.SongSeeked)
         }
     }
