@@ -61,18 +61,22 @@ fun LyricsText(
     var playbackPositionTimer: Timer? = null
 
     LaunchedEffect(LocalContext.current) {
+        if (!content.isSynced) return@LaunchedEffect
         coroutineScope.launch {
             playbackPositionTimer = timer(period = 50L) {
                 playbackPosition = context.symphony.radio.currentPlaybackPosition
                     ?: PlaybackPosition.zero
-                val isActiveIndexInvisible =
-                    activeIndex > -1 && activeIndex < visibleRange.first && activeIndex > visibleRange.second
+                val isActiveIndexInvisible = activeIndex > -1 && visibleRange.run {
+                    activeIndex < first && activeIndex > second
+                }
                 if (isActiveIndexInvisible) return@timer
                 val nActiveIndex = content.pairs.indexOfLast { x ->
                     x.first <= playbackPosition.played
                 }
                 if (nActiveIndex == -1 || activeIndex == nActiveIndex) return@timer
+                val pActiveIndex = activeIndex
                 activeIndex = nActiveIndex
+                if (scrollState.isScrollInProgress) return@timer
                 coroutineScope.launch {
                     val scrollIndex = calculateRelaxedScrollIndex(nActiveIndex, visibleRange)
                     scrollState.animateScrollToItem(scrollIndex)
@@ -90,17 +94,17 @@ fun LyricsText(
     LazyColumn(
         state = scrollState,
         modifier = Modifier
-            .fillMaxSize()
             .padding(
                 start = padding.calculateStartPadding(LocalLayoutDirection.current),
                 end = padding.calculateEndPadding(LocalLayoutDirection.current),
-            ),
+            )
+            .fillMaxSize(),
     ) {
         item {
             Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
         }
         itemsIndexed(content.pairs) { i, x ->
-            val highlight = i < activeIndex
+            val highlight = !content.isSynced || i < activeIndex
             val active = i == activeIndex
 
             Text(
