@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,13 +22,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import io.github.zyrouge.symphony.services.radio.PlaybackPosition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.TimedContent
@@ -55,8 +55,10 @@ fun LyricsText(
             start to end
         }
     }
+    var activeIndex by remember {
+        mutableStateOf(-1)
+    }
     var playbackPositionTimer: Timer? = null
-    var activeIndex = -1
 
     LaunchedEffect(LocalContext.current) {
         coroutineScope.launch {
@@ -66,8 +68,8 @@ fun LyricsText(
                 val isActiveIndexInvisible =
                     activeIndex > -1 && activeIndex < visibleRange.first && activeIndex > visibleRange.second
                 if (isActiveIndexInvisible) return@timer
-                val nActiveIndex = content.pairs.indexOfFirst { x ->
-                    x.first > playbackPosition.played
+                val nActiveIndex = content.pairs.indexOfLast { x ->
+                    x.first <= playbackPosition.played
                 }
                 if (nActiveIndex == -1 || activeIndex == nActiveIndex) return@timer
                 activeIndex = nActiveIndex
@@ -87,21 +89,23 @@ fun LyricsText(
 
     LazyColumn(
         state = scrollState,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                start = padding.calculateStartPadding(LocalLayoutDirection.current),
+                end = padding.calculateEndPadding(LocalLayoutDirection.current),
+            ),
     ) {
         item {
             Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
         }
         itemsIndexed(content.pairs) { i, x ->
-            val active = playbackPosition.played >= x.first
+            val highlight = i < activeIndex
+            val active = i == activeIndex
 
             Text(
                 x.second,
                 modifier = Modifier
-                    .padding(
-                        start = padding.calculateStartPadding(LocalLayoutDirection.current),
-                        end = padding.calculateEndPadding(LocalLayoutDirection.current),
-                    )
                     .pointerInput(Unit) {
                         detectTapGestures { _ ->
                             if (content.pairs.getOrNull(activeIndex)?.first == x.first) {
@@ -116,10 +120,10 @@ fun LyricsText(
                         }
                     },
                 style = when {
-                    active -> style
+                    active -> style.copy(fontWeight = FontWeight.Bold)
+                    highlight -> style
                     else -> style.copy(color = style.color.copy(alpha = 0.5f))
                 },
-                textAlign = TextAlign.Center,
             )
         }
         item {
