@@ -4,9 +4,9 @@ locale = "es"
 UnknownSymbol = "?"
 HelloThere = "¡Hola!"
 IntroductoryMessage = """
-Gracias por formar parte de la open-beta de Symphony. Si encuentras un bug o quieres sugerir alguna mejora, por favor crea un "incidencia" en nuestro repositorio de Github.
+Gracias por formar parte de la open-beta de Symphony. Si encuentras un error o quieres sugerir alguna mejora, por favor crea una "incidencia" en nuestro repositorio de Github.
 
-Unete a nuestro Discord y comunidad de Reddit para compartir tus comentarios y mantenerte actualizado con el desarrollo del proyecto.
+Ùnete a nuestro Discord y comunidad de Reddit para compartir tus comentarios y mantenerte actualizado con el desarrollo del proyecto.
 
 Symphony es respaldado completamente por donaciones realizadas vía Github Sponsors, Ko-fi y Patreon.
 
