@@ -30,7 +30,7 @@
         "fs-extra": "^11.2.0",
         "phrasey": "^2.0.25",
         "picocolors": "^1.0.0",
-        "prettier": "^3.1.0",
+        "prettier": "^3.1.1",
         "prettier-plugin-toml": "^2.0.1",
         "tsx": "^4.6.2",
         "typescript": "^5.3.3"
