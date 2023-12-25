@@ -2,7 +2,7 @@
 activity-compose = "1.8.1"
 coil = "2.5.0"
 compose = "1.6.0-beta02"
-compose-compiler = "1.5.6"
+compose-compiler = "1.5.7"
 compose-material = "1.6.0-beta02"
 compose-material3 = "1.2.0-alpha12"
 compose-navigation = "2.7.5"
@@ -14,7 +14,7 @@ media = "1.7.0"
 okhttp3 = "4.12.0"
 
 android-gradle-plugin = "8.2.0"
-kotlin-gradle-plugin = "1.9.22"
+kotlin-gradle-plugin = "1.9.21"
 
 compile-sdk = "34"
 min-sdk = "28"

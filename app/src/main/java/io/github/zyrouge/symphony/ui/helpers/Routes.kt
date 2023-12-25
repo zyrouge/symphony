@@ -40,7 +40,7 @@ object RoutesBuilder {
 
 sealed class Routes(val route: String) {
     constructor(
-        fn: (b: RoutesBuilder, p: RoutesParameters) -> String
+        fn: (b: RoutesBuilder, p: RoutesParameters) -> String,
     ) : this(fn(RoutesBuilder, RoutesParameters))
 
     data object Home : Routes("home")
@@ -56,6 +56,8 @@ sealed class Routes(val route: String) {
     data object Genre : Routes({ b, p -> b.buildGenreRoute("{${p.GenreRouteGenre}}") })
     data object Playlist :
         Routes({ b, p -> b.buildPlaylistRoute("{${p.PlaylistRoutePlaylistId}}") })
+
+    data object Lyrics : Routes("lyrics")
 }
 
 fun NavHostController.navigate(route: Routes) = navigate(route.route)

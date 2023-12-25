@@ -110,6 +110,7 @@ fun NowPlayingBodyBottomBar(
                         val nShowLyrics = !showLyricsState.value
                         showLyricsState.value = nShowLyrics
                         NowPlayingDefaults.showLyrics = nShowLyrics
+                        context.navController.navigate(Routes.Lyrics)
                     }
                 ) {
                     Icon(

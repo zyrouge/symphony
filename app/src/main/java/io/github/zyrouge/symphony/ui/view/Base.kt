@@ -128,6 +128,13 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                             ?: ""
                     )
                 }
+                composable(
+                    Routes.Lyrics.route,
+                    enterTransition = { SlideTransition.slideUp.enterTransition() },
+                    exitTransition = { SlideTransition.slideDown.exitTransition() },
+                ) {
+                    LyricsView(context)
+                }
             }
         }
     }
