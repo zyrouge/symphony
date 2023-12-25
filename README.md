@@ -9,8 +9,7 @@
 
 <h1 align="center">Symphony</h1>
 
-<p align="center">🎵 Groovify & Symphonize with Symphony!</p>
-<p align="center">Symphony is a lightweight, elegant music player that enhances your offline music experience. Supports Android 9 and later.</p>
+<p align="center">🎵 Lightweight, elegant music player that enhances your offline music experience. Supports Android 9 and later.</p>
 
 <p align="center">
     <a href="https://github.com/zyrouge/symphony/releases/latest">Download (latest)</a> |
