@@ -47,8 +47,8 @@ import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
-import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NowPlayingBodyBottomBar(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     states: NowPlayingStates,
 ) {
     val coroutineScope = rememberCoroutineScope()

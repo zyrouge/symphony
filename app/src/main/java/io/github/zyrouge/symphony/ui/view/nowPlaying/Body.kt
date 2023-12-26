@@ -17,15 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
-import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
 import kotlinx.coroutines.flow.MutableStateFlow
 
 internal val defaultHorizontalPadding = 20.dp
 
 @Composable
-fun NowPlayingBody(context: ViewContext, data: NowPlayingPlayerStateData) {
+fun NowPlayingBody(context: ViewContext, data: NowPlayingData) {
     val states = remember {
         NowPlayingStates(
             showLyrics = MutableStateFlow(NowPlayingDefaults.showLyrics),

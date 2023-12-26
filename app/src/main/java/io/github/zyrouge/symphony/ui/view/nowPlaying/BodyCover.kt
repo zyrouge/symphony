@@ -29,13 +29,13 @@ import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
+import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
 
 @Composable
 fun NowPlayingBodyCover(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     states: NowPlayingStates,
     orientation: ScreenOrientation,
 ) {

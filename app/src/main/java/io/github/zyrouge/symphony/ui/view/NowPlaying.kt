@@ -15,7 +15,7 @@ import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBody
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Immutable
-data class NowPlayingPlayerStateData(
+data class NowPlayingData(
     val song: Song,
     val isPlaying: Boolean,
     val currentSongIndex: Int,
@@ -50,6 +50,24 @@ enum class NowPlayingControlsLayout {
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
+
+    BackHandler {
+        context.navController.popBackStack()
+    }
+
+    NowPlayingWithData(context) { data ->
+        when {
+            data != null -> NowPlayingBody(context, data = data)
+            else -> NothingPlaying(context)
+        }
+    }
+}
+
+@Composable
+fun NowPlayingWithData(
+    context: ViewContext,
+    content: @Composable (NowPlayingData?) -> Unit,
+) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val song by remember(queue, queueIndex) {
@@ -75,38 +93,28 @@ fun NowPlayingView(context: ViewContext) {
         derivedStateOf { song != null }
     }
 
-    BackHandler {
-        context.navController.popBackStack()
-    }
-
-    when {
-        isViable -> NowPlayingBody(
-            context,
-            NowPlayingPlayerStateData(
-                song = song!!,
-                isPlaying = isPlaying,
-                currentSongIndex = queueIndex,
-                queueSize = queue.size,
-                currentLoopMode = currentLoopMode,
-                currentShuffleMode = currentShuffleMode,
-                currentSpeed = currentSpeed,
-                currentPitch = currentPitch,
-                persistedSpeed = persistedSpeed,
-                persistedPitch = persistedPitch,
-                hasSleepTimer = sleepTimer != null,
-                pauseOnCurrentSongEnd = pauseOnCurrentSongEnd,
-                showSongAdditionalInfo = showSongAdditionalInfo,
-                enableSeekControls = enableSeekControls,
-                seekBackDuration = seekBackDuration,
-                seekForwardDuration = seekForwardDuration,
-                controlsLayout = controlsLayout,
-            )
+    val data = when {
+        isViable -> NowPlayingData(
+            song = song!!,
+            isPlaying = isPlaying,
+            currentSongIndex = queueIndex,
+            queueSize = queue.size,
+            currentLoopMode = currentLoopMode,
+            currentShuffleMode = currentShuffleMode,
+            currentSpeed = currentSpeed,
+            currentPitch = currentPitch,
+            persistedSpeed = persistedSpeed,
+            persistedPitch = persistedPitch,
+            hasSleepTimer = sleepTimer != null,
+            pauseOnCurrentSongEnd = pauseOnCurrentSongEnd,
+            showSongAdditionalInfo = showSongAdditionalInfo,
+            enableSeekControls = enableSeekControls,
+            seekBackDuration = seekBackDuration,
+            seekForwardDuration = seekForwardDuration,
+            controlsLayout = controlsLayout,
         )
 
-        else -> NothingPlaying(context)
+        else -> null
     }
+    content(data)
 }
-
-
-
-
