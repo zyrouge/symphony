@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 sealed class TransitionDurations(val milliseconds: Int) {
+    data object Fast : TransitionDurations(150)
     data object Normal : TransitionDurations(300)
     data object Slow : TransitionDurations(500)
 

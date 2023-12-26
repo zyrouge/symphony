@@ -19,8 +19,10 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
@@ -69,6 +71,9 @@ fun LyricsView(context: ViewContext) {
                     actions = {
                         IconButtonPlaceholder()
                     },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
                 )
             },
         ) { contentPadding ->
@@ -83,7 +88,9 @@ fun LyricsView(context: ViewContext) {
                             LyricsText(
                                 context,
                                 style = TimedContentTextStyle(
-                                    highlighted = MaterialTheme.typography.titleMedium,
+                                    highlighted = MaterialTheme.typography.titleMedium.copy(
+                                        color = LocalContentColor.current,
+                                    ),
                                     active = MaterialTheme.typography.titleLarge.copy(
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary,

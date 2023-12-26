@@ -200,4 +200,6 @@ Equalizer = "Equalizer"
 LaunchingEqualizerFailedX = "Launching equalizer failed (Error: {x})"
 ConsiderContributing = "Consider contributing!"
 Lyrics = "Lyrics"
-
+LyricsLayout = "Lyrics layout"
+ReplaceArtwork = "Replace artwork"
+SeparatePage = "Separate page"

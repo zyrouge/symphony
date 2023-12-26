@@ -33,6 +33,7 @@ data class NowPlayingData(
     val seekBackDuration: Int,
     val seekForwardDuration: Int,
     val controlsLayout: NowPlayingControlsLayout,
+    val lyricsLayout: NowPlayingLyricsLayout,
 )
 
 data class NowPlayingStates(
@@ -46,6 +47,11 @@ object NowPlayingDefaults {
 enum class NowPlayingControlsLayout {
     Default,
     Traditional,
+}
+
+enum class NowPlayingLyricsLayout {
+    ReplaceArtwork,
+    SeparatePage,
 }
 
 @Composable
@@ -89,6 +95,7 @@ fun NowPlayingWithData(
     val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
     val controlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
+    val lyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.collectAsState()
     val isViable by remember(song) {
         derivedStateOf { song != null }
     }
@@ -112,6 +119,7 @@ fun NowPlayingWithData(
             seekBackDuration = seekBackDuration,
             seekForwardDuration = seekForwardDuration,
             controlsLayout = controlsLayout,
+            lyricsLayout = lyricsLayout,
         )
 
         else -> null

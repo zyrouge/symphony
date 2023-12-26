@@ -594,3 +594,12 @@ name = "ConsiderContributing"
 
 [[keys]]
 name = "Lyrics"
+
+[[keys]]
+name = "LyricsLayout"
+
+[[keys]]
+name = "ReplaceArtwork"
+
+[[keys]]
+name = "SeparatePage"

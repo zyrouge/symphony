@@ -17,6 +17,7 @@ import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
+import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,6 +78,7 @@ object SettingsKeys {
     const val showUpdateToast = "show_update_toast"
     const val fontScale = "font_scale"
     const val contentScale = "content_scale"
+    const val nowPlayingLyricsLayout = "now_playing_lyrics_layout"
 }
 
 object SettingsDefaults {
@@ -128,6 +130,7 @@ object SettingsDefaults {
     const val showUpdateToast = true
     const val fontScale = 1.0f
     const val contentScale = 1.0f
+    val nowPlayingLyricsLayout = NowPlayingLyricsLayout.ReplaceArtwork
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -238,6 +241,8 @@ class SettingsManager(private val symphony: Symphony) {
     val fontScale = _fontScale.asStateFlow()
     private val _contentScale = MutableStateFlow(getContentScale())
     val contentScale = _contentScale.asStateFlow()
+    private val _nowPlayingLyricsLayout = MutableStateFlow(getNowPlayingLyricsLayout())
+    val nowPlayingLyricsLayout = _nowPlayingLyricsLayout.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -831,6 +836,17 @@ class SettingsManager(private val symphony: Symphony) {
         _contentScale.updateUsingValue(getContentScale())
     }
 
+    fun getNowPlayingLyricsLayout() = getSharedPreferences()
+        .getEnum(SettingsKeys.nowPlayingLyricsLayout, null)
+        ?: SettingsDefaults.nowPlayingLyricsLayout
+
+    fun setNowPlayingLyricsLayout(value: NowPlayingLyricsLayout) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.nowPlayingLyricsLayout, value)
+        }
+        _nowPlayingLyricsLayout.updateUsingValue(getNowPlayingLyricsLayout())
+    }
+
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(
         SettingsKeys.identifier,
         Context.MODE_PRIVATE,
@@ -839,7 +855,7 @@ class SettingsManager(private val symphony: Symphony) {
 
 private inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,
-    defaultValue: T?
+    defaultValue: T?,
 ): T? {
     var result = defaultValue
     getString(key, null)?.let { value ->
@@ -850,7 +866,7 @@ private inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
 
 private inline fun <reified T : Enum<T>> SharedPreferences.Editor.putEnum(
     key: String,
-    value: T?
+    value: T?,
 ) = putString(key, value?.name)
 
 private inline fun <reified T : Enum<T>> parseEnumValue(value: String): T? =

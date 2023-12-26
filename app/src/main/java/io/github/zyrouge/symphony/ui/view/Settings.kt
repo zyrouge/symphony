@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.automirrored.filled.Wysiwyg
+import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.Code
@@ -127,6 +128,7 @@ fun SettingsView(context: ViewContext) {
     val nowPlayingControlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
     val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
     val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
+    val nowPlayingLyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.collectAsState()
     val songsFilterPattern by context.symphony.settings.songsFilterPattern.collectAsState()
     val blacklistFolders by context.symphony.settings.blacklistFolders.collectAsState()
     val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
@@ -590,6 +592,20 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setNowPlayingControlsLayout(value)
                         }
                     )
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.AutoMirrored.Outlined.Article, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.LyricsLayout)
+                        },
+                        value = nowPlayingLyricsLayout,
+                        values = NowPlayingLyricsLayout.entries
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.setNowPlayingLyricsLayout(value)
+                        }
+                    )
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.AutoMirrored.Filled.Wysiwyg, null)
@@ -823,5 +839,12 @@ fun NowPlayingControlsLayout.label(context: ViewContext): String {
     return when (this) {
         NowPlayingControlsLayout.Default -> context.symphony.t.Default
         NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
+    }
+}
+
+fun NowPlayingLyricsLayout.label(context: ViewContext): String {
+    return when (this) {
+        NowPlayingLyricsLayout.ReplaceArtwork -> context.symphony.t.ReplaceArtwork
+        NowPlayingLyricsLayout.SeparatePage -> context.symphony.t.SeparatePage
     }
 }

@@ -19,6 +19,7 @@ import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
+import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -28,7 +29,9 @@ internal val defaultHorizontalPadding = 20.dp
 fun NowPlayingBody(context: ViewContext, data: NowPlayingData) {
     val states = remember {
         NowPlayingStates(
-            showLyrics = MutableStateFlow(NowPlayingDefaults.showLyrics),
+            showLyrics = MutableStateFlow(
+                data.lyricsLayout == NowPlayingLyricsLayout.ReplaceArtwork && NowPlayingDefaults.showLyrics
+            ),
         )
     }
 
