@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -69,6 +68,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
 import kotlin.math.absoluteValue
@@ -150,8 +150,11 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             label = "c-now-playing-card-image",
                             targetState = currentSong,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(300, delayMillis = 150))
-                                    .togetherWith(fadeOut(animationSpec = tween(150)))
+                                val from = fadeIn(
+                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
+                                )
+                                val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
+                                from togetherWith to
                             },
                         ) { song ->
                             AsyncImage(
@@ -168,12 +171,14 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             modifier = Modifier.weight(1f),
                             targetState = currentSong,
                             transitionSpec = {
-                                (fadeIn(
-                                    animationSpec = tween(300, delayMillis = 150)
+                                val from = fadeIn(
+                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
                                 ) + scaleIn(
                                     initialScale = 0.99f,
-                                    animationSpec = tween(300, delayMillis = 150)
-                                )).togetherWith(fadeOut(animationSpec = tween(150)))
+                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
+                                )
+                                val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
+                                from togetherWith to
                             },
                         ) { song ->
                             NowPlayingBottomBarContent(context, song = song)
