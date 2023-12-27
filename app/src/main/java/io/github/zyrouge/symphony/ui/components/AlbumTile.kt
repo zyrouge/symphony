@@ -40,9 +40,9 @@ fun AlbumTile(context: ViewContext, album: Album) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            album.artist?.let { artistName ->
+            if (album.artists.isNotEmpty()) {
                 Text(
-                    artistName,
+                    album.artists.joinToString(),
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
@@ -52,11 +52,11 @@ fun AlbumTile(context: ViewContext, album: Album) {
         },
         onPlay = {
             context.symphony.radio.shorty.playQueue(
-                context.symphony.groove.album.getSongIds(album.id)
+                context.symphony.groove.album.getSongIds(album.name)
             )
         },
         onClick = {
-            context.navController.navigate(RoutesBuilder.buildAlbumRoute(album.id))
+            context.navController.navigate(RoutesBuilder.buildAlbumRoute(album.name))
         }
     )
 }
@@ -66,7 +66,7 @@ fun AlbumDropdownMenu(
     context: ViewContext,
     album: Album,
     expanded: Boolean,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
 
@@ -84,7 +84,7 @@ fun AlbumDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    context.symphony.groove.album.getSongIds(album.id),
+                    context.symphony.groove.album.getSongIds(album.name),
                     shuffle = true,
                 )
             }
@@ -99,7 +99,7 @@ fun AlbumDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.album.getSongIds(album.id),
+                    context.symphony.groove.album.getSongIds(album.name),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -114,7 +114,7 @@ fun AlbumDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.album.getSongIds(album.id)
+                    context.symphony.groove.album.getSongIds(album.name)
                 )
             }
         )
@@ -130,13 +130,13 @@ fun AlbumDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        album.artist?.let { artistName ->
+        album.artists.forEach { artistName ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.ViewArtist)
+                    Text("${context.symphony.t.ViewArtist}: $artistName")
                 },
                 onClick = {
                     onDismissRequest()
@@ -151,7 +151,7 @@ fun AlbumDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = context.symphony.groove.album.getSongIds(album.id),
+            songIds = context.symphony.groove.album.getSongIds(album.name),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

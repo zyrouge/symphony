@@ -110,10 +110,12 @@ fun NowPlayingBodyCover(
                                         },
                                     )
                                     .pointerInput(Unit) {
-                                        detectTapGestures {
-                                            context.navController.navigate(
-                                                RoutesBuilder.buildAlbumRoute(song.albumId)
-                                            )
+                                        detectTapGestures { _ ->
+                                            song.album?.let {
+                                                context.navController.navigate(
+                                                    RoutesBuilder.buildAlbumRoute(it)
+                                                )
+                                            }
                                         }
                                     }
                             )

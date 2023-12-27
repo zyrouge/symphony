@@ -79,6 +79,7 @@ object SettingsKeys {
     const val fontScale = "font_scale"
     const val contentScale = "content_scale"
     const val nowPlayingLyricsLayout = "now_playing_lyrics_layout"
+    const val tagSeparators = "tag_separators"
 }
 
 object SettingsDefaults {
@@ -131,6 +132,7 @@ object SettingsDefaults {
     const val fontScale = 1.0f
     const val contentScale = 1.0f
     val nowPlayingLyricsLayout = NowPlayingLyricsLayout.ReplaceArtwork
+    val tagSeparators = setOf<String>(";", "/", ",", "+")
 }
 
 class SettingsManager(private val symphony: Symphony) {
@@ -243,6 +245,8 @@ class SettingsManager(private val symphony: Symphony) {
     val contentScale = _contentScale.asStateFlow()
     private val _nowPlayingLyricsLayout = MutableStateFlow(getNowPlayingLyricsLayout())
     val nowPlayingLyricsLayout = _nowPlayingLyricsLayout.asStateFlow()
+    private val _tagSeparators = MutableStateFlow(getTagSeparators())
+    val tagSeparators = _tagSeparators.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -638,13 +642,13 @@ class SettingsManager(private val symphony: Symphony) {
         ?.toSet()
         ?: SettingsDefaults.homeTabs
 
-    fun setHomeTabs(tabs: Set<HomePages>) {
+    fun setHomeTabs(values: Set<HomePages>) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.homeTabs, tabs.joinToString(",") { it.name })
+            putString(SettingsKeys.homeTabs, values.joinToString(",") { it.name })
         }
         _homeTabs.updateUsingValue(getHomeTabs())
-        if (getHomeLastTab() !in tabs) {
-            setHomeLastTab(tabs.first())
+        if (getHomeLastTab() !in values) {
+            setHomeLastTab(values.first())
         }
     }
 
@@ -666,16 +670,15 @@ class SettingsManager(private val symphony: Symphony) {
         ?.toSet()
         ?: SettingsDefaults.forYouContents
 
-    fun setForYouContents(forYouContents: Set<ForYou>) {
+    fun setForYouContents(values: Set<ForYou>) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.forYouContents, forYouContents.joinToString(",") { it.name })
+            putString(SettingsKeys.forYouContents, values.joinToString(",") { it.name })
         }
         _forYouContents.updateUsingValue(getForYouContents())
     }
 
-    fun getBlacklistFolders() = getSharedPreferences()
+    fun getBlacklistFolders(): Set<String> = getSharedPreferences()
         .getStringSet(SettingsKeys.blacklistFolders, null)
-        ?.toSet<String>()
         ?: SettingsDefaults.blacklistFolders
 
     fun setBlacklistFolders(values: Set<String>) {
@@ -685,9 +688,8 @@ class SettingsManager(private val symphony: Symphony) {
         _blacklistFolders.updateUsingValue(getBlacklistFolders())
     }
 
-    fun getWhitelistFolders() = getSharedPreferences()
+    fun getWhitelistFolders(): Set<String> = getSharedPreferences()
         .getStringSet(SettingsKeys.whitelistFolders, null)
-        ?.toSet<String>()
         ?: SettingsDefaults.whitelistFolders
 
     fun setWhitelistFolders(values: Set<String>) {
@@ -845,6 +847,17 @@ class SettingsManager(private val symphony: Symphony) {
             putEnum(SettingsKeys.nowPlayingLyricsLayout, value)
         }
         _nowPlayingLyricsLayout.updateUsingValue(getNowPlayingLyricsLayout())
+    }
+
+    fun getTagSeparators(): Set<String> = getSharedPreferences()
+        .getStringSet(SettingsKeys.tagSeparators, null)
+        ?: SettingsDefaults.tagSeparators
+
+    fun setTagSeparators(values: List<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.tagSeparators, values.toSet())
+        }
+        _tagSeparators.updateUsingValue(getTagSeparators())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(

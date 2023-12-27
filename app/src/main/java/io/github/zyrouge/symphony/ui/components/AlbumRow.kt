@@ -13,18 +13,18 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
-fun AlbumRow(context: ViewContext, albumIds: List<Long>) {
+fun AlbumRow(context: ViewContext, albumNames: List<String>) {
     BoxWithConstraints {
         val maxSize = min(maxHeight, maxWidth).div(2f)
         val width = min(maxSize, 200.dp)
 
         LazyRow {
             itemsIndexed(
-                albumIds,
+                albumNames,
                 key = { i, x -> "$i-$x" },
                 contentType = { _, _ -> GrooveKinds.ALBUM }
-            ) { _, albumId ->
-                context.symphony.groove.album.get(albumId)?.let { album ->
+            ) { _, albumName ->
+                context.symphony.groove.album.get(albumName)?.let { album ->
                     Box(modifier = Modifier.width(width)) {
                         AlbumTile(context, album)
                     }

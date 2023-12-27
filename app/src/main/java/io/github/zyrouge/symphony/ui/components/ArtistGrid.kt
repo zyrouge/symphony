@@ -18,14 +18,14 @@ import io.github.zyrouge.symphony.utils.wrapInViewContext
 @Composable
 fun ArtistGrid(
     context: ViewContext,
-    artistIds: List<String>,
+    artistName: List<String>,
     artistsCount: Int? = null,
 ) {
     val sortBy by context.symphony.settings.lastUsedArtistsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedArtistsSortReverse.collectAsState()
-    val sortedArtistIds by remember(artistIds, sortBy, sortReverse) {
+    val sortedArtistNames by remember(artistName, sortBy, sortReverse) {
         derivedStateOf {
-            context.symphony.groove.artist.sort(artistIds, sortBy, sortReverse)
+            context.symphony.groove.artist.sort(artistName, sortBy, sortReverse)
         }
     }
 
@@ -44,13 +44,13 @@ fun ArtistGrid(
                     context.symphony.settings.setLastUsedArtistsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XArtists((artistsCount ?: artistIds.size).toString()))
+                    Text(context.symphony.t.XArtists((artistsCount ?: artistName.size).toString()))
                 },
             )
         },
         content = {
             when {
-                artistIds.isEmpty() -> IconTextBody(
+                artistName.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.Person,
@@ -63,11 +63,11 @@ fun ArtistGrid(
 
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedArtistIds,
+                        sortedArtistNames,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.ARTIST }
-                    ) { _, artistId ->
-                        context.symphony.groove.artist.get(artistId)?.let { artist ->
+                    ) { _, artistName ->
+                        context.symphony.groove.artist.get(artistName)?.let { artist ->
                             ArtistTile(context, artist)
                         }
                     }

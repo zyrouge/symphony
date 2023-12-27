@@ -21,7 +21,7 @@ fun FoldersView(context: ViewContext) {
             key = id,
             explorer = explorer,
             onPathChange = { path ->
-                context.symphony.settings.setLastUsedFolderPath(path)
+                context.symphony.settings.setTagSeparators(path)
             }
         )
     }

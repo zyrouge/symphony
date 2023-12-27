@@ -461,9 +461,9 @@ parameters = ["x"]
 name = "XSongs"
 parameters = ["x"]
 
-[[keys]]
-name = "UnknownAlbumId"
-parameters = ["id"]
+# [[keys]]
+# name = "UnknownAlbumId"
+# parameters = ["id"]
 
 [[keys]]
 name = "XArtists"
@@ -603,3 +603,7 @@ name = "ReplaceArtwork"
 
 [[keys]]
 name = "SeparatePage"
+
+[[keys]]
+name = "UnknownAlbumX"
+parameters = ["x"]

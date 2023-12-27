@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +60,7 @@ import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.utils.DurationFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
     val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
@@ -86,19 +88,26 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
-                        targetStateSong.artistName?.let {
-                            Text(
-                                it,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.pointerInput(Unit) {
-                                    detectTapGestures { _ ->
-                                        context.navController.navigate(
-                                            RoutesBuilder.buildArtistRoute(it)
-                                        )
+                        if (targetStateSong.artists.isNotEmpty()) {
+                            FlowRow {
+                                targetStateSong.artists.forEachIndexed { i, it ->
+                                    Text(
+                                        it,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.pointerInput(Unit) {
+                                            detectTapGestures { _ ->
+                                                context.navController.navigate(
+                                                    RoutesBuilder.buildArtistRoute(it)
+                                                )
+                                            }
+                                        },
+                                    )
+                                    if (i != targetStateSong.artists.size - 1) {
+                                        Text(", ")
                                     }
-                                },
-                            )
+                                }
+                            }
                         }
                         if (data.showSongAdditionalInfo) {
                             targetStateSong.additional.toSamplingInfoString(context.symphony)?.let {

@@ -79,8 +79,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 ) { backStackEntry ->
                     AlbumView(
                         context,
-                        backStackEntry.getRouteArgument(RoutesParameters.AlbumRouteAlbumId)
-                            ?.toLongOrNull() ?: -1
+                        backStackEntry.getRouteArgument(RoutesParameters.AlbumRouteAlbumName) ?: ""
                     )
                 }
                 composable(
@@ -113,7 +112,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 ) { backStackEntry ->
                     GenreView(
                         context,
-                        backStackEntry.getRouteArgument(RoutesParameters.GenreRouteGenre)
+                        backStackEntry.getRouteArgument(RoutesParameters.GenreRouteGenreName)
                             ?: ""
                     )
                 }

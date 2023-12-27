@@ -271,9 +271,9 @@ fun SongTreeListContent(
                                         }
                                     ),
                                 )
-                                song.artistName?.let {
+                                if (song.artists.isNotEmpty()) {
                                     Text(
-                                        it,
+                                        song.artists.joinToString(),
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }

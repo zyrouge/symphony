@@ -1,7 +1,9 @@
 package io.github.zyrouge.symphony.utils
 
-import java.util.*
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
+
+fun Set<String>.joinToStringIfNotEmpty() = if (isNotEmpty()) joinToString() else null
 
 class ConcurrentSet<T>(vararg elements: T) : MutableSet<T> {
     private val set = Collections.newSetFromMap(ConcurrentHashMap<T, Boolean>()).apply {

@@ -218,7 +218,7 @@ class RadioSession(val symphony: Symphony) {
             ?.let { symphony.groove.song.get(it) } ?: return
         currentSongId = song.id
 
-        val artworkUri = symphony.groove.album.getArtworkUri(song.albumId)
+        val artworkUri = symphony.groove.song.getArtworkUri(song.id)
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition
@@ -245,8 +245,13 @@ class RadioSession(val symphony: Symphony) {
             setMetadata(
                 MediaMetadataCompat.Builder().run {
                     putString(MediaMetadataCompat.METADATA_KEY_TITLE, req.song.title)
-                    putString(MediaMetadataCompat.METADATA_KEY_ARTIST, req.song.artistName)
-                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.albumName)
+                    if (req.song.artists.isNotEmpty()) {
+                        putString(
+                            MediaMetadataCompat.METADATA_KEY_ARTIST,
+                            req.song.artists.joinToString()
+                        )
+                    }
+                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.album)
                     req.artworkUriString.let {
                         putString(MediaMetadataCompat.METADATA_KEY_ART_URI, it)
                         putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, it)

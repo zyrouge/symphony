@@ -4,8 +4,9 @@ import androidx.compose.runtime.Composable
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationFormatter
+import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import kotlin.math.round
 
 @Composable
@@ -19,15 +20,16 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             )
             InformationKeyValue(
                 context.symphony.t.Artist,
-                song.artistName ?: context.symphony.t.UnknownSymbol
+                song.artists.joinToStringIfNotEmpty() ?: context.symphony.t.UnknownSymbol,
             )
             InformationKeyValue(
                 context.symphony.t.AlbumArtist,
-                song.additional.albumArtist ?: context.symphony.t.UnknownSymbol
+                song.additional.albumArtists.joinToStringIfNotEmpty()
+                    ?: context.symphony.t.UnknownSymbol
             )
             InformationKeyValue(
                 context.symphony.t.Composer,
-                song.composer ?: context.symphony.t.UnknownSymbol
+                song.composers.joinToStringIfNotEmpty() ?: context.symphony.t.UnknownSymbol,
             )
             song.year?.let {
                 InformationKeyValue(context.symphony.t.Year, it.toString())
@@ -39,9 +41,10 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 context.symphony.t.Duration,
                 DurationFormatter.formatMs(song.duration)
             )
-            song.additional.genre?.let {
-                InformationKeyValue(context.symphony.t.Genre, it)
-            }
+            InformationKeyValue(
+                context.symphony.t.Genre,
+                song.additional.genres.joinToStringIfNotEmpty() ?: context.symphony.t.UnknownSymbol,
+            )
             song.additional.codec?.let {
                 InformationKeyValue(context.symphony.t.Codec, it)
             }

@@ -18,14 +18,14 @@ import io.github.zyrouge.symphony.utils.wrapInViewContext
 @Composable
 fun AlbumArtistGrid(
     context: ViewContext,
-    albumArtistIds: List<String>,
+    albumArtistNames: List<String>,
     albumArtistsCount: Int? = null,
 ) {
     val sortBy by context.symphony.settings.lastUsedAlbumArtistsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedAlbumArtistsSortReverse.collectAsState()
-    val sortedAlbumArtistIds by remember(albumArtistIds, sortBy, sortReverse) {
+    val sortedAlbumArtistNames by remember(albumArtistNames, sortBy, sortReverse) {
         derivedStateOf {
-            context.symphony.groove.albumArtist.sort(albumArtistIds, sortBy, sortReverse)
+            context.symphony.groove.albumArtist.sort(albumArtistNames, sortBy, sortReverse)
         }
     }
 
@@ -46,7 +46,7 @@ fun AlbumArtistGrid(
                 label = {
                     Text(
                         context.symphony.t.XArtists(
-                            (albumArtistsCount ?: albumArtistIds.size).toString()
+                            (albumArtistsCount ?: albumArtistNames.size).toString()
                         )
                     )
                 },
@@ -54,7 +54,7 @@ fun AlbumArtistGrid(
         },
         content = {
             when {
-                albumArtistIds.isEmpty() -> IconTextBody(
+                albumArtistNames.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.Person,
@@ -67,13 +67,14 @@ fun AlbumArtistGrid(
 
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedAlbumArtistIds,
+                        sortedAlbumArtistNames,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.ARTIST }
-                    ) { _, albumArtistId ->
-                        context.symphony.groove.albumArtist.get(albumArtistId)?.let { albumArtist ->
-                            AlbumArtistTile(context, albumArtist)
-                        }
+                    ) { _, albumArtistName ->
+                        context.symphony.groove.albumArtist.get(albumArtistName)
+                            ?.let { albumArtist ->
+                                AlbumArtistTile(context, albumArtist)
+                            }
                     }
                 }
             }

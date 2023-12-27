@@ -135,9 +135,9 @@ fun SongCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    song.artistName?.let { artistName ->
+                    if (song.artists.isNotEmpty()) {
                         Text(
-                            artistName,
+                            song.artists.joinToString(),
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -264,13 +264,13 @@ fun SongDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        song.artistName?.let { artistName ->
+        song.artists.forEach { artistName ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.ViewArtist)
+                    Text("${context.symphony.t.ViewArtist}: $artistName")
                 },
                 onClick = {
                     onDismissRequest()
@@ -280,13 +280,13 @@ fun SongDropdownMenu(
                 }
             )
         }
-        song.additional.albumArtist?.let { albumArtist ->
+        song.additional.albumArtists.forEach { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.ViewAlbumArtist)
+                    Text("${context.symphony.t.ViewAlbumArtist}: $albumArtist")
                 },
                 onClick = {
                     onDismissRequest()
@@ -296,20 +296,22 @@ fun SongDropdownMenu(
                 }
             )
         }
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Filled.Album, null)
-            },
-            text = {
-                Text(context.symphony.t.ViewAlbum)
-            },
-            onClick = {
-                onDismissRequest()
-                context.navController.navigate(
-                    RoutesBuilder.buildAlbumRoute(song.albumId)
-                )
-            }
-        )
+        song.album?.let { albumName ->
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Filled.Album, null)
+                },
+                text = {
+                    Text(context.symphony.t.ViewAlbum)
+                },
+                onClick = {
+                    onDismissRequest()
+                    context.navController.navigate(
+                        RoutesBuilder.buildAlbumRoute(albumName)
+                    )
+                }
+            )
+        }
         DropdownMenuItem(
             leadingIcon = {
                 Icon(Icons.Filled.Share, null)

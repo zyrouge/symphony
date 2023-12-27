@@ -5,11 +5,10 @@ import io.github.zyrouge.symphony.Symphony
 
 @Immutable
 data class Album(
-    val id: Long,
     val name: String,
-    val artist: String?,
+    val artists: MutableSet<String>,
     var numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.album.createArtworkImageRequest(id)
+        symphony.groove.album.createArtworkImageRequest(name)
 }

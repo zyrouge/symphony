@@ -292,9 +292,9 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
                     song.title,
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                song.artistName?.let { artistName ->
+                if (song.artists.isNotEmpty()) {
                     NowPlayingBottomBarContentText(
-                        artistName,
+                        song.artists.joinToString(),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }

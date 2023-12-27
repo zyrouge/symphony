@@ -6,17 +6,16 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 
 object RoutesParameters {
     const val ArtistRouteArtistName = "artistName"
-    const val AlbumRouteAlbumId = "albumId"
+    const val AlbumRouteAlbumName = "albumName"
     const val AlbumArtistRouteArtistName = "albumArtistName"
-    const val GenreRouteGenre = "genre"
+    const val GenreRouteGenreName = "genreName"
     const val PlaylistRoutePlaylistId = "playlistId"
     const val SearchRouteInitialChip = "initialChip"
 }
 
 object RoutesBuilder {
     fun buildArtistRoute(artistName: String) = "artist/${encodeParam(artistName)}"
-    fun buildAlbumRoute(albumId: Long) = buildAlbumRoute(albumId.toString())
-    fun buildAlbumRoute(albumId: String) = "album/$albumId"
+    fun buildAlbumRoute(albumName: String) = "album/${encodeParam(albumName)}"
     fun buildAlbumArtistRoute(artistName: String) = "album_artist/${encodeParam(artistName)}"
     fun buildGenreRoute(genre: String) = "genre/${encodeParam(genre)}"
     fun buildPlaylistRoute(playlistId: String) = "playlist/${encodeParam(playlistId)}"
@@ -49,11 +48,11 @@ sealed class Routes(val route: String) {
     data object Settings : Routes("settings")
     data object Search : Routes({ b, p -> b.buildSearchRoute("{${p.SearchRouteInitialChip}}") })
     data object Artist : Routes({ b, p -> b.buildArtistRoute("{${p.ArtistRouteArtistName}}") })
-    data object Album : Routes({ b, p -> b.buildAlbumRoute("{${p.AlbumRouteAlbumId}}") })
+    data object Album : Routes({ b, p -> b.buildAlbumRoute("{${p.AlbumRouteAlbumName}}") })
     data object AlbumArtist :
         Routes({ b, p -> b.buildAlbumArtistRoute("{${p.AlbumArtistRouteArtistName}}") })
 
-    data object Genre : Routes({ b, p -> b.buildGenreRoute("{${p.GenreRouteGenre}}") })
+    data object Genre : Routes({ b, p -> b.buildGenreRoute("{${p.GenreRouteGenreName}}") })
     data object Playlist :
         Routes({ b, p -> b.buildPlaylistRoute("{${p.PlaylistRoutePlaylistId}}") })
 

@@ -32,17 +32,17 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenreView(context: ViewContext, genreId: String) {
-    val allGenreIds by context.symphony.groove.genre.all.collectAsState()
+fun GenreView(context: ViewContext, genreName: String) {
+    val allGenreNames by context.symphony.groove.genre.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val genre by remember(allGenreIds) {
-        derivedStateOf { context.symphony.groove.genre.get(genreId) }
+    val genre by remember(allGenreNames) {
+        derivedStateOf { context.symphony.groove.genre.get(genreName) }
     }
     val songIds by remember(genre, allSongIds) {
-        derivedStateOf { context.symphony.groove.genre.getSongIds(genreId) }
+        derivedStateOf { context.symphony.groove.genre.getSongIds(genreName) }
     }
-    val isViable by remember(allGenreIds) {
-        derivedStateOf { allGenreIds.contains(genreId) }
+    val isViable by remember(allGenreNames) {
+        derivedStateOf { allGenreNames.contains(genreName) }
     }
 
     Scaffold(
@@ -94,7 +94,7 @@ fun GenreView(context: ViewContext, genreId: String) {
             ) {
                 when {
                     isViable -> SongList(context, songIds = songIds)
-                    else -> UnknownGenre(context, genreId)
+                    else -> UnknownGenre(context, genreName)
                 }
             }
         },

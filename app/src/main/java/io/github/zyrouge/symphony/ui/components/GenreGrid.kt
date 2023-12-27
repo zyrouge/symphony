@@ -62,14 +62,14 @@ private object GenreTile {
 @Composable
 fun GenreGrid(
     context: ViewContext,
-    genreIds: List<String>,
+    genreNames: List<String>,
     genresCount: Int? = null,
 ) {
     val sortBy by context.symphony.settings.lastUsedGenresSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedGenresSortReverse.collectAsState()
-    val sortedGenreIds by remember(genreIds, sortBy, sortReverse) {
+    val sortedGenreNames by remember(genreNames, sortBy, sortReverse) {
         derivedStateOf {
-            context.symphony.groove.genre.sort(genreIds, sortBy, sortReverse)
+            context.symphony.groove.genre.sort(genreNames, sortBy, sortReverse)
         }
     }
 
@@ -89,14 +89,18 @@ fun GenreGrid(
                         context.symphony.settings.setLastUsedGenresSortBy(it)
                     },
                     label = {
-                        Text(context.symphony.t.XGenres((genresCount ?: genreIds.size).toString()))
+                        Text(
+                            context.symphony.t.XGenres(
+                                (genresCount ?: genreNames.size).toString()
+                            )
+                        )
                     },
                 )
             }
         },
         content = {
             when {
-                genreIds.isEmpty() -> IconTextBody(
+                genreNames.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.MusicNote,
@@ -109,11 +113,11 @@ fun GenreGrid(
 
                 else -> ResponsiveGrid { gridData ->
                     itemsIndexed(
-                        sortedGenreIds,
+                        sortedGenreNames,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.GENRE }
-                    ) { i, genreId ->
-                        context.symphony.groove.genre.get(genreId)?.let { genre ->
+                    ) { i, genreName ->
+                        context.symphony.groove.genre.get(genreName)?.let { genre ->
                             Card(
                                 modifier = Modifier.padding(
                                     start = if (i % gridData.columnsCount == 0) 12.dp else 0.dp,

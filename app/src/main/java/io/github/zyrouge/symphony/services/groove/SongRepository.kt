@@ -32,10 +32,10 @@ class SongRepository(private val symphony: Symphony) {
     internal val pathCache = ConcurrentHashMap<String, Long>()
     private val searcher = FuzzySearcher<Long>(
         options = listOf(
-            FuzzySearchOption({ get(it)?.title }, 3),
-            FuzzySearchOption({ get(it)?.filename }, 2),
-            FuzzySearchOption({ get(it)?.artistName }),
-            FuzzySearchOption({ get(it)?.albumName })
+            FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
+            FuzzySearchOption({ v -> get(v)?.filename?.let { compareString(it) } }, 2),
+            FuzzySearchOption({ v -> get(v)?.artists?.let { compareIterable(it) } }),
+            FuzzySearchOption({ v -> get(v)?.album?.let { compareString(it) } })
         )
     )
 
@@ -87,13 +87,13 @@ class SongRepository(private val symphony: Symphony) {
         val sorted = when (by) {
             SongSortBy.CUSTOM -> songIds
             SongSortBy.TITLE -> songIds.sortedBy { get(it)?.title }
-            SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artistName }
-            SongSortBy.ALBUM -> songIds.sortedBy { get(it)?.albumName }
+            SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artists?.firstOrNull() }
+            SongSortBy.ALBUM -> songIds.sortedBy { get(it)?.album }
             SongSortBy.DURATION -> songIds.sortedBy { get(it)?.duration }
             SongSortBy.DATE_ADDED -> songIds.sortedBy { get(it)?.dateAdded }
             SongSortBy.DATE_MODIFIED -> songIds.sortedBy { get(it)?.dateModified }
-            SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composer }
-            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.additional?.albumArtist }
+            SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composers?.firstOrNull() }
+            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.additional?.albumArtists?.firstOrNull() }
             SongSortBy.YEAR -> songIds.sortedBy { get(it)?.year }
             SongSortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
             SongSortBy.TRACK_NUMBER -> songIds.sortedBy { get(it)?.trackNumber }

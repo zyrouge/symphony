@@ -30,7 +30,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Playlist>()
     private var favoritesId: String? = null
     private val searcher = FuzzySearcher<String>(
-        options = listOf(FuzzySearchOption({ get(it)?.title }))
+        options = listOf(FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }))
     )
 
     private val _isUpdating = MutableStateFlow(false)

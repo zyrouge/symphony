@@ -18,14 +18,14 @@ import io.github.zyrouge.symphony.utils.wrapInViewContext
 @Composable
 fun AlbumGrid(
     context: ViewContext,
-    albumIds: List<Long>,
+    albumNames: List<String>,
     albumsCount: Int? = null,
 ) {
     val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.collectAsState()
-    val sortedAlbumIds by remember(albumIds, sortBy, sortReverse) {
+    val sortedAlbumNames by remember(albumNames, sortBy, sortReverse) {
         derivedStateOf {
-            context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
+            context.symphony.groove.album.sort(albumNames, sortBy, sortReverse)
         }
     }
 
@@ -43,13 +43,13 @@ fun AlbumGrid(
                     context.symphony.settings.setLastUsedAlbumsSortBy(it)
                 },
                 label = {
-                    Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
+                    Text(context.symphony.t.XAlbums((albumsCount ?: albumNames.size).toString()))
                 },
             )
         },
         content = {
             when {
-                albumIds.isEmpty() -> IconTextBody(
+                albumNames.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.Album,
@@ -62,11 +62,11 @@ fun AlbumGrid(
 
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedAlbumIds,
+                        sortedAlbumNames,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.ALBUM }
-                    ) { _, albumId ->
-                        context.symphony.groove.album.get(albumId)?.let { album ->
+                    ) { _, albumName ->
+                        context.symphony.groove.album.get(albumName)?.let { album ->
                             AlbumTile(context, album)
                         }
                     }

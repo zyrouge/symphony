@@ -95,17 +95,17 @@ fun LyricsText(
                 .togetherWith(FadeTransition.exitTransition())
         },
     ) { targetState ->
-        val lyricsState = targetState.first
-        val lyrics = targetState.second
+        val targetLyricsState = targetState.first
+        val targetLyrics = targetState.second
 
         when {
-            lyricsState == 2 && lyrics != null -> TimedContentText(
-                content = lyrics,
+            targetLyricsState == 2 && targetLyrics != null -> TimedContentText(
+                content = targetLyrics,
                 duration = playbackPosition.played,
                 padding = padding,
                 style = style,
                 onSeek = {
-                    lyrics.pairs.getOrNull(it)?.first?.let { to ->
+                    targetLyrics.pairs.getOrNull(it)?.first?.let { to ->
                         context.symphony.radio.seek(to)
                     }
                 }
@@ -116,7 +116,7 @@ fun LyricsText(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    if (lyricsState == 1) context.symphony.t.Loading
+                    if (targetLyricsState == 1) context.symphony.t.Loading
                     else context.symphony.t.NoLyrics
                 )
             }
