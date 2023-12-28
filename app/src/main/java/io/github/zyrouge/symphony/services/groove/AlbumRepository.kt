@@ -6,6 +6,7 @@ import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -95,7 +96,7 @@ class AlbumRepository(private val symphony: Symphony) {
         val sorted = when (by) {
             AlbumSortBy.CUSTOM -> albumNames
             AlbumSortBy.ALBUM_NAME -> albumNames.sortedBy { get(it)?.name }
-            AlbumSortBy.ARTIST_NAME -> albumNames.sortedBy { get(it)?.artists?.firstOrNull() }
+            AlbumSortBy.ARTIST_NAME -> albumNames.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
             AlbumSortBy.TRACKS_COUNT -> albumNames.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted

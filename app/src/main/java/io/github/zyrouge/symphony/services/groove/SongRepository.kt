@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -87,13 +88,13 @@ class SongRepository(private val symphony: Symphony) {
         val sorted = when (by) {
             SongSortBy.CUSTOM -> songIds
             SongSortBy.TITLE -> songIds.sortedBy { get(it)?.title }
-            SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artists?.firstOrNull() }
+            SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
             SongSortBy.ALBUM -> songIds.sortedBy { get(it)?.album }
             SongSortBy.DURATION -> songIds.sortedBy { get(it)?.duration }
             SongSortBy.DATE_ADDED -> songIds.sortedBy { get(it)?.dateAdded }
             SongSortBy.DATE_MODIFIED -> songIds.sortedBy { get(it)?.dateModified }
-            SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composers?.firstOrNull() }
-            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.additional?.albumArtists?.firstOrNull() }
+            SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composers?.joinToStringIfNotEmpty() }
+            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.additional?.albumArtists?.joinToStringIfNotEmpty() }
             SongSortBy.YEAR -> songIds.sortedBy { get(it)?.year }
             SongSortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
             SongSortBy.TRACK_NUMBER -> songIds.sortedBy { get(it)?.trackNumber }
