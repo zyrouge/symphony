@@ -3,9 +3,12 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -119,11 +122,13 @@ fun GenreGrid(
                     ) { i, genreName ->
                         context.symphony.groove.genre.get(genreName)?.let { genre ->
                             Card(
-                                modifier = Modifier.padding(
-                                    start = if (i % gridData.columnsCount == 0) 12.dp else 0.dp,
-                                    end = if ((i - 1) % gridData.columnsCount == 0) 12.dp else 8.dp,
-                                    bottom = 8.dp,
-                                ),
+                                modifier = Modifier
+                                    .height(IntrinsicSize.Min)
+                                    .padding(
+                                        start = if (i % gridData.columnsCount == 0) 12.dp else 0.dp,
+                                        end = if ((i - 1) % gridData.columnsCount == 0) 12.dp else 8.dp,
+                                        bottom = 8.dp,
+                                    ),
                                 colors = GenreTile.cardColors(i),
                                 onClick = {
                                     context.navController.navigate(
@@ -133,7 +138,7 @@ fun GenreGrid(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .fillMaxSize()
                                         .defaultMinSize(minHeight = 88.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
