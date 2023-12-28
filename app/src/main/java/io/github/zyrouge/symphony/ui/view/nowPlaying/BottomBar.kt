@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.view.nowPlaying
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.launch
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.outlined.Article
@@ -114,7 +117,7 @@ fun NowPlayingBodyBottomBar(
                                 showLyricsState.value = nShowLyrics
                                 NowPlayingDefaults.showLyrics = nShowLyrics
                             }
-                            
+
                             NowPlayingLyricsLayout.SeparatePage -> {
                                 context.navController.navigate(Routes.Lyrics)
                             }
@@ -225,125 +228,131 @@ fun NowPlayingBodyBottomBar(
                     showExtraOptions = false
                 },
             ) {
-                Card(
-                    onClick = {
-                        closeBottomSheet()
-                        try {
-                            equalizerActivity.launch()
-                        } catch (err: Exception) {
-                            Logger.error("NowPlayingBottomBar", "launching equalizer failed", err)
-                            Toast.makeText(
-                                context.activity,
-                                context.symphony.t.LaunchingEqualizerFailedX(
-                                    err.localizedMessage ?: err.toString()
-                                ),
-                                Toast.LENGTH_SHORT,
-                            ).show()
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Card(
+                        onClick = {
+                            closeBottomSheet()
+                            try {
+                                equalizerActivity.launch()
+                            } catch (err: Exception) {
+                                Logger.error(
+                                    "NowPlayingBottomBar",
+                                    "launching equalizer failed",
+                                    err
+                                )
+                                Toast.makeText(
+                                    context.activity,
+                                    context.symphony.t.LaunchingEqualizerFailedX(
+                                        err.localizedMessage ?: err.toString()
+                                    ),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
                         }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(Icons.Filled.GraphicEq, null)
+                            },
+                            headlineContent = {
+                                Text(context.symphony.t.Equalizer)
+                            },
+                        )
                     }
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(Icons.Filled.GraphicEq, null)
-                        },
-                        headlineContent = {
-                            Text(context.symphony.t.Equalizer)
-                        },
-                    )
-                }
-                Card(
-                    onClick = {
-                        closeBottomSheet()
-                        context.symphony.radio.setPauseOnCurrentSongEnd(!pauseOnCurrentSongEnd)
+                    Card(
+                        onClick = {
+                            closeBottomSheet()
+                            context.symphony.radio.setPauseOnCurrentSongEnd(!pauseOnCurrentSongEnd)
+                        }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(
+                                    Icons.Filled.MotionPhotosPaused,
+                                    null,
+                                    tint = when {
+                                        pauseOnCurrentSongEnd -> MaterialTheme.colorScheme.primary
+                                        else -> LocalContentColor.current
+                                    }
+                                )
+                            },
+                            headlineContent = {
+                                Text(context.symphony.t.PauseOnCurrentSongEnd)
+                            },
+                            supportingContent = {
+                                Text(
+                                    if (pauseOnCurrentSongEnd) context.symphony.t.Enabled
+                                    else context.symphony.t.Disabled
+                                )
+                            },
+                        )
                     }
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(
-                                Icons.Filled.MotionPhotosPaused,
-                                null,
-                                tint = when {
-                                    pauseOnCurrentSongEnd -> MaterialTheme.colorScheme.primary
-                                    else -> LocalContentColor.current
-                                }
-                            )
-                        },
-                        headlineContent = {
-                            Text(context.symphony.t.PauseOnCurrentSongEnd)
-                        },
-                        supportingContent = {
-                            Text(
-                                if (pauseOnCurrentSongEnd) context.symphony.t.Enabled
-                                else context.symphony.t.Disabled
-                            )
-                        },
-                    )
-                }
-                Card(
-                    onClick = {
-                        closeBottomSheet()
-                        showSleepTimerDialog = !showSleepTimerDialog
+                    Card(
+                        onClick = {
+                            closeBottomSheet()
+                            showSleepTimerDialog = !showSleepTimerDialog
+                        }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(
+                                    Icons.Outlined.Timer,
+                                    null,
+                                    tint = when {
+                                        hasSleepTimer -> MaterialTheme.colorScheme.primary
+                                        else -> LocalContentColor.current
+                                    }
+                                )
+                            },
+                            headlineContent = {
+                                Text(context.symphony.t.SleepTimer)
+                            },
+                            supportingContent = {
+                                Text(
+                                    if (hasSleepTimer) context.symphony.t.Enabled
+                                    else context.symphony.t.Disabled
+                                )
+                            },
+                        )
                     }
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(
-                                Icons.Outlined.Timer,
-                                null,
-                                tint = when {
-                                    hasSleepTimer -> MaterialTheme.colorScheme.primary
-                                    else -> LocalContentColor.current
-                                }
-                            )
-                        },
-                        headlineContent = {
-                            Text(context.symphony.t.SleepTimer)
-                        },
-                        supportingContent = {
-                            Text(
-                                if (hasSleepTimer) context.symphony.t.Enabled
-                                else context.symphony.t.Disabled
-                            )
-                        },
-                    )
-                }
-                Card(
-                    onClick = {
-                        closeBottomSheet()
-                        showSpeedDialog = !showSpeedDialog
+                    Card(
+                        onClick = {
+                            closeBottomSheet()
+                            showSpeedDialog = !showSpeedDialog
+                        }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(Icons.Outlined.Speed, null)
+                            },
+                            headlineContent = {
+                                Text(context.symphony.t.Speed)
+                            },
+                            supportingContent = {
+                                Text("x${data.currentSpeed}")
+                            },
+                        )
                     }
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(Icons.Outlined.Speed, null)
-                        },
-                        headlineContent = {
-                            Text(context.symphony.t.Speed)
-                        },
-                        supportingContent = {
-                            Text("x${data.currentSpeed}")
-                        },
-                    )
-                }
-                Card(
-                    onClick = {
-                        closeBottomSheet()
-                        showPitchDialog = !showPitchDialog
+                    Card(
+                        onClick = {
+                            closeBottomSheet()
+                            showPitchDialog = !showPitchDialog
+                        }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(Icons.Outlined.Speed, null)
+                            },
+                            headlineContent = {
+                                Text(context.symphony.t.Pitch)
+                            },
+                            supportingContent = {
+                                Text("x${data.currentPitch}")
+                            },
+                        )
                     }
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(Icons.Outlined.Speed, null)
-                        },
-                        headlineContent = {
-                            Text(context.symphony.t.Pitch)
-                        },
-                        supportingContent = {
-                            Text("x${data.currentPitch}")
-                        },
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
