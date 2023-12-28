@@ -154,8 +154,8 @@ data class Song(
             return Song(
                 id = id,
                 title = shorty.getString(AudioColumns.TITLE),
-                trackNumber = shorty.getIntNullable(AudioColumns.TRACK),
-                year = shorty.getIntNullable(AudioColumns.YEAR),
+                trackNumber = shorty.getIntNullable(AudioColumns.TRACK)?.takeIf { it > 0 },
+                year = shorty.getIntNullable(AudioColumns.YEAR)?.takeIf { it > 0 },
                 duration = shorty.getLong(AudioColumns.DURATION),
                 album = shorty.getStringNullable(AudioColumns.ALBUM),
                 artists = shorty.getStringNullable(AudioColumns.ARTIST)

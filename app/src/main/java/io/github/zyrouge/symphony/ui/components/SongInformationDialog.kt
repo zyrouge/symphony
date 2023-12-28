@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationFormatter
-import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.round
@@ -18,19 +17,24 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 context.symphony.t.TrackName,
                 song.title
             )
-            InformationKeyValue(
-                context.symphony.t.Artist,
-                song.artists.joinToStringIfNotEmpty() ?: context.symphony.t.UnknownSymbol,
-            )
-            InformationKeyValue(
-                context.symphony.t.AlbumArtist,
-                song.additional.albumArtists.joinToStringIfNotEmpty()
-                    ?: context.symphony.t.UnknownSymbol
-            )
-            InformationKeyValue(
-                context.symphony.t.Composer,
-                song.composers.joinToStringIfNotEmpty() ?: context.symphony.t.UnknownSymbol,
-            )
+            if (song.artists.isNotEmpty()) {
+                InformationKeyValue(context.symphony.t.Artist, song.artists.joinToString())
+            }
+            if (song.additional.albumArtists.isNotEmpty()) {
+                InformationKeyValue(
+                    context.symphony.t.AlbumArtist,
+                    song.additional.albumArtists.joinToString(),
+                )
+            }
+            if (song.composers.isNotEmpty()) {
+                InformationKeyValue(context.symphony.t.Composer, song.composers.joinToString())
+            }
+            if (song.additional.genres.isNotEmpty()) {
+                InformationKeyValue(
+                    context.symphony.t.Genre,
+                    song.additional.genres.joinToString()
+                )
+            }
             song.year?.let {
                 InformationKeyValue(context.symphony.t.Year, it.toString())
             }
@@ -40,10 +44,6 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(
                 context.symphony.t.Duration,
                 DurationFormatter.formatMs(song.duration)
-            )
-            InformationKeyValue(
-                context.symphony.t.Genre,
-                song.additional.genres.joinToStringIfNotEmpty() ?: context.symphony.t.UnknownSymbol,
             )
             song.additional.codec?.let {
                 InformationKeyValue(context.symphony.t.Codec, it)
