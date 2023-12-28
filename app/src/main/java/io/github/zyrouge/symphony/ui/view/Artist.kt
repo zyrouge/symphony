@@ -46,10 +46,10 @@ fun ArtistView(context: ViewContext, artistName: String) {
         derivedStateOf { context.symphony.groove.artist.get(artistName) }
     }
     val songIds by remember(artist, allSongIds) {
-        derivedStateOf { context.symphony.groove.artist.getSongIds(artistName) }
+        derivedStateOf { artist.getSongIds(context.symphony) }
     }
     val albumNames by remember(artist, allAlbumNames) {
-        derivedStateOf { context.symphony.groove.artist.getAlbumNames(artistName) }
+        derivedStateOf { artist.getAlbumNames(context.symphony) }
     }
     val isViable by remember(allArtistNames) {
         derivedStateOf { allArtistNames.contains(artistName) }

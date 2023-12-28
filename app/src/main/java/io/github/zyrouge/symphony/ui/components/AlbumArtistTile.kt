@@ -41,9 +41,7 @@ fun AlbumArtistTile(context: ViewContext, albumArtist: AlbumArtist) {
             )
         },
         onPlay = {
-            context.symphony.radio.shorty.playQueue(
-                context.symphony.groove.albumArtist.getSongIds(albumArtist.name)
-            )
+            context.symphony.radio.shorty.playQueue(albumArtist.getSortedSongIds(context.symphony))
         },
         onClick = {
             context.navController.navigate(RoutesBuilder.buildAlbumArtistRoute(albumArtist.name))
@@ -74,8 +72,8 @@ fun AlbumArtistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    context.symphony.groove.albumArtist.getSongIds(albumArtist.name),
-                    shuffle = true
+                    albumArtist.getSortedSongIds(context.symphony),
+                    shuffle = true,
                 )
             }
         )
@@ -89,7 +87,7 @@ fun AlbumArtistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.albumArtist.getSongIds(albumArtist.name),
+                    albumArtist.getSortedSongIds(context.symphony),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -103,9 +101,7 @@ fun AlbumArtistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    context.symphony.groove.albumArtist.getSongIds(albumArtist.name)
-                )
+                context.symphony.radio.queue.add(albumArtist.getSortedSongIds(context.symphony))
             }
         )
         DropdownMenuItem(
@@ -125,7 +121,7 @@ fun AlbumArtistDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = context.symphony.groove.albumArtist.getSongIds(albumArtist.name),
+            songIds = albumArtist.getSongIds(context.symphony),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

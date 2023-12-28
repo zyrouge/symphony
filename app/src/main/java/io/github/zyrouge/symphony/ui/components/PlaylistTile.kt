@@ -111,7 +111,9 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                                 )
                                 .then(Modifier.size(36.dp)),
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(playlist.songIds)
+                                context.symphony.radio.shorty.playQueue(
+                                    playlist.getSortedSongIds(context.symphony)
+                                )
                             }
                         ) {
                             Icon(Icons.Filled.PlayArrow, null)
@@ -184,7 +186,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    playlist.songIds,
+                    playlist.getSortedSongIds(context.symphony),
                     shuffle = true,
                 )
             }
@@ -199,7 +201,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    playlist.songIds,
+                    playlist.getSortedSongIds(context.symphony),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }

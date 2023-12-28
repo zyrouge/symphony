@@ -79,13 +79,13 @@ class AlbumArtistRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun getArtworkUri(artistName: String) = songIdsCache[artistName]?.firstOrNull()
+    fun getArtworkUri(albumArtistName: String) = songIdsCache[albumArtistName]?.firstOrNull()
         ?.let { symphony.groove.song.getArtworkUri(it) }
         ?: symphony.groove.album.getDefaultArtworkUri()
 
-    fun createArtworkImageRequest(artistName: String) = createHandyImageRequest(
+    fun createArtworkImageRequest(albumArtistName: String) = createHandyImageRequest(
         symphony.applicationContext,
-        image = getArtworkUri(artistName),
+        image = getArtworkUri(albumArtistName),
         fallback = Assets.placeholderId,
     )
 
@@ -110,8 +110,10 @@ class AlbumArtistRepository(private val symphony: Symphony) {
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
-    fun get(artistName: String) = cache[artistName]
-    fun get(artistNames: List<String>) = artistNames.mapNotNull { get(it) }
-    fun getAlbumNames(artistName: String) = albumNamesCache[artistName]?.toList() ?: emptyList()
-    fun getSongIds(artistName: String) = songIdsCache[artistName]?.toList() ?: emptyList()
+    fun get(albumArtistName: String) = cache[albumArtistName]
+    fun get(albumArtistNames: List<String>) = albumArtistNames.mapNotNull { get(it) }
+    fun getAlbumNames(albumArtistName: String) =
+        albumNamesCache[albumArtistName]?.toList() ?: emptyList()
+
+    fun getSongIds(albumArtistName: String) = songIdsCache[albumArtistName]?.toList() ?: emptyList()
 }

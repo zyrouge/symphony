@@ -11,4 +11,12 @@ data class Album(
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.album.createArtworkImageRequest(name)
+
+    fun getSongIds(symphony: Symphony) = symphony.groove.album.getSongIds(name)
+    fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
+        getSongIds(symphony),
+        symphony.settings.getLastUsedAlbumSongsSortBy(),
+        symphony.settings.getLastUsedAlbumSongsSortReverse(),
+    )
+}
 }

@@ -38,18 +38,18 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumArtistView(context: ViewContext, artistName: String) {
+fun AlbumArtistView(context: ViewContext, albumArtistName: String) {
     val allAlbumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val allAlbumNames = context.symphony.groove.album.all
     val albumArtist by remember(allAlbumArtistNames) {
-        derivedStateOf { context.symphony.groove.albumArtist.get(artistName) }
+        derivedStateOf { context.symphony.groove.albumArtist.get(albumArtistName) }
     }
     val songIds by remember(albumArtist, allSongIds) {
-        derivedStateOf { context.symphony.groove.albumArtist.getSongIds(artistName) }
+        derivedStateOf { albumArtist.getSongIds(context.symphony) }
     }
     val albumNames by remember(albumArtist, allAlbumNames) {
-        derivedStateOf { context.symphony.groove.albumArtist.getAlbumNames(artistName) }
+        derivedStateOf { albumArtist.getAlbumNames(context.symphony) }
     }
     val isViable by remember(albumArtist) {
         derivedStateOf { albumArtist != null }
@@ -108,7 +108,7 @@ fun AlbumArtistView(context: ViewContext, artistName: String) {
                             }
                         }
                     )
-                } else UnknownAlbumArtist(context, artistName)
+                } else UnknownAlbumArtist(context, albumArtistName)
             }
         },
         bottomBar = {

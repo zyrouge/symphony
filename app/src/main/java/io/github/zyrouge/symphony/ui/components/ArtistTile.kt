@@ -41,9 +41,7 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
             )
         },
         onPlay = {
-            context.symphony.radio.shorty.playQueue(
-                context.symphony.groove.artist.getSongIds(artist.name)
-            )
+            context.symphony.radio.shorty.playQueue(artist.getSortedSongIds(context.symphony))
         },
         onClick = {
             context.navController.navigate(RoutesBuilder.buildArtistRoute(artist.name))
@@ -74,7 +72,7 @@ fun ArtistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    context.symphony.groove.artist.getSongIds(artist.name),
+                    artist.getSortedSongIds(context.symphony),
                     shuffle = true
                 )
             }
@@ -89,7 +87,7 @@ fun ArtistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    context.symphony.groove.artist.getSongIds(artist.name),
+                    artist.getSortedSongIds(context.symphony),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -103,9 +101,7 @@ fun ArtistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    context.symphony.groove.artist.getSongIds(artist.name)
-                )
+                context.symphony.radio.queue.add(artist.getSortedSongIds(context.symphony))
             }
         )
         DropdownMenuItem(
@@ -125,7 +121,7 @@ fun ArtistDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = context.symphony.groove.artist.getSongIds(artist.name),
+            songIds = artist.getSongIds(context.symphony),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }
