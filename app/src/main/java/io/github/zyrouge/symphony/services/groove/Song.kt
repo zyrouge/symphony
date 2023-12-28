@@ -70,14 +70,15 @@ data class Song(
                 symphony: Symphony,
                 attributes: SongCache.Attributes,
             ): AdditionalMetadata {
-                val separators = symphony.settings.getTagSeparators()
+                val artistSeparators = symphony.settings.artistTagSeparators.value
+                val genreSeparators = symphony.settings.genreTagSeparators.value
                 return AdditionalMetadata(
                     albumArtists = attributes.albumArtist
-                        ?.let { Song.parseMultiValue(it, separators) }
+                        ?.let { Song.parseMultiValue(it, artistSeparators) }
                         ?: setOf(),
                     bitrate = attributes.bitrate,
                     genres = attributes.genre
-                        ?.let { Song.parseMultiValue(it, separators) }
+                        ?.let { Song.parseMultiValue(it, genreSeparators) }
                         ?: setOf(),
                     bitsPerSample = attributes.bitsPerSample,
                     samplingRate = attributes.samplingRate,
@@ -114,14 +115,15 @@ data class Song(
                         retriever.release()
                     }
                 }
-                val separators = symphony.settings.getTagSeparators()
+                val artistSeparators = symphony.settings.artistTagSeparators.value
+                val genreSeparators = symphony.settings.genreTagSeparators.value
                 return AdditionalMetadata(
                     albumArtists = albumArtist
-                        ?.let { Song.parseMultiValue(it, separators) }
+                        ?.let { Song.parseMultiValue(it, artistSeparators) }
                         ?: setOf(),
                     bitrate = bitrate,
                     genres = genre
-                        ?.let { Song.parseMultiValue(it, separators) }
+                        ?.let { Song.parseMultiValue(it, genreSeparators) }
                         ?: setOf(),
                     bitsPerSample = bitsPerSample,
                     samplingRate = samplingRate,
@@ -148,7 +150,7 @@ data class Song(
             shorty: CursorShorty,
             fetchCachedAttributes: (Long) -> SongCache.Attributes?,
         ): Song {
-            val separators = symphony.settings.getTagSeparators()
+            val artistSeparators = symphony.settings.artistTagSeparators.value
             val id = shorty.getLong(AudioColumns._ID)
             val dateModified = shorty.getLong(AudioColumns.DATE_MODIFIED)
             return Song(
@@ -159,9 +161,9 @@ data class Song(
                 duration = shorty.getLong(AudioColumns.DURATION),
                 album = shorty.getStringNullable(AudioColumns.ALBUM),
                 artists = shorty.getStringNullable(AudioColumns.ARTIST)
-                    ?.let { Song.parseMultiValue(it, separators) } ?: setOf(),
+                    ?.let { Song.parseMultiValue(it, artistSeparators) } ?: setOf(),
                 composers = shorty.getStringNullable(AudioColumns.COMPOSER)
-                    ?.let { Song.parseMultiValue(it, separators) } ?: setOf(),
+                    ?.let { Song.parseMultiValue(it, artistSeparators) } ?: setOf(),
                 dateAdded = shorty.getLong(AudioColumns.DATE_ADDED),
                 dateModified = dateModified,
                 size = shorty.getLong(AudioColumns.SIZE),

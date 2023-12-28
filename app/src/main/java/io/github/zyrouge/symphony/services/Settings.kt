@@ -79,7 +79,8 @@ object SettingsKeys {
     const val fontScale = "font_scale"
     const val contentScale = "content_scale"
     const val nowPlayingLyricsLayout = "now_playing_lyrics_layout"
-    const val tagSeparators = "tag_separators"
+    const val artistTagSeparators = "artist_tag_separators"
+    const val genreTagSeparators = "genre_tag_separators"
 }
 
 object SettingsDefaults {
@@ -132,9 +133,11 @@ object SettingsDefaults {
     const val fontScale = 1.0f
     const val contentScale = 1.0f
     val nowPlayingLyricsLayout = NowPlayingLyricsLayout.ReplaceArtwork
-    val tagSeparators = setOf<String>(";", "/", ",", "+")
+    val artistTagSeparators = setOf(";", "/", ",", "+")
+    val genreTagSeparators = setOf(";", "/", ",", "+", " ")
 }
 
+@Suppress("MemberVisibilityCanBePrivate")
 class SettingsManager(private val symphony: Symphony) {
     private val _themeMode = MutableStateFlow(getThemeMode())
     val themeMode = _themeMode.asStateFlow()
@@ -245,8 +248,10 @@ class SettingsManager(private val symphony: Symphony) {
     val contentScale = _contentScale.asStateFlow()
     private val _nowPlayingLyricsLayout = MutableStateFlow(getNowPlayingLyricsLayout())
     val nowPlayingLyricsLayout = _nowPlayingLyricsLayout.asStateFlow()
-    private val _tagSeparators = MutableStateFlow(getTagSeparators())
-    val tagSeparators = _tagSeparators.asStateFlow()
+    private val _artistTagSeparators = MutableStateFlow(getArtistTagSeparators())
+    val artistTagSeparators = _artistTagSeparators.asStateFlow()
+    private val _genreTagSeparators = MutableStateFlow(getGenreTagSeparators())
+    val genreTagSeparators = _genreTagSeparators.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -849,15 +854,26 @@ class SettingsManager(private val symphony: Symphony) {
         _nowPlayingLyricsLayout.updateUsingValue(getNowPlayingLyricsLayout())
     }
 
-    fun getTagSeparators(): Set<String> = getSharedPreferences()
-        .getStringSet(SettingsKeys.tagSeparators, null)
-        ?: SettingsDefaults.tagSeparators
+    fun getArtistTagSeparators(): Set<String> = getSharedPreferences()
+        .getStringSet(SettingsKeys.artistTagSeparators, null)
+        ?: SettingsDefaults.artistTagSeparators
 
-    fun setTagSeparators(values: List<String>) {
+    fun setArtistTagSeparators(values: List<String>) {
         getSharedPreferences().edit {
-            putStringSet(SettingsKeys.tagSeparators, values.toSet())
+            putStringSet(SettingsKeys.artistTagSeparators, values.toSet())
         }
-        _tagSeparators.updateUsingValue(getTagSeparators())
+        _artistTagSeparators.updateUsingValue(getArtistTagSeparators())
+    }
+
+    fun getGenreTagSeparators(): Set<String> = getSharedPreferences()
+        .getStringSet(SettingsKeys.genreTagSeparators, null)
+        ?: SettingsDefaults.genreTagSeparators
+
+    fun setGenreTagSeparators(values: List<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.genreTagSeparators, values.toSet())
+        }
+        _genreTagSeparators.updateUsingValue(getGenreTagSeparators())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(
