@@ -45,7 +45,7 @@ fun AlbumView(context: ViewContext, albumName: String) {
         derivedStateOf { context.symphony.groove.album.get(albumName) }
     }
     val songIds by remember(album, allSongIds) {
-        derivedStateOf { album.getSongIds(context.symphony) }
+        derivedStateOf { album?.getSongIds(context.symphony) ?: listOf() }
     }
     val isViable by remember(allAlbumNames) {
         derivedStateOf { allAlbumNames.contains(albumName) }

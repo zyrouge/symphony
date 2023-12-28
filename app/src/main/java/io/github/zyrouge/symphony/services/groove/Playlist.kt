@@ -47,7 +47,6 @@ data class Playlist(
             ?: ImageRequest.Builder(symphony.applicationContext)
                 .data(Assets.getPlaceholderUri(symphony.applicationContext))
 
-    inline fun getSongIds() = songIds
     fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
         songIds,
         symphony.settings.getLastUsedPlaylistSongsSortBy(),

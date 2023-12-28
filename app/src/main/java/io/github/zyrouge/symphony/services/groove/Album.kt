@@ -19,4 +19,3 @@ data class Album(
         symphony.settings.getLastUsedAlbumSongsSortReverse(),
     )
 }
-}

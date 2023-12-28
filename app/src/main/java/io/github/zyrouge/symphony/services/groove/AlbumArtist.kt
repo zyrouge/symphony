@@ -14,11 +14,10 @@ data class AlbumArtist(
 
     fun getSongIds(symphony: Symphony) = symphony.groove.albumArtist.getSongIds(name)
     fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
-            getSongIds(symphony),
-            symphony.settings.getLastUsedSongsSortBy(),
-            symphony.settings.getLastUsedSongsSortReverse(),
-        )
-    }
+        getSongIds(symphony),
+        symphony.settings.getLastUsedSongsSortBy(),
+        symphony.settings.getLastUsedSongsSortReverse(),
+    )
 
     fun getAlbumNames(symphony: Symphony) = symphony.groove.albumArtist.getAlbumNames(name)
 }

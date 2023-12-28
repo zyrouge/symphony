@@ -39,7 +39,7 @@ fun GenreView(context: ViewContext, genreName: String) {
         derivedStateOf { context.symphony.groove.genre.get(genreName) }
     }
     val songIds by remember(genre, allSongIds) {
-        derivedStateOf { genre.getSongIds(context.symphony) }
+        derivedStateOf { genre?.getSongIds(context.symphony) ?: listOf() }
     }
     val isViable by remember(allGenreNames) {
         derivedStateOf { allGenreNames.contains(genreName) }

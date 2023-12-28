@@ -45,6 +45,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -163,6 +165,8 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
 
     val textFieldFocusRequester = FocusRequester()
     val configuration = LocalConfiguration.current
+    val chipsScrollState = rememberScrollState()
+    var initialScroll = remember { false }
 
     LaunchedEffect(LocalContext.current) {
         textFieldFocusRequester.requestFocus()
@@ -217,7 +221,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.horizontalScroll(rememberScrollState())
+                    modifier = Modifier.horizontalScroll(chipsScrollState)
                 ) {
                     Spacer(modifier = Modifier.width(4.dp))
                     FilterChip(
@@ -235,6 +239,16 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                             selected = selectedChip == it,
                             label = {
                                 Text(it.label(context))
+                            },
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                if (!initialScroll && initialChip == it) {
+                                    val offset = coordinates.positionInWindow()
+                                    coroutineScope.launch {
+                                        val y = offset.y.toInt() + coordinates.size.width
+                                        chipsScrollState.animateScrollTo(y)
+                                    }
+                                    initialScroll = true
+                                }
                             },
                             onClick = {
                                 selectedChip = it
