@@ -607,3 +607,8 @@ name = "SeparatePage"
 [[keys]]
 name = "UnknownAlbumX"
 parameters = ["x"]
+
+[[keys]]
+name = "CopiedXToClipboard"
+parameters = ["x"]
+

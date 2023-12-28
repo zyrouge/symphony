@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,7 +39,7 @@ fun InformationDialog(
 }
 
 @Composable
-fun InformationKeyValue(key: String, value: String) {
+fun InformationKeyValue(key: String, value: @Composable () -> Unit) {
     Column {
         Text(
             key,
@@ -46,6 +47,8 @@ fun InformationKeyValue(key: String, value: String) {
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         )
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        ProvideTextStyle(value = MaterialTheme.typography.bodyMedium) {
+            value()
+        }
     }
 }

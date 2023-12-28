@@ -1,9 +1,19 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextDecoration
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationFormatter
+import io.github.zyrouge.symphony.utils.copyToClipboardWithToast
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.round
@@ -13,82 +23,132 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
     InformationDialog(
         context,
         content = {
-            InformationKeyValue(
-                context.symphony.t.TrackName,
-                song.title
-            )
+            InformationKeyValue(context.symphony.t.TrackName) {
+                LongPressCopyableText(context, song.title)
+            }
             if (song.artists.isNotEmpty()) {
-                InformationKeyValue(context.symphony.t.Artist, song.artists.joinToString())
+                InformationKeyValue(context.symphony.t.Artist) {
+                    LongPressCopyableAndTappableText(context, song.artists) {
+                        onDismissRequest()
+                        context.navController.navigate(RoutesBuilder.buildArtistRoute(it))
+                    }
+                }
             }
             if (song.additional.albumArtists.isNotEmpty()) {
-                InformationKeyValue(
-                    context.symphony.t.AlbumArtist,
-                    song.additional.albumArtists.joinToString(),
-                )
+                InformationKeyValue(context.symphony.t.AlbumArtist) {
+                    LongPressCopyableAndTappableText(context, song.additional.albumArtists) {
+                        onDismissRequest()
+                        context.navController.navigate(RoutesBuilder.buildAlbumArtistRoute(it))
+                    }
+                }
             }
             if (song.composers.isNotEmpty()) {
-                InformationKeyValue(context.symphony.t.Composer, song.composers.joinToString())
+                InformationKeyValue(context.symphony.t.Composer) {
+                    // TODO composers page maybe?
+                    LongPressCopyableAndTappableText(context, song.composers) {
+                        onDismissRequest()
+                        context.navController.navigate(RoutesBuilder.buildArtistRoute(it))
+                    }
+                }
             }
             if (song.additional.genres.isNotEmpty()) {
-                InformationKeyValue(
-                    context.symphony.t.Genre,
-                    song.additional.genres.joinToString()
-                )
+                InformationKeyValue(context.symphony.t.Genre) {
+                    LongPressCopyableAndTappableText(context, song.additional.genres) {
+                        onDismissRequest()
+                        context.navController.navigate(RoutesBuilder.buildGenreRoute(it))
+                    }
+                }
             }
             song.year?.let {
-                InformationKeyValue(context.symphony.t.Year, it.toString())
+                InformationKeyValue(context.symphony.t.Year) {
+                    LongPressCopyableText(context, it.toString())
+                }
             }
             song.trackNumber?.let {
-                InformationKeyValue(context.symphony.t.TrackNumber, it.toString())
+                InformationKeyValue(context.symphony.t.TrackNumber) {
+                    LongPressCopyableText(context, it.toString())
+                }
             }
-            InformationKeyValue(
-                context.symphony.t.Duration,
-                DurationFormatter.formatMs(song.duration)
-            )
+            InformationKeyValue(context.symphony.t.Duration) {
+                LongPressCopyableText(context, DurationFormatter.formatMs(song.duration))
+            }
             song.additional.codec?.let {
-                InformationKeyValue(context.symphony.t.Codec, it)
+                InformationKeyValue(context.symphony.t.Codec) {
+                    LongPressCopyableText(context, it)
+                }
             }
             song.additional.bitrateK?.let {
-                InformationKeyValue(
-                    context.symphony.t.Bitrate,
-                    context.symphony.t.XKbps(it.toString())
-                )
+                InformationKeyValue(context.symphony.t.Bitrate) {
+                    LongPressCopyableText(context, context.symphony.t.XKbps(it.toString()))
+                }
             }
             song.additional.bitsPerSample?.let {
-                InformationKeyValue(
-                    context.symphony.t.BitDepth,
-                    context.symphony.t.XBit(it.toString())
-                )
+                InformationKeyValue(context.symphony.t.BitDepth) {
+                    LongPressCopyableText(context, context.symphony.t.XBit(it.toString()))
+                }
             }
             song.additional.samplingRateK?.let {
-                InformationKeyValue(
-                    context.symphony.t.SamplingRate,
-                    context.symphony.t.XKHz(it.toString())
+                InformationKeyValue(context.symphony.t.SamplingRate) {
+                    LongPressCopyableText(context, context.symphony.t.XKHz(it.toString()))
+                }
+            }
+            InformationKeyValue(context.symphony.t.Filename) {
+                LongPressCopyableText(context, song.filename)
+            }
+            InformationKeyValue(context.symphony.t.Path) {
+                LongPressCopyableText(context, song.path)
+            }
+            InformationKeyValue(context.symphony.t.Size) {
+                LongPressCopyableText(context, "${round((song.size / 1024 / 1024).toDouble())} MB")
+            }
+            InformationKeyValue(context.symphony.t.DateAdded) {
+                LongPressCopyableText(
+                    context,
+                    SimpleDateFormat.getInstance().format(Date(song.dateAdded * 1000)),
                 )
             }
-            InformationKeyValue(
-                context.symphony.t.Filename,
-                song.filename
-            )
-            InformationKeyValue(
-                context.symphony.t.Path,
-                song.path
-            )
-            InformationKeyValue(
-                context.symphony.t.Size,
-                "${round((song.size / 1024 / 1024).toDouble())} MB"
-            )
-            InformationKeyValue(
-                context.symphony.t.DateAdded,
-                SimpleDateFormat.getInstance()
-                    .format(Date(song.dateAdded * 1000))
-            )
-            InformationKeyValue(
-                context.symphony.t.LastModified,
-                SimpleDateFormat.getInstance()
-                    .format(Date(song.dateModified * 1000))
-            )
+            InformationKeyValue(context.symphony.t.LastModified) {
+                LongPressCopyableText(
+                    context,
+                    SimpleDateFormat.getInstance()
+                        .format(Date(song.dateModified * 1000)),
+                )
+            }
         },
         onDismissRequest = onDismissRequest,
     )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LongPressCopyableAndTappableText(
+    context: ViewContext,
+    values: Set<String>,
+    onTap: (String) -> Unit,
+) {
+    val textStyle = LocalTextStyle.current.copy(
+        textDecoration = TextDecoration.Underline,
+    )
+
+    FlowRow {
+        values.forEachIndexed { i, it ->
+            Text(
+                it,
+                style = textStyle,
+                modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = { _ ->
+                            copyToClipboardWithToast(context, it)
+                        },
+                        onTap = { _ ->
+                            onTap(it)
+                        },
+                    )
+                },
+            )
+            if (i != values.size - 1) {
+                Text(", ")
+            }
+        }
+    }
 }
