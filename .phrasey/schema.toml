@@ -612,3 +612,5 @@ parameters = ["x"]
 name = "CopiedXToClipboard"
 parameters = ["x"]
 
+[[keys]]
+name = "MiniPlayerTextMarquee"

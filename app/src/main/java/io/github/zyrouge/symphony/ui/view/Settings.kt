@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.HeadsetOff
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Palette
@@ -125,6 +126,7 @@ fun SettingsView(context: ViewContext) {
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
     val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.collectAsState()
     val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.collectAsState()
+    val miniPlayerTextMarquee by context.symphony.settings.miniPlayerTextMarquee.collectAsState()
     val nowPlayingControlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
     val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
     val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
@@ -574,6 +576,18 @@ fun SettingsView(context: ViewContext) {
                         value = miniPlayerSeekControls,
                         onChange = { value ->
                             context.symphony.settings.setMiniPlayerSeekControls(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.KeyboardDoubleArrowRight, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.MiniPlayerTextMarquee)
+                        },
+                        value = miniPlayerTextMarquee,
+                        onChange = { value ->
+                            context.symphony.settings.setMiniPlayerTextMarquee(value)
                         }
                     )
                     HorizontalDivider()

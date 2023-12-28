@@ -81,6 +81,7 @@ object SettingsKeys {
     const val nowPlayingLyricsLayout = "now_playing_lyrics_layout"
     const val artistTagSeparators = "artist_tag_separators"
     const val genreTagSeparators = "genre_tag_separators"
+    const val miniPlayerTextMarquee = "mini_player_text_marquee"
 }
 
 object SettingsDefaults {
@@ -135,6 +136,7 @@ object SettingsDefaults {
     val nowPlayingLyricsLayout = NowPlayingLyricsLayout.ReplaceArtwork
     val artistTagSeparators = setOf(";", "/", ",", "+")
     val genreTagSeparators = setOf(";", "/", ",", "+", " ")
+    const val miniPlayerTextMarquee = true
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -252,6 +254,8 @@ class SettingsManager(private val symphony: Symphony) {
     val artistTagSeparators = _artistTagSeparators.asStateFlow()
     private val _genreTagSeparators = MutableStateFlow(getGenreTagSeparators())
     val genreTagSeparators = _genreTagSeparators.asStateFlow()
+    private val _miniPlayerTextMarquee = MutableStateFlow(getMiniPlayerTextMarquee())
+    val miniPlayerTextMarquee = _miniPlayerTextMarquee.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -874,6 +878,18 @@ class SettingsManager(private val symphony: Symphony) {
             putStringSet(SettingsKeys.genreTagSeparators, values.toSet())
         }
         _genreTagSeparators.updateUsingValue(getGenreTagSeparators())
+    }
+
+    fun getMiniPlayerTextMarquee() = getSharedPreferences().getBoolean(
+        SettingsKeys.miniPlayerTextMarquee,
+        SettingsDefaults.miniPlayerTextMarquee,
+    )
+
+    fun setMiniPlayerTextMarquee(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.miniPlayerTextMarquee, value)
+        }
+        _miniPlayerTextMarquee.updateUsingValue(getMiniPlayerTextMarquee())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(

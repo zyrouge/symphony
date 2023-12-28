@@ -62,6 +62,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -71,6 +72,7 @@ import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.utils.runIfOrThis
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -289,11 +291,13 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 NowPlayingBottomBarContentText(
+                    context,
                     song.title,
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 if (song.artists.isNotEmpty()) {
                     NowPlayingBottomBarContentText(
+                        context,
                         song.artists.joinToString(),
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -306,9 +310,11 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NowPlayingBottomBarContentText(
+    context: ViewContext,
     text: String,
     style: TextStyle,
 ) {
+    val textMarquee by context.symphony.settings.miniPlayerTextMarquee.collectAsState()
     var showOverlay by remember { mutableStateOf(false) }
 
     Box {
@@ -316,8 +322,14 @@ private fun NowPlayingBottomBarContentText(
             text,
             style = style,
             maxLines = 1,
+            overflow = when {
+                textMarquee -> TextOverflow.Clip
+                else -> TextOverflow.Ellipsis
+            },
             modifier = Modifier
-                .basicMarquee(iterations = Int.MAX_VALUE)
+                .runIfOrThis<Modifier>(textMarquee) {
+                    basicMarquee(iterations = Int.MAX_VALUE)
+                }
                 .onGloballyPositioned {
                     val offsetX = it.boundsInParent().centerLeft.x
                     showOverlay = offsetX.absoluteValue != 0f
