@@ -187,7 +187,7 @@ data class Song(
 
         fun parseMultiValue(value: String, separators: Set<String>) = value
             .split(*separators.toTypedArray())
-            .filter { it.isNotBlank() }
+            .mapNotNull { x -> x.trim().takeIf { it.isNotEmpty() } }
             .toSet()
     }
 }
