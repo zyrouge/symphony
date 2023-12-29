@@ -167,6 +167,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun pause() = pause {}
     private fun pause(forceFade: Boolean = false, onFinish: () -> Unit) {
         player?.let {
+            if (!it.isPlaying) return@let
             it.setVolume(
                 to = RadioPlayer.MIN_VOLUME,
                 forceFade = forceFade,
