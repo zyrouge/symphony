@@ -7,14 +7,12 @@ import kotlin.math.min
 class FuzzySearchComparator(val input: String) {
     fun compareString(value: String) = Fuzzy.compare(input, value)
 
-    fun compareIterable(values: Iterable<String>): Float {
+    fun compareCollection(values: Collection<String>): Float {
         var weight = 0f
-        var size = 0
         values.forEach {
             weight += compareString(it)
-            size++
         }
-        return weight / min(1, size)
+        return weight / min(1, values.size)
     }
 }
 

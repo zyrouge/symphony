@@ -25,7 +25,7 @@ class AlbumRepository(private val symphony: Symphony) {
     private val searcher = FuzzySearcher<String>(
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }, 3),
-            FuzzySearchOption({ v -> get(v)?.artists?.let { compareIterable(it) } })
+            FuzzySearchOption({ v -> get(v)?.artists?.let { compareCollection(it) } })
         )
     )
 

@@ -35,7 +35,7 @@ class SongRepository(private val symphony: Symphony) {
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
             FuzzySearchOption({ v -> get(v)?.filename?.let { compareString(it) } }, 2),
-            FuzzySearchOption({ v -> get(v)?.artists?.let { compareIterable(it) } }),
+            FuzzySearchOption({ v -> get(v)?.artists?.let { compareCollection(it) } }),
             FuzzySearchOption({ v -> get(v)?.album?.let { compareString(it) } })
         )
     )

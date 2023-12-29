@@ -614,3 +614,12 @@ parameters = ["x"]
 
 [[keys]]
 name = "MiniPlayerTextMarquee"
+
+[[keys]]
+name = "AddItem"
+
+[[keys]]
+name = "ArtistTagValueSeparators"
+
+[[keys]]
+name = "GenreTagValueSeparators"

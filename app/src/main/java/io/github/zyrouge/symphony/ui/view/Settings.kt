@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material.icons.filled.Recommend
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SpaceBar
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
@@ -87,6 +88,7 @@ import io.github.zyrouge.symphony.ui.view.settings.SettingsFloatInputTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsLinkTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiFolderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiOptionTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiTextOptionTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSimpleTile
@@ -134,6 +136,8 @@ fun SettingsView(context: ViewContext) {
     val songsFilterPattern by context.symphony.settings.songsFilterPattern.collectAsState()
     val blacklistFolders by context.symphony.settings.blacklistFolders.collectAsState()
     val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
+    val artistTagSeparators by context.symphony.settings.artistTagSeparators.collectAsState()
+    val genreTagSeparators by context.symphony.settings.genreTagSeparators.collectAsState()
     val checkForUpdates by context.symphony.settings.checkForUpdates.collectAsState()
     val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
     val fontScale by context.symphony.settings.fontScale.collectAsState()
@@ -698,6 +702,32 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setWhitelistFolders(values)
                             refetchLibrary()
                         }
+                    )
+                    SettingsMultiTextOptionTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.SpaceBar, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ArtistTagValueSeparators)
+                        },
+                        values = artistTagSeparators.toList(),
+                        onChange = {
+                            context.symphony.settings.setArtistTagSeparators(it)
+                        },
+                    )
+                    SettingsMultiTextOptionTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.SpaceBar, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.GenreTagValueSeparators)
+                        },
+                        values = genreTagSeparators.toList(),
+                        onChange = {
+                            context.symphony.settings.setGenreTagSeparators(it)
+                        },
                     )
                     SettingsSimpleTile(
                         icon = {
