@@ -17,7 +17,7 @@ fun MediaSortBarScaffold(
     mediaSortBar: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val localDensity = LocalDensity.current
+    val density = LocalDensity.current
     var height by remember { mutableIntStateOf(0) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -30,7 +30,7 @@ fun MediaSortBarScaffold(
         }
         Box(
             modifier = Modifier
-                .padding(top = with(localDensity) { height.toDp() })
+                .padding(top = with(density) { height.toDp() })
         ) {
             content()
         }

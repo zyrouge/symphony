@@ -49,6 +49,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -163,8 +164,9 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
         }
     }
 
-    val textFieldFocusRequester = FocusRequester()
     val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val textFieldFocusRequester = FocusRequester()
     val chipsScrollState = rememberScrollState()
     var initialScroll = remember { false }
 
@@ -242,10 +244,22 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                             },
                             modifier = Modifier.onGloballyPositioned { coordinates ->
                                 if (!initialScroll && initialChip == it) {
-                                    val offset = coordinates.positionInWindow()
-                                    coroutineScope.launch {
-                                        val y = offset.y.toInt() + coordinates.size.width
-                                        chipsScrollState.animateScrollTo(y)
+                                    val windowWidth = with(density) {
+                                        configuration.screenWidthDp.dp.toPx()
+                                    }
+                                    val position = coordinates.positionInWindow()
+                                    val start = position.x.toInt()
+                                    val width = coordinates.size.width
+                                    val end = start + width
+                                    val scrollTo = when {
+                                        width < windowWidth && end > windowWidth -> start + width
+                                        start > windowWidth -> start
+                                        else -> null
+                                    }
+                                    scrollTo?.let { v ->
+                                        coroutineScope.launch {
+                                            chipsScrollState.animateScrollTo(v)
+                                        }
                                     }
                                     initialScroll = true
                                 }
