@@ -714,6 +714,7 @@ fun SettingsView(context: ViewContext) {
                         values = artistTagSeparators.toList(),
                         onChange = {
                             context.symphony.settings.setArtistTagSeparators(it)
+                            refetchLibrary()
                         },
                     )
                     SettingsMultiTextOptionTile(
@@ -727,6 +728,7 @@ fun SettingsView(context: ViewContext) {
                         values = genreTagSeparators.toList(),
                         onChange = {
                             context.symphony.settings.setGenreTagSeparators(it)
+                            refetchLibrary()
                         },
                     )
                     SettingsSimpleTile(
