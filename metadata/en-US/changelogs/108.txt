@@ -1,0 +1,14 @@
+- Support synced and `.lrc` lyrics.
+- Added full-screen lyrics view.
+- Ability to parse multi-value tags.
+- Ability to click/copy values from song information dialog.
+- Option to save current queue as playlist.
+- Respect song sorting when using play buttons.
+- Option to disable mini-player text marquee.
+- Fix focus loss causing the player to resume.
+- Fix incorrect parsing of track numbers.
+- Responsive now playing song cover.
+- Fix genre page title.
+- Fix locale text direction.
+- Added mini-player swipe up/down gesture.
+- Fix For You page showing empty message.
