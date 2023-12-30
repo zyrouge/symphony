@@ -425,7 +425,7 @@ private fun SuggestedAlbums(
     isLoading: Boolean,
     albumNames: List<String>,
 ) {
-    val albums by remember {
+    val albums by remember(albumNames) {
         derivedStateOf {
             context.symphony.groove.album.get(albumNames)
         }
@@ -465,7 +465,7 @@ private fun SuggestedArtists(
     isLoading: Boolean,
     artistNames: List<String>,
 ) {
-    val artists by remember {
+    val artists by remember(artistNames) {
         derivedStateOf {
             context.symphony.groove.artist.get(artistNames)
         }
@@ -505,7 +505,7 @@ private fun SuggestedAlbumArtists(
     isLoading: Boolean,
     albumArtistNames: List<String>,
 ) {
-    val albumArtists by remember {
+    val albumArtists by remember(albumArtistNames) {
         derivedStateOf {
             context.symphony.groove.albumArtist.get(albumArtistNames)
         }

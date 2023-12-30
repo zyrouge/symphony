@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.radio
 
 import android.media.AudioManager
-import android.util.Log
 import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
@@ -21,7 +20,6 @@ class RadioFocus(val symphony: Symphony) {
                     .build()
             )
             .setOnAudioFocusChangeListener { event ->
-                Log.i("SymLog", "focus event = $event")
                 when (event) {
                     AudioManager.AUDIOFOCUS_GAIN -> {
                         if (restoreOnFocusGain) {
