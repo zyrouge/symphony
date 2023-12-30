@@ -135,7 +135,7 @@ object SettingsDefaults {
     const val contentScale = 1.0f
     val nowPlayingLyricsLayout = NowPlayingLyricsLayout.ReplaceArtwork
     val artistTagSeparators = setOf(";", "/", ",", "+")
-    val genreTagSeparators = setOf(";", "/", ",", "+", " ")
+    val genreTagSeparators = setOf(";", "/", ",", "+")
     const val miniPlayerTextMarquee = true
 }
 
