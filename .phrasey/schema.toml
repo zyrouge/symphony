@@ -623,3 +623,6 @@ name = "ArtistTagValueSeparators"
 
 [[keys]]
 name = "GenreTagValueSeparators"
+
+[[keys]]
+name = "DiscNumber"
