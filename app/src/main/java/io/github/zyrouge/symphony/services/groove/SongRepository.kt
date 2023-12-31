@@ -117,9 +117,11 @@ class SongRepository(private val symphony: Symphony) {
             build()
         }
 
+    fun getDefaultArtworkUri() = Assets.getPlaceholderUri(symphony)
+
     fun createArtworkImageRequest(songId: Long) = createHandyImageRequest(
         symphony.applicationContext,
         image = getArtworkUri(songId),
-        fallback = Assets.placeholderId,
+        fallback = Assets.getPlaceholderId(symphony),
     )
 }

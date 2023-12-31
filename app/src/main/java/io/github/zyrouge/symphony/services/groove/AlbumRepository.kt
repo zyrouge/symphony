@@ -73,11 +73,9 @@ class AlbumRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun getDefaultArtworkUri() = Assets.getPlaceholderUri(symphony.applicationContext)
-
     fun getArtworkUri(albumName: String) = songIdsCache[albumName]?.firstOrNull()
         ?.let { symphony.groove.song.getArtworkUri(it) }
-        ?: symphony.groove.album.getDefaultArtworkUri()
+        ?: symphony.groove.song.getDefaultArtworkUri()
 
     fun createArtworkImageRequest(albumName: String) = createHandyImageRequest(
         symphony.applicationContext,

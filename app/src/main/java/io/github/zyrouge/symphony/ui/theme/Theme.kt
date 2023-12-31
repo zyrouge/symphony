@@ -46,14 +46,7 @@ fun SymphonyTheme(
     val fontScale by context.symphony.settings.fontScale.collectAsState()
     val contentScale by context.symphony.settings.contentScale.collectAsState()
 
-    val colorSchemeMode = when (themeMode) {
-        ThemeMode.SYSTEM -> if (isSystemInDarkTheme()) ColorSchemeMode.DARK else ColorSchemeMode.LIGHT
-        ThemeMode.SYSTEM_BLACK -> if (isSystemInDarkTheme()) ColorSchemeMode.BLACK else ColorSchemeMode.LIGHT
-        ThemeMode.LIGHT -> ColorSchemeMode.LIGHT
-        ThemeMode.DARK -> ColorSchemeMode.DARK
-        ThemeMode.BLACK -> ColorSchemeMode.BLACK
-    }
-
+    val colorSchemeMode = themeMode.toColorSchemeMode(isSystemInDarkTheme())
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && useMaterialYou) {
         val currentContext = LocalContext.current
         when (colorSchemeMode) {
@@ -107,3 +100,13 @@ fun SymphonyTheme(
         }
     )
 }
+
+fun ThemeMode.toColorSchemeMode(isSystemInDarkTheme: Boolean) = when (this) {
+    ThemeMode.SYSTEM -> if (isSystemInDarkTheme) ColorSchemeMode.DARK else ColorSchemeMode.LIGHT
+    ThemeMode.SYSTEM_BLACK -> if (isSystemInDarkTheme) ColorSchemeMode.BLACK else ColorSchemeMode.LIGHT
+    ThemeMode.LIGHT -> ColorSchemeMode.LIGHT
+    ThemeMode.DARK -> ColorSchemeMode.DARK
+    ThemeMode.BLACK -> ColorSchemeMode.BLACK
+}
+
+fun ColorSchemeMode.isLight() = this == ColorSchemeMode.LIGHT

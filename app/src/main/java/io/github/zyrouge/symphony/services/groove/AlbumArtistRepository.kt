@@ -81,7 +81,7 @@ class AlbumArtistRepository(private val symphony: Symphony) {
 
     fun getArtworkUri(albumArtistName: String) = songIdsCache[albumArtistName]?.firstOrNull()
         ?.let { symphony.groove.song.getArtworkUri(it) }
-        ?: symphony.groove.album.getDefaultArtworkUri()
+        ?: symphony.groove.song.getDefaultArtworkUri()
 
     fun createArtworkImageRequest(albumArtistName: String) = createHandyImageRequest(
         symphony.applicationContext,
