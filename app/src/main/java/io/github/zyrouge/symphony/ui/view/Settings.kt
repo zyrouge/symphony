@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Label
@@ -67,8 +65,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.AppMeta
@@ -77,7 +73,6 @@ import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
@@ -187,12 +182,8 @@ fun SettingsView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                val scrollState = rememberScrollState()
-                var contributeOffsetY: Int? = null
 
-                Column(
-                    modifier = Modifier.verticalScroll(scrollState)
-                ) {
+                Column {
                     val contentColor = MaterialTheme.colorScheme.onPrimary
 
                     Box(
@@ -200,14 +191,10 @@ fun SettingsView(context: ViewContext) {
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.primary)
                             .clickable {
-                                contributeOffsetY?.let {
-                                    coroutineScope.launch {
-                                        scrollState.animateScrollTo(
-                                            it,
-                                            TransitionDurations.Slow.asTween()
-                                        )
-                                    }
-                                }
+                                context.symphony.shorty.startBrowserActivity(
+                                    context.activity,
+                                    AppMeta.contributingUrl,
+                                )
                             }
                     ) {
                         Row(
@@ -850,23 +837,16 @@ fun SettingsView(context: ViewContext) {
                         },
                         url = AppMeta.githubProfileUrl
                     )
-                    Box(
-                        modifier = Modifier
-                            .onGloballyPositioned { coordinates ->
-                                contributeOffsetY = coordinates.positionInParent().y.toInt()
-                            }
-                    ) {
-                        SettingsLinkTile(
-                            context,
-                            icon = {
-                                Icon(Icons.Filled.Code, null)
-                            },
-                            title = {
-                                Text(context.symphony.t.Github)
-                            },
-                            url = AppMeta.githubRepositoryUrl
-                        )
-                    }
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.Code, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.Github)
+                        },
+                        url = AppMeta.githubRepositoryUrl
+                    )
                 }
             }
         }

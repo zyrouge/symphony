@@ -23,6 +23,7 @@ object AppMeta {
     const val githubIssuesUrl = "$githubRepositoryUrl/issues"
     const val discordUrl = "https://discord.gg/5k9Hdq7ycm "
     const val redditUrl = "https://reddit.com/r/symphony_app"
+    const val contributingUrl = "$githubRepositoryUrl#contributing"
 
     const val packageName = "io.github.zyrouge.symphony"
     const val izzyOnDroidUrl = "https://apt.izzysoft.de/fdroid/index/apk/$packageName"
