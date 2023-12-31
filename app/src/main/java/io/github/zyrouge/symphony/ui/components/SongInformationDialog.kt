@@ -65,8 +65,8 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 }
             }
             song.trackNumber?.let {
-                val discNumber = it % 1000
-                val trackNumber = it / 1000
+                val discNumber = it / 1000
+                val trackNumber = it % 1000
                 InformationKeyValue(context.symphony.t.DiscNumber) {
                     LongPressCopyableText(context, discNumber.toString())
                 }
