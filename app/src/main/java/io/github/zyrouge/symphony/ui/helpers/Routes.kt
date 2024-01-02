@@ -7,6 +7,7 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 
 abstract class Route(val route: String) {
     class Simple(route: String) : Route(route)
+    
     abstract class Parameterized<T>(route: String) : Route(route) {
         override fun template() = "$route/{$ARGUMENT_NAME}"
         abstract fun build(param: T): String
