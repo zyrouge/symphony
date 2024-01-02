@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.Logger
 
@@ -135,9 +135,9 @@ fun SongCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    song.artistName?.let { artistName ->
+                    if (song.artists.isNotEmpty()) {
                         Text(
-                            artistName,
+                            song.artists.joinToString(),
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -264,52 +264,48 @@ fun SongDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        song.artistName?.let { artistName ->
+        song.artists.forEach { artistName ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.ViewArtist)
+                    Text("${context.symphony.t.ViewArtist}: $artistName")
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildArtistRoute(artistName)
-                    )
+                    context.navController.navigate(Routes.Artist.build(artistName))
                 }
             )
         }
-        song.additional.albumArtist?.let { albumArtist ->
+        song.additional.albumArtists.forEach { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)
                 },
                 text = {
-                    Text(context.symphony.t.ViewAlbumArtist)
+                    Text("${context.symphony.t.ViewAlbumArtist}: $albumArtist")
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildAlbumArtistRoute(albumArtist)
-                    )
+                    context.navController.navigate(Routes.AlbumArtist.build(albumArtist))
                 }
             )
         }
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Filled.Album, null)
-            },
-            text = {
-                Text(context.symphony.t.ViewAlbum)
-            },
-            onClick = {
-                onDismissRequest()
-                context.navController.navigate(
-                    RoutesBuilder.buildAlbumRoute(song.albumId)
-                )
-            }
-        )
+        song.album?.let { albumName ->
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Filled.Album, null)
+                },
+                text = {
+                    Text(context.symphony.t.ViewAlbum)
+                },
+                onClick = {
+                    onDismissRequest()
+                    context.navController.navigate(Routes.Album.build(albumName))
+                }
+            )
+        }
         DropdownMenuItem(
             leadingIcon = {
                 Icon(Icons.Filled.Share, null)

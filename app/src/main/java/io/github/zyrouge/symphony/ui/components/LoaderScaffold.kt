@@ -36,14 +36,14 @@ fun LoaderScaffold(
     isLoading: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val localDensity = LocalDensity.current
+    val density = LocalDensity.current
     var height by remember { mutableIntStateOf(0) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .padding(
-                    bottom = with(localDensity) {
+                    bottom = with(density) {
                         if (isLoading) height.toDp() else 0.dp
                     }
                 )

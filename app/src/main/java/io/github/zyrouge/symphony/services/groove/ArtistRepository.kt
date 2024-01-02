@@ -21,9 +21,9 @@ enum class ArtistSortBy {
 class ArtistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Artist>()
     private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val albumNamesCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
-        options = listOf(FuzzySearchOption({ get(it)?.name }))
+        options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
     )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
@@ -37,31 +37,34 @@ class ArtistRepository(private val symphony: Symphony) {
     }
 
     internal fun onSong(song: Song) {
-        if (song.artistName == null) return
-        songIdsCache.compute(song.artistName) { _, value ->
-            value?.apply { add(song.id) }
-                ?: ConcurrentSet(song.id)
-        }
-        var nNumberOfAlbums = 0
-        albumIdsCache.compute(song.artistName) { _, value ->
-            nNumberOfAlbums = (value?.size ?: 0) + 1
-            value?.apply { add(song.albumId) }
-                ?: ConcurrentSet(song.albumId)
-        }
-        cache.compute(song.artistName) { _, value ->
-            value?.apply {
-                numberOfAlbums = nNumberOfAlbums
-                numberOfTracks++
-            } ?: run {
-                _all.update {
-                    it + song.artistName
+        song.artists.forEach { artist ->
+            songIdsCache.compute(artist) { _, value ->
+                value?.apply { add(song.id) }
+                    ?: ConcurrentSet(song.id)
+            }
+            var nNumberOfAlbums = 0
+            song.album?.let { album ->
+                albumNamesCache.compute(artist) { _, value ->
+                    nNumberOfAlbums = (value?.size ?: 0) + 1
+                    value?.apply { add(album) }
+                        ?: ConcurrentSet(album)
                 }
-                emitCount()
-                Artist(
-                    name = song.artistName,
-                    numberOfAlbums = 1,
-                    numberOfTracks = 1,
-                )
+            }
+            cache.compute(artist) { _, value ->
+                value?.apply {
+                    numberOfAlbums = nNumberOfAlbums
+                    numberOfTracks++
+                } ?: run {
+                    _all.update {
+                        it + artist
+                    }
+                    emitCount()
+                    Artist(
+                        name = artist,
+                        numberOfAlbums = 1,
+                        numberOfTracks = 1,
+                    )
+                }
             }
         }
     }
@@ -76,9 +79,9 @@ class ArtistRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun getArtworkUri(artistName: String) = albumIdsCache[artistName]?.firstOrNull()
-        ?.let { symphony.groove.album.getArtworkUri(it) }
-        ?: symphony.groove.album.getDefaultArtworkUri()
+    fun getArtworkUri(artistName: String) = songIdsCache[artistName]?.firstOrNull()
+        ?.let { symphony.groove.song.getArtworkUri(it) }
+        ?: symphony.groove.song.getDefaultArtworkUri()
 
     fun createArtworkImageRequest(artistName: String) = createHandyImageRequest(
         symphony.applicationContext,
@@ -86,19 +89,19 @@ class ArtistRepository(private val symphony: Symphony) {
         fallback = Assets.placeholderId,
     )
 
-    fun search(artistIds: List<String>, terms: String, limit: Int = 7) = searcher
-        .search(terms, artistIds, maxLength = limit)
+    fun search(artistNames: List<String>, terms: String, limit: Int = 7) = searcher
+        .search(terms, artistNames, maxLength = limit)
 
     fun sort(
-        artistIds: List<String>,
+        artistNames: List<String>,
         by: ArtistSortBy,
-        reverse: Boolean
+        reverse: Boolean,
     ): List<String> {
         val sorted = when (by) {
-            ArtistSortBy.CUSTOM -> artistIds
-            ArtistSortBy.ARTIST_NAME -> artistIds.sortedBy { get(it)?.name }
-            ArtistSortBy.TRACKS_COUNT -> artistIds.sortedBy { get(it)?.numberOfTracks }
-            ArtistSortBy.ALBUMS_COUNT -> artistIds.sortedBy { get(it)?.numberOfTracks }
+            ArtistSortBy.CUSTOM -> artistNames
+            ArtistSortBy.ARTIST_NAME -> artistNames.sortedBy { get(it)?.name }
+            ArtistSortBy.TRACKS_COUNT -> artistNames.sortedBy { get(it)?.numberOfTracks }
+            ArtistSortBy.ALBUMS_COUNT -> artistNames.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted
     }
@@ -109,6 +112,6 @@ class ArtistRepository(private val symphony: Symphony) {
 
     fun get(id: String) = cache[id]
     fun get(ids: List<String>) = ids.mapNotNull { get(it) }
-    fun getAlbumIds(artistName: String) = albumIdsCache[artistName]?.toList() ?: emptyList()
+    fun getAlbumNames(artistName: String) = albumNamesCache[artistName]?.toList() ?: emptyList()
     fun getSongIds(artistName: String) = songIdsCache[artistName]?.toList() ?: emptyList()
 }

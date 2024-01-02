@@ -51,10 +51,10 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.randomSubList
-import io.github.zyrouge.symphony.utils.runIfTrueOrDefault
+import io.github.zyrouge.symphony.utils.runIfOrDefault
 import io.github.zyrouge.symphony.utils.subListNonStrict
 
 enum class ForYou(val label: (context: ViewContext) -> String) {
@@ -70,9 +70,9 @@ fun ForYouView(context: ViewContext) {
     val albumsIsUpdating by context.symphony.groove.album.isUpdating.collectAsState()
     val artistsIsUpdating by context.symphony.groove.artist.isUpdating.collectAsState()
     val songsIsUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val albumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
-    val albumIds by context.symphony.groove.album.all.collectAsState()
-    val artistIds by context.symphony.groove.artist.all.collectAsState()
+    val albumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
+    val albumNames by context.symphony.groove.album.all.collectAsState()
+    val artistNames by context.symphony.groove.artist.all.collectAsState()
     val songIds by context.symphony.groove.song.all.collectAsState()
     val sortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
@@ -81,14 +81,14 @@ fun ForYouView(context: ViewContext) {
         songIds.isNotEmpty() -> {
             val sortedSongIds by remember(songsIsUpdating, songIds, sortBy, sortReverse) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!songsIsUpdating, listOf()) {
+                    runIfOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(songIds.toList(), sortBy, sortReverse)
                     }
                 }
             }
             val recentlyAddedSongs by remember(songsIsUpdating, songIds) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!songsIsUpdating, listOf()) {
+                    runIfOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(
                             songIds.toList(),
                             SongSortBy.DATE_ADDED,
@@ -97,24 +97,24 @@ fun ForYouView(context: ViewContext) {
                     }
                 }
             }
-            val randomAlbums by remember(albumsIsUpdating, albumIds) {
+            val randomAlbums by remember(albumsIsUpdating, albumNames) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!albumsIsUpdating, listOf()) {
-                        albumIds.randomSubList(6)
+                    runIfOrDefault(!albumsIsUpdating, listOf()) {
+                        albumNames.randomSubList(6)
                     }
                 }
             }
-            val randomArtists by remember(artistsIsUpdating, artistIds) {
+            val randomArtists by remember(artistsIsUpdating, artistNames) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!artistsIsUpdating, listOf()) {
-                        artistIds.randomSubList(6)
+                    runIfOrDefault(!artistsIsUpdating, listOf()) {
+                        artistNames.randomSubList(6)
                     }
                 }
             }
-            val randomAlbumArtists by remember(albumArtistsIsUpdating, albumArtistIds) {
+            val randomAlbumArtists by remember(albumArtistsIsUpdating, albumArtistNames) {
                 derivedStateOf {
-                    runIfTrueOrDefault(!albumArtistsIsUpdating, listOf()) {
-                        albumArtistIds.randomSubList(6)
+                    runIfOrDefault(!albumArtistsIsUpdating, listOf()) {
+                        albumArtistNames.randomSubList(6)
                     }
                 }
             }
@@ -246,9 +246,9 @@ fun ForYouView(context: ViewContext) {
                                                     maxLines = 2,
                                                     overflow = TextOverflow.Ellipsis,
                                                 )
-                                                song.artistName?.let {
+                                                if (song.artists.isNotEmpty()) {
                                                     Text(
-                                                        it,
+                                                        song.artists.joinToString(),
                                                         style = MaterialTheme.typography.bodyMedium,
                                                         maxLines = 2,
                                                         overflow = TextOverflow.Ellipsis,
@@ -269,21 +269,21 @@ fun ForYouView(context: ViewContext) {
                         ForYou.Albums -> SuggestedAlbums(
                             context,
                             isLoading = albumsIsUpdating,
-                            albumIds = randomAlbums,
+                            albumNames = randomAlbums,
                         )
 
                         ForYou.Artists -> SuggestedArtists(
                             context,
                             label = context.symphony.t.SuggestedArtists,
                             isLoading = artistsIsUpdating,
-                            artistIds = randomArtists,
+                            artistNames = randomArtists,
                         )
 
                         ForYou.AlbumArtists -> SuggestedAlbumArtists(
                             context,
                             label = context.symphony.t.SuggestedAlbumArtists,
                             isLoading = albumArtistsIsUpdating,
-                            albumArtistIds = randomAlbumArtists,
+                            albumArtistNames = randomAlbumArtists,
                         )
                     }
                 }
@@ -423,11 +423,11 @@ private fun <T> SixGrid(
 private fun SuggestedAlbums(
     context: ViewContext,
     isLoading: Boolean,
-    albumIds: List<Long>,
+    albumNames: List<String>,
 ) {
-    val albums by remember {
+    val albums by remember(albumNames) {
         derivedStateOf {
-            context.symphony.groove.album.get(albumIds)
+            context.symphony.groove.album.get(albumNames)
         }
     }
 
@@ -439,9 +439,7 @@ private fun SuggestedAlbums(
     StatedSixGrid(context, isLoading, albums) { album ->
         Card(
             onClick = {
-                context.navController.navigate(
-                    RoutesBuilder.buildAlbumRoute(album.id)
-                )
+                context.navController.navigate(Routes.Album.build(album.name))
             }
         ) {
             AsyncImage(
@@ -463,11 +461,11 @@ private fun SuggestedArtists(
     context: ViewContext,
     label: String,
     isLoading: Boolean,
-    artistIds: List<String>,
+    artistNames: List<String>,
 ) {
-    val artists by remember {
+    val artists by remember(artistNames) {
         derivedStateOf {
-            context.symphony.groove.artist.get(artistIds)
+            context.symphony.groove.artist.get(artistNames)
         }
     }
 
@@ -479,9 +477,7 @@ private fun SuggestedArtists(
     StatedSixGrid(context, isLoading, artists) { artist ->
         Card(
             onClick = {
-                context.navController.navigate(
-                    RoutesBuilder.buildArtistRoute(artist.name)
-                )
+                context.navController.navigate(Routes.Artist.build(artist.name))
             }
         ) {
             AsyncImage(
@@ -503,11 +499,11 @@ private fun SuggestedAlbumArtists(
     context: ViewContext,
     label: String,
     isLoading: Boolean,
-    albumArtistIds: List<String>,
+    albumArtistNames: List<String>,
 ) {
-    val albumArtists by remember {
+    val albumArtists by remember(albumArtistNames) {
         derivedStateOf {
-            context.symphony.groove.albumArtist.get(albumArtistIds)
+            context.symphony.groove.albumArtist.get(albumArtistNames)
         }
     }
 
@@ -519,9 +515,7 @@ private fun SuggestedAlbumArtists(
     StatedSixGrid(context, isLoading, albumArtists) { albumArtist ->
         Card(
             onClick = {
-                context.navController.navigate(
-                    RoutesBuilder.buildAlbumArtistRoute(albumArtist.name)
-                )
+                context.navController.navigate(Routes.AlbumArtist.build(albumArtist.name))
             }
         ) {
             AsyncImage(

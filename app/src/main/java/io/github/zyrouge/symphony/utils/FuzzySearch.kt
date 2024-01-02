@@ -2,15 +2,28 @@ package io.github.zyrouge.symphony.utils
 
 import androidx.annotation.FloatRange
 import kotlin.math.max
+import kotlin.math.min
+
+class FuzzySearchComparator(val input: String) {
+    fun compareString(value: String) = Fuzzy.compare(input, value)
+
+    fun compareCollection(values: Collection<String>): Float {
+        var weight = 0f
+        values.forEach {
+            weight += compareString(it)
+        }
+        return weight / min(1, values.size)
+    }
+}
 
 data class FuzzySearchOption<T>(
-    val value: (T) -> String?,
-    val weight: Int = 1
+    val match: FuzzySearchComparator.(T) -> Float?,
+    val weight: Int = 1,
 )
 
 data class FuzzyResultEntity<T>(
     @FloatRange(from = 0.0, to = 100.0) val ratio: Float,
-    val entity: T
+    val entity: T,
 )
 
 class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
@@ -18,7 +31,7 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
         terms: String,
         entities: List<T>,
         maxLength: Int = -1,
-        minScore: Float = 0.25f
+        minScore: Float = 0.25f,
     ): List<FuzzyResultEntity<T>> {
         var results = entities
             .map { compare(terms, it) }
@@ -32,9 +45,10 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
     private fun compare(terms: String, entity: T): FuzzyResultEntity<T> {
         var ratio = 0f
         var totalWeight = 0
+        val comparator = FuzzySearchComparator(terms)
         options.forEach { option ->
-            option.value(entity)?.let { value ->
-                ratio += Fuzzy.compare(terms, value) * option.weight
+            option.match.invoke(comparator, entity)?.let {
+                ratio += it * option.weight
                 totalWeight += option.weight
             }
         }

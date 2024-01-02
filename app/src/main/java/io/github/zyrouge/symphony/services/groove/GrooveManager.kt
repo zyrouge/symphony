@@ -52,6 +52,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
         coroutineScope.launch {
             mediaStore.fetch()
             playlist.fetch()
+            lyrics.fetch()
         }.join()
     }
 

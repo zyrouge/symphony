@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,14 +30,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholderSize
+import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -53,6 +56,7 @@ fun QueueView(context: ViewContext) {
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = queueIndex,
     )
+    var showSaveDialog by remember { mutableStateOf(false) }
 
     BackHandler {
         context.navController.popBackStack()
@@ -96,7 +100,13 @@ fun QueueView(context: ViewContext) {
                             Icon(Icons.Filled.Delete, null)
                         }
 
-                        else -> IconButtonPlaceholder()
+                        else -> IconButton(
+                            onClick = {
+                                showSaveDialog = !showSaveDialog
+                            }
+                        ) {
+                            Icon(Icons.Default.Save, null)
+                        }
                     }
 
                     IconButton(
@@ -172,4 +182,20 @@ fun QueueView(context: ViewContext) {
             }
         }
     )
+
+    if (showSaveDialog) {
+        NewPlaylistDialog(
+            context,
+            initialSongIds = queue.toList(),
+            onDone = { playlist ->
+                showSaveDialog = false
+                coroutineScope.launch {
+                    context.symphony.groove.playlist.add(playlist)
+                }
+            },
+            onDismissRequest = {
+                showSaveDialog = false
+            }
+        )
+    }
 }

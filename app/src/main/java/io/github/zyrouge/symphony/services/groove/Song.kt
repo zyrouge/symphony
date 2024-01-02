@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
+import android.content.ContentUris
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
@@ -19,11 +20,9 @@ data class Song(
     val trackNumber: Int?,
     val year: Int?,
     val duration: Long,
-    val albumId: Long,
-    val albumName: String?,
-    val artistId: Long,
-    val artistName: String?,
-    val composer: String?,
+    val album: String?,
+    val artists: Set<String>,
+    val composers: Set<String>,
     val additional: AdditionalMetadata,
     val dateAdded: Long,
     val dateModified: Long,
@@ -32,8 +31,8 @@ data class Song(
 ) {
     @Immutable
     data class AdditionalMetadata(
-        val albumArtist: String?,
-        val genre: String?,
+        val albumArtists: Set<String>,
+        val genres: Set<String>,
         val bitrate: Int?,
         val bitsPerSample: Int?,
         val samplingRate: Int?,
@@ -67,14 +66,25 @@ data class Song(
         }
 
         companion object {
-            fun fromSongCacheAttributes(attributes: SongCache.Attributes) = AdditionalMetadata(
-                albumArtist = attributes.albumArtist,
-                bitrate = attributes.bitrate,
-                genre = attributes.genre,
-                bitsPerSample = attributes.bitsPerSample,
-                samplingRate = attributes.samplingRate,
-                codec = attributes.codec,
-            )
+            fun fromSongCacheAttributes(
+                symphony: Symphony,
+                attributes: SongCache.Attributes,
+            ): AdditionalMetadata {
+                val artistSeparators = symphony.settings.artistTagSeparators.value
+                val genreSeparators = symphony.settings.genreTagSeparators.value
+                return AdditionalMetadata(
+                    albumArtists = attributes.albumArtist
+                        ?.let { Song.parseMultiValue(it, artistSeparators) }
+                        ?: setOf(),
+                    bitrate = attributes.bitrate,
+                    genres = attributes.genre
+                        ?.let { Song.parseMultiValue(it, genreSeparators) }
+                        ?: setOf(),
+                    bitsPerSample = attributes.bitsPerSample,
+                    samplingRate = attributes.samplingRate,
+                    codec = attributes.codec,
+                )
+            }
 
             fun fetch(symphony: Symphony, id: Long): AdditionalMetadata {
                 var albumArtist: String? = null
@@ -105,10 +115,16 @@ data class Song(
                         retriever.release()
                     }
                 }
+                val artistSeparators = symphony.settings.artistTagSeparators.value
+                val genreSeparators = symphony.settings.genreTagSeparators.value
                 return AdditionalMetadata(
-                    albumArtist = albumArtist,
+                    albumArtists = albumArtist
+                        ?.let { Song.parseMultiValue(it, artistSeparators) }
+                        ?: setOf(),
                     bitrate = bitrate,
-                    genre = genre,
+                    genres = genre
+                        ?.let { Song.parseMultiValue(it, genreSeparators) }
+                        ?: setOf(),
                     bitsPerSample = bitsPerSample,
                     samplingRate = samplingRate,
                     codec = codec,
@@ -124,34 +140,37 @@ data class Song(
         symphony.groove.song.createArtworkImageRequest(id)
 
     companion object {
-        fun buildUri(id: Long): Uri =
-            Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
+        fun buildUri(id: Long) = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            id,
+        )
 
         fun fromCursor(
             symphony: Symphony,
             shorty: CursorShorty,
             fetchCachedAttributes: (Long) -> SongCache.Attributes?,
         ): Song {
+            val artistSeparators = symphony.settings.artistTagSeparators.value
             val id = shorty.getLong(AudioColumns._ID)
             val dateModified = shorty.getLong(AudioColumns.DATE_MODIFIED)
             return Song(
                 id = id,
                 title = shorty.getString(AudioColumns.TITLE),
-                trackNumber = shorty.getIntNullable(AudioColumns.TRACK),
-                year = shorty.getIntNullable(AudioColumns.YEAR),
+                trackNumber = shorty.getIntNullable(AudioColumns.TRACK)?.takeIf { it >= 1000 },
+                year = shorty.getIntNullable(AudioColumns.YEAR)?.takeIf { it > 0 },
                 duration = shorty.getLong(AudioColumns.DURATION),
-                albumId = shorty.getLong(AudioColumns.ALBUM_ID),
-                albumName = shorty.getStringNullable(AudioColumns.ALBUM),
-                artistId = shorty.getLong(AudioColumns.ARTIST_ID),
-                artistName = shorty.getStringNullable(AudioColumns.ARTIST),
-                composer = shorty.getStringNullable(AudioColumns.COMPOSER),
+                album = shorty.getStringNullable(AudioColumns.ALBUM),
+                artists = shorty.getStringNullable(AudioColumns.ARTIST)
+                    ?.let { Song.parseMultiValue(it, artistSeparators) } ?: setOf(),
+                composers = shorty.getStringNullable(AudioColumns.COMPOSER)
+                    ?.let { Song.parseMultiValue(it, artistSeparators) } ?: setOf(),
                 dateAdded = shorty.getLong(AudioColumns.DATE_ADDED),
                 dateModified = dateModified,
                 size = shorty.getLong(AudioColumns.SIZE),
                 path = shorty.getString(AudioColumns.DATA),
                 additional = fetchCachedAttributes(id)
                     ?.takeIf { it.lastModified == dateModified }
-                    ?.runCatching { AdditionalMetadata.fromSongCacheAttributes(this) }
+                    ?.runCatching { AdditionalMetadata.fromSongCacheAttributes(symphony, this) }
                     ?.getOrNull()
                     ?: AdditionalMetadata.fetch(symphony, id),
             )
@@ -167,5 +186,10 @@ data class Song(
             if (codec.isBlank()) return null
             return prettyCodecs[codec] ?: codec.uppercase()
         }
+
+        fun parseMultiValue(value: String, separators: Set<String>) = value
+            .split(*separators.toTypedArray())
+            .mapNotNull { x -> x.trim().takeIf { it.isNotEmpty() } }
+            .toSet()
     }
 }

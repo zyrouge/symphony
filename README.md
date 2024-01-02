@@ -9,14 +9,14 @@
 
 <h1 align="center">Symphony</h1>
 
-<p align="center">🎵 Groovify & Symphonize with Symphony!</p>
-<p align="center">Symphony is a lightweight, elegant music player that enhances your offline music experience. Supports Android 9 and later.</p>
+<p align="center">🎵 Lightweight, elegant music player that enhances your offline music experience. Supports Android 9 and later.</p>
 
 <p align="center">
     <a href="https://github.com/zyrouge/symphony/releases/latest">Download (latest)</a> |
     <a href="https://github.com/zyrouge/symphony/releases">View all releases</a> |
     <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.zyrouge.symphony">IzzyOnDroid</a> |
-    <a href="https://f-droid.org/en/packages/io.github.zyrouge.symphony/">F-Droid</a>
+    <a href="https://f-droid.org/en/packages/io.github.zyrouge.symphony/">F-Droid</a> |
+    <a href="https://play.google.com/store/apps/details?id=io.github.zyrouge.symphony">Play Store</a>
 </p>
 
 <p align="center">
@@ -56,6 +56,8 @@ Why was this created? As I was getting into offline music, most of the popular g
 Before contributing, please read the [Developer Guide](https://github.com/zyrouge/symphony/wiki/Developer-Guide).
 
 Any kind of contribution including creating issues or making pull requests is welcomed. Make sure to keep it pointful. Donations through [GitHub Sponsors](https://github.com/sponsors/zyrouge) or [Patreon](https://patreon.com/zyrouge) helps me to stay motivated to keep working on this project.
+
+[![](https://contrib.rocks/image?repo=zyrouge/symphony)](https://github.com/zyrouge/symphony/graphs/contributors)
 
 ## License
 

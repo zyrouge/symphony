@@ -189,8 +189,8 @@ fun SongTreeListContent(
                             .padding(
                                 start = 12.dp,
                                 end = 8.dp,
-                                top = 8.dp,
-                                bottom = 8.dp
+                                top = 4.dp,
+                                bottom = 4.dp
                             )
                     ) {
                         Icon(
@@ -271,9 +271,9 @@ fun SongTreeListContent(
                                         }
                                     ),
                                 )
-                                song.artistName?.let {
+                                if (song.artists.isNotEmpty()) {
                                     Text(
-                                        it,
+                                        song.artists.joinToString(),
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }

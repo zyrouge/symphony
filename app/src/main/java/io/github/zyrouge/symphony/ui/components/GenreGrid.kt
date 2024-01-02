@@ -3,9 +3,12 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -31,9 +34,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.contextWrapped
+import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private object GenreTile {
     val colors = mutableListOf(
@@ -62,14 +65,14 @@ private object GenreTile {
 @Composable
 fun GenreGrid(
     context: ViewContext,
-    genreIds: List<String>,
+    genreNames: List<String>,
     genresCount: Int? = null,
 ) {
     val sortBy by context.symphony.settings.lastUsedGenresSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedGenresSortReverse.collectAsState()
-    val sortedGenreIds by remember(genreIds, sortBy, sortReverse) {
+    val sortedGenreNames by remember(genreNames, sortBy, sortReverse) {
         derivedStateOf {
-            context.symphony.groove.genre.sort(genreIds, sortBy, sortReverse)
+            context.symphony.groove.genre.sort(genreNames, sortBy, sortReverse)
         }
     }
 
@@ -84,19 +87,23 @@ fun GenreGrid(
                     },
                     sort = sortBy,
                     sorts = GenreSortBy.entries
-                        .associateWith { x -> contextWrapped { x.label(it) } },
+                        .associateWith { x -> wrapInViewContext { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedGenresSortBy(it)
                     },
                     label = {
-                        Text(context.symphony.t.XGenres((genresCount ?: genreIds.size).toString()))
+                        Text(
+                            context.symphony.t.XGenres(
+                                (genresCount ?: genreNames.size).toString()
+                            )
+                        )
                     },
                 )
             }
         },
         content = {
             when {
-                genreIds.isEmpty() -> IconTextBody(
+                genreNames.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.MusicNote,
@@ -109,27 +116,27 @@ fun GenreGrid(
 
                 else -> ResponsiveGrid { gridData ->
                     itemsIndexed(
-                        sortedGenreIds,
+                        sortedGenreNames,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.GENRE }
-                    ) { i, genreId ->
-                        context.symphony.groove.genre.get(genreId)?.let { genre ->
+                    ) { i, genreName ->
+                        context.symphony.groove.genre.get(genreName)?.let { genre ->
                             Card(
-                                modifier = Modifier.padding(
-                                    start = if (i % gridData.columnsCount == 0) 12.dp else 0.dp,
-                                    end = if ((i - 1) % gridData.columnsCount == 0) 12.dp else 8.dp,
-                                    bottom = 8.dp,
-                                ),
+                                modifier = Modifier
+                                    .height(IntrinsicSize.Min)
+                                    .padding(
+                                        start = if (i % gridData.columnsCount == 0) 12.dp else 0.dp,
+                                        end = if ((i - 1) % gridData.columnsCount == 0) 12.dp else 8.dp,
+                                        bottom = 8.dp,
+                                    ),
                                 colors = GenreTile.cardColors(i),
                                 onClick = {
-                                    context.navController.navigate(
-                                        RoutesBuilder.buildGenreRoute(genre.name)
-                                    )
+                                    context.navController.navigate(Routes.Genre.build(genre.name))
                                 }
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .fillMaxSize()
                                         .defaultMinSize(minHeight = 88.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {

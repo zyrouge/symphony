@@ -19,7 +19,7 @@ class GenreRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Genre>()
     private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
     private val searcher = FuzzySearcher<String>(
-        options = listOf(FuzzySearchOption({ get(it)?.name }))
+        options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
     )
 
     val isUpdating get() = symphony.groove.mediaStore.isUpdating
@@ -33,23 +33,24 @@ class GenreRepository(private val symphony: Symphony) {
     }
 
     internal fun onSong(song: Song) {
-        if (song.additional.genre == null) return
-        songIdsCache.compute(song.additional.genre) { _, value ->
-            value?.apply { add(song.id) }
-                ?: ConcurrentSet(song.id)
-        }
-        cache.compute(song.additional.genre) { _, value ->
-            value?.apply {
-                numberOfTracks++
-            } ?: run {
-                _all.update {
-                    it + song.additional.genre
+        song.additional.genres.forEach { genre ->
+            songIdsCache.compute(genre) { _, value ->
+                value?.apply { add(song.id) }
+                    ?: ConcurrentSet(song.id)
+            }
+            cache.compute(genre) { _, value ->
+                value?.apply {
+                    numberOfTracks++
+                } ?: run {
+                    _all.update {
+                        it + genre
+                    }
+                    emitCount()
+                    Genre(
+                        name = genre,
+                        numberOfTracks = 1,
+                    )
                 }
-                emitCount()
-                Genre(
-                    name = song.additional.genre,
-                    numberOfTracks = 1,
-                )
             }
         }
     }
@@ -65,18 +66,18 @@ class GenreRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun search(genreIds: List<String>, terms: String, limit: Int = 7) = searcher
-        .search(terms, genreIds, maxLength = limit)
+    fun search(genreNames: List<String>, terms: String, limit: Int = 7) = searcher
+        .search(terms, genreNames, maxLength = limit)
 
     fun sort(
-        genreIds: List<String>,
+        genreNames: List<String>,
         by: GenreSortBy,
-        reverse: Boolean
+        reverse: Boolean,
     ): List<String> {
         val sorted = when (by) {
-            GenreSortBy.CUSTOM -> genreIds
-            GenreSortBy.GENRE -> genreIds.sortedBy { get(it)?.name }
-            GenreSortBy.TRACKS_COUNT -> genreIds.sortedBy { get(it)?.numberOfTracks }
+            GenreSortBy.CUSTOM -> genreNames
+            GenreSortBy.GENRE -> genreNames.sortedBy { get(it)?.name }
+            GenreSortBy.TRACKS_COUNT -> genreNames.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted
     }

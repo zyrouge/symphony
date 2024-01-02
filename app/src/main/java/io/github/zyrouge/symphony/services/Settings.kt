@@ -17,6 +17,7 @@ import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
+import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,6 +78,10 @@ object SettingsKeys {
     const val showUpdateToast = "show_update_toast"
     const val fontScale = "font_scale"
     const val contentScale = "content_scale"
+    const val nowPlayingLyricsLayout = "now_playing_lyrics_layout"
+    const val artistTagSeparators = "artist_tag_separators"
+    const val genreTagSeparators = "genre_tag_separators"
+    const val miniPlayerTextMarquee = "mini_player_text_marquee"
 }
 
 object SettingsDefaults {
@@ -128,8 +133,13 @@ object SettingsDefaults {
     const val showUpdateToast = true
     const val fontScale = 1.0f
     const val contentScale = 1.0f
+    val nowPlayingLyricsLayout = NowPlayingLyricsLayout.ReplaceArtwork
+    val artistTagSeparators = setOf(";", "/", ",", "+")
+    val genreTagSeparators = setOf(";", "/", ",", "+")
+    const val miniPlayerTextMarquee = true
 }
 
+@Suppress("MemberVisibilityCanBePrivate")
 class SettingsManager(private val symphony: Symphony) {
     private val _themeMode = MutableStateFlow(getThemeMode())
     val themeMode = _themeMode.asStateFlow()
@@ -238,6 +248,14 @@ class SettingsManager(private val symphony: Symphony) {
     val fontScale = _fontScale.asStateFlow()
     private val _contentScale = MutableStateFlow(getContentScale())
     val contentScale = _contentScale.asStateFlow()
+    private val _nowPlayingLyricsLayout = MutableStateFlow(getNowPlayingLyricsLayout())
+    val nowPlayingLyricsLayout = _nowPlayingLyricsLayout.asStateFlow()
+    private val _artistTagSeparators = MutableStateFlow(getArtistTagSeparators())
+    val artistTagSeparators = _artistTagSeparators.asStateFlow()
+    private val _genreTagSeparators = MutableStateFlow(getGenreTagSeparators())
+    val genreTagSeparators = _genreTagSeparators.asStateFlow()
+    private val _miniPlayerTextMarquee = MutableStateFlow(getMiniPlayerTextMarquee())
+    val miniPlayerTextMarquee = _miniPlayerTextMarquee.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -633,13 +651,13 @@ class SettingsManager(private val symphony: Symphony) {
         ?.toSet()
         ?: SettingsDefaults.homeTabs
 
-    fun setHomeTabs(tabs: Set<HomePages>) {
+    fun setHomeTabs(values: Set<HomePages>) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.homeTabs, tabs.joinToString(",") { it.name })
+            putString(SettingsKeys.homeTabs, values.joinToString(",") { it.name })
         }
         _homeTabs.updateUsingValue(getHomeTabs())
-        if (getHomeLastTab() !in tabs) {
-            setHomeLastTab(tabs.first())
+        if (getHomeLastTab() !in values) {
+            setHomeLastTab(values.first())
         }
     }
 
@@ -661,16 +679,15 @@ class SettingsManager(private val symphony: Symphony) {
         ?.toSet()
         ?: SettingsDefaults.forYouContents
 
-    fun setForYouContents(forYouContents: Set<ForYou>) {
+    fun setForYouContents(values: Set<ForYou>) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.forYouContents, forYouContents.joinToString(",") { it.name })
+            putString(SettingsKeys.forYouContents, values.joinToString(",") { it.name })
         }
         _forYouContents.updateUsingValue(getForYouContents())
     }
 
-    fun getBlacklistFolders() = getSharedPreferences()
+    fun getBlacklistFolders(): Set<String> = getSharedPreferences()
         .getStringSet(SettingsKeys.blacklistFolders, null)
-        ?.toSet<String>()
         ?: SettingsDefaults.blacklistFolders
 
     fun setBlacklistFolders(values: Set<String>) {
@@ -680,9 +697,8 @@ class SettingsManager(private val symphony: Symphony) {
         _blacklistFolders.updateUsingValue(getBlacklistFolders())
     }
 
-    fun getWhitelistFolders() = getSharedPreferences()
+    fun getWhitelistFolders(): Set<String> = getSharedPreferences()
         .getStringSet(SettingsKeys.whitelistFolders, null)
-        ?.toSet<String>()
         ?: SettingsDefaults.whitelistFolders
 
     fun setWhitelistFolders(values: Set<String>) {
@@ -831,6 +847,51 @@ class SettingsManager(private val symphony: Symphony) {
         _contentScale.updateUsingValue(getContentScale())
     }
 
+    fun getNowPlayingLyricsLayout() = getSharedPreferences()
+        .getEnum(SettingsKeys.nowPlayingLyricsLayout, null)
+        ?: SettingsDefaults.nowPlayingLyricsLayout
+
+    fun setNowPlayingLyricsLayout(value: NowPlayingLyricsLayout) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.nowPlayingLyricsLayout, value)
+        }
+        _nowPlayingLyricsLayout.updateUsingValue(getNowPlayingLyricsLayout())
+    }
+
+    fun getArtistTagSeparators(): Set<String> = getSharedPreferences()
+        .getStringSet(SettingsKeys.artistTagSeparators, null)
+        ?: SettingsDefaults.artistTagSeparators
+
+    fun setArtistTagSeparators(values: List<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.artistTagSeparators, values.toSet())
+        }
+        _artistTagSeparators.updateUsingValue(getArtistTagSeparators())
+    }
+
+    fun getGenreTagSeparators(): Set<String> = getSharedPreferences()
+        .getStringSet(SettingsKeys.genreTagSeparators, null)
+        ?: SettingsDefaults.genreTagSeparators
+
+    fun setGenreTagSeparators(values: List<String>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.genreTagSeparators, values.toSet())
+        }
+        _genreTagSeparators.updateUsingValue(getGenreTagSeparators())
+    }
+
+    fun getMiniPlayerTextMarquee() = getSharedPreferences().getBoolean(
+        SettingsKeys.miniPlayerTextMarquee,
+        SettingsDefaults.miniPlayerTextMarquee,
+    )
+
+    fun setMiniPlayerTextMarquee(value: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.miniPlayerTextMarquee, value)
+        }
+        _miniPlayerTextMarquee.updateUsingValue(getMiniPlayerTextMarquee())
+    }
+
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(
         SettingsKeys.identifier,
         Context.MODE_PRIVATE,
@@ -839,7 +900,7 @@ class SettingsManager(private val symphony: Symphony) {
 
 private inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
     key: String,
-    defaultValue: T?
+    defaultValue: T?,
 ): T? {
     var result = defaultValue
     getString(key, null)?.let { value ->
@@ -850,7 +911,7 @@ private inline fun <reified T : Enum<T>> SharedPreferences.getEnum(
 
 private inline fun <reified T : Enum<T>> SharedPreferences.Editor.putEnum(
     key: String,
-    value: T?
+    value: T?,
 ) = putString(key, value?.name)
 
 private inline fun <reified T : Enum<T>> parseEnumValue(value: String): T? =

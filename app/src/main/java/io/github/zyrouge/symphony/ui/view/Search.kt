@@ -45,8 +45,11 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -59,8 +62,9 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.SongCard
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -69,10 +73,10 @@ import kotlinx.coroutines.withContext
 
 private data class SearchResult(
     val songIds: List<Long>,
-    val artistIds: List<String>,
-    val albumIds: List<Long>,
-    val albumArtistIds: List<String>,
-    val genreIds: List<String>,
+    val artistNames: List<String>,
+    val albumNames: List<String>,
+    val albumArtistNames: List<String>,
+    val genreNames: List<String>,
     val playlistIds: List<String>,
 )
 
@@ -96,10 +100,10 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
             withContext(Dispatchers.Default) {
                 delay(250)
                 val songIds = mutableListOf<Long>()
-                val artistIds = mutableListOf<String>()
-                val albumIds = mutableListOf<Long>()
-                val albumArtistIds = mutableListOf<String>()
-                val genreIds = mutableListOf<String>()
+                val artistNames = mutableListOf<String>()
+                val albumNames = mutableListOf<String>()
+                val albumArtistNames = mutableListOf<String>()
+                val genreNames = mutableListOf<String>()
                 val playlistIds = mutableListOf<String>()
 
                 if (nTerms.isNotEmpty()) {
@@ -111,28 +115,28 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                         )
                     }
                     if (isChipSelected(GrooveKinds.ARTIST)) {
-                        artistIds.addAll(
+                        artistNames.addAll(
                             context.symphony.groove.artist
                                 .search(context.symphony.groove.artist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM)) {
-                        albumIds.addAll(
+                        albumNames.addAll(
                             context.symphony.groove.album
                                 .search(context.symphony.groove.album.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM_ARTIST)) {
-                        albumArtistIds.addAll(
+                        albumArtistNames.addAll(
                             context.symphony.groove.albumArtist
                                 .search(context.symphony.groove.albumArtist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
                     if (isChipSelected(GrooveKinds.GENRE)) {
-                        genreIds.addAll(
+                        genreNames.addAll(
                             context.symphony.groove.genre
                                 .search(context.symphony.groove.genre.ids(), terms)
                                 .map { it.entity }
@@ -148,10 +152,10 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
 
                     results = SearchResult(
                         songIds = songIds,
-                        artistIds = artistIds,
-                        albumIds = albumIds,
-                        albumArtistIds = albumArtistIds,
-                        genreIds = genreIds,
+                        artistNames = artistNames,
+                        albumNames = albumNames,
+                        albumArtistNames = albumArtistNames,
+                        genreNames = genreNames,
                         playlistIds = playlistIds,
                     )
                 }
@@ -160,8 +164,11 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
         }
     }
 
-    val textFieldFocusRequester = FocusRequester()
     val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val textFieldFocusRequester = FocusRequester()
+    val chipsScrollState = rememberScrollState()
+    var initialScroll = remember { false }
 
     LaunchedEffect(LocalContext.current) {
         textFieldFocusRequester.requestFocus()
@@ -216,7 +223,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.horizontalScroll(rememberScrollState())
+                    modifier = Modifier.horizontalScroll(chipsScrollState)
                 ) {
                     Spacer(modifier = Modifier.width(4.dp))
                     FilterChip(
@@ -235,6 +242,28 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                             label = {
                                 Text(it.label(context))
                             },
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                if (!initialScroll && initialChip == it) {
+                                    val windowWidth = with(density) {
+                                        configuration.screenWidthDp.dp.toPx()
+                                    }
+                                    val position = coordinates.positionInWindow()
+                                    val start = position.x.toInt()
+                                    val width = coordinates.size.width
+                                    val end = start + width
+                                    val scrollTo = when {
+                                        width < windowWidth && end > windowWidth -> start + width
+                                        start > windowWidth -> start
+                                        else -> null
+                                    }
+                                    scrollTo?.let { v ->
+                                        coroutineScope.launch {
+                                            chipsScrollState.animateScrollTo(v)
+                                        }
+                                    }
+                                    initialScroll = true
+                                }
+                            },
                             onClick = {
                                 selectedChip = it
                                 setTerms(terms)
@@ -249,13 +278,13 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
         content = { contentPadding ->
             results?.run {
                 val hasSongs = isChipSelected(GrooveKinds.SONG) && songIds.isNotEmpty()
-                val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artistIds.isNotEmpty()
-                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albumIds.isNotEmpty()
+                val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artistNames.isNotEmpty()
+                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albumNames.isNotEmpty()
                 val hasAlbumArtists =
-                    isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtistIds.isNotEmpty()
+                    isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtistNames.isNotEmpty()
                 val hasPlaylists =
                     isChipSelected(GrooveKinds.PLAYLIST) && playlistIds.isNotEmpty()
-                val hasGenres = isChipSelected(GrooveKinds.GENRE) && genreIds.isNotEmpty()
+                val hasGenres = isChipSelected(GrooveKinds.GENRE) && genreNames.isNotEmpty()
                 val hasNoResults =
                     !hasSongs && !hasArtists && !hasAlbums && !hasAlbumArtists && !hasPlaylists && !hasGenres
 
@@ -314,8 +343,8 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                     }
                                     if (hasArtists) {
                                         SideHeading(context, GrooveKinds.ARTIST)
-                                        artistIds.forEach { artistId ->
-                                            context.symphony.groove.artist.get(artistId)
+                                        artistNames.forEach { artistName ->
+                                            context.symphony.groove.artist.get(artistName)
                                                 ?.let { artist ->
                                                     GenericGrooveCard(
                                                         image = artist
@@ -334,9 +363,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildArtistRoute(
-                                                                    artist.name
-                                                                )
+                                                                Routes.Artist.build(artist.name)
                                                             )
                                                         }
                                                     )
@@ -345,8 +372,8 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                     }
                                     if (hasAlbums) {
                                         SideHeading(context, GrooveKinds.ALBUM)
-                                        albumIds.forEach { albumId ->
-                                            context.symphony.groove.album.get(albumId)
+                                        albumNames.forEach { albumName ->
+                                            context.symphony.groove.album.get(albumName)
                                                 ?.let { album ->
                                                     GenericGrooveCard(
                                                         image = album
@@ -355,7 +382,9 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         title = {
                                                             Text(album.name)
                                                         },
-                                                        subtitle = album.artist?.let { { Text(it) } },
+                                                        subtitle = album.artists
+                                                            .joinToStringIfNotEmpty()
+                                                            ?.let { { Text(it) } },
                                                         options = { expanded, onDismissRequest ->
                                                             AlbumDropdownMenu(
                                                                 context,
@@ -366,7 +395,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildAlbumRoute(album.id)
+                                                                Routes.Album.build(album.name)
                                                             )
                                                         }
                                                     )
@@ -375,8 +404,8 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                     }
                                     if (hasAlbumArtists) {
                                         SideHeading(context, GrooveKinds.ALBUM_ARTIST)
-                                        albumArtistIds.forEach { albumArtistId ->
-                                            context.symphony.groove.albumArtist.get(albumArtistId)
+                                        albumArtistNames.forEach { albumArtistName ->
+                                            context.symphony.groove.albumArtist.get(albumArtistName)
                                                 ?.let { albumArtist ->
                                                     GenericGrooveCard(
                                                         image = albumArtist
@@ -395,7 +424,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildAlbumArtistRoute(
+                                                                Routes.AlbumArtist.build(
                                                                     albumArtist.name
                                                                 )
                                                             )
@@ -426,9 +455,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildPlaylistRoute(
-                                                                    playlist.id
-                                                                )
+                                                                Routes.Playlist.build(playlist.id)
                                                             )
                                                         }
                                                     )
@@ -437,8 +464,8 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                     }
                                     if (hasGenres) {
                                         SideHeading(context, GrooveKinds.GENRE)
-                                        genreIds.forEach { genreId ->
-                                            context.symphony.groove.genre.get(genreId)
+                                        genreNames.forEach { genreName ->
+                                            context.symphony.groove.genre.get(genreName)
                                                 ?.let { genre ->
                                                     GenericGrooveCard(
                                                         image = null,
@@ -453,7 +480,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         options = null,
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildGenreRoute(genre.name)
+                                                                Routes.Genre.build(genre.name)
                                                             )
                                                         }
                                                     )

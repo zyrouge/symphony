@@ -36,7 +36,7 @@ class RadioNotification(private val symphony: Symphony) {
                 )
             )
             setContentTitle(req.song.title)
-            setContentText(req.song.artistName)
+            setContentText(req.song.artists.joinToString(", "))
             setLargeIcon(req.artworkBitmap)
             setOngoing(req.isPlaying)
             addAction(

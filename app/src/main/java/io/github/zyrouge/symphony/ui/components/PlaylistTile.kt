@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.services.parsers.M3U
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.Logger
@@ -63,7 +63,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         onClick = {
-            context.navController.navigate(RoutesBuilder.buildPlaylistRoute(playlist.id))
+            context.navController.navigate(Routes.Playlist.build(playlist.id))
         }
     ) {
         Box(modifier = Modifier.padding(12.dp)) {
@@ -111,7 +111,9 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                                 )
                                 .then(Modifier.size(36.dp)),
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(playlist.songIds)
+                                context.symphony.radio.shorty.playQueue(
+                                    playlist.getSortedSongIds(context.symphony)
+                                )
                             }
                         ) {
                             Icon(Icons.Filled.PlayArrow, null)
@@ -184,7 +186,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.shorty.playQueue(
-                    playlist.songIds,
+                    playlist.getSortedSongIds(context.symphony),
                     shuffle = true,
                 )
             }
@@ -199,7 +201,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    playlist.songIds,
+                    playlist.getSortedSongIds(context.symphony),
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }

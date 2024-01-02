@@ -103,7 +103,7 @@ class RadioSession(val symphony: Symphony) {
 
                 override fun onSeekTo(pos: Long) {
                     super.onSeekTo(pos)
-                    symphony.radio.seek(pos.toInt())
+                    symphony.radio.seek(pos)
                 }
 
                 override fun onRewind() {
@@ -132,7 +132,8 @@ class RadioSession(val symphony: Symphony) {
                     }
                     return when (keyEvent?.keyCode) {
                         KeyEvent.KEYCODE_MEDIA_PREVIOUS,
-                        KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                        KeyEvent.KEYCODE_MEDIA_REWIND,
+                        -> {
                             handleAction(ACTION_PREVIOUS)
                             true
                         }
@@ -143,7 +144,8 @@ class RadioSession(val symphony: Symphony) {
                         }
 
                         KeyEvent.KEYCODE_MEDIA_CLOSE,
-                        KeyEvent.KEYCODE_MEDIA_STOP -> {
+                        KeyEvent.KEYCODE_MEDIA_STOP,
+                        -> {
                             handleAction(ACTION_STOP)
                             true
                         }
@@ -160,7 +162,8 @@ class RadioSession(val symphony: Symphony) {
                 RadioEvents.PausePlaying,
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
-                RadioEvents.SongSeeked -> update()
+                RadioEvents.SongSeeked,
+                -> update()
 
                 RadioEvents.QueueEnded -> cancel()
                 else -> {}
@@ -199,7 +202,7 @@ class RadioSession(val symphony: Symphony) {
 
         override fun parseResult(
             resultCode: Int,
-            intent: Intent?
+            intent: Intent?,
         ) {
         }
     }
@@ -215,11 +218,11 @@ class RadioSession(val symphony: Symphony) {
             ?.let { symphony.groove.song.get(it) } ?: return
         currentSongId = song.id
 
-        val artworkUri = symphony.groove.album.getArtworkUri(song.albumId)
+        val artworkUri = symphony.groove.song.getArtworkUri(song.id)
         val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition
-            ?: PlaybackPosition(played = 0, total = song.duration.toInt())
+            ?: PlaybackPosition(played = 0L, total = song.duration)
         val isPlaying = symphony.radio.isPlaying
 
         val req = RadioSessionUpdateRequest(
@@ -242,8 +245,13 @@ class RadioSession(val symphony: Symphony) {
             setMetadata(
                 MediaMetadataCompat.Builder().run {
                     putString(MediaMetadataCompat.METADATA_KEY_TITLE, req.song.title)
-                    putString(MediaMetadataCompat.METADATA_KEY_ARTIST, req.song.artistName)
-                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.albumName)
+                    if (req.song.artists.isNotEmpty()) {
+                        putString(
+                            MediaMetadataCompat.METADATA_KEY_ARTIST,
+                            req.song.artists.joinToString()
+                        )
+                    }
+                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.album)
                     req.artworkUriString.let {
                         putString(MediaMetadataCompat.METADATA_KEY_ART_URI, it)
                         putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, it)

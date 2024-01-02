@@ -38,17 +38,17 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumView(context: ViewContext, albumId: Long) {
-    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
+fun AlbumView(context: ViewContext, albumName: String) {
+    val allAlbumNames by context.symphony.groove.album.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val album by remember(allAlbumIds) {
-        derivedStateOf { context.symphony.groove.album.get(albumId) }
+    val album by remember(allAlbumNames) {
+        derivedStateOf { context.symphony.groove.album.get(albumName) }
     }
     val songIds by remember(album, allSongIds) {
-        derivedStateOf { context.symphony.groove.album.getSongIds(albumId) }
+        derivedStateOf { album?.getSongIds(context.symphony) ?: listOf() }
     }
-    val isViable by remember(allAlbumIds) {
-        derivedStateOf { allAlbumIds.contains(albumId) }
+    val isViable by remember(allAlbumNames) {
+        derivedStateOf { allAlbumNames.contains(albumName) }
     }
 
     Scaffold(
@@ -100,7 +100,7 @@ fun AlbumView(context: ViewContext, albumId: Long) {
                         },
                         cardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Subtle,
                     )
-                } else UnknownAlbum(context, albumId)
+                } else UnknownAlbum(context, albumName)
             }
         },
         bottomBar = {
@@ -124,9 +124,9 @@ private fun AlbumHero(context: ViewContext, album: Album) {
         content = {
             Column {
                 Text(album.name)
-                album.artist?.let { artistName ->
+                if (album.artists.isNotEmpty()) {
                     Text(
-                        artistName,
+                        album.artists.joinToString(),
                         style = MaterialTheme.typography.bodyMedium
                             .copy(fontWeight = FontWeight.Bold)
                     )
@@ -137,7 +137,7 @@ private fun AlbumHero(context: ViewContext, album: Album) {
 }
 
 @Composable
-private fun UnknownAlbum(context: ViewContext, albumId: Long) {
+private fun UnknownAlbum(context: ViewContext, albumName: String) {
     IconTextBody(
         icon = { modifier ->
             Icon(
@@ -147,7 +147,7 @@ private fun UnknownAlbum(context: ViewContext, albumId: Long) {
             )
         },
         content = {
-            Text(context.symphony.t.UnknownAlbumId(albumId.toString()))
+            Text(context.symphony.t.UnknownAlbumX(albumName))
         }
     )
 }

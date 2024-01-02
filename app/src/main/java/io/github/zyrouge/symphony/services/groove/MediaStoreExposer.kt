@@ -52,7 +52,6 @@ class MediaStoreExposer(private val symphony: Symphony) {
                 while (it.moveToNext()) {
                     val path = shorty.getString(AudioColumns.DATA)
                     explorer.addRelativePath(GrooveExplorer.Path(path))
-
                     val isWhitelisted = true
                         .takeIf { regex?.containsMatchIn(path) ?: true }
                         .takeIf {
@@ -102,7 +101,6 @@ class MediaStoreExposer(private val symphony: Symphony) {
         symphony.groove.album.onSong(song)
         symphony.groove.artist.onSong(song)
         symphony.groove.genre.onSong(song)
-        symphony.groove.lyrics.onSong(song)
         symphony.groove.song.onSong(song)
     }
 

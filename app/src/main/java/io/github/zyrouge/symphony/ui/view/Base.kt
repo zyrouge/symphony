@@ -11,11 +11,10 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
-import io.github.zyrouge.symphony.ui.helpers.RoutesParameters
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.getRouteArgument
+import io.github.zyrouge.symphony.ui.helpers.getRouteParameter
 import io.github.zyrouge.symphony.ui.theme.SymphonyTheme
 
 @Composable
@@ -30,16 +29,16 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
         Surface(color = MaterialTheme.colorScheme.background) {
             NavHost(
                 navController = context.navController,
-                startDestination = Routes.Home.route
+                startDestination = Routes.Home.route,
             ) {
                 composable(
-                    Routes.Home.route,
+                    Routes.Home.template(),
                     enterTransition = { FadeTransition.enterTransition() },
                 ) {
                     HomeView(context)
                 }
                 composable(
-                    Routes.NowPlaying.route,
+                    Routes.NowPlaying.template(),
                     enterTransition = { SlideTransition.slideUp.enterTransition() },
                     exitTransition = { FadeTransition.exitTransition() },
                     popEnterTransition = { FadeTransition.enterTransition() },
@@ -48,85 +47,72 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                     NowPlayingView(context)
                 }
                 composable(
-                    Routes.Queue.route,
+                    Routes.Queue.template(),
                     enterTransition = { SlideTransition.slideUp.enterTransition() },
                     exitTransition = { SlideTransition.slideDown.exitTransition() },
                 ) {
                     QueueView(context)
                 }
                 composable(
-                    Routes.Settings.route,
+                    Routes.Settings.template(),
                     enterTransition = { ScaleTransition.scaleDown.enterTransition() },
                     exitTransition = { ScaleTransition.scaleUp.exitTransition() },
                 ) {
                     SettingsView(context)
                 }
                 composable(
-                    Routes.Artist.route,
+                    Routes.Artist.template(),
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
                     exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
-                    ArtistView(
-                        context,
-                        backStackEntry.getRouteArgument(RoutesParameters.ArtistRouteArtistName)
-                            ?: ""
-                    )
+                    ArtistView(context, backStackEntry.getRouteParameter())
                 }
                 composable(
-                    Routes.Album.route,
+                    Routes.Album.template(),
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
                     exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
-                    AlbumView(
-                        context,
-                        backStackEntry.getRouteArgument(RoutesParameters.AlbumRouteAlbumId)
-                            ?.toLongOrNull() ?: -1
-                    )
+                    AlbumView(context, backStackEntry.getRouteParameter())
                 }
                 composable(
-                    Routes.Search.route,
+                    Routes.Search.template(),
                     enterTransition = { SlideTransition.slideDown.enterTransition() },
                     exitTransition = { SlideTransition.slideUp.exitTransition() },
                 ) { backStackEntry ->
                     SearchView(
                         context,
-                        backStackEntry.getRouteArgument(RoutesParameters.SearchRouteInitialChip)
-                            ?.takeIf { it != "null" }
+                        backStackEntry.getRouteParameter()
+                            .takeIf { it != "null" }
                             ?.let { GrooveKinds.valueOf(it) }
                     )
                 }
                 composable(
-                    Routes.AlbumArtist.route,
+                    Routes.AlbumArtist.template(),
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
                     exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
-                    AlbumArtistView(
-                        context,
-                        backStackEntry.getRouteArgument(RoutesParameters.AlbumArtistRouteArtistName)
-                            ?: ""
-                    )
+                    AlbumArtistView(context, backStackEntry.getRouteParameter())
                 }
                 composable(
-                    Routes.Genre.route,
+                    Routes.Genre.template(),
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
                     exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
-                    GenreView(
-                        context,
-                        backStackEntry.getRouteArgument(RoutesParameters.GenreRouteGenre)
-                            ?: ""
-                    )
+                    GenreView(context, backStackEntry.getRouteParameter())
                 }
                 composable(
-                    Routes.Playlist.route,
+                    Routes.Playlist.template(),
                     enterTransition = { SlideTransition.slideLeft.enterTransition() },
                     exitTransition = { FadeTransition.exitTransition() },
                 ) { backStackEntry ->
-                    PlaylistView(
-                        context,
-                        backStackEntry.getRouteArgument(RoutesParameters.PlaylistRoutePlaylistId)
-                            ?: ""
-                    )
+                    PlaylistView(context, backStackEntry.getRouteParameter())
+                }
+                composable(
+                    Routes.Lyrics.template(),
+                    enterTransition = { SlideTransition.slideUp.enterTransition() },
+                    exitTransition = { SlideTransition.slideDown.exitTransition() },
+                ) {
+                    LyricsView(context)
                 }
             }
         }

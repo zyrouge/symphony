@@ -4,12 +4,11 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -63,14 +62,17 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
+import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.utils.runIfOrThis
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,16 +92,17 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
 
-    AnimatedVisibility(
-        visible = currentPlayingSong != null,
-        enter = slideIn {
-            IntOffset(0, it.height / 2)
-        } + fadeIn(),
-        exit = slideOut {
-            IntOffset(0, it.height / 2)
-        } + fadeOut()
-    ) {
-        currentPlayingSong?.let { currentSong ->
+    AnimatedContent(
+        label = "c-now-playing-container",
+        modifier = Modifier.fillMaxWidth(),
+        targetState = currentPlayingSong,
+        contentKey = { it != null },
+        transitionSpec = {
+            slideInVertically().plus(fadeIn())
+                .togetherWith(slideOutVertically().plus(fadeOut()))
+        }
+    ) { currentPlayingSongTarget ->
+        currentPlayingSongTarget?.let { currentSong ->
             Column(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))
@@ -126,7 +129,15 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight()
+                        .swipeable(
+                            onSwipeUp = {
+                                context.navController.navigate(Routes.NowPlaying)
+                            },
+                            onSwipeDown = {
+                                context.symphony.radio.stop()
+                            },
+                        ),
                     shape = RectangleShape,
                     onClick = {
                         context.navController.navigate(Routes.NowPlaying)
@@ -141,8 +152,11 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             label = "c-now-playing-card-image",
                             targetState = currentSong,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(300, delayMillis = 150))
-                                    .togetherWith(fadeOut(animationSpec = tween(150)))
+                                val from = fadeIn(
+                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
+                                )
+                                val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
+                                from togetherWith to
                             },
                         ) { song ->
                             AsyncImage(
@@ -159,12 +173,14 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             modifier = Modifier.weight(1f),
                             targetState = currentSong,
                             transitionSpec = {
-                                (fadeIn(
-                                    animationSpec = tween(300, delayMillis = 150)
+                                val from = fadeIn(
+                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
                                 ) + scaleIn(
                                     initialScale = 0.99f,
-                                    animationSpec = tween(300, delayMillis = 150)
-                                )).togetherWith(fadeOut(animationSpec = tween(150)))
+                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
+                                )
+                                val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
+                                from togetherWith to
                             },
                         ) { song ->
                             NowPlayingBottomBarContent(context, song = song)
@@ -275,12 +291,14 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 NowPlayingBottomBarContentText(
+                    context,
                     song.title,
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                song.artistName?.let { artistName ->
+                if (song.artists.isNotEmpty()) {
                     NowPlayingBottomBarContentText(
-                        artistName,
+                        context,
+                        song.artists.joinToString(),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -292,9 +310,11 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NowPlayingBottomBarContentText(
+    context: ViewContext,
     text: String,
     style: TextStyle,
 ) {
+    val textMarquee by context.symphony.settings.miniPlayerTextMarquee.collectAsState()
     var showOverlay by remember { mutableStateOf(false) }
 
     Box {
@@ -302,8 +322,14 @@ private fun NowPlayingBottomBarContentText(
             text,
             style = style,
             maxLines = 1,
+            overflow = when {
+                textMarquee -> TextOverflow.Clip
+                else -> TextOverflow.Ellipsis
+            },
             modifier = Modifier
-                .basicMarquee(iterations = Int.MAX_VALUE)
+                .runIfOrThis<Modifier>(textMarquee) {
+                    basicMarquee(iterations = Int.MAX_VALUE)
+                }
                 .onGloballyPositioned {
                     val offsetX = it.boundsInParent().centerLeft.x
                     showOverlay = offsetX.absoluteValue != 0f

@@ -38,18 +38,18 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumArtistView(context: ViewContext, artistId: String) {
-    val allAlbumArtistIds by context.symphony.groove.albumArtist.all.collectAsState()
+fun AlbumArtistView(context: ViewContext, albumArtistName: String) {
+    val allAlbumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val allAlbumIds = context.symphony.groove.album.all
-    val albumArtist by remember(allAlbumArtistIds) {
-        derivedStateOf { context.symphony.groove.albumArtist.get(artistId) }
+    val allAlbumNames = context.symphony.groove.album.all
+    val albumArtist by remember(allAlbumArtistNames) {
+        derivedStateOf { context.symphony.groove.albumArtist.get(albumArtistName) }
     }
     val songIds by remember(albumArtist, allSongIds) {
-        derivedStateOf { context.symphony.groove.albumArtist.getSongIds(artistId) }
+        derivedStateOf { albumArtist?.getSongIds(context.symphony) ?: listOf() }
     }
-    val albumIds by remember(albumArtist, allAlbumIds) {
-        derivedStateOf { context.symphony.groove.albumArtist.getAlbumIds(artistId) }
+    val albumNames by remember(albumArtist, allAlbumNames) {
+        derivedStateOf { albumArtist?.getAlbumNames(context.symphony) ?: listOf() }
     }
     val isViable by remember(albumArtist) {
         derivedStateOf { albumArtist != null }
@@ -98,17 +98,17 @@ fun AlbumArtistView(context: ViewContext, artistId: String) {
                             item {
                                 AlbumArtistHero(context, albumArtist!!)
                             }
-                            if (albumIds.isNotEmpty()) {
+                            if (albumNames.isNotEmpty()) {
                                 item {
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    AlbumRow(context, albumIds)
+                                    AlbumRow(context, albumNames)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     HorizontalDivider()
                                 }
                             }
                         }
                     )
-                } else UnknownAlbumArtist(context, artistId)
+                } else UnknownAlbumArtist(context, albumArtistName)
             }
         },
         bottomBar = {

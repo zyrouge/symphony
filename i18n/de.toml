@@ -8,7 +8,7 @@ Danke, dass du Teil der Symphony Open-Beta bist. Falls du auf irgendwelche Fehle
 
 Tritt unserer Discord und Reddit Community bei, um dein Feedback mitzuteilen und um auf dem aktuellsten Stand der Entwicklung zu bleiben.
 
-Symphony wird ausschließlich von Spenden aus Github Sponsors, Ko-fi und Patreon unterstützt.
+Symphony ist komplett kostenlos und wird ausschließlich von Beiträgen anderer Menschen unterstützt. Jeder Beitrag und Unterstützung wird sehr geschätzt. 
 
 Nochmals, danke dass du Symphony ausprobierst!
 """
@@ -193,3 +193,11 @@ RenamePlaylist = "Wiedergabeliste umbenennen"
 Rename = "Umbenennen"
 Equalizer = "Equalizer"
 LaunchingEqualizerFailedX = "Start des Equalizers fehlgeschlagen (Fehler: {x})"
+ConsiderContributing = "Unterstützung ist willkommen!"
+Lyrics = "Liedtext"
+LyricsLayout = "Liedtext Anordnung"
+ReplaceArtwork = "Cover ersetzen"
+SeparatePage = "Separate Seite"
+UnknownAlbumX = "Unbekanntes Album ({x})"
+CopiedXToClipboard = "'{x}' zur Zwischenablage kopiert"
+MiniPlayerTextMarquee = "Mini-Player Textmarkierung"

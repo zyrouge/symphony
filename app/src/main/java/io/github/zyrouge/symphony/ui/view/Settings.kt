@@ -11,12 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.automirrored.filled.Wysiwyg
+import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.Code
@@ -34,6 +33,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.HeadsetOff
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Palette
@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material.icons.filled.Recommend
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SpaceBar
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
@@ -64,8 +65,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.AppMeta
@@ -74,7 +73,6 @@ import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
@@ -85,6 +83,7 @@ import io.github.zyrouge.symphony.ui.view.settings.SettingsFloatInputTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsLinkTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiFolderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiOptionTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiTextOptionTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSimpleTile
@@ -124,12 +123,16 @@ fun SettingsView(context: ViewContext) {
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
     val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.collectAsState()
     val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.collectAsState()
+    val miniPlayerTextMarquee by context.symphony.settings.miniPlayerTextMarquee.collectAsState()
     val nowPlayingControlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
     val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
     val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
+    val nowPlayingLyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.collectAsState()
     val songsFilterPattern by context.symphony.settings.songsFilterPattern.collectAsState()
     val blacklistFolders by context.symphony.settings.blacklistFolders.collectAsState()
     val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
+    val artistTagSeparators by context.symphony.settings.artistTagSeparators.collectAsState()
+    val genreTagSeparators by context.symphony.settings.genreTagSeparators.collectAsState()
     val checkForUpdates by context.symphony.settings.checkForUpdates.collectAsState()
     val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
     val fontScale by context.symphony.settings.fontScale.collectAsState()
@@ -179,12 +182,8 @@ fun SettingsView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                val scrollState = rememberScrollState()
-                var contributeOffsetY: Int? = null
 
-                Column(
-                    modifier = Modifier.verticalScroll(scrollState)
-                ) {
+                Column {
                     val contentColor = MaterialTheme.colorScheme.onPrimary
 
                     Box(
@@ -192,14 +191,10 @@ fun SettingsView(context: ViewContext) {
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.primary)
                             .clickable {
-                                contributeOffsetY?.let {
-                                    coroutineScope.launch {
-                                        scrollState.animateScrollTo(
-                                            it,
-                                            TransitionDurations.Slow.asTween()
-                                        )
-                                    }
-                                }
+                                context.symphony.shorty.startBrowserActivity(
+                                    context.activity,
+                                    AppMeta.contributingUrl,
+                                )
                             }
                     ) {
                         Row(
@@ -574,6 +569,18 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setMiniPlayerSeekControls(value)
                         }
                     )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.KeyboardDoubleArrowRight, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.MiniPlayerTextMarquee)
+                        },
+                        value = miniPlayerTextMarquee,
+                        onChange = { value ->
+                            context.symphony.settings.setMiniPlayerTextMarquee(value)
+                        }
+                    )
                     HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.NowPlaying)
                     SettingsOptionTile(
@@ -588,6 +595,20 @@ fun SettingsView(context: ViewContext) {
                             .associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.setNowPlayingControlsLayout(value)
+                        }
+                    )
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.AutoMirrored.Outlined.Article, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.LyricsLayout)
+                        },
+                        value = nowPlayingLyricsLayout,
+                        values = NowPlayingLyricsLayout.entries
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.setNowPlayingLyricsLayout(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -668,6 +689,34 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setWhitelistFolders(values)
                             refetchLibrary()
                         }
+                    )
+                    SettingsMultiTextOptionTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.SpaceBar, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ArtistTagValueSeparators)
+                        },
+                        values = artistTagSeparators.toList(),
+                        onChange = {
+                            context.symphony.settings.setArtistTagSeparators(it)
+                            refetchLibrary()
+                        },
+                    )
+                    SettingsMultiTextOptionTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.SpaceBar, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.GenreTagValueSeparators)
+                        },
+                        values = genreTagSeparators.toList(),
+                        onChange = {
+                            context.symphony.settings.setGenreTagSeparators(it)
+                            refetchLibrary()
+                        },
                     )
                     SettingsSimpleTile(
                         icon = {
@@ -788,23 +837,16 @@ fun SettingsView(context: ViewContext) {
                         },
                         url = AppMeta.githubProfileUrl
                     )
-                    Box(
-                        modifier = Modifier
-                            .onGloballyPositioned { coordinates ->
-                                contributeOffsetY = coordinates.positionInParent().y.toInt()
-                            }
-                    ) {
-                        SettingsLinkTile(
-                            context,
-                            icon = {
-                                Icon(Icons.Filled.Code, null)
-                            },
-                            title = {
-                                Text(context.symphony.t.Github)
-                            },
-                            url = AppMeta.githubRepositoryUrl
-                        )
-                    }
+                    SettingsLinkTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.Code, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.Github)
+                        },
+                        url = AppMeta.githubRepositoryUrl
+                    )
                 }
             }
         }
@@ -823,5 +865,12 @@ fun NowPlayingControlsLayout.label(context: ViewContext): String {
     return when (this) {
         NowPlayingControlsLayout.Default -> context.symphony.t.Default
         NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
+    }
+}
+
+fun NowPlayingLyricsLayout.label(context: ViewContext): String {
+    return when (this) {
+        NowPlayingLyricsLayout.ReplaceArtwork -> context.symphony.t.ReplaceArtwork
+        NowPlayingLyricsLayout.SeparatePage -> context.symphony.t.SeparatePage
     }
 }

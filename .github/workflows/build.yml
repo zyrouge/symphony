@@ -20,7 +20,7 @@ jobs:
                   node-version: 18.x
                   cache: npm
 
-            - uses: actions/setup-java@v3
+            - uses: actions/setup-java@v4
               with:
                   distribution: zulu
                   java-version: 17
@@ -48,7 +48,7 @@ jobs:
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
             - name: 🚀 Upload apk
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   path: |
                       ${{ env.BUILD_APK_FILE }}

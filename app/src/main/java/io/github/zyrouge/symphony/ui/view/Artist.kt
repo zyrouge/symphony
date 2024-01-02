@@ -39,20 +39,20 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistView(context: ViewContext, artistName: String) {
-    val allArtistIds by context.symphony.groove.artist.all.collectAsState()
+    val allArtistNames by context.symphony.groove.artist.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
-    val artist by remember(allArtistIds) {
+    val allAlbumNames by context.symphony.groove.album.all.collectAsState()
+    val artist by remember(allArtistNames) {
         derivedStateOf { context.symphony.groove.artist.get(artistName) }
     }
     val songIds by remember(artist, allSongIds) {
-        derivedStateOf { context.symphony.groove.artist.getSongIds(artistName) }
+        derivedStateOf { artist?.getSongIds(context.symphony) ?: listOf() }
     }
-    val albumIds by remember(artist, allAlbumIds) {
-        derivedStateOf { context.symphony.groove.artist.getAlbumIds(artistName) }
+    val albumNames by remember(artist, allAlbumNames) {
+        derivedStateOf { artist?.getAlbumNames(context.symphony) ?: listOf() }
     }
-    val isViable by remember(allArtistIds) {
-        derivedStateOf { allArtistIds.contains(artistName) }
+    val isViable by remember(allArtistNames) {
+        derivedStateOf { allArtistNames.contains(artistName) }
     }
 
     Scaffold(
@@ -97,10 +97,10 @@ fun ArtistView(context: ViewContext, artistName: String) {
                             item {
                                 ArtistHero(context, artist!!)
                             }
-                            if (albumIds.isNotEmpty()) {
+                            if (albumNames.isNotEmpty()) {
                                 item {
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    AlbumRow(context, albumIds)
+                                    AlbumRow(context, albumNames)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     HorizontalDivider()
                                 }

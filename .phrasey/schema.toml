@@ -461,9 +461,9 @@ parameters = ["x"]
 name = "XSongs"
 parameters = ["x"]
 
-[[keys]]
-name = "UnknownAlbumId"
-parameters = ["id"]
+# [[keys]]
+# name = "UnknownAlbumId"
+# parameters = ["id"]
 
 [[keys]]
 name = "XArtists"
@@ -591,3 +591,38 @@ parameters = ["x"]
 
 [[keys]]
 name = "ConsiderContributing"
+
+[[keys]]
+name = "Lyrics"
+
+[[keys]]
+name = "LyricsLayout"
+
+[[keys]]
+name = "ReplaceArtwork"
+
+[[keys]]
+name = "SeparatePage"
+
+[[keys]]
+name = "UnknownAlbumX"
+parameters = ["x"]
+
+[[keys]]
+name = "CopiedXToClipboard"
+parameters = ["x"]
+
+[[keys]]
+name = "MiniPlayerTextMarquee"
+
+[[keys]]
+name = "AddItem"
+
+[[keys]]
+name = "ArtistTagValueSeparators"
+
+[[keys]]
+name = "GenreTagValueSeparators"
+
+[[keys]]
+name = "DiscNumber"

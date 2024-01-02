@@ -45,7 +45,13 @@ data class Playlist(
         songIds.firstOrNull()
             ?.let { symphony.groove.song.get(it)?.createArtworkImageRequest(symphony) }
             ?: ImageRequest.Builder(symphony.applicationContext)
-                .data(Assets.getPlaceholderUri(symphony.applicationContext))
+                .data(Assets.getPlaceholderUri(symphony))
+
+    fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
+        songIds,
+        symphony.settings.getLastUsedPlaylistSongsSortBy(),
+        symphony.settings.getLastUsedPlaylistSongsSortReverse(),
+    )
 
     fun isLocal() = local != null
     fun isNotLocal() = local == null

@@ -10,13 +10,13 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun GenresView(context: ViewContext) {
     val isUpdating by context.symphony.groove.genre.isUpdating.collectAsState()
-    val genreIds by context.symphony.groove.genre.all.collectAsState()
+    val genreNames by context.symphony.groove.genre.all.collectAsState()
     val genresCount by context.symphony.groove.genre.count.collectAsState()
 
     LoaderScaffold(context, isLoading = isUpdating) {
         GenreGrid(
             context,
-            genreIds = genreIds,
+            genreNames = genreNames,
             genresCount = genresCount,
         )
     }

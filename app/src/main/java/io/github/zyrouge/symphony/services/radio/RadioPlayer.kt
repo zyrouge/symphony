@@ -8,14 +8,14 @@ import io.github.zyrouge.symphony.utils.Logger
 import java.util.Timer
 
 data class PlaybackPosition(
-    val played: Int,
-    val total: Int,
+    val played: Long,
+    val total: Long,
 ) {
     val ratio: Float
         get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
 
     companion object {
-        val zero = PlaybackPosition(0, 0)
+        val zero = PlaybackPosition(0L, 0L)
     }
 }
 
@@ -42,8 +42,8 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         get() = mediaPlayer?.let {
             try {
                 PlaybackPosition(
-                    played = it.currentPosition,
-                    total = it.duration
+                    played = it.currentPosition.toLong(),
+                    total = it.duration.toLong(),
                 )
             } catch (_: IllegalStateException) {
                 null

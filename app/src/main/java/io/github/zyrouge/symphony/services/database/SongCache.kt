@@ -29,6 +29,8 @@ class SongCache(val symphony: Symphony) {
         }
 
         companion object {
+            const val defaultSeparator = ";"
+
             private const val LAST_MODIFIED = "0"
             private const val ALBUM_ARTIST = "1"
             private const val BITRATE = "2"
@@ -51,9 +53,9 @@ class SongCache(val symphony: Symphony) {
 
             fun fromSong(song: Song) = Attributes(
                 lastModified = song.dateModified,
-                albumArtist = song.additional.albumArtist,
+                albumArtist = song.additional.albumArtists.joinToString(defaultSeparator),
                 bitrate = song.additional.bitrate,
-                genre = song.additional.genre,
+                genre = song.additional.genres.joinToString(defaultSeparator),
                 bitsPerSample = song.additional.bitsPerSample,
                 samplingRate = song.additional.samplingRate,
                 codec = song.additional.codec,

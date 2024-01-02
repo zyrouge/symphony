@@ -53,7 +53,7 @@ import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
-import io.github.zyrouge.symphony.utils.contextWrapped
+import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private data class SongExplorerResult(
     val folders: List<GrooveExplorer.Folder>,
@@ -159,7 +159,7 @@ fun SongExplorerList(
                     },
                     sort = sortBy,
                     sorts = SongSortBy.entries
-                        .associateWith { x -> contextWrapped { x.label(it) } },
+                        .associateWith { x -> wrapInViewContext { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedFolderSortBy(it)
                     },

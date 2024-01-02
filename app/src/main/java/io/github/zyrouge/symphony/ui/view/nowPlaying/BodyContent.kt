@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,18 +51,18 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.SettingsDefaults.enableSeekControls
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
-import io.github.zyrouge.symphony.ui.view.NowPlayingPlayerStateData
+import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.utils.DurationFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData) {
-    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
+fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
     val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
     val isFavorite by remember(data) {
         derivedStateOf { favoriteSongIds.contains(data.song.id) }
@@ -86,19 +88,26 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
-                        targetStateSong.artistName?.let {
-                            Text(
-                                it,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.pointerInput(Unit) {
-                                    detectTapGestures { _ ->
-                                        context.navController.navigate(
-                                            RoutesBuilder.buildArtistRoute(it)
-                                        )
+                        if (targetStateSong.artists.isNotEmpty()) {
+                            FlowRow {
+                                targetStateSong.artists.forEachIndexed { i, it ->
+                                    Text(
+                                        it,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.pointerInput(Unit) {
+                                            detectTapGestures { _ ->
+                                                context.navController.navigate(
+                                                    Routes.Artist.build(it)
+                                                )
+                                            }
+                                        },
+                                    )
+                                    if (i != targetStateSong.artists.size - 1) {
+                                        Text(", ")
                                     }
-                                },
-                            )
+                                }
+                            }
                         }
                         if (data.showSongAdditionalInfo) {
                             targetStateSong.additional.toSamplingInfoString(context.symphony)?.let {
@@ -200,111 +209,106 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingPlayerStateData)
                     )
                 }
 
-                NowPlayingControlsLayout.Traditional -> Row(
-                    modifier = Modifier
-                        .padding(defaultHorizontalPadding, 0.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                ) {
-                    NowPlayingSkipPreviousButton(
-                        context,
-                        data = data,
-                        style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColors.Transparent,
-                        ),
-                    )
-                    if (enableSeekControls) {
-                        NowPlayingFastRewindButton(
-                            context,
-                            data = data,
-                            style = NowPlayingControlButtonStyle(
-                                color = NowPlayingControlButtonColors.Transparent,
-                            ),
-                        )
-                    }
-                    NowPlayingPlayPauseButton(
-                        context,
-                        data = data,
-                        style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColors.Surface,
-                            size = NowPlayingControlButtonSize.Large,
-                        ),
-                    )
-                    if (enableSeekControls) {
-                        NowPlayingFastForwardButton(
-                            context,
-                            data = data,
-                            style = NowPlayingControlButtonStyle(
-                                color = NowPlayingControlButtonColors.Transparent,
-                            ),
-                        )
-                    }
-                    NowPlayingSkipNextButton(
-                        context,
-                        data = data,
-                        style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColors.Transparent,
-                        ),
-                    )
-                }
+                NowPlayingControlsLayout.Traditional -> NowPlayingTraditionalControls(
+                    context,
+                    data = data,
+                )
             }
             Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
-            Row(
-                modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                var seekRatio by remember { mutableStateOf<Float?>(null) }
-
-                NowPlayingPlaybackPositionText(
-                    seekRatio?.let { it * playbackPosition.total }?.toInt()
-                        ?: playbackPosition.played,
-                    Alignment.CenterStart,
-                )
-                Box(modifier = Modifier.weight(1f)) {
-                    NowPlayingSeekBar(
-                        ratio = playbackPosition.ratio,
-                        onSeekStart = {
-                            seekRatio = 0f
-                        },
-                        onSeek = {
-                            seekRatio = it
-                        },
-                        onSeekEnd = {
-                            context.symphony.radio.seek((it * playbackPosition.total).toInt())
-                            seekRatio = null
-                        },
-                        onSeekCancel = {
-                            seekRatio = null
-                        },
-                    )
-                }
-                NowPlayingPlaybackPositionText(
-                    playbackPosition.total,
-                    Alignment.CenterEnd,
-                )
-            }
+            NowPlayingSeekBar(context)
             Spacer(modifier = Modifier.height(defaultHorizontalPadding))
         }
     }
 }
 
 @Composable
-private fun NowPlayingPlaybackPositionText(
-    duration: Int,
-    alignment: Alignment,
-) {
-    val textStyle = MaterialTheme.typography.labelMedium
-    val durationFormatted = DurationFormatter.formatMs(duration)
-
-    Box(contentAlignment = alignment) {
-        Text(
-            "0".repeat(durationFormatted.length),
-            style = textStyle.copy(color = Color.Transparent),
+fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
+    Row(
+        modifier = Modifier
+            .padding(defaultHorizontalPadding, 0.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround,
+    ) {
+        NowPlayingSkipPreviousButton(
+            context,
+            data = data,
+            style = NowPlayingControlButtonStyle(
+                color = NowPlayingControlButtonColors.Transparent,
+            ),
         )
-        Text(
-            durationFormatted,
-            style = MaterialTheme.typography.labelMedium
+        if (enableSeekControls) {
+            NowPlayingFastRewindButton(
+                context,
+                data = data,
+                style = NowPlayingControlButtonStyle(
+                    color = NowPlayingControlButtonColors.Transparent,
+                ),
+            )
+        }
+        NowPlayingPlayPauseButton(
+            context,
+            data = data,
+            style = NowPlayingControlButtonStyle(
+                color = NowPlayingControlButtonColors.Surface,
+                size = NowPlayingControlButtonSize.Large,
+            ),
+        )
+        if (enableSeekControls) {
+            NowPlayingFastForwardButton(
+                context,
+                data = data,
+                style = NowPlayingControlButtonStyle(
+                    color = NowPlayingControlButtonColors.Transparent,
+                ),
+            )
+        }
+        NowPlayingSkipNextButton(
+            context,
+            data = data,
+            style = NowPlayingControlButtonStyle(
+                color = NowPlayingControlButtonColors.Transparent,
+            ),
+        )
+    }
+}
+
+@Composable
+fun NowPlayingSeekBar(context: ViewContext) {
+    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
+
+    Row(
+        modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        var seekRatio by remember { mutableStateOf<Float?>(null) }
+
+        NowPlayingPlaybackPositionText(
+            seekRatio?.let { it * playbackPosition.total }?.toLong()
+                ?: playbackPosition.played,
+            Alignment.CenterStart,
+        )
+        Box(modifier = Modifier.weight(1f)) {
+            NowPlayingSeekBar(
+                ratio = playbackPosition.ratio,
+                onSeekStart = {
+                    seekRatio = 0f
+                },
+                onSeek = {
+                    seekRatio = it
+                },
+                onSeekEnd = {
+                    context.symphony.radio.seek((it * playbackPosition.total).toLong())
+                    seekRatio = null
+                },
+                onSeekCancel = {
+                    seekRatio = null
+                },
+            )
+        }
+        NowPlayingPlaybackPositionText(
+            playbackPosition.total,
+            Alignment.CenterEnd,
         )
     }
 }
@@ -411,9 +415,29 @@ private fun NowPlayingSeekBar(
 }
 
 @Composable
+private fun NowPlayingPlaybackPositionText(
+    duration: Long,
+    alignment: Alignment,
+) {
+    val textStyle = MaterialTheme.typography.labelMedium
+    val durationFormatted = DurationFormatter.formatMs(duration)
+
+    Box(contentAlignment = alignment) {
+        Text(
+            "0".repeat(durationFormatted.length),
+            style = textStyle.copy(color = Color.Transparent),
+        )
+        Text(
+            durationFormatted,
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
+@Composable
 private fun NowPlayingPlayPauseButton(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     style: NowPlayingControlButtonStyle,
 ) {
     data.run {
@@ -433,7 +457,7 @@ private fun NowPlayingPlayPauseButton(
 @Composable
 private fun NowPlayingSkipPreviousButton(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     style: NowPlayingControlButtonStyle,
 ) {
     data.run {
@@ -450,7 +474,7 @@ private fun NowPlayingSkipPreviousButton(
 @Composable
 private fun NowPlayingSkipNextButton(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     style: NowPlayingControlButtonStyle,
 ) {
     data.run {
@@ -467,7 +491,7 @@ private fun NowPlayingSkipNextButton(
 @Composable
 private fun NowPlayingFastRewindButton(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     style: NowPlayingControlButtonStyle,
 ) {
     data.run {
@@ -485,7 +509,7 @@ private fun NowPlayingFastRewindButton(
 @Composable
 private fun NowPlayingFastForwardButton(
     context: ViewContext,
-    data: NowPlayingPlayerStateData,
+    data: NowPlayingData,
     style: NowPlayingControlButtonStyle,
 ) {
     data.run {

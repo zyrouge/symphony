@@ -35,6 +35,8 @@ fun <T> List<T>.mutate(fn: MutableList<T>.() -> Unit): List<T> {
     return out
 }
 
+fun List<String>.joinToStringIfNotEmpty() = if (isNotEmpty()) joinToString() else null
+
 class ConcurrentList<T> : MutableList<T> {
     private val list = mutableListOf<T>()
     private val lock = ReentrantReadWriteLock()
