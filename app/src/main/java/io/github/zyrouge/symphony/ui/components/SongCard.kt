@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.Logger
 
@@ -274,9 +274,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildArtistRoute(artistName)
-                    )
+                    context.navController.navigate(Routes.Artist.build(artistName))
                 }
             )
         }
@@ -290,9 +288,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildAlbumArtistRoute(albumArtist)
-                    )
+                    context.navController.navigate(Routes.AlbumArtist.build(albumArtist))
                 }
             )
         }
@@ -306,9 +302,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(
-                        RoutesBuilder.buildAlbumRoute(albumName)
-                    )
+                    context.navController.navigate(Routes.Album.build(albumName))
                 }
             )
         }

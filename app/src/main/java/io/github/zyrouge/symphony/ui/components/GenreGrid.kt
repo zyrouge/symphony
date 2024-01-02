@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.wrapInViewContext
 
@@ -131,9 +131,7 @@ fun GenreGrid(
                                     ),
                                 colors = GenreTile.cardColors(i),
                                 onClick = {
-                                    context.navController.navigate(
-                                        RoutesBuilder.buildGenreRoute(genre.name)
-                                    )
+                                    context.navController.navigate(Routes.Genre.build(genre.name))
                                 }
                             ) {
                                 Box(

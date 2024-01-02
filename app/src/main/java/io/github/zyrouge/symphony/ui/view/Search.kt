@@ -62,7 +62,7 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.SongCard
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.Dispatchers
@@ -363,9 +363,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildArtistRoute(
-                                                                    artist.name
-                                                                )
+                                                                Routes.Artist.build(artist.name)
                                                             )
                                                         }
                                                     )
@@ -397,7 +395,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildAlbumRoute(album.name)
+                                                                Routes.Album.build(album.name)
                                                             )
                                                         }
                                                     )
@@ -426,7 +424,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildAlbumArtistRoute(
+                                                                Routes.AlbumArtist.build(
                                                                     albumArtist.name
                                                                 )
                                                             )
@@ -457,9 +455,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildPlaylistRoute(
-                                                                    playlist.id
-                                                                )
+                                                                Routes.Playlist.build(playlist.id)
                                                             )
                                                         }
                                                     )
@@ -484,7 +480,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         options = null,
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                RoutesBuilder.buildGenreRoute(genre.name)
+                                                                Routes.Genre.build(genre.name)
                                                             )
                                                         }
                                                     )

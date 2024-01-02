@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.SettingsDefaults.enableSeekControls
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
@@ -98,7 +98,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                                         modifier = Modifier.pointerInput(Unit) {
                                             detectTapGestures { _ ->
                                                 context.navController.navigate(
-                                                    RoutesBuilder.buildArtistRoute(it)
+                                                    Routes.Artist.build(it)
                                                 )
                                             }
                                         },

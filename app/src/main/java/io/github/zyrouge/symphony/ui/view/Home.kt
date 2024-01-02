@@ -77,7 +77,6 @@ import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.Routes
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -182,9 +181,7 @@ fun HomeView(context: ViewContext) {
                             Icon(Icons.Filled.Search, null)
                         },
                         onClick = {
-                            context.navController.navigate(
-                                RoutesBuilder.buildSearchRoute(currentTab.kind)
-                            )
+                            context.navController.navigate(Routes.Search.build(currentTab.kind))
                         }
                     )
                 },

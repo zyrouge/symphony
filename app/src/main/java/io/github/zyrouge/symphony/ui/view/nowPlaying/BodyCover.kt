@@ -27,7 +27,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.ui.components.LyricsText
 import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
@@ -114,9 +114,7 @@ fun NowPlayingBodyCover(
                                     .pointerInput(Unit) {
                                         detectTapGestures { _ ->
                                             song.album?.let {
-                                                context.navController.navigate(
-                                                    RoutesBuilder.buildAlbumRoute(it)
-                                                )
+                                                context.navController.navigate(Routes.Album.build(it))
                                             }
                                         }
                                     }

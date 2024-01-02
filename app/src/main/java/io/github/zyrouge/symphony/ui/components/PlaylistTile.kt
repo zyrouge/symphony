@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.services.parsers.M3U
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.Logger
@@ -63,7 +63,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         onClick = {
-            context.navController.navigate(RoutesBuilder.buildPlaylistRoute(playlist.id))
+            context.navController.navigate(Routes.Playlist.build(playlist.id))
         }
     ) {
         Box(modifier = Modifier.padding(12.dp)) {

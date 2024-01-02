@@ -51,7 +51,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.SongSortBy
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.helpers.RoutesBuilder
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.randomSubList
 import io.github.zyrouge.symphony.utils.runIfOrDefault
@@ -439,9 +439,7 @@ private fun SuggestedAlbums(
     StatedSixGrid(context, isLoading, albums) { album ->
         Card(
             onClick = {
-                context.navController.navigate(
-                    RoutesBuilder.buildAlbumRoute(album.name)
-                )
+                context.navController.navigate(Routes.Album.build(album.name))
             }
         ) {
             AsyncImage(
@@ -479,9 +477,7 @@ private fun SuggestedArtists(
     StatedSixGrid(context, isLoading, artists) { artist ->
         Card(
             onClick = {
-                context.navController.navigate(
-                    RoutesBuilder.buildArtistRoute(artist.name)
-                )
+                context.navController.navigate(Routes.Artist.build(artist.name))
             }
         ) {
             AsyncImage(
@@ -519,9 +515,7 @@ private fun SuggestedAlbumArtists(
     StatedSixGrid(context, isLoading, albumArtists) { albumArtist ->
         Card(
             onClick = {
-                context.navController.navigate(
-                    RoutesBuilder.buildAlbumArtistRoute(albumArtist.name)
-                )
+                context.navController.navigate(Routes.AlbumArtist.build(albumArtist.name))
             }
         ) {
             AsyncImage(
