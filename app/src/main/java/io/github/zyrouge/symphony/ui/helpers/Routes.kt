@@ -7,7 +7,7 @@ import io.github.zyrouge.symphony.services.groove.GrooveKinds
 
 abstract class Route(val route: String) {
     class Simple(route: String) : Route(route)
-    
+
     abstract class Parameterized<T>(route: String) : Route(route) {
         override fun template() = "$route/{$ARGUMENT_NAME}"
         abstract fun build(param: T): String
@@ -18,10 +18,13 @@ abstract class Route(val route: String) {
     }
 
     class StringParameterized(route: String) : Parameterized<String>(route) {
-        override fun build(param: String) = "$route/${Uri.encode(param)}"
+        override fun build(param: String) = withParam(param)
     }
 
     open fun template() = route
+
+    protected fun withParam(param: String) = "$route/${encodeParam(param)}"
+    protected fun encodeParam(param: String): String = Uri.encode(param)
 }
 
 data object Routes {
@@ -30,7 +33,7 @@ data object Routes {
     val Queue = Route.Simple("queue")
     val Settings = Route.Simple("settings")
     val Search = object : Route.Parameterized<GrooveKinds?>("search") {
-        override fun build(param: GrooveKinds?) = param?.name ?: "null"
+        override fun build(param: GrooveKinds?) = withParam(param?.name ?: "null")
     }
     val Artist = Route.StringParameterized("artist")
     val Album = Route.StringParameterized("album")
