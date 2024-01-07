@@ -1,0 +1,5 @@
+- Fix swapped track and disc number.
+- Fix track number below 1000 being ignored.
+- Added light mode image placeholder.
+- Update of East-Slavic translations.
+- Updated Japanese and Uchinaguchi translations.
