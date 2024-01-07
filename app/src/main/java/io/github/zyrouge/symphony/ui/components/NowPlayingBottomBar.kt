@@ -37,7 +37,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -75,7 +74,6 @@ import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.utils.runIfOrThis
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
@@ -109,15 +107,10 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
             ) {
                 Box(
                     modifier = Modifier
+                        .background(MaterialTheme.colorScheme.primary.copy(0.3f))
                         .height(2.dp)
                         .fillMaxWidth()
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary.copy(0.3f))
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                    )
                     Box(
                         modifier = Modifier
                             .align(Alignment.CenterStart)
@@ -353,7 +346,7 @@ private fun NowPlayingBottomBarContentText(
                                 colors = listOf(backgroundColor, Color.Transparent)
                             )
                         )
-                ) {}
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 Box(
                     modifier = Modifier
@@ -364,7 +357,7 @@ private fun NowPlayingBottomBarContentText(
                                 colors = listOf(Color.Transparent, backgroundColor)
                             )
                         )
-                ) {}
+                )
             }
         }
     }
