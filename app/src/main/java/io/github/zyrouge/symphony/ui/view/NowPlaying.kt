@@ -56,7 +56,6 @@ enum class NowPlayingLyricsLayout {
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
-
     BackHandler {
         context.navController.popBackStack()
     }

@@ -115,8 +115,8 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         modifier = Modifier
                             .align(Alignment.CenterStart)
                             .background(MaterialTheme.colorScheme.primary)
-                            .fillMaxWidth(playbackPosition.ratio)
                             .fillMaxHeight()
+                            .fillMaxWidth(playbackPosition.ratio)
                     )
                 }
                 ElevatedCard(
