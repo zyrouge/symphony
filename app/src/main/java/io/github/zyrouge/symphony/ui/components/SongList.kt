@@ -146,12 +146,10 @@ fun SongListType.getLastUsedSortBy(context: ViewContext) = when (this) {
     SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortBy
 }
 
-fun SongListType.setLastUsedSortBy(context: ViewContext, sort: SongSortBy) {
-    when (this) {
-        SongListType.Default -> context.symphony.settings.setLastUsedSongsSortBy(sort)
-        SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortBy(sort)
-        SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortBy(sort)
-    }
+fun SongListType.setLastUsedSortBy(context: ViewContext, sort: SongSortBy) = when (this) {
+    SongListType.Default -> context.symphony.settings.setLastUsedSongsSortBy(sort)
+    SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortBy(sort)
+    SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortBy(sort)
 }
 
 fun SongListType.getLastUsedSortReverse(context: ViewContext) = when (this) {
@@ -160,13 +158,8 @@ fun SongListType.getLastUsedSortReverse(context: ViewContext) = when (this) {
     SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortReverse
 }
 
-fun SongListType.setLastUsedSortReverse(context: ViewContext, reverse: Boolean) {
-    when (this) {
-        SongListType.Default -> context.symphony.settings.setLastUsedSongsSortReverse(reverse)
-        SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortReverse(
-            reverse
-        )
-
-        SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortReverse(reverse)
-    }
+fun SongListType.setLastUsedSortReverse(context: ViewContext, reverse: Boolean) = when (this) {
+    SongListType.Default -> context.symphony.settings.setLastUsedSongsSortReverse(reverse)
+    SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortReverse(reverse)
+    SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortReverse(reverse)
 }

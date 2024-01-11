@@ -185,7 +185,8 @@ class SettingsManager(private val symphony: Symphony) {
     val lastUsedPlaylistSongsSortReverse = _lastUsedPlaylistSongsSortReverse.asStateFlow()
     private val _lastUsedAlbumSongsSortBy = MutableStateFlow(getLastUsedAlbumSongsSortBy())
     val lastUsedAlbumSongsSortBy = _lastUsedAlbumSongsSortBy.asStateFlow()
-    private val _lastUsedAlbumSongsSortReverse = MutableStateFlow(getLastUsedAlbumsSortReverse())
+    private val _lastUsedAlbumSongsSortReverse =
+        MutableStateFlow(getLastUsedAlbumSongsSortReverse())
     val lastUsedAlbumSongsSortReverse = _lastUsedAlbumSongsSortReverse.asStateFlow()
     private val _lastUsedTreePathSortBy = MutableStateFlow(getLastUsedTreePathSortBy())
     val lastUsedTreePathSortBy = _lastUsedTreePathSortBy.asStateFlow()
