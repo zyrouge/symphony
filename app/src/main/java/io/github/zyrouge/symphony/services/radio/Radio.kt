@@ -406,7 +406,6 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     private fun saveCurrentQueue() {
-        if (queue.isEmpty()) return
         symphony.settings.setPreviousSongQueue(
             RadioQueue.Serialized.create(
                 queue = queue,

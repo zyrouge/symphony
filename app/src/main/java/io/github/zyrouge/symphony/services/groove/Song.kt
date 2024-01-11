@@ -74,11 +74,11 @@ data class Song(
                 val genreSeparators = symphony.settings.genreTagSeparators.value
                 return AdditionalMetadata(
                     albumArtists = attributes.albumArtist
-                        ?.let { Song.parseMultiValue(it, artistSeparators) }
+                        ?.let { parseMultiValue(it, artistSeparators) }
                         ?: setOf(),
                     bitrate = attributes.bitrate,
                     genres = attributes.genre
-                        ?.let { Song.parseMultiValue(it, genreSeparators) }
+                        ?.let { parseMultiValue(it, genreSeparators) }
                         ?: setOf(),
                     bitsPerSample = attributes.bitsPerSample,
                     samplingRate = attributes.samplingRate,
@@ -161,9 +161,9 @@ data class Song(
                 duration = shorty.getLong(AudioColumns.DURATION),
                 album = shorty.getStringNullable(AudioColumns.ALBUM),
                 artists = shorty.getStringNullable(AudioColumns.ARTIST)
-                    ?.let { Song.parseMultiValue(it, artistSeparators) } ?: setOf(),
+                    ?.let { parseMultiValue(it, artistSeparators) } ?: setOf(),
                 composers = shorty.getStringNullable(AudioColumns.COMPOSER)
-                    ?.let { Song.parseMultiValue(it, artistSeparators) } ?: setOf(),
+                    ?.let { parseMultiValue(it, artistSeparators) } ?: setOf(),
                 dateAdded = shorty.getLong(AudioColumns.DATE_ADDED),
                 dateModified = dateModified,
                 size = shorty.getLong(AudioColumns.SIZE),
