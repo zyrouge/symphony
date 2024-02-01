@@ -1,8 +1,25 @@
 <svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="887" y="425" width="100" height="150" rx="50" fill="#C084FC"/>
-<rect x="712" y="225" width="100" height="550" rx="50" fill="#C084FC"/>
-<rect x="537" y="45" width="100" height="800" rx="50" fill="#C084FC"/>
-<rect x="462" y="954.091" width="100" height="800" rx="50" transform="rotate(-180 462 954.091)" fill="#C084FC"/>
-<rect x="287" y="750" width="100" height="500" rx="50" transform="rotate(-180 287 750)" fill="#C084FC"/>
-<rect x="112" y="625" width="100" height="250" rx="50" transform="rotate(-180 112 625)" fill="#C084FC"/>
+<g clip-path="url(#clip0_302_529)">
+<mask id="mask0_302_529" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+<rect x="887" y="425" width="100" height="150" rx="50" fill="white"/>
+<rect x="712" y="225" width="100" height="550" rx="50" fill="white"/>
+<rect x="537" y="45" width="100" height="800" rx="50" fill="white"/>
+<rect x="462" y="954.091" width="100" height="800" rx="50" transform="rotate(-180 462 954.091)" fill="white"/>
+<rect x="287" y="750" width="100" height="500" rx="50" transform="rotate(-180 287 750)" fill="white"/>
+<rect x="112" y="625" width="100" height="250" rx="50" transform="rotate(-180 112 625)" fill="white"/>
+</mask>
+<g mask="url(#mask0_302_529)">
+<rect y="45" width="1000" height="909" fill="#D9D9D9"/>
+<rect y="45" width="1000" height="909" fill="url(#paint0_linear_302_529)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_302_529" x1="500" y1="45" x2="500" y2="954" gradientUnits="userSpaceOnUse">
+<stop stop-color="#C084FC"/>
+<stop offset="1" stop-color="#A855F7"/>
+</linearGradient>
+<clipPath id="clip0_302_529">
+<rect width="1000" height="1000" fill="white"/>
+</clipPath>
+</defs>
 </svg>
