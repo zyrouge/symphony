@@ -86,7 +86,7 @@ class ArtistRepository(private val symphony: Symphony) {
     fun createArtworkImageRequest(artistName: String) = createHandyImageRequest(
         symphony.applicationContext,
         image = getArtworkUri(artistName),
-        fallback = Assets.placeholderId,
+        fallback = Assets.placeholderDarkId,
     )
 
     fun search(artistNames: List<String>, terms: String, limit: Int = 7) = searcher

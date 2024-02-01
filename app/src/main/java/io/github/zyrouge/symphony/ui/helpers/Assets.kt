@@ -9,13 +9,16 @@ import io.github.zyrouge.symphony.ui.theme.isLight
 import io.github.zyrouge.symphony.ui.theme.toColorSchemeMode
 
 object Assets {
-    val placeholderId = R.raw.placeholder
+    val placeholderDarkId = R.raw.placeholder_dark
     val placeholderLightId = R.raw.placeholder_light
 
-    fun getPlaceholderId(light: Boolean = false) = if (light) placeholderLightId else placeholderId
+    fun getPlaceholderId(isLight: Boolean = false) = when {
+        isLight -> placeholderLightId
+        else -> placeholderDarkId
+    }
 
     fun getPlaceholderId(symphony: Symphony) = Assets.getPlaceholderId(
-        light = symphony.settings.getThemeMode().toColorSchemeMode(symphony).isLight(),
+        isLight = symphony.settings.getThemeMode().toColorSchemeMode(symphony).isLight(),
     )
 
     fun getPlaceholderUri(symphony: Symphony) = buildUriOfResource(

@@ -27,7 +27,7 @@ class RadioArtworkCacher(val symphony: Symphony) {
         return default ?: run {
             val bitmap = BitmapFactory.decodeResource(
                 symphony.applicationContext.resources,
-                Assets.placeholderId,
+                Assets.placeholderDarkId,
             )
             default = bitmap
             bitmap
