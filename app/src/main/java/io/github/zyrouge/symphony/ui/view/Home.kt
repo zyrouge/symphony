@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MusicNote
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Album
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.SupervisorAccount
@@ -84,6 +86,7 @@ import io.github.zyrouge.symphony.ui.helpers.navigate
 import io.github.zyrouge.symphony.ui.view.home.AlbumArtistsView
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
+import io.github.zyrouge.symphony.ui.view.home.BrowserView
 import io.github.zyrouge.symphony.ui.view.home.FoldersView
 import io.github.zyrouge.symphony.ui.view.home.ForYouView
 import io.github.zyrouge.symphony.ui.view.home.GenresView
@@ -133,16 +136,21 @@ enum class HomePages(
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
     ),
-    Folders(
-        label = { it.symphony.t.Folders },
-        selectedIcon = { Icons.Filled.Folder },
-        unselectedIcon = { Icons.Outlined.Folder }
-    ),
     Playlists(
         kind = GrooveKinds.PLAYLIST,
         label = { it.symphony.t.Playlists },
         selectedIcon = { Icons.AutoMirrored.Filled.QueueMusic },
         unselectedIcon = { Icons.AutoMirrored.Outlined.QueueMusic }
+    ),
+    Browser(
+        label = { it.symphony.t.Browser },
+        selectedIcon = { Icons.Filled.Folder },
+        unselectedIcon = { Icons.Outlined.Folder }
+    ),
+    Folders(
+        label = { it.symphony.t.Folders },
+        selectedIcon = { Icons.Filled.FolderOpen },
+        unselectedIcon = { Icons.Outlined.FolderOpen }
     ),
     Tree(
         label = { it.symphony.t.Tree },
@@ -267,6 +275,7 @@ fun HomeView(context: ViewContext) {
                     HomePages.Artists -> ArtistsView(context)
                     HomePages.AlbumArtists -> AlbumArtistsView(context)
                     HomePages.Genres -> GenresView(context)
+                    HomePages.Browser -> BrowserView(context)
                     HomePages.Folders -> FoldersView(context)
                     HomePages.Playlists -> PlaylistsView(context)
                     HomePages.Tree -> TreeView(context)

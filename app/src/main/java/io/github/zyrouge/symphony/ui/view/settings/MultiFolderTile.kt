@@ -186,7 +186,7 @@ private fun SettingsFolderTilePickerDialog(
         }
     }
     val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.fullPath }
+        derivedStateOf { currentFolder.pathParts }
     }
     val currentPathScrollState = rememberScrollState()
 

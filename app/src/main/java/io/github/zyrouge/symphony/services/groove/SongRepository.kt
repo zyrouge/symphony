@@ -47,7 +47,7 @@ class SongRepository(private val symphony: Symphony) {
     val count = _count.asStateFlow()
     private val _id = MutableStateFlow(System.currentTimeMillis())
     val id = _id.asStateFlow()
-    var explorer = MediaStoreExposer.createExplorer()
+    var explorer = GrooveExplorer.Folder()
 
     private fun emitCount() = _count.update { cache.size }
 
@@ -73,7 +73,7 @@ class SongRepository(private val symphony: Symphony) {
     fun reset() {
         cache.clear()
         pathCache.clear()
-        explorer = MediaStoreExposer.createExplorer()
+        explorer = GrooveExplorer.Folder()
         emitIds()
         _all.update {
             emptyList()

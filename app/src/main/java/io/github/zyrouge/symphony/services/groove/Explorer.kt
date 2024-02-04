@@ -9,8 +9,11 @@ enum class PathSortBy {
 
 object GrooveExplorer {
     abstract class Entity(val basename: String, var parent: Folder? = null) {
-        val fullPath: List<String>
-            get() = parent?.let { it.fullPath + basename } ?: listOf(basename)
+        val pathParts: List<String>
+            get() = parent?.let { it.pathParts + basename } ?: listOf(basename)
+
+        val fullPath: String
+            get() = pathParts.joinToString("/")
 
         abstract fun addRelativePath(path: Path): Entity
     }
@@ -23,7 +26,7 @@ object GrooveExplorer {
     }
 
     class Folder(
-        basename: String,
+        basename: String = "root",
         parent: Folder? = null,
         var children: ConcurrentHashMap<String, Entity> = ConcurrentHashMap(),
     ) : Entity(basename, parent) {
@@ -37,7 +40,11 @@ object GrooveExplorer {
 
         override fun addRelativePath(path: Path): Entity {
             if (!path.hasChildParts) {
-                return addChild(if (path.isFile) File(path.firstPart) else Folder(path.firstPart))
+                val child = when {
+                    path.isFile -> File(path.firstPart)
+                    else -> Folder(path.firstPart)
+                }
+                return addChild(child)
             }
             val child = children[path.firstPart] ?: addChild(Folder(path.firstPart))
             return child.addRelativePath(path.shift())
@@ -68,6 +75,7 @@ object GrooveExplorer {
                         b.removeFirst()
                         a.removeLast()
                     }
+
                     else -> break
                 }
             }
@@ -79,12 +87,11 @@ object GrooveExplorer {
 
         companion object {
             private val isFileRegex = Regex(""".+\..+""")
-            private val intoPartsRegex = Regex("""[\\/]""")
 
             fun isAbsolute(path: String) = path.startsWith("/")
 
             private fun intoParts(path: String) =
-                path.split(intoPartsRegex).filter { it.isNotBlank() }
+                path.split("/", "\\").filter { it.isNotBlank() }
         }
     }
 

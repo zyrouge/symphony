@@ -626,3 +626,6 @@ name = "GenreTagValueSeparators"
 
 [[keys]]
 name = "DiscNumber"
+
+[[keys]]
+name = "Browser"

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 class MediaStoreExposer(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<Long, Song>()
 
-    var explorer = createExplorer()
+    var explorer = GrooveExplorer.Folder()
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
 
@@ -91,7 +91,7 @@ class MediaStoreExposer(private val symphony: Symphony) {
 
     fun reset() {
         emitUpdate(true)
-        explorer = createExplorer()
+        explorer = GrooveExplorer.Folder()
         cache.clear()
         emitUpdate(false)
     }
@@ -129,8 +129,6 @@ class MediaStoreExposer(private val symphony: Symphony) {
             AudioColumns.SIZE,
             AudioColumns.DATA
         )
-
-        fun createExplorer() = GrooveExplorer.Folder("root")
 
         fun isWhitelisted(
             path: String,

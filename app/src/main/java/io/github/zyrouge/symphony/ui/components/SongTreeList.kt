@@ -507,7 +507,7 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
     )
 }
 
-private fun PathSortBy.label(context: ViewContext) = when (this) {
+fun PathSortBy.label(context: ViewContext) = when (this) {
     PathSortBy.CUSTOM -> context.symphony.t.Custom
     PathSortBy.NAME -> context.symphony.t.Name
 }

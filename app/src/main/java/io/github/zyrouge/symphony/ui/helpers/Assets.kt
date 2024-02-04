@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.helpers
 import android.content.ContentResolver
 import android.content.res.Resources
 import android.net.Uri
+import coil.request.ImageRequest
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.theme.isLight
@@ -25,6 +26,10 @@ object Assets {
         symphony.applicationContext.resources,
         getPlaceholderId(symphony),
     )
+
+    fun createPlaceholderImageRequest(symphony: Symphony) =
+        ImageRequest.Builder(symphony.applicationContext)
+            .data(Assets.getPlaceholderUri(symphony))
 
     private fun buildUriOfResource(resources: Resources, resourceId: Int): Uri {
         return Uri.Builder()

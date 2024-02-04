@@ -71,16 +71,16 @@ fun SongExplorerList(
     explorer: GrooveExplorer.Folder,
     onPathChange: (List<String>) -> Unit,
 ) {
-    var currentFolder by remember {
+    var currentFolder by remember(key) {
         mutableStateOf(
             initialPath
                 ?.let { explorer.navigateToFolder(it.subList(1, it.size)) }
                 ?: explorer
         )
     }
-    val sortBy by context.symphony.settings.lastUsedFolderSortBy.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedFolderSortReverse.collectAsState()
-    val sortedEntities by remember(key) {
+    val sortBy by context.symphony.settings.lastUsedBrowserSortBy.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedBrowserSortReverse.collectAsState()
+    val sortedEntities by remember(key, currentFolder) {
         derivedStateOf {
             val categorized = currentFolder.categorizedChildren()
 
@@ -102,7 +102,7 @@ fun SongExplorerList(
         }
     }
     val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.fullPath }
+        derivedStateOf { currentFolder.pathParts }
     }
     val currentPathScrollState = rememberScrollState()
 
@@ -155,13 +155,13 @@ fun SongExplorerList(
                     context,
                     reverse = sortReverse,
                     onReverseChange = {
-                        context.symphony.settings.setLastUsedFolderSortReverse(it)
+                        context.symphony.settings.setLastUsedBrowserSortReverse(it)
                     },
                     sort = sortBy,
                     sorts = SongSortBy.entries
                         .associateWith { x -> wrapInViewContext { x.label(it) } },
                     onSortChange = {
-                        context.symphony.settings.setLastUsedFolderSortBy(it)
+                        context.symphony.settings.setLastUsedBrowserSortBy(it)
                     },
                     label = {
                         Text(
@@ -198,11 +198,11 @@ fun SongExplorerList(
 
                     LazyColumn(
                         state = lazyListState,
-                        modifier = Modifier.drawScrollBar(lazyListState)
+                        modifier = Modifier.drawScrollBar(lazyListState),
                     ) {
                         items(
                             sortedEntities.folders,
-                            key = { it.basename },
+                            key = { it.fullPath },
                             contentType = { SongFolderContentType }
                         ) { folder ->
                             Card(

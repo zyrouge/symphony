@@ -38,9 +38,9 @@ object SettingsKeys {
     const val lastUsedAlbumsSortReverse = "last_used_albums_sort_reverse"
     const val lastUsedGenresSortBy = "last_used_genres_sort_by"
     const val lastUsedGenresSortReverse = "last_used_genres_sort_reverse"
-    const val lastUsedFolderSortBy = "last_used_folder_sort_by"
-    const val lastUsedFolderSortReverse = "last_used_folder_sort_reverse"
-    const val lastUsedFolderPath = "last_used_folder_path"
+    const val lastUsedBrowserSortBy = "last_used_folder_sort_by"
+    const val lastUsedBrowserSortReverse = "last_used_folder_sort_reverse"
+    const val lastUsedBrowserPath = "last_used_folder_path"
     const val lastUsedPlaylistsSortBy = "last_used_playlists_sort_by"
     const val lastUsedPlaylistsSortReverse = "last_used_playlists_sort_reverse"
     const val lastUsedPlaylistSongsSortBy = "last_used_playlist_songs_sort_by"
@@ -49,6 +49,8 @@ object SettingsKeys {
     const val lastUsedAlbumSongsSortReverse = "last_used_album_songs_sort_reverse"
     const val lastUsedTreePathSortBy = "last_used_tree_path_sort_by"
     const val lastUsedTreePathSortReverse = "last_used_tree_path_sort_reverse"
+    const val lastUsedFoldersSortBy = "last_used_folders_sort_by"
+    const val lastUsedFoldersSortReverse = "last_used_folders_sort_reverse"
     const val lastDisabledTreePaths = "last_disabled_tree_paths"
     const val previousSongQueue = "previous_song_queue"
     const val homeLastTab = "home_last_page"
@@ -92,11 +94,12 @@ object SettingsDefaults {
     val lastUsedAlbumArtistsSortBy = AlbumArtistSortBy.ARTIST_NAME
     val lastUsedAlbumsSortBy = AlbumSortBy.ALBUM_NAME
     val lastUsedGenresSortBy = GenreSortBy.GENRE
-    val lastUsedFolderSortBy = SongSortBy.FILENAME
+    val lastUsedBrowserSortBy = SongSortBy.FILENAME
     val lastUsedPlaylistsSortBy = PlaylistSortBy.TITLE
     val lastUsedPlaylistSongsSortBy = SongSortBy.CUSTOM
     val lastUsedAlbumSongsSortBy = SongSortBy.TRACK_NUMBER
     val lastUsedTreePathSortBy = PathSortBy.NAME
+    val lastUsedFoldersSortBy = PathSortBy.NAME
     const val checkForUpdates = false
     const val fadePlayback = false
     const val requireAudioFocus = true
@@ -143,118 +146,179 @@ object SettingsDefaults {
 class SettingsManager(private val symphony: Symphony) {
     private val _themeMode = MutableStateFlow(getThemeMode())
     val themeMode = _themeMode.asStateFlow()
+
     private val _language = MutableStateFlow(getLanguage())
     val language = _language.asStateFlow()
+
     private val _useMaterialYou = MutableStateFlow(getUseMaterialYou())
     val useMaterialYou = _useMaterialYou.asStateFlow()
+
     private val _lastUsedSongsSortBy = MutableStateFlow(getLastUsedSongsSortBy())
     val lastUsedSongsSortBy = _lastUsedSongsSortBy.asStateFlow()
+
     private val _lastUsedSongsSortReverse = MutableStateFlow(getLastUsedSongsSortReverse())
     val lastUsedSongsSortReverse = _lastUsedSongsSortReverse.asStateFlow()
+
     private val _lastUsedArtistsSortBy = MutableStateFlow(getLastUsedArtistsSortBy())
     val lastUsedArtistsSortBy = _lastUsedArtistsSortBy.asStateFlow()
+
     private val _lastUsedArtistsSortReverse = MutableStateFlow(getLastUsedArtistsSortReverse())
     val lastUsedArtistsSortReverse = _lastUsedArtistsSortReverse.asStateFlow()
+
     private val _lastUsedAlbumArtistsSortBy = MutableStateFlow(getLastUsedAlbumArtistsSortBy())
     val lastUsedAlbumArtistsSortBy = _lastUsedAlbumArtistsSortBy.asStateFlow()
+
     private val _lastUsedAlbumArtistsSortReverse =
         MutableStateFlow(getLastUsedAlbumArtistsSortReverse())
     val lastUsedAlbumArtistsSortReverse = _lastUsedAlbumArtistsSortReverse.asStateFlow()
+
     private val _lastUsedAlbumsSortBy = MutableStateFlow(getLastUsedAlbumsSortBy())
     val lastUsedAlbumsSortBy = _lastUsedAlbumsSortBy.asStateFlow()
+
     private val _lastUsedAlbumsSortReverse = MutableStateFlow(getLastUsedAlbumsSortReverse())
     val lastUsedAlbumsSortReverse = _lastUsedAlbumsSortReverse.asStateFlow()
+
     private val _lastUsedGenresSortBy = MutableStateFlow(getLastUsedGenresSortBy())
     val lastUsedGenresSortBy = _lastUsedGenresSortBy.asStateFlow()
+
     private val _lastUsedGenresSortReverse = MutableStateFlow(getLastUsedGenresSortReverse())
     val lastUsedGenresSortReverse = _lastUsedGenresSortReverse.asStateFlow()
-    private val _lastUsedFolderSortBy = MutableStateFlow(getLastUsedFolderSortBy())
-    val lastUsedFolderSortBy = _lastUsedFolderSortBy.asStateFlow()
-    private val _lastUsedFolderSortReverse = MutableStateFlow(getLastUsedFolderSortReverse())
-    val lastUsedFolderSortReverse = _lastUsedFolderSortReverse.asStateFlow()
-    private val _lastUsedFolderPath = MutableStateFlow(getLastUsedFolderPath())
-    val lastUsedFolderPath = _lastUsedFolderPath.asStateFlow()
+
+    private val _lastUsedBrowserSortBy = MutableStateFlow(getLastUsedBrowserSortBy())
+    val lastUsedBrowserSortBy = _lastUsedBrowserSortBy.asStateFlow()
+
+    private val _lastUsedBrowserSortReverse = MutableStateFlow(getLastUsedBrowserSortReverse())
+    val lastUsedBrowserSortReverse = _lastUsedBrowserSortReverse.asStateFlow()
+
+    private val _lastUsedBrowserPath = MutableStateFlow(getLastUsedBrowserPath())
+    val lastUsedBrowserPath = _lastUsedBrowserPath.asStateFlow()
+
     private val _lastUsedPlaylistsSortBy = MutableStateFlow(getLastUsedPlaylistsSortBy())
     val lastUsedPlaylistsSortBy = _lastUsedPlaylistsSortBy.asStateFlow()
+
     private val _lastUsedPlaylistsSortReverse = MutableStateFlow(getLastUsedPlaylistsSortReverse())
     val lastUsedPlaylistsSortReverse = _lastUsedPlaylistsSortReverse.asStateFlow()
+
     private val _lastUsedPlaylistSongsSortBy = MutableStateFlow(getLastUsedPlaylistSongsSortBy())
     val lastUsedPlaylistSongsSortBy = _lastUsedPlaylistSongsSortBy.asStateFlow()
+
     private val _lastUsedPlaylistSongsSortReverse =
         MutableStateFlow(getLastUsedPlaylistSongsSortReverse())
     val lastUsedPlaylistSongsSortReverse = _lastUsedPlaylistSongsSortReverse.asStateFlow()
+
     private val _lastUsedAlbumSongsSortBy = MutableStateFlow(getLastUsedAlbumSongsSortBy())
     val lastUsedAlbumSongsSortBy = _lastUsedAlbumSongsSortBy.asStateFlow()
+
     private val _lastUsedAlbumSongsSortReverse =
         MutableStateFlow(getLastUsedAlbumSongsSortReverse())
     val lastUsedAlbumSongsSortReverse = _lastUsedAlbumSongsSortReverse.asStateFlow()
+
     private val _lastUsedTreePathSortBy = MutableStateFlow(getLastUsedTreePathSortBy())
     val lastUsedTreePathSortBy = _lastUsedTreePathSortBy.asStateFlow()
-    private val _lastUsedTreePathSortReverse = MutableStateFlow(getLastUsedFolderSortReverse())
+
+    private val _lastUsedTreePathSortReverse = MutableStateFlow(getLastUsedTreePathSortReverse())
     val lastUsedTreePathSortReverse = _lastUsedTreePathSortReverse.asStateFlow()
+
+    private val _lastUsedFoldersSortBy = MutableStateFlow(getLastUsedFoldersSortBy())
+    val lastUsedFoldersSortBy = _lastUsedFoldersSortBy.asStateFlow()
+
+    private val _lastUsedFoldersSortReverse = MutableStateFlow(getLastUsedFoldersSortReverse())
+    val lastUsedFoldersSortReverse = _lastUsedFoldersSortReverse.asStateFlow()
+
     private val _lastDisabledTreePaths = MutableStateFlow(getLastDisabledTreePaths())
     val lastDisabledTreePaths = _lastDisabledTreePaths.asStateFlow()
+
     private val _homeLastTab = MutableStateFlow(getHomeLastTab())
     val homeLastTab = _homeLastTab.asStateFlow()
+
     private val _songsFilterPattern = MutableStateFlow(getSongsFilterPattern())
     val songsFilterPattern = _songsFilterPattern.asStateFlow()
+
     private val _checkForUpdates = MutableStateFlow(getCheckForUpdates())
     val checkForUpdates = _checkForUpdates.asStateFlow()
+
     private val _fadePlayback = MutableStateFlow(getFadePlayback())
     val fadePlayback = _fadePlayback.asStateFlow()
+
     private val _requireAudioFocus = MutableStateFlow(getRequireAudioFocus())
     val requireAudioFocus = _requireAudioFocus.asStateFlow()
+
     private val _ignoreAudioFocusLoss = MutableStateFlow(getIgnoreAudioFocusLoss())
     val ignoreAudioFocusLoss = _ignoreAudioFocusLoss.asStateFlow()
+
     private val _playOnHeadphonesConnect = MutableStateFlow(getPlayOnHeadphonesConnect())
     val playOnHeadphonesConnect = _playOnHeadphonesConnect.asStateFlow()
+
     private val _pauseOnHeadphonesDisconnect = MutableStateFlow(getPauseOnHeadphonesDisconnect())
     val pauseOnHeadphonesDisconnect = _pauseOnHeadphonesDisconnect.asStateFlow()
+
     private val _primaryColor = MutableStateFlow(getPrimaryColor())
     val primaryColor = _primaryColor.asStateFlow()
+
     private val _fadePlaybackDuration = MutableStateFlow(getFadePlaybackDuration())
     val fadePlaybackDuration = _fadePlaybackDuration.asStateFlow()
+
     private val _homeTabs = MutableStateFlow(getHomeTabs())
     val homeTabs = _homeTabs.asStateFlow()
+
     private val _homePageBottomBarLabelVisibility =
         MutableStateFlow(getHomePageBottomBarLabelVisibility())
     val homePageBottomBarLabelVisibility = _homePageBottomBarLabelVisibility.asStateFlow()
+
     private val _forYouContents = MutableStateFlow(getForYouContents())
     val forYouContents = _forYouContents.asStateFlow()
+
     private val _blacklistFolders = MutableStateFlow(getBlacklistFolders())
     val blacklistFolders = _blacklistFolders.asStateFlow()
+
     private val _whitelistFolders = MutableStateFlow(getWhitelistFolders())
     val whitelistFolders = _whitelistFolders.asStateFlow()
+
     private val _readIntroductoryMessage = MutableStateFlow(getReadIntroductoryMessage())
     val readIntroductoryMessage = _readIntroductoryMessage.asStateFlow()
+
     private val _nowPlayingAdditionalInfo = MutableStateFlow(getNowPlayingAdditionalInfo())
     val nowPlayingAdditionalInfo = _nowPlayingAdditionalInfo.asStateFlow()
+
     private val _nowPlayingSeekControls = MutableStateFlow(getNowPlayingSeekControls())
     val nowPlayingSeekControls = _nowPlayingSeekControls.asStateFlow()
+
     private val _seekBackDuration = MutableStateFlow(getSeekBackDuration())
     val seekBackDuration = _seekBackDuration.asStateFlow()
+
     private val _seekForwardDuration = MutableStateFlow(getSeekForwardDuration())
     val seekForwardDuration = _seekForwardDuration.asStateFlow()
+
     private val _miniPlayerTrackControls = MutableStateFlow(getMiniPlayerTrackControls())
     val miniPlayerTrackControls = _miniPlayerTrackControls.asStateFlow()
+
     private val _miniPlayerSeekControls = MutableStateFlow(getMiniPlayerSeekControls())
     val miniPlayerSeekControls = _miniPlayerSeekControls.asStateFlow()
+
     private val _fontFamily = MutableStateFlow(getFontFamily())
     val fontFamily = _fontFamily.asStateFlow()
+
     private val _nowPlayingControlsLayout = MutableStateFlow(getNowPlayingControlsLayout())
     val nowPlayingControlsLayout = _nowPlayingControlsLayout.asStateFlow()
+
     private val _showUpdateToast = MutableStateFlow(getShowUpdateToast())
     val showUpdateToast = _showUpdateToast.asStateFlow()
+
     private val _fontScale = MutableStateFlow(getFontScale())
     val fontScale = _fontScale.asStateFlow()
+
     private val _contentScale = MutableStateFlow(getContentScale())
     val contentScale = _contentScale.asStateFlow()
+
     private val _nowPlayingLyricsLayout = MutableStateFlow(getNowPlayingLyricsLayout())
     val nowPlayingLyricsLayout = _nowPlayingLyricsLayout.asStateFlow()
+
     private val _artistTagSeparators = MutableStateFlow(getArtistTagSeparators())
     val artistTagSeparators = _artistTagSeparators.asStateFlow()
+
     private val _genreTagSeparators = MutableStateFlow(getGenreTagSeparators())
     val genreTagSeparators = _genreTagSeparators.asStateFlow()
+
     private val _miniPlayerTextMarquee = MutableStateFlow(getMiniPlayerTextMarquee())
     val miniPlayerTextMarquee = _miniPlayerTextMarquee.asStateFlow()
 
@@ -394,36 +458,36 @@ class SettingsManager(private val symphony: Symphony) {
         _lastUsedGenresSortReverse.updateUsingValue(getLastUsedGenresSortReverse())
     }
 
-    fun getLastUsedFolderSortBy() = getSharedPreferences()
-        .getEnum(SettingsKeys.lastUsedFolderSortBy, null)
-        ?: SettingsDefaults.lastUsedFolderSortBy
+    fun getLastUsedBrowserSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedBrowserSortBy, null)
+        ?: SettingsDefaults.lastUsedBrowserSortBy
 
-    fun setLastUsedFolderSortBy(sortBy: SongSortBy) {
+    fun setLastUsedBrowserSortBy(sortBy: SongSortBy) {
         getSharedPreferences().edit {
-            putEnum(SettingsKeys.lastUsedFolderSortBy, sortBy)
+            putEnum(SettingsKeys.lastUsedBrowserSortBy, sortBy)
         }
-        _lastUsedFolderSortBy.updateUsingValue(getLastUsedFolderSortBy())
+        _lastUsedBrowserSortBy.updateUsingValue(getLastUsedBrowserSortBy())
     }
 
-    fun getLastUsedFolderSortReverse() =
-        getSharedPreferences().getBoolean(SettingsKeys.lastUsedFolderSortReverse, false)
+    fun getLastUsedBrowserSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedBrowserSortReverse, false)
 
-    fun setLastUsedFolderSortReverse(reverse: Boolean) {
+    fun setLastUsedBrowserSortReverse(reverse: Boolean) {
         getSharedPreferences().edit {
-            putBoolean(SettingsKeys.lastUsedFolderSortReverse, reverse)
+            putBoolean(SettingsKeys.lastUsedBrowserSortReverse, reverse)
         }
-        _lastUsedFolderSortReverse.updateUsingValue(getLastUsedFolderSortReverse())
+        _lastUsedBrowserSortReverse.updateUsingValue(getLastUsedBrowserSortReverse())
     }
 
-    fun getLastUsedFolderPath() =
-        getSharedPreferences().getString(SettingsKeys.lastUsedFolderPath, null)
+    fun getLastUsedBrowserPath() =
+        getSharedPreferences().getString(SettingsKeys.lastUsedBrowserPath, null)
             ?.split("/")?.toList()
 
-    fun setLastUsedFolderPath(path: List<String>) {
+    fun setLastUsedBrowserPath(path: List<String>) {
         getSharedPreferences().edit {
-            putString(SettingsKeys.lastUsedFolderPath, path.joinToString("/"))
+            putString(SettingsKeys.lastUsedBrowserPath, path.joinToString("/"))
         }
-        _lastUsedFolderPath.updateUsingValue(getLastUsedFolderPath())
+        _lastUsedBrowserPath.updateUsingValue(getLastUsedBrowserPath())
     }
 
     fun getLastUsedPlaylistsSortBy() = getSharedPreferences()
@@ -508,6 +572,27 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.lastUsedTreePathSortReverse, reverse)
         }
         _lastUsedTreePathSortReverse.updateUsingValue(getLastUsedTreePathSortReverse())
+    }
+
+    fun getLastUsedFoldersSortBy() = getSharedPreferences()
+        .getEnum(SettingsKeys.lastUsedFoldersSortBy, null)
+        ?: SettingsDefaults.lastUsedFoldersSortBy
+
+    fun setLastUsedFoldersSortBy(sortBy: PathSortBy) {
+        getSharedPreferences().edit {
+            putEnum(SettingsKeys.lastUsedFoldersSortBy, sortBy)
+        }
+        _lastUsedFoldersSortBy.updateUsingValue(getLastUsedFoldersSortBy())
+    }
+
+    fun getLastUsedFoldersSortReverse() =
+        getSharedPreferences().getBoolean(SettingsKeys.lastUsedFoldersSortReverse, false)
+
+    fun setLastUsedFoldersSortReverse(reverse: Boolean) {
+        getSharedPreferences().edit {
+            putBoolean(SettingsKeys.lastUsedFoldersSortReverse, reverse)
+        }
+        _lastUsedFoldersSortReverse.updateUsingValue(getLastUsedFoldersSortReverse())
     }
 
     fun getPreviousSongQueue() = getSharedPreferences()
