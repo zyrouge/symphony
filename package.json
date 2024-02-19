@@ -28,7 +28,7 @@
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
         "@zyrouge/phrasey-toml": "^1.0.3",
         "fs-extra": "^11.2.0",
-        "phrasey": "^2.0.25",
+        "phrasey": "^2.0.26",
         "picocolors": "^1.0.0",
         "prettier": "^3.2.4",
         "prettier-plugin-toml": "^2.0.1",
