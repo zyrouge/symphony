@@ -1,0 +1,5 @@
+* Added individual folders view.
+* Added monochrome icon back.
+* Fixed incorrect album songs sort.
+* Added Persian (Farsi) and Polish translation.
+* Updated Portuguese, Japanese and Uchinaguchi translations.
