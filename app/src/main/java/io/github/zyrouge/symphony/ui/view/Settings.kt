@@ -352,7 +352,7 @@ fun SettingsView(context: ViewContext) {
                             Text(context.symphony.t.PrimaryColor)
                         },
                         value = ThemeColors.resolvePrimaryColorKey(primaryColor),
-                        values = PrimaryThemeColors.entries.associateWith { it.toHumanString() },
+                        values = PrimaryThemeColors.entries.associateWith { it.label(context) },
                         enabled = !useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.setPrimaryColor(value.name)
@@ -854,24 +854,38 @@ fun SettingsView(context: ViewContext) {
     )
 }
 
-fun HomePageBottomBarLabelVisibility.label(context: ViewContext): String {
-    return when (this) {
-        HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE -> context.symphony.t.AlwaysVisible
-        HomePageBottomBarLabelVisibility.VISIBLE_WHEN_ACTIVE -> context.symphony.t.VisibleWhenActive
-        HomePageBottomBarLabelVisibility.INVISIBLE -> context.symphony.t.Invisible
-    }
+fun HomePageBottomBarLabelVisibility.label(context: ViewContext) = when (this) {
+    HomePageBottomBarLabelVisibility.ALWAYS_VISIBLE -> context.symphony.t.AlwaysVisible
+    HomePageBottomBarLabelVisibility.VISIBLE_WHEN_ACTIVE -> context.symphony.t.VisibleWhenActive
+    HomePageBottomBarLabelVisibility.INVISIBLE -> context.symphony.t.Invisible
 }
 
-fun NowPlayingControlsLayout.label(context: ViewContext): String {
-    return when (this) {
-        NowPlayingControlsLayout.Default -> context.symphony.t.Default
-        NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
-    }
+fun NowPlayingControlsLayout.label(context: ViewContext) = when (this) {
+    NowPlayingControlsLayout.Default -> context.symphony.t.Default
+    NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
 }
 
-fun NowPlayingLyricsLayout.label(context: ViewContext): String {
-    return when (this) {
-        NowPlayingLyricsLayout.ReplaceArtwork -> context.symphony.t.ReplaceArtwork
-        NowPlayingLyricsLayout.SeparatePage -> context.symphony.t.SeparatePage
-    }
+fun NowPlayingLyricsLayout.label(context: ViewContext) = when (this) {
+    NowPlayingLyricsLayout.ReplaceArtwork -> context.symphony.t.ReplaceArtwork
+    NowPlayingLyricsLayout.SeparatePage -> context.symphony.t.SeparatePage
+}
+
+fun PrimaryThemeColors.label(context: ViewContext) = when (this) {
+    PrimaryThemeColors.Red -> context.symphony.t.Red
+    PrimaryThemeColors.Orange -> context.symphony.t.Orange
+    PrimaryThemeColors.Amber -> context.symphony.t.Amber
+    PrimaryThemeColors.Yellow -> context.symphony.t.Yellow
+    PrimaryThemeColors.Lime -> context.symphony.t.Lime
+    PrimaryThemeColors.Green -> context.symphony.t.Green
+    PrimaryThemeColors.Emerald -> context.symphony.t.Emerald
+    PrimaryThemeColors.Teal -> context.symphony.t.Teal
+    PrimaryThemeColors.Cyan -> context.symphony.t.Cyan
+    PrimaryThemeColors.Sky -> context.symphony.t.Sky
+    PrimaryThemeColors.Blue -> context.symphony.t.Blue
+    PrimaryThemeColors.Indigo -> context.symphony.t.Indigo
+    PrimaryThemeColors.Violet -> context.symphony.t.Violet
+    PrimaryThemeColors.Purple -> context.symphony.t.Purple
+    PrimaryThemeColors.Fuchsia -> context.symphony.t.Fuchsia
+    PrimaryThemeColors.Pink -> context.symphony.t.Pink
+    PrimaryThemeColors.Rose -> context.symphony.t.Rose
 }
