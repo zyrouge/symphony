@@ -23,16 +23,16 @@
     "license": "AGPL-3.0",
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",
-        "@types/node": "^20.11.16",
+        "@types/node": "^20.11.28",
         "@zyrouge/phrasey-json": "^1.0.3",
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
         "@zyrouge/phrasey-toml": "^1.0.3",
         "fs-extra": "^11.2.0",
-        "phrasey": "^2.0.25",
+        "phrasey": "^2.0.26",
         "picocolors": "^1.0.0",
-        "prettier": "^3.2.4",
+        "prettier": "^3.2.5",
         "prettier-plugin-toml": "^2.0.1",
-        "tsx": "^4.7.0",
-        "typescript": "^5.3.3"
+        "tsx": "^4.7.1",
+        "typescript": "^5.4.2"
     }
 }

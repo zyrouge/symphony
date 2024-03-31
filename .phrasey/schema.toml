@@ -629,3 +629,54 @@ name = "DiscNumber"
 
 [[keys]]
 name = "Browser"
+
+[[keys]]
+name = "Red"
+
+[[keys]]
+name = "Orange"
+
+[[keys]]
+name = "Amber"
+
+[[keys]]
+name = "Yellow"
+
+[[keys]]
+name = "Lime"
+
+[[keys]]
+name = "Green"
+
+[[keys]]
+name = "Emerald"
+
+[[keys]]
+name = "Teal"
+
+[[keys]]
+name = "Cyan"
+
+[[keys]]
+name = "Sky"
+
+[[keys]]
+name = "Blue"
+
+[[keys]]
+name = "Indigo"
+
+[[keys]]
+name = "Violet"
+
+[[keys]]
+name = "Purple"
+
+[[keys]]
+name = "Fuchsia"
+
+[[keys]]
+name = "Pink"
+
+[[keys]]
+name = "Rose"

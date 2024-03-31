@@ -20,12 +20,6 @@ enum class PrimaryThemeColors {
     Fuchsia,
     Pink,
     Rose;
-
-    fun toHumanString() = name
-        .split("_")
-        .joinToString(" ") {
-            it[0].uppercase() + it.substring(1).lowercase()
-        }
 }
 
 object ThemeColors {
