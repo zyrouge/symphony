@@ -39,7 +39,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private object GenreTile {
-    val colors = mutableListOf(
+    val colors = listOf(
         0xFFEF4444,
         0xFFF97316,
         0xFFF59E0B,
