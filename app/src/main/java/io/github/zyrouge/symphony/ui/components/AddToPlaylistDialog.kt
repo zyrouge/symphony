@@ -94,7 +94,7 @@ fun AddToPlaylistDialog(
                 }
             }
         },
-        removeActionsHorizontalPadding = true,
+        removeActionsVerticalPadding = true,
         actions = {
             TextButton(
                 modifier = Modifier.offset(y = (-8).dp),

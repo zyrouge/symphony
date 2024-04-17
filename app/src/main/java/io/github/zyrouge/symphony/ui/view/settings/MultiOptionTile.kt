@@ -163,6 +163,7 @@ fun <T> SettingsMultiOptionTile(
                     }
                 }
             },
+            removeActionsVerticalPadding = true,
             actions = {
                 TextButton(
                     onClick = {
