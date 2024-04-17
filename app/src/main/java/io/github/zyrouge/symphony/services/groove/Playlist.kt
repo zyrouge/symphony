@@ -2,7 +2,6 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
-import coil.request.ImageRequest
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.ui.helpers.Assets
@@ -73,6 +72,8 @@ data class Playlist(
     }
 
     companion object {
+        private const val ROOT_STORAGE = "/storage/emulated/0"
+
         const val PLAYLIST_ID_KEY = "id"
         const val PLAYLIST_TITLE_KEY = "title"
         const val PLAYLIST_SONGS_KEY = "songs"
@@ -96,7 +97,8 @@ data class Playlist(
             val songs = mutableListOf<Long>()
             m3u.entries.forEach { entry ->
                 val resolvedPath = when {
-                    GrooveExplorer.Path.isAbsolute(entry.path) -> entry.path
+                    symphony.groove.song.pathCache.containsKey(entry.path) -> entry.path
+                    GrooveExplorer.Path.isAbsolute(entry.path) -> ROOT_STORAGE + entry.path
                     else -> "/" + dir.resolve(GrooveExplorer.Path(entry.path)).toString()
                 }
                 val id = symphony.groove.song.pathCache[resolvedPath]
