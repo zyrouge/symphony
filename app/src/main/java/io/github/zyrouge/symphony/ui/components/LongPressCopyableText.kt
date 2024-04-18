@@ -5,14 +5,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.copyToClipboardWithToast
 
 @Composable
 fun LongPressCopyableText(context: ViewContext, text: String) {
-    val clipboardManager = LocalClipboardManager.current
-
     Text(
         text,
         modifier = Modifier.pointerInput(Unit) {
