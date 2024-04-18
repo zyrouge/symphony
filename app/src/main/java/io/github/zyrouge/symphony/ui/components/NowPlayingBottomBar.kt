@@ -10,7 +10,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -91,13 +90,14 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
 
     AnimatedContent(
-        label = "c-now-playing-container",
         modifier = Modifier.fillMaxWidth(),
+        label = "c-now-playing-container",
         targetState = currentPlayingSong,
         contentKey = { it != null },
         transitionSpec = {
-            slideInVertically().plus(fadeIn())
-                .togetherWith(slideOutVertically().plus(fadeOut()))
+            val from = slideInVertically() + fadeIn()
+            val to = slideOutVertically() + fadeOut()
+            from togetherWith to
         }
     ) { currentPlayingSongTarget ->
         currentPlayingSongTarget?.let { currentSong ->
@@ -228,7 +228,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                     Spacer(modifier = Modifier.navigationBarsPadding())
                 }
             }
-        }
+        } ?: Box {}
     }
 }
 
@@ -297,7 +297,6 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NowPlayingBottomBarContentText(
     context: ViewContext,
