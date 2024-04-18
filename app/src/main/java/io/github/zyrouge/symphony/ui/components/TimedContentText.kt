@@ -52,11 +52,13 @@ data class TimedContentTextStyle(
 ) {
     companion object {
         @Composable
-        fun defaultStyle() = LocalTextStyle.current.let {
-            TimedContentTextStyle(
-                highlighted = it,
-                active = it.copy(fontWeight = FontWeight.Bold),
-                inactive = it.copy(color = LocalContentColor.current.copy(alpha = 0.5f)),
+        fun defaultStyle(): TimedContentTextStyle {
+            val contentColor = LocalContentColor.current
+            val textStyle = LocalTextStyle.current.copy(color = contentColor)
+            return TimedContentTextStyle(
+                highlighted = textStyle,
+                active = textStyle.copy(fontWeight = FontWeight.Bold),
+                inactive = textStyle.copy(color = contentColor.copy(alpha = 0.5f)),
                 spacing = 0.dp,
             )
         }
@@ -136,7 +138,7 @@ fun TimedContentText(
             Text(
                 x.second,
                 modifier = Modifier
-                    .animateItemPlacement()
+                    .animateItem()
                     .fillMaxWidth()
                     .pointerInput(Unit) {
                         detectTapGestures { _ ->
