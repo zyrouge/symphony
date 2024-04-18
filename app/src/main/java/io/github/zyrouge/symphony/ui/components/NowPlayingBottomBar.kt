@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -164,10 +163,9 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                             targetState = currentSong,
                             transitionSpec = {
                                 val from = fadeIn(
-                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
-                                ) + scaleIn(
-                                    initialScale = 0.99f,
-                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
+                                    animationSpec = TransitionDurations.Normal.asTween(
+                                        delayMillis = TransitionDurations.Fast.milliseconds,
+                                    ),
                                 )
                                 val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
                                 from togetherWith to
@@ -256,18 +254,13 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
                     detectHorizontalDragGestures(
                         onDragEnd = {
                             val thresh = cardWidthPx / 4
-                            offsetX = when {
-                                -offsetX > thresh -> {
-                                    val changed = context.symphony.radio.shorty.skip()
-                                    if (changed) -cardWidthPx.toFloat() else 0f
-                                }
-
-                                offsetX > thresh -> {
-                                    val changed = context.symphony.radio.shorty.previous()
-                                    if (changed) cardWidthPx.toFloat() else 0f
-                                }
-
-                                else -> 0f
+                            val affected = when {
+                                -offsetX > thresh -> context.symphony.radio.shorty.skip()
+                                offsetX > thresh -> context.symphony.radio.shorty.previous()
+                                else -> false
+                            }
+                            if (!affected) {
+                                offsetX = 0f
                             }
                         },
                         onDragCancel = {
