@@ -107,6 +107,11 @@ object ThemeColorSchemes {
         tertiaryContainer = convertDarkToBlack(colorScheme.tertiaryContainer),
         background = BlackContrastColor,
         surface = convertDarkToBlack(colorScheme.surface),
+        surfaceContainerLowest = convertDarkToBlack(colorScheme.surfaceContainerLowest),
+        surfaceContainerLow = convertDarkToBlack(colorScheme.surfaceContainerLow),
+        surfaceContainer = convertDarkToBlack(colorScheme.surfaceContainer),
+        surfaceContainerHigh = convertDarkToBlack(colorScheme.surfaceContainerHigh),
+        surfaceContainerHighest = convertDarkToBlack(colorScheme.surfaceContainerHighest),
         surfaceVariant = convertDarkToBlack(colorScheme.surfaceVariant),
         surfaceTint = convertDarkToBlack(colorScheme.surfaceTint),
     )

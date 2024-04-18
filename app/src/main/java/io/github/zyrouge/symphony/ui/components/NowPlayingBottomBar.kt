@@ -101,20 +101,17 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
         }
     ) { currentPlayingSongTarget ->
         currentPlayingSongTarget?.let { currentSong ->
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))
-            ) {
+            Column {
                 Box(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary.copy(0.3f))
+                        .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.25f))
                         .height(2.dp)
                         .fillMaxWidth()
                 ) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(MaterialTheme.colorScheme.surfaceTint)
                             .fillMaxHeight()
                             .fillMaxWidth(playbackPosition.ratio)
                     )
