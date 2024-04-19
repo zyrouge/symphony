@@ -119,11 +119,11 @@ data class Song(
                 val genreSeparators = symphony.settings.genreTagSeparators.value
                 return AdditionalMetadata(
                     albumArtists = albumArtist
-                        ?.let { Song.parseMultiValue(it, artistSeparators) }
+                        ?.let { parseMultiValue(it, artistSeparators) }
                         ?: setOf(),
                     bitrate = bitrate,
                     genres = genre
-                        ?.let { Song.parseMultiValue(it, genreSeparators) }
+                        ?.let { parseMultiValue(it, genreSeparators) }
                         ?: setOf(),
                     bitsPerSample = bitsPerSample,
                     samplingRate = samplingRate,
