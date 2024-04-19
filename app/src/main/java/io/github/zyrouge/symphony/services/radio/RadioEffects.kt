@@ -1,6 +1,6 @@
 package io.github.zyrouge.symphony.services.radio
 
-import java.util.*
+import java.util.Timer
 import kotlin.math.max
 import kotlin.math.min
 
@@ -32,8 +32,10 @@ object RadioEffects {
             timer = kotlin.concurrent.timer(period = options.interval.toLong()) {
                 if (volume != options.to) {
                     onUpdate(volume)
-                    volume = if (isReverse) max(options.to, volume + increments)
-                    else min(options.to, volume + increments)
+                    volume = when {
+                        isReverse -> max(options.to, volume + increments)
+                        else -> min(options.to, volume + increments)
+                    }
                 } else {
                     ended = true
                     onFinish(true)
