@@ -21,7 +21,7 @@ enum class ArtistSortBy {
 class ArtistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Artist>()
     private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
-    private val albumNamesCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
+    private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
     )
@@ -43,8 +43,8 @@ class ArtistRepository(private val symphony: Symphony) {
                     ?: ConcurrentSet(song.id)
             }
             var nNumberOfAlbums = 0
-            song.album?.let { album ->
-                albumNamesCache.compute(artist) { _, value ->
+            symphony.groove.album.getIdFromSong(song)?.let { album ->
+                albumIdsCache.compute(artist) { _, value ->
                     nNumberOfAlbums = (value?.size ?: 0) + 1
                     value?.apply { add(album) }
                         ?: ConcurrentSet(album)
@@ -112,6 +112,6 @@ class ArtistRepository(private val symphony: Symphony) {
 
     fun get(id: String) = cache[id]
     fun get(ids: List<String>) = ids.mapNotNull { get(it) }
-    fun getAlbumNames(artistName: String) = albumNamesCache[artistName]?.toList() ?: emptyList()
+    fun getAlbumIds(artistName: String) = albumIdsCache[artistName]?.toList() ?: emptyList()
     fun getSongIds(artistName: String) = songIdsCache[artistName]?.toList() ?: emptyList()
 }

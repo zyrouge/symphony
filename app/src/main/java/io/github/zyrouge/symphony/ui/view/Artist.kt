@@ -41,15 +41,15 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun ArtistView(context: ViewContext, artistName: String) {
     val allArtistNames by context.symphony.groove.artist.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val allAlbumNames by context.symphony.groove.album.all.collectAsState()
+    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
     val artist by remember(allArtistNames) {
         derivedStateOf { context.symphony.groove.artist.get(artistName) }
     }
     val songIds by remember(artist, allSongIds) {
         derivedStateOf { artist?.getSongIds(context.symphony) ?: listOf() }
     }
-    val albumNames by remember(artist, allAlbumNames) {
-        derivedStateOf { artist?.getAlbumNames(context.symphony) ?: listOf() }
+    val albumIds by remember(artist, allAlbumIds) {
+        derivedStateOf { artist?.getAlbumIds(context.symphony) ?: listOf() }
     }
     val isViable by remember(allArtistNames) {
         derivedStateOf { allArtistNames.contains(artistName) }
@@ -97,10 +97,10 @@ fun ArtistView(context: ViewContext, artistName: String) {
                             item {
                                 ArtistHero(context, artist!!)
                             }
-                            if (albumNames.isNotEmpty()) {
+                            if (albumIds.isNotEmpty()) {
                                 item {
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    AlbumRow(context, albumNames)
+                                    AlbumRow(context, albumIds)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     HorizontalDivider()
                                 }

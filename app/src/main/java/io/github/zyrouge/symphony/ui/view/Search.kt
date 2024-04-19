@@ -101,7 +101,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                 delay(250)
                 val songIds = mutableListOf<Long>()
                 val artistNames = mutableListOf<String>()
-                val albumNames = mutableListOf<String>()
+                val albumIds = mutableListOf<String>()
                 val albumArtistNames = mutableListOf<String>()
                 val genreNames = mutableListOf<String>()
                 val playlistIds = mutableListOf<String>()
@@ -122,7 +122,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                         )
                     }
                     if (isChipSelected(GrooveKinds.ALBUM)) {
-                        albumNames.addAll(
+                        albumIds.addAll(
                             context.symphony.groove.album
                                 .search(context.symphony.groove.album.ids(), terms)
                                 .map { it.entity }
@@ -153,7 +153,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                     results = SearchResult(
                         songIds = songIds,
                         artistNames = artistNames,
-                        albumIds = albumNames,
+                        albumIds = albumIds,
                         albumArtistNames = albumArtistNames,
                         genreNames = genreNames,
                         playlistIds = playlistIds,

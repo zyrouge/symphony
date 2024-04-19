@@ -19,5 +19,5 @@ data class AlbumArtist(
         symphony.settings.getLastUsedSongsSortReverse(),
     )
 
-    fun getAlbumNames(symphony: Symphony) = symphony.groove.albumArtist.getAlbumNames(name)
+    fun getAlbumIds(symphony: Symphony) = symphony.groove.albumArtist.getAlbumIds(name)
 }

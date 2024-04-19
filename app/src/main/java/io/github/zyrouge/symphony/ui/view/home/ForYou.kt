@@ -71,7 +71,7 @@ fun ForYouView(context: ViewContext) {
     val artistsIsUpdating by context.symphony.groove.artist.isUpdating.collectAsState()
     val songsIsUpdating by context.symphony.groove.song.isUpdating.collectAsState()
     val albumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
-    val albumNames by context.symphony.groove.album.all.collectAsState()
+    val albumIds by context.symphony.groove.album.all.collectAsState()
     val artistNames by context.symphony.groove.artist.all.collectAsState()
     val songIds by context.symphony.groove.song.all.collectAsState()
     val sortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
@@ -97,10 +97,10 @@ fun ForYouView(context: ViewContext) {
                     }
                 }
             }
-            val randomAlbums by remember(albumsIsUpdating, albumNames) {
+            val randomAlbums by remember(albumsIsUpdating, albumIds) {
                 derivedStateOf {
                     runIfOrDefault(!albumsIsUpdating, listOf()) {
-                        albumNames.randomSubList(6)
+                        albumIds.randomSubList(6)
                     }
                 }
             }
@@ -269,7 +269,7 @@ fun ForYouView(context: ViewContext) {
                         ForYou.Albums -> SuggestedAlbums(
                             context,
                             isLoading = albumsIsUpdating,
-                            albumNames = randomAlbums,
+                            albumIds = randomAlbums,
                         )
 
                         ForYou.Artists -> SuggestedArtists(
@@ -423,11 +423,11 @@ private fun <T> SixGrid(
 private fun SuggestedAlbums(
     context: ViewContext,
     isLoading: Boolean,
-    albumNames: List<String>,
+    albumIds: List<String>,
 ) {
-    val albums by remember(albumNames) {
+    val albums by remember(albumIds) {
         derivedStateOf {
-            context.symphony.groove.album.get(albumNames)
+            context.symphony.groove.album.get(albumIds)
         }
     }
 
