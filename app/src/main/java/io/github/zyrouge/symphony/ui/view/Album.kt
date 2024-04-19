@@ -38,17 +38,17 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumView(context: ViewContext, albumName: String) {
+fun AlbumView(context: ViewContext, albumId: String) {
     val allAlbumNames by context.symphony.groove.album.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val album by remember(allAlbumNames) {
-        derivedStateOf { context.symphony.groove.album.get(albumName) }
+        derivedStateOf { context.symphony.groove.album.get(albumId) }
     }
     val songIds by remember(album, allSongIds) {
         derivedStateOf { album?.getSongIds(context.symphony) ?: listOf() }
     }
     val isViable by remember(allAlbumNames) {
-        derivedStateOf { allAlbumNames.contains(albumName) }
+        derivedStateOf { allAlbumNames.contains(albumId) }
     }
 
     Scaffold(
@@ -100,7 +100,7 @@ fun AlbumView(context: ViewContext, albumName: String) {
                         },
                         cardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Subtle,
                     )
-                } else UnknownAlbum(context, albumName)
+                } else UnknownAlbum(context, albumId)
             }
         },
         bottomBar = {

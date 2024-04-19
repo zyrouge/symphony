@@ -292,7 +292,7 @@ fun SongDropdownMenu(
                 }
             )
         }
-        song.album?.let { albumName ->
+        context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Album, null)
@@ -302,7 +302,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(Routes.Album.build(albumName))
+                    context.navController.navigate(Routes.Album.build(albumId))
                 }
             )
         }

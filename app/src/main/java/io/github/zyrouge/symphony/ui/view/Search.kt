@@ -74,7 +74,7 @@ import kotlinx.coroutines.withContext
 private data class SearchResult(
     val songIds: List<Long>,
     val artistNames: List<String>,
-    val albumNames: List<String>,
+    val albumIds: List<String>,
     val albumArtistNames: List<String>,
     val genreNames: List<String>,
     val playlistIds: List<String>,
@@ -153,7 +153,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                     results = SearchResult(
                         songIds = songIds,
                         artistNames = artistNames,
-                        albumNames = albumNames,
+                        albumIds = albumNames,
                         albumArtistNames = albumArtistNames,
                         genreNames = genreNames,
                         playlistIds = playlistIds,
@@ -279,7 +279,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
             results?.run {
                 val hasSongs = isChipSelected(GrooveKinds.SONG) && songIds.isNotEmpty()
                 val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artistNames.isNotEmpty()
-                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albumNames.isNotEmpty()
+                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albumIds.isNotEmpty()
                 val hasAlbumArtists =
                     isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtistNames.isNotEmpty()
                 val hasPlaylists =
@@ -372,8 +372,8 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                     }
                                     if (hasAlbums) {
                                         SideHeading(context, GrooveKinds.ALBUM)
-                                        albumNames.forEach { albumName ->
-                                            context.symphony.groove.album.get(albumName)
+                                        albumIds.forEach { albumId ->
+                                            context.symphony.groove.album.get(albumId)
                                                 ?.let { album ->
                                                     GenericGrooveCard(
                                                         image = album
@@ -395,7 +395,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         onClick = {
                                                             context.navController.navigate(
-                                                                Routes.Album.build(album.name)
+                                                                Routes.Album.build(album.id)
                                                             )
                                                         }
                                                     )

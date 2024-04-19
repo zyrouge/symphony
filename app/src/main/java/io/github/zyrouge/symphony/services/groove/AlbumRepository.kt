@@ -40,21 +40,23 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     internal fun onSong(song: Song) {
-        if (song.album == null) return
-        songIdsCache.compute(song.album) { _, value ->
+        val albumId = getIdFromSong(song)
+        if (albumId == null) return
+        songIdsCache.compute(albumId) { _, value ->
             value?.apply { add(song.id) } ?: ConcurrentSet(song.id)
         }
-        cache.compute(song.album) { _, value ->
+        cache.compute(albumId) { _, value ->
             value?.apply {
                 artists.addAll(song.artists)
                 numberOfTracks++
             } ?: run {
                 _all.update {
-                    it + song.album
+                    it + albumId
                 }
                 emitCount()
                 Album(
-                    name = song.album,
+                    id = albumId,
+                    name = song.album!!,
                     artists = song.artists.toMutableSet(),
                     numberOfTracks = 1,
                 )
@@ -73,29 +75,35 @@ class AlbumRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun getArtworkUri(albumName: String) = songIdsCache[albumName]?.firstOrNull()
+    fun getIdFromSong(song: Song): String? {
+        if (song.album == null) return null
+        val artists = song.additional.albumArtists.sorted().joinToString("-")
+        return "${song.album}-${artists}-${song.year ?: 0}"
+    }
+
+    fun getArtworkUri(albumId: String) = songIdsCache[albumId]?.firstOrNull()
         ?.let { symphony.groove.song.getArtworkUri(it) }
         ?: symphony.groove.song.getDefaultArtworkUri()
 
-    fun createArtworkImageRequest(albumName: String) = createHandyImageRequest(
+    fun createArtworkImageRequest(albumId: String) = createHandyImageRequest(
         symphony.applicationContext,
-        image = getArtworkUri(albumName),
+        image = getArtworkUri(albumId),
         fallback = Assets.placeholderDarkId,
     )
 
-    fun search(albumNames: List<String>, terms: String, limit: Int = 7) = searcher
-        .search(terms, albumNames, maxLength = limit)
+    fun search(albumIds: List<String>, terms: String, limit: Int = 7) = searcher
+        .search(terms, albumIds, maxLength = limit)
 
     fun sort(
-        albumNames: List<String>,
+        albumIds: List<String>,
         by: AlbumSortBy,
         reverse: Boolean,
     ): List<String> {
         val sorted = when (by) {
-            AlbumSortBy.CUSTOM -> albumNames
-            AlbumSortBy.ALBUM_NAME -> albumNames.sortedBy { get(it)?.name }
-            AlbumSortBy.ARTIST_NAME -> albumNames.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
-            AlbumSortBy.TRACKS_COUNT -> albumNames.sortedBy { get(it)?.numberOfTracks }
+            AlbumSortBy.CUSTOM -> albumIds
+            AlbumSortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
+            AlbumSortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
+            AlbumSortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted
     }
@@ -104,7 +112,7 @@ class AlbumRepository(private val symphony: Symphony) {
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
-    fun get(albumName: String) = cache[albumName]
-    fun get(albumNames: List<String>) = albumNames.mapNotNull { get(it) }.toList()
-    fun getSongIds(albumName: String) = songIdsCache[albumName]?.toList() ?: emptyList()
+    fun get(albumId: String) = cache[albumId]
+    fun get(albumIds: List<String>) = albumIds.mapNotNull { get(it) }.toList()
+    fun getSongIds(albumId: String) = songIdsCache[albumId]?.toList() ?: emptyList()
 }

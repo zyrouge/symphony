@@ -51,11 +51,11 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     }
                 }
             }
-            song.album?.let { album ->
+            context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
                 InformationKeyValue(context.symphony.t.Album) {
-                    LongPressCopyableAndTappableText(context, setOf(album)) {
+                    LongPressCopyableAndTappableText(context, setOf(song.album!!)) {
                         onDismissRequest()
-                        context.navController.navigate(Routes.Album.build(it))
+                        context.navController.navigate(Routes.Album.build(albumId))
                     }
                 }
             }

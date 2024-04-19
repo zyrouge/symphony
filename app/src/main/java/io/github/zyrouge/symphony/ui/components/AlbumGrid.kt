@@ -23,7 +23,7 @@ fun AlbumGrid(
 ) {
     val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.collectAsState()
-    val sortedAlbumNames by remember(albumNames, sortBy, sortReverse) {
+    val sortedAlbumIds by remember(albumNames, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.album.sort(albumNames, sortBy, sortReverse)
         }
@@ -62,11 +62,11 @@ fun AlbumGrid(
 
                 else -> ResponsiveGrid {
                     itemsIndexed(
-                        sortedAlbumNames,
+                        sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> GrooveKinds.ALBUM }
-                    ) { _, albumName ->
-                        context.symphony.groove.album.get(albumName)?.let { album ->
+                    ) { _, albumId ->
+                        context.symphony.groove.album.get(albumId)?.let { album ->
                             AlbumTile(context, album)
                         }
                     }

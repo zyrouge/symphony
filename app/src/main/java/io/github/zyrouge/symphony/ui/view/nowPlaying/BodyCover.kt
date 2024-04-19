@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.components.LyricsText
 import io.github.zyrouge.symphony.ui.components.TimedContentTextStyle
 import io.github.zyrouge.symphony.ui.components.swipeable
@@ -45,92 +46,105 @@ fun NowPlayingBodyCover(
 ) {
     val showLyrics by states.showLyrics.collectAsState()
 
-    data.run {
-        Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
-            AnimatedContent(
-                label = "now-playing-body-cover",
-                targetState = showLyrics,
-                contentAlignment = Alignment.Center,
-                transitionSpec = {
-                    FadeTransition.enterTransition()
-                        .togetherWith(FadeTransition.exitTransition())
-                },
-            ) { targetStateShowLyrics ->
-                when {
-                    targetStateShowLyrics -> Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                0.dp,
-                                if (orientation == ScreenOrientation.LANDSCAPE) 0.dp else 8.dp
-                            )
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                RoundedCornerShape(12.dp),
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        LyricsText(
-                            context,
-                            padding = PaddingValues(
-                                horizontal = 12.dp,
-                                vertical = 8.dp,
-                            ),
-                            style = TimedContentTextStyle.defaultStyle(
-                                textStyle = LocalTextStyle.current,
-                                contentColor = LocalContentColor.current,
-                            ),
-                        )
-                    }
-
-                    else -> BoxWithConstraints {
-                        val dimension = min(maxHeight, maxWidth)
-
-                        AnimatedContent(
-                            label = "now-playing-body-cover-artwork",
-                            modifier = Modifier.size(dimension),
-                            targetState = song,
-                            transitionSpec = {
-                                FadeTransition.enterTransition()
-                                    .togetherWith(FadeTransition.exitTransition())
-                            },
-                        ) { targetStateSong ->
-                            AsyncImage(
-                                targetStateSong
-                                    .createArtworkImageRequest(context.symphony)
-                                    .build(),
-                                null,
-                                contentScale = ContentScale.Crop,
-                                filterQuality = FilterQuality.High,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .swipeable(
-                                        minimumDragAmount = 100f,
-                                        onSwipeLeft = {
-                                            if (context.symphony.radio.canJumpToNext()) {
-                                                context.symphony.radio.jumpToNext()
-                                            }
-                                        },
-                                        onSwipeRight = {
-                                            if (context.symphony.radio.canJumpToPrevious()) {
-                                                context.symphony.radio.jumpToPrevious()
-                                            }
-                                        },
-                                    )
-                                    .pointerInput(Unit) {
-                                        detectTapGestures { _ ->
-                                            song.album?.let {
-                                                context.navController.navigate(Routes.Album.build(it))
-                                            }
-                                        }
-                                    }
-                            )
-                        }
-
-                    }
-                }
+    Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
+        AnimatedContent(
+            label = "now-playing-body-cover",
+            targetState = showLyrics,
+            contentAlignment = Alignment.Center,
+            transitionSpec = {
+                val from = FadeTransition.enterTransition()
+                val to = FadeTransition.exitTransition()
+                from togetherWith to
+            },
+        ) { targetStateShowLyrics ->
+            if (targetStateShowLyrics) {
+                NowPlayingBodyCoverLyrics(context, orientation)
+            } else {
+                NowPlayingBodyCoverArtwork(context, data.song)
             }
         }
+    }
+}
+
+@Composable
+private fun NowPlayingBodyCoverLyrics(context: ViewContext, orientation: ScreenOrientation) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                0.dp,
+                if (orientation == ScreenOrientation.LANDSCAPE) 0.dp else 8.dp
+            )
+            .background(
+                MaterialTheme.colorScheme.surfaceContainer,
+                RoundedCornerShape(12.dp),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        LyricsText(
+            context,
+            padding = PaddingValues(
+                horizontal = 12.dp,
+                vertical = 8.dp,
+            ),
+            style = TimedContentTextStyle.defaultStyle(
+                textStyle = LocalTextStyle.current,
+                contentColor = LocalContentColor.current,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingBodyCoverArtwork(context: ViewContext, song: Song) {
+    BoxWithConstraints {
+        val dimension = min(maxHeight, maxWidth)
+
+        AnimatedContent(
+            label = "now-playing-body-cover-artwork",
+            modifier = Modifier.size(dimension),
+            targetState = song,
+            transitionSpec = {
+                FadeTransition.enterTransition()
+                    .togetherWith(FadeTransition.exitTransition())
+            },
+        ) { targetStateSong ->
+            AsyncImage(
+                targetStateSong
+                    .createArtworkImageRequest(context.symphony)
+                    .build(),
+                null,
+                contentScale = ContentScale.Crop,
+                filterQuality = FilterQuality.High,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .swipeable(
+                        minimumDragAmount = 100f,
+                        onSwipeLeft = {
+                            if (context.symphony.radio.canJumpToNext()) {
+                                context.symphony.radio.jumpToNext()
+                            }
+                        },
+                        onSwipeRight = {
+                            if (context.symphony.radio.canJumpToPrevious()) {
+                                context.symphony.radio.jumpToPrevious()
+                            }
+                        },
+                    )
+                    .pointerInput(Unit) {
+                        detectTapGestures { _ ->
+                            context.symphony.groove.album
+                                .getIdFromSong(song)
+                                ?.let {
+                                    context.navController.navigate(
+                                        Routes.Album.build(it)
+                                    )
+                                }
+                        }
+                    }
+            )
+        }
+
     }
 }

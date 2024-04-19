@@ -54,7 +54,7 @@ fun AlbumTile(context: ViewContext, album: Album) {
             context.symphony.radio.shorty.playQueue(album.getSortedSongIds(context.symphony))
         },
         onClick = {
-            context.navController.navigate(Routes.Album.build(album.name))
+            context.navController.navigate(Routes.Album.build(album.id))
         }
     )
 }

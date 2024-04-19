@@ -439,7 +439,7 @@ private fun SuggestedAlbums(
     StatedSixGrid(context, isLoading, albums) { album ->
         Card(
             onClick = {
-                context.navController.navigate(Routes.Album.build(album.name))
+                context.navController.navigate(Routes.Album.build(album.id))
             }
         ) {
             AsyncImage(
