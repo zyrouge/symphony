@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.ui.components.LyricsText
+import io.github.zyrouge.symphony.ui.components.TimedContentTextStyle
 import io.github.zyrouge.symphony.ui.components.swipeable
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
@@ -72,6 +75,10 @@ fun NowPlayingBodyCover(
                             padding = PaddingValues(
                                 horizontal = 12.dp,
                                 vertical = 8.dp,
+                            ),
+                            style = TimedContentTextStyle.defaultStyle(
+                                textStyle = LocalTextStyle.current,
+                                contentColor = LocalContentColor.current,
                             ),
                         )
                     }

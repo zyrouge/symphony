@@ -36,7 +36,7 @@ import kotlin.concurrent.timer
 fun LyricsText(
     context: ViewContext,
     padding: PaddingValues,
-    style: TimedContentTextStyle = TimedContentTextStyle.defaultStyle(),
+    style: TimedContentTextStyle,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var playbackPosition by remember {

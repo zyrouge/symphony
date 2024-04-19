@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +28,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -52,13 +51,14 @@ data class TimedContentTextStyle(
 ) {
     companion object {
         @Composable
-        fun defaultStyle(): TimedContentTextStyle {
-            val contentColor = LocalContentColor.current
-            val textStyle = LocalTextStyle.current.copy(color = contentColor)
-            return TimedContentTextStyle(
-                highlighted = textStyle,
-                active = textStyle.copy(fontWeight = FontWeight.Bold),
-                inactive = textStyle.copy(color = contentColor.copy(alpha = 0.5f)),
+        fun defaultStyle(
+            textStyle: TextStyle,
+            contentColor: Color,
+        ) = textStyle.copy(color = contentColor).let {
+            TimedContentTextStyle(
+                highlighted = it,
+                active = it.copy(fontWeight = FontWeight.Bold),
+                inactive = it.copy(color = contentColor.copy(alpha = 0.5f)),
                 spacing = 0.dp,
             )
         }
@@ -71,7 +71,7 @@ fun TimedContentText(
     content: TimedContent,
     duration: Long,
     padding: PaddingValues,
-    style: TimedContentTextStyle = TimedContentTextStyle.defaultStyle(),
+    style: TimedContentTextStyle,
     onSeek: (Int) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
