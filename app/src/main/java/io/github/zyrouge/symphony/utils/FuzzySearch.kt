@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.utils
 
-import android.util.Log
 import kotlin.math.min
 
 class FuzzySearchComparator(val input: String) {
@@ -80,34 +79,8 @@ object Fuzzy {
             cost = newCost
             newCost = swap
         }
-        Log.i("SymLog", "$lhs $rhs = ${cost[lhsLength - 1]}")
         return cost[lhsLength - 1]
     }
-
-//    private fun compareStrict(input: String, against: String): Float {
-//        val inputLength = input.length
-//        val againstLength = against.length
-//        var currPosition = 0
-//        var prevPosition = 0
-//        var score = 0f
-//        for (i in 0 until inputLength) {
-//            val x = input[i]
-//            var matched = false
-//            for (j in currPosition until againstLength) {
-//                val y = against[j]
-//                if (x == y) {
-//                    prevPosition = currPosition
-//                    currPosition = j
-//                    matched = true
-//                    break
-//                }
-//            }
-//            score += if (matched) MATCH_BONUS - (DISTANCE_PENALTY_MULTIPLIER * (currPosition - prevPosition - 1))
-//            else NO_MATCH_PENALTY
-//            currPosition++
-//        }
-//        return max(0f, score) / againstLength
-//    }
 
     private val whitespaceRegex = Regex("""\s+""")
     private fun normalizeTerms(terms: String) = terms.lowercase().replace(whitespaceRegex, " ")
