@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -27,16 +28,16 @@ fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
             !(state.firstVisibleItemIndex == 0 && isLastItemVisible)
         }
     }
+    val showScrollPointerColorAnimated by animateColorAsState(
+        scrollPointerColor.copy(alpha = if (showScrollPointer) 1f else 0f),
+        animationSpec = tween(durationMillis = 500),
+        label = "c-lazy-column-scroll-pointer-color",
+    )
     var scrollPointerOffsetY by remember { mutableFloatStateOf(0f) }
-    val scrollPointerOffsetYAnimated = animateFloatAsState(
+    val scrollPointerOffsetYAnimated by animateFloatAsState(
         scrollPointerOffsetY,
         animationSpec = tween(durationMillis = 50, easing = EaseInOut),
         label = "c-lazy-column-scroll-pointer-offset-y",
-    )
-    val showScrollPointerAnimated = animateFloatAsState(
-        if (showScrollPointer) 1f else 0f,
-        animationSpec = tween(durationMillis = 500),
-        label = "c-lazy-column-scroll-pointer",
     )
 
     drawWithContent {
@@ -47,8 +48,7 @@ fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
         scrollPointerOffsetY = nScrollPointerOffsetY.toSafeFinite()
         drawScrollBar(
             scrollPointerColor = scrollPointerColor,
-            scrollPointerOffsetY = scrollPointerOffsetYAnimated.value,
-            scrollPointerAlpha = showScrollPointerAnimated.value,
+            scrollPointerOffsetY = scrollPointerOffsetYAnimated,
         )
     }
 }

@@ -27,11 +27,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Artist
 import io.github.zyrouge.symphony.ui.components.AlbumRow
+import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.GenericGrooveBanner
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -111,7 +111,7 @@ fun ArtistView(context: ViewContext, artistName: String) {
             }
         },
         bottomBar = {
-            NowPlayingBottomBar(context)
+            AnimatedNowPlayingBottomBar(context)
         }
     )
 }

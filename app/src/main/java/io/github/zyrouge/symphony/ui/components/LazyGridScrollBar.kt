@@ -1,6 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -33,15 +33,15 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
             !(state.firstVisibleItemIndex == 0 && isLastItemVisible)
         }
     }
+    val showScrollPointerColorAnimated = animateColorAsState(
+        scrollPointerColor.copy(alpha = if (showScrollPointer) 1f else 0f),
+        animationSpec = tween(durationMillis = 500),
+        label = "c-lazy-grid-scroll-pointer-color",
+    )
     var scrollPointerOffsetY by remember { mutableFloatStateOf(0f) }
     val scrollPointerOffsetYAnimated = animateFloatAsState(
         scrollPointerOffsetY,
         animationSpec = tween(durationMillis = 150),
-        label = "c-lazy-grid-scroll-pointer-offset-y",
-    )
-    val showScrollPointerAnimated = animateFloatAsState(
-        if (showScrollPointer) 1f else 0f,
-        animationSpec = tween(durationMillis = 50, easing = EaseInOut),
         label = "c-lazy-grid-scroll-pointer-offset-y",
     )
 
@@ -54,9 +54,8 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
             else (scrollBarHeight / rows) * (state.firstVisibleItemIndex / columns)
         scrollPointerOffsetY = nScrollPointerOffsetY.toSafeFinite()
         drawScrollBar(
-            scrollPointerColor = scrollPointerColor,
+            scrollPointerColor = showScrollPointerColorAnimated.value,
             scrollPointerOffsetY = scrollPointerOffsetYAnimated.value,
-            scrollPointerAlpha = showScrollPointerAnimated.value,
         )
     }
 }

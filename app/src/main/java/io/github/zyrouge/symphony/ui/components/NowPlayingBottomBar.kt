@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
@@ -73,7 +74,32 @@ import io.github.zyrouge.symphony.utils.runIfOrThis
 import kotlin.math.absoluteValue
 
 @Composable
-fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
+fun AnimatedNowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
+    val visible = remember {
+        MutableTransitionState(false).apply {
+            // Start the animation immediately.
+            targetState = true
+        }
+    }
+
+    AnimatedVisibility(
+        visibleState = visible,
+        enter = slideInVertically(
+            animationSpec = nowPlayingBottomBarEnterAnimationSpec(),
+            initialOffsetY = { it / 2 },
+        ) + fadeIn(animationSpec = nowPlayingBottomBarEnterAnimationSpec()),
+        exit = fadeOut(),
+    ) {
+        NowPlayingBottomBar(context, insetPadding)
+    }
+}
+
+private fun <T> nowPlayingBottomBarEnterAnimationSpec() = TransitionDurations.Normal.asTween<T>(
+    delayMillis = TransitionDurations.Fast.milliseconds,
+)
+
+@Composable
+fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
     val currentPlayingSong by remember(queue, queueIndex) {
@@ -222,7 +248,7 @@ fun NowPlayingBottomBar(context: ViewContext, drawInset: Boolean = true) {
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
-                if (drawInset) {
+                if (insetPadding) {
                     Spacer(modifier = Modifier.navigationBarsPadding())
                 }
             }

@@ -26,10 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
+import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.GenericGrooveBanner
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.SongCardThumbnailLabelStyle
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.SongListType
@@ -104,7 +104,7 @@ fun AlbumView(context: ViewContext, albumName: String) {
             }
         },
         bottomBar = {
-            NowPlayingBottomBar(context)
+            AnimatedNowPlayingBottomBar(context)
         }
     )
 }

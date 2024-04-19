@@ -56,10 +56,10 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.components.AlbumArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
+import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.GenericGrooveCard
 import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.helpers.Routes
@@ -496,7 +496,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
             }
         },
         bottomBar = {
-            NowPlayingBottomBar(context)
+            AnimatedNowPlayingBottomBar(context)
         }
     )
 }

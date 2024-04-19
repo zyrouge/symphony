@@ -28,10 +28,10 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.AlbumArtist
 import io.github.zyrouge.symphony.ui.components.AlbumArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AlbumRow
+import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.GenericGrooveBanner
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.IconTextBody
-import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -112,7 +112,7 @@ fun AlbumArtistView(context: ViewContext, albumArtistName: String) {
             }
         },
         bottomBar = {
-            NowPlayingBottomBar(context)
+            AnimatedNowPlayingBottomBar(context)
         }
     )
 }
