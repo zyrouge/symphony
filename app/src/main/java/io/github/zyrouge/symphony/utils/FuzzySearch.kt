@@ -1,28 +1,28 @@
 package io.github.zyrouge.symphony.utils
 
-import androidx.annotation.FloatRange
-import kotlin.math.max
+import android.util.Log
 import kotlin.math.min
 
 class FuzzySearchComparator(val input: String) {
     fun compareString(value: String) = Fuzzy.compare(input, value)
 
-    fun compareCollection(values: Collection<String>): Float {
-        var weight = 0f
+    fun compareCollection(values: Collection<String>): Int {
+        if (values.isEmpty()) return 0
+        var score = Int.MAX_VALUE
         values.forEach {
-            weight += compareString(it)
+            score = min(score, compareString(it))
         }
-        return weight / min(1, values.size)
+        return score
     }
 }
 
 data class FuzzySearchOption<T>(
-    val match: FuzzySearchComparator.(T) -> Float?,
+    val match: FuzzySearchComparator.(T) -> Int?,
     val weight: Int = 1,
 )
 
 data class FuzzyResultEntity<T>(
-    @FloatRange(from = 0.0, to = 100.0) val ratio: Float,
+    val score: Int,
     val entity: T,
 )
 
@@ -31,28 +31,25 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
         terms: String,
         entities: List<T>,
         maxLength: Int = -1,
-        minScore: Float = 0.25f,
     ): List<FuzzyResultEntity<T>> {
-        var results = entities
+        val results = entities
             .map { compare(terms, it) }
-            .sortedByDescending { it.ratio }
-        if (maxLength > -1) {
-            results = results.subListNonStrict(maxLength)
+            .sortedBy { it.score }
+        return when {
+            maxLength > -1 -> results.subListNonStrict(maxLength)
+            else -> results
         }
-        return results.filter { it.ratio > minScore }
     }
 
     private fun compare(terms: String, entity: T): FuzzyResultEntity<T> {
-        var ratio = 0f
-        var totalWeight = 0
+        var score = Int.MAX_VALUE
         val comparator = FuzzySearchComparator(terms)
         options.forEach { option ->
             option.match.invoke(comparator, entity)?.let {
-                ratio += it * option.weight
-                totalWeight += option.weight
+                score = min(score, it)
             }
         }
-        return FuzzyResultEntity(ratio / totalWeight, entity)
+        return FuzzyResultEntity(score, entity)
     }
 }
 
@@ -64,30 +61,53 @@ object Fuzzy {
     private const val DISTANCE_PENALTY_MULTIPLIER = 0.15f
     private const val NO_MATCH_PENALTY = -0.3f
 
-    private fun compareStrict(input: String, against: String): Float {
-        val inputLength = input.length
-        val againstLength = against.length
-        var currPosition = 0
-        var prevPosition = 0
-        var score = 0f
-        for (i in 0 until inputLength) {
-            val x = input[i]
-            var matched = false
-            for (j in currPosition until againstLength) {
-                val y = against[j]
-                if (x == y) {
-                    prevPosition = currPosition
-                    currPosition = j
-                    matched = true
-                    break
-                }
+    // Source: https://gist.github.com/ademar111190/34d3de41308389a0d0d8?permalink_comment_id=3664644#gistcomment-3664644
+    private fun compareStrict(lhs: String, rhs: String): Int {
+        val lhsLength = lhs.length + 1
+        val rhsLength = rhs.length + 1
+        var cost = Array(lhsLength) { it }
+        var newCost = Array(lhsLength) { 0 }
+        for (i in 1 until rhsLength) {
+            newCost[0] = i
+            for (j in 1 until lhsLength) {
+                val match = if (lhs[j - 1] == rhs[i - 1]) 0 else 1
+                val costReplace = cost[j - 1] + match
+                val costInsert = cost[j] + 1
+                val costDelete = newCost[j - 1] + 1
+                newCost[j] = min(costInsert, costDelete).coerceAtMost(costReplace)
             }
-            score += if (matched) MATCH_BONUS - (DISTANCE_PENALTY_MULTIPLIER * (currPosition - prevPosition - 1))
-            else NO_MATCH_PENALTY
-            currPosition++
+            val swap = cost
+            cost = newCost
+            newCost = swap
         }
-        return max(0f, score) / againstLength
+        Log.i("SymLog", "$lhs $rhs = ${cost[lhsLength - 1]}")
+        return cost[lhsLength - 1]
     }
+
+//    private fun compareStrict(input: String, against: String): Float {
+//        val inputLength = input.length
+//        val againstLength = against.length
+//        var currPosition = 0
+//        var prevPosition = 0
+//        var score = 0f
+//        for (i in 0 until inputLength) {
+//            val x = input[i]
+//            var matched = false
+//            for (j in currPosition until againstLength) {
+//                val y = against[j]
+//                if (x == y) {
+//                    prevPosition = currPosition
+//                    currPosition = j
+//                    matched = true
+//                    break
+//                }
+//            }
+//            score += if (matched) MATCH_BONUS - (DISTANCE_PENALTY_MULTIPLIER * (currPosition - prevPosition - 1))
+//            else NO_MATCH_PENALTY
+//            currPosition++
+//        }
+//        return max(0f, score) / againstLength
+//    }
 
     private val whitespaceRegex = Regex("""\s+""")
     private fun normalizeTerms(terms: String) = terms.lowercase().replace(whitespaceRegex, " ")
