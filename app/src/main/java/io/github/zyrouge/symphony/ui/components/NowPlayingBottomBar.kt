@@ -164,6 +164,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         AnimatedContent(
                             label = "c-now-playing-card-image",
                             targetState = currentSong,
+                            contentKey = { it.id },
                             transitionSpec = {
                                 val from = fadeIn(
                                     animationSpec = TransitionDurations.Normal.asTween(
@@ -187,6 +188,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                             label = "c-now-playing-card-content",
                             modifier = Modifier.weight(1f),
                             targetState = currentSong,
+                            contentKey = { it.id },
                             transitionSpec = {
                                 val from = fadeIn(
                                     animationSpec = TransitionDurations.Normal.asTween(

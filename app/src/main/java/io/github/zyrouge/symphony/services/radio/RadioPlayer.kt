@@ -95,10 +95,8 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         usable = false
         destroyDurationTimer()
         symphony.groove.coroutineScope.launch {
-            unsafeMediaPlayer?.let {
-                it.stop()
-                it.release()
-            }
+            unsafeMediaPlayer.stop()
+            unsafeMediaPlayer.release()
         }
     }
 
