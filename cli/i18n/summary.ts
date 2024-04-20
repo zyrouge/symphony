@@ -1,6 +1,6 @@
 import path from "path";
 import pico from "picocolors";
-import fs from "fs/promises";
+import fs from "fs-extra";
 import { PhraseyBuilder, PhraseyLogger } from "phrasey";
 import { Paths } from "../helpers/paths";
 

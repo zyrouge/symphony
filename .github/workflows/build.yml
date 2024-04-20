@@ -7,6 +7,7 @@ env:
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
     BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app-release.aab
+    BUILD_SYMBOLS_FILE: ./dist/symbols.zip
 
 jobs:
     build:
@@ -42,6 +43,7 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew build
                   ./gradlew bundle
+                  npm run postbuild
               env:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
@@ -53,3 +55,4 @@ jobs:
                   path: |
                       ${{ env.BUILD_APK_FILE }}
                       ${{ env.BUILD_AAB_FILE }}
+                      ${{ env.BUILD_SYMBOLS_FILE }}
