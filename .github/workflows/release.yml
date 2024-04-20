@@ -52,6 +52,7 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew build
                   ./gradlew bundle
+                  npm run postbuild
               env:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
