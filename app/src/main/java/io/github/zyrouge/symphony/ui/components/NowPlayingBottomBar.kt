@@ -168,9 +168,11 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                             targetState = currentSong,
                             transitionSpec = {
                                 val from = fadeIn(
-                                    animationSpec = TransitionDurations.Normal.asTween(delayMillis = 150),
+                                    animationSpec = TransitionDurations.Normal.asTween(
+                                        delayMillis = TransitionDurations.Normal.milliseconds,
+                                    ),
                                 )
-                                val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
+                                val to = fadeOut(TransitionDurations.Normal.asTween())
                                 from togetherWith to
                             },
                         ) { song ->
