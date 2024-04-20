@@ -194,8 +194,10 @@ fun SongTreeListContent(
                             )
                     ) {
                         Icon(
-                            if (show) Icons.Filled.ExpandMore
-                            else Icons.Filled.ChevronRight,
+                            when {
+                                show -> Icons.Filled.ExpandMore
+                                else -> Icons.Filled.ChevronRight
+                            },
                             null,
                             modifier = Modifier.size(20.dp),
                         )
@@ -389,8 +391,10 @@ private fun SongTreeListMediaSortBar(
                     modifier = Modifier.padding(end = 2.dp),
                 ) {
                     Icon(
-                        if (pathsSortReverse) Icons.Filled.ArrowDownward
-                        else Icons.Filled.ArrowUpward,
+                        when {
+                            pathsSortReverse -> Icons.Filled.ArrowDownward
+                            else -> Icons.Filled.ArrowUpward
+                        },
                         null,
                         modifier = Modifier.size(12.dp),
                     )
@@ -401,8 +405,10 @@ private fun SongTreeListMediaSortBar(
                             .padding(4.dp, 0.dp)
                     )
                     Icon(
-                        if (songsSortReverse) Icons.Filled.ArrowDownward
-                        else Icons.Filled.ArrowUpward,
+                        when {
+                            songsSortReverse -> Icons.Filled.ArrowDownward
+                            else -> Icons.Filled.ArrowUpward
+                        },
                         null,
                         modifier = Modifier.size(12.dp),
                     )
@@ -487,8 +493,10 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
                 selected -> IconButton(
                     content = {
                         Icon(
-                            if (reversed) Icons.Filled.ArrowCircleDown
-                            else Icons.Filled.ArrowCircleUp,
+                            when {
+                                reversed -> Icons.Filled.ArrowCircleDown
+                                else -> Icons.Filled.ArrowCircleUp
+                            },
                             null,
                             tint = MaterialTheme.colorScheme.primary,
                         )

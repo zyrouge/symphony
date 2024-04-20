@@ -42,12 +42,12 @@ fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
 
     drawWithContent {
         drawContent()
-        val nScrollPointerOffsetY =
-            if (isLastItemVisible) size.height - ContentDrawScopeScrollBarDefaults.scrollPointerHeight.toPx()
-            else (size.height / state.layoutInfo.totalItemsCount) * state.firstVisibleItemIndex
-        scrollPointerOffsetY = nScrollPointerOffsetY.toSafeFinite()
+        scrollPointerOffsetY = when {
+            isLastItemVisible -> size.height - ContentDrawScopeScrollBarDefaults.scrollPointerHeight.toPx()
+            else -> (size.height / state.layoutInfo.totalItemsCount) * state.firstVisibleItemIndex
+        }.toSafeFinite()
         drawScrollBar(
-            scrollPointerColor = scrollPointerColor,
+            scrollPointerColor = showScrollPointerColorAnimated,
             scrollPointerOffsetY = scrollPointerOffsetYAnimated,
         )
     }

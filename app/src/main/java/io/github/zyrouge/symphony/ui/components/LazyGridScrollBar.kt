@@ -33,13 +33,13 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
             !(state.firstVisibleItemIndex == 0 && isLastItemVisible)
         }
     }
-    val showScrollPointerColorAnimated = animateColorAsState(
+    val showScrollPointerColorAnimated by animateColorAsState(
         scrollPointerColor.copy(alpha = if (showScrollPointer) 1f else 0f),
         animationSpec = tween(durationMillis = 500),
         label = "c-lazy-grid-scroll-pointer-color",
     )
     var scrollPointerOffsetY by remember { mutableFloatStateOf(0f) }
-    val scrollPointerOffsetYAnimated = animateFloatAsState(
+    val scrollPointerOffsetYAnimated by animateFloatAsState(
         scrollPointerOffsetY,
         animationSpec = tween(durationMillis = 150),
         label = "c-lazy-grid-scroll-pointer-offset-y",
@@ -49,13 +49,13 @@ fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = compo
         drawContent()
         val scrollBarHeight =
             size.height - ContentDrawScopeScrollBarDefaults.scrollPointerHeight.toPx()
-        val nScrollPointerOffsetY =
-            if (isLastItemVisible) scrollBarHeight
-            else (scrollBarHeight / rows) * (state.firstVisibleItemIndex / columns)
-        scrollPointerOffsetY = nScrollPointerOffsetY.toSafeFinite()
+        scrollPointerOffsetY = when {
+            isLastItemVisible -> scrollBarHeight
+            else -> (scrollBarHeight / rows) * (state.firstVisibleItemIndex / columns)
+        }.toSafeFinite()
         drawScrollBar(
-            scrollPointerColor = showScrollPointerColorAnimated.value,
-            scrollPointerOffsetY = scrollPointerOffsetYAnimated.value,
+            scrollPointerColor = showScrollPointerColorAnimated,
+            scrollPointerOffsetY = scrollPointerOffsetYAnimated,
         )
     }
 }
