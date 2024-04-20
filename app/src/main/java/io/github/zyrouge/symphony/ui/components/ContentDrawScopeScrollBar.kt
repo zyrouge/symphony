@@ -31,7 +31,7 @@ fun ContentDrawScope.drawScrollBar(
                     rect = Rect(
                         offset = Offset(
                             size.width - scrollPointerWidth,
-                            scrollPointerOffsetY
+                            scrollPointerOffsetY,
                         ),
                         size = Size(scrollPointerWidth, scrollPointerHeight),
                     ),

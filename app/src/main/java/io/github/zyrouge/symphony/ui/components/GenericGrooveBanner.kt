@@ -56,9 +56,7 @@ fun GenericGrooveBanner(
                 .background(
                     brush = Brush.verticalGradient(
                         0f to Color.Transparent,
-                        1f to MaterialTheme.colorScheme.surface.copy(
-                            alpha = 0.7f
-                        )
+                        1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
                     )
                 )
                 .align(Alignment.BottomStart)

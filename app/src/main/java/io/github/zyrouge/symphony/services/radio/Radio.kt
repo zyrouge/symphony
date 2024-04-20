@@ -127,7 +127,11 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             }
             onUpdate.dispatch(RadioEvents.SongStaged)
             player!!.prepare {
-                seek(options.startPosition ?: 0L)
+                options.startPosition?.let {
+                    if (it > 0L) {
+                        seek(it)
+                    }
+                }
                 setSpeed(persistedSpeed, true)
                 setPitch(persistedPitch, true)
                 if (options.autostart) {

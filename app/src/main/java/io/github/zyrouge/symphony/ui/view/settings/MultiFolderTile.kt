@@ -232,7 +232,7 @@ private fun SettingsFolderTilePickerDialog(
                             "/",
                             modifier = Modifier
                                 .padding(4.dp, 0.dp)
-                                .alpha(0.3f)
+                                .alpha(0.3f),
                         )
                     }
                 }

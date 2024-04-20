@@ -5,6 +5,7 @@ import android.media.PlaybackParams
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.Logger
+import kotlinx.coroutines.launch
 import java.util.Timer
 
 data class PlaybackPosition(
@@ -93,9 +94,12 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     fun stop() {
         usable = false
         destroyDurationTimer()
-        unsafeMediaPlayer.stop()
-        unsafeMediaPlayer.reset()
-        unsafeMediaPlayer.release()
+        symphony.groove.coroutineScope.launch {
+            unsafeMediaPlayer?.let {
+                it.stop()
+                it.release()
+            }
+        }
     }
 
     fun start() = mediaPlayer?.let {

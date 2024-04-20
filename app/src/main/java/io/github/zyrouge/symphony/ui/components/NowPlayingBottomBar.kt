@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,17 +49,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
@@ -192,10 +190,10 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                             transitionSpec = {
                                 val from = fadeIn(
                                     animationSpec = TransitionDurations.Normal.asTween(
-                                        delayMillis = TransitionDurations.Fast.milliseconds,
+                                        delayMillis = TransitionDurations.Normal.milliseconds,
                                     ),
                                 )
-                                val to = fadeOut(animationSpec = TransitionDurations.Fast.asTween())
+                                val to = fadeOut(TransitionDurations.Normal.asTween())
                                 from togetherWith to
                             },
                         ) { song ->
@@ -260,24 +258,21 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
 
 @Composable
 private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
-    BoxWithConstraints {
+    BoxWithConstraints(modifier = Modifier.clipToBounds()) {
         val cardWidthPx = constraints.maxWidth
         var offsetX by remember { mutableFloatStateOf(0f) }
-        val cardOffsetX = animateIntAsState(
-            offsetX.toInt(),
+        val cardOffsetX by animateFloatAsState(
+            offsetX / 2,
             label = "c-now-playing-card-offset-x",
         )
-        val cardOpacity = animateFloatAsState(
+        val cardOpacity by animateFloatAsState(
             if (offsetX != 0f) 0.7f else 1f,
             label = "c-now-playing-card-opacity",
         )
 
         Box(
             modifier = Modifier
-                .alpha(cardOpacity.value)
-                .absoluteOffset {
-                    IntOffset(cardOffsetX.value.div(2), 0)
-                }
+                .graphicsLayer(alpha = cardOpacity, translationX = cardOffsetX)
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures(
                         onDragEnd = {
