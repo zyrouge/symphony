@@ -24,4 +24,5 @@ Add any other context or screenshots about the feature request here.
 
 ### Checklist
 
+<!-- change [ ] to [x] to mark the checkbox -->
 -   [ ] I have read the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).

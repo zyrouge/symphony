@@ -37,4 +37,5 @@ Add any other context about the problem here.
 
 ### Checklist
 
+<!-- change [ ] to [x] to mark the checkbox -->
 -   [ ] I have read the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
