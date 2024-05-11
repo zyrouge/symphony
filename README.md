@@ -1,6 +1,6 @@
 # Symphony i18n
 
-> Last updated at 4/17/2024, 6:39:53 AM
+> Last updated at 5/11/2024, 1:20:00 PM
 
 Read [Translations Guide](https://github.com/zyrouge/symphony/wiki/Translations-Guide) on how Symphony handles localization.
 
@@ -15,7 +15,7 @@ Read [Translations Guide](https://github.com/zyrouge/symphony/wiki/Translations-
 | ⚠️ | [`it`](https://github.com/zyrouge/symphony/blob/main/i18n/it.toml) | 89.3% |
 | ✅ | [`ja`](https://github.com/zyrouge/symphony/blob/main/i18n/ja.toml) | 100.0% |
 | ✅ | [`pl`](https://github.com/zyrouge/symphony/blob/main/i18n/pl.toml) | 100.0% |
-| ⚠️ | [`pt`](https://github.com/zyrouge/symphony/blob/main/i18n/pt.toml) | 91.6% |
+| ✅ | [`pt`](https://github.com/zyrouge/symphony/blob/main/i18n/pt.toml) | 100.0% |
 | ⚠️ | [`ro`](https://github.com/zyrouge/symphony/blob/main/i18n/ro.toml) | 92.1% |
 | ✅ | [`ru`](https://github.com/zyrouge/symphony/blob/main/i18n/ru.toml) | 100.0% |
 | ✅ | [`ryu`](https://github.com/zyrouge/symphony/blob/main/i18n/ryu.toml) | 100.0% |
