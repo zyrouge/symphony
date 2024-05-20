@@ -33,7 +33,7 @@
         "archiver": "^7.0.1",
         "fs-extra": "^11.2.0",
         "phrasey": "^2.0.26",
-        "picocolors": "^1.0.0",
+        "picocolors": "^1.0.1",
         "prettier": "^3.2.5",
         "prettier-plugin-toml": "^2.0.1",
         "tsx": "^4.7.2",
