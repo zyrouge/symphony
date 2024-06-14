@@ -17,3 +17,5 @@ dependencyResolutionManagement {
 rootProject.name = "Symphony"
 
 include(":app")
+include(":metaphony")
+project(":metaphony").projectDir = "packages/metaphony"
