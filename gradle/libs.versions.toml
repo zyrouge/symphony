@@ -14,7 +14,7 @@ lifecycle-runtime = "2.7.0"
 media = "1.7.0"
 okhttp3 = "4.12.0"
 
-android-gradle-plugin = "8.3.2"
+android-gradle-plugin = "8.5.0"
 kotlin-gradle-plugin = "1.9.23"
 
 compile-sdk = "34"
