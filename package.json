@@ -26,7 +26,7 @@
     "devDependencies": {
         "@types/archiver": "^6.0.2",
         "@types/fs-extra": "^11.0.4",
-        "@types/node": "^20.12.7",
+        "@types/node": "^20.14.8",
         "@zyrouge/phrasey-json": "^1.0.3",
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
         "@zyrouge/phrasey-toml": "^1.0.3",
