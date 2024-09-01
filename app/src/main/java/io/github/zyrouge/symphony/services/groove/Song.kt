@@ -176,6 +176,10 @@ data class Song(
             )
         }
 
+        fun parse(symphony: Symphony, file: String) {
+            
+        }
+
         val prettyCodecs = mapOf(
             "opus" to "Opus",
             "vorbis" to "Vorbis",

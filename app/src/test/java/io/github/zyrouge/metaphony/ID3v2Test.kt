@@ -1,5 +1,5 @@
 import io.github.zyrouge.metaphony.Mp3
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 class ID3v2Test {
     @Test
@@ -10,8 +10,8 @@ class ID3v2Test {
 
     @Test
     fun parseID3v23() {
-        val klass = object {}.javaClass
-        val stream = klass.getResourceAsStream("audio-id3v2.3.mp3")!!
+        val klassLoader = object {}.javaClass.classLoader!!
+        val stream = klassLoader.getResourceAsStream("audio-id3v2.3.mp3")!!
         val metadata = Mp3.read(stream)
         stream.close()
         println(metadata.genres)
@@ -28,8 +28,8 @@ class ID3v2Test {
 
     @Test
     fun parseID3v24() {
-        val klass = object {}.javaClass
-        val stream = klass.getResourceAsStream("audio-id3v2.4.mp3")!!
+        val klassLoader = object {}.javaClass.classLoader!!
+        val stream = klassLoader.getResourceAsStream("audio-id3v2.4.mp3")!!
         val metadata = Mp3.read(stream)
         stream.close()
         println(metadata.genres)

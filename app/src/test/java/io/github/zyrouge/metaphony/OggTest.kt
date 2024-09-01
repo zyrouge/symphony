@@ -1,11 +1,11 @@
 import io.github.zyrouge.metaphony.Ogg
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 class OggTest {
     @Test
     fun parse() {
-        val klass = object {}.javaClass
-        val stream = klass.getResourceAsStream("audio-empty.ogg")!!
+        val klassLoader = object {}.javaClass.classLoader!!
+        val stream = klassLoader.getResourceAsStream("audio-empty.ogg")!!
         val metadata = Ogg.read(stream)
         stream.close()
         println(metadata.trackNumber)

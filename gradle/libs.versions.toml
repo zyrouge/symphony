@@ -10,6 +10,7 @@ core = "1.13.0"
 core-splashscreen = "1.0.1"
 fuzzywuzzy = "1.4.0"
 jaudiotagger = "3.0.1"
+junit-jupiter = "5.11.0"
 lifecycle-runtime = "2.7.0"
 media = "1.7.0"
 okhttp3 = "4.12.0"
@@ -20,6 +21,7 @@ kotlin-gradle-plugin = "1.9.23"
 compile-sdk = "34"
 min-sdk = "28"
 target-sdk = "34"
+testng = "6.9.6"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
@@ -35,6 +37,7 @@ core = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
 fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }
 jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
 media = { group = "androidx.media", name = "media", version.ref = "media" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }

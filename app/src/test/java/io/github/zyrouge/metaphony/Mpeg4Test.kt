@@ -1,11 +1,11 @@
 import io.github.zyrouge.metaphony.Mpeg4
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 class Mpeg4Test {
     @Test
     fun parse() {
-        val klass = object {}.javaClass
-        val stream = klass.getResourceAsStream("audio-empty-2.m4a")!!
+        val klassLoader = object {}.javaClass.classLoader!!
+        val stream = klassLoader.getResourceAsStream("audio-empty-2.m4a")!!
         val metadata = Mpeg4.read(stream)
         stream.close()
         println(metadata.artists)

@@ -1,13 +1,15 @@
-import io.github.zyrouge.metaphony.Flac
-import kotlin.test.Test
+package io.github.zyrouge.metaphony
+
+import org.junit.jupiter.api.Test
 
 class FlacTest {
     @Test
     fun parse() {
-        val klass = object {}.javaClass
-        val stream = klass.getResourceAsStream("audio.flac")!!
+        val klassLoader = object {}.javaClass.classLoader!!
+        val stream = klassLoader.getResourceAsStream("audio.flac")!!
         val metadata = Flac.read(stream)
         stream.close()
+        println(metadata)
 //        metadata.artwork?.let {
 //            val ext = it.mimeType.split("/")[1]
 //            val file = File(
