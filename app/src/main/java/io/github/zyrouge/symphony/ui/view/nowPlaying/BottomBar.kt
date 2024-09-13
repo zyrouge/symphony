@@ -73,6 +73,7 @@ fun NowPlayingBodyBottomBar(
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showPitchDialog by remember { mutableStateOf(false) }
+    var showReverbDialog by remember { mutableStateOf(false) }
     var showExtraOptions by remember { mutableStateOf(false) }
 
     data.run {
@@ -212,7 +213,16 @@ fun NowPlayingBodyBottomBar(
                 }
             )
         }
-
+        if (showReverbDialog) {
+            NowPlayingReverbDialog(
+                context,
+                currentReverb= data.currentReverb,
+                persistedReverb = data.persistedReverb,
+                onDismissRequest = {
+                    showReverbDialog = false
+                }
+            )
+        }
         if (showExtraOptions) {
             val sheetState = rememberModalBottomSheetState()
             val closeBottomSheet = {
