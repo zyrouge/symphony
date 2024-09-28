@@ -278,7 +278,7 @@ fun SongDropdownMenu(
                 }
             )
         }
-        song.additional.albumArtists.forEach { albumArtist ->
+        song.albumArtists.forEach { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)

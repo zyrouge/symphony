@@ -20,13 +20,13 @@ enum class ArtistSortBy {
 
 class ArtistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Artist>()
-    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
     )
 
-    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)

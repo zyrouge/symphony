@@ -64,7 +64,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun SongTreeList(
     context: ViewContext,
-    songIds: List<Long>,
+    songIds: List<String>,
     songsCount: Int? = null,
     initialDisabled: List<String>,
     onDisable: ((List<String>) -> Unit),
@@ -157,8 +157,8 @@ fun SongTreeList(
 @Composable
 fun SongTreeListContent(
     context: ViewContext,
-    tree: Map<String, List<Long>>,
-    songIds: List<Long>,
+    tree: Map<String, List<String>>,
+    songIds: List<String>,
     disabled: List<String>,
     togglePath: (String) -> Unit,
 ) {
@@ -522,9 +522,9 @@ fun PathSortBy.label(context: ViewContext) = when (this) {
 
 private fun createLinearTree(
     context: ViewContext,
-    songIds: List<Long>,
-): Map<String, List<Long>> {
-    val result = mutableMapOf<String, MutableList<Long>>()
+    songIds: List<String>,
+): Map<String, List<String>> {
+    val result = mutableMapOf<String, MutableList<String>>()
     songIds.forEach { songId ->
         val song = context.symphony.groove.song.get(songId) ?: return@forEach
         val parsedPath = GrooveExplorer.Path(song.path)

@@ -1,17 +1,21 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
-import android.provider.MediaStore
+import androidx.core.net.toUri
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.utils.TimeBasedIncrementalKeyGenerator
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.Path
+import kotlin.io.path.nameWithoutExtension
 
 enum class SongSortBy {
     CUSTOM,
@@ -29,9 +33,9 @@ enum class SongSortBy {
 }
 
 class SongRepository(private val symphony: Symphony) {
-    private val cache = ConcurrentHashMap<Long, Song>()
-    internal val pathCache = ConcurrentHashMap<String, Long>()
-    private val searcher = FuzzySearcher<Long>(
+    private val cache = ConcurrentHashMap<String, Song>()
+    internal val pathCache = ConcurrentHashMap<String, String>()
+    private val searcher = FuzzySearcher<String>(
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
             FuzzySearchOption({ v -> get(v)?.filename?.let { compareString(it) } }, 2),
@@ -39,9 +43,10 @@ class SongRepository(private val symphony: Symphony) {
             FuzzySearchOption({ v -> get(v)?.album?.let { compareString(it) } })
         )
     )
+    internal val coverIdGenerator = TimeBasedIncrementalKeyGenerator()
 
-    val isUpdating get() = symphony.groove.mediaStore.isUpdating
-    private val _all = MutableStateFlow<List<Long>>(emptyList())
+    val isUpdating get() = symphony.groove.exposer.isUpdating
+    private val _all = MutableStateFlow<List<String>>(emptyList())
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
     val count = _count.asStateFlow()
@@ -81,10 +86,10 @@ class SongRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    fun search(songIds: List<Long>, terms: String, limit: Int = 7) = searcher
+    fun search(songIds: List<String>, terms: String, limit: Int = 7) = searcher
         .search(terms, songIds, maxLength = limit)
 
-    fun sort(songIds: List<Long>, by: SongSortBy, reverse: Boolean): List<Long> {
+    fun sort(songIds: List<String>, by: SongSortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
             SongSortBy.CUSTOM -> songIds
             SongSortBy.TITLE -> songIds.sortedBy { get(it)?.title }
@@ -94,7 +99,7 @@ class SongRepository(private val symphony: Symphony) {
             SongSortBy.DATE_ADDED -> songIds.sortedBy { get(it)?.dateAdded }
             SongSortBy.DATE_MODIFIED -> songIds.sortedBy { get(it)?.dateModified }
             SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composers?.joinToStringIfNotEmpty() }
-            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.additional?.albumArtists?.joinToStringIfNotEmpty() }
+            SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.albumArtists?.joinToStringIfNotEmpty() }
             SongSortBy.YEAR -> songIds.sortedBy { get(it)?.year }
             SongSortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
             SongSortBy.TRACK_NUMBER -> songIds.sortedBy { get(it)?.trackNumber }
@@ -106,22 +111,36 @@ class SongRepository(private val symphony: Symphony) {
     fun ids() = cache.keys.toList()
     fun values() = cache.values.toList()
 
-    fun get(id: Long) = cache[id]
-    fun get(ids: List<Long>) = ids.mapNotNull { get(it) }
+    fun get(id: String) = cache[id]
+    fun get(ids: List<String>) = ids.mapNotNull { get(it) }
 
-    fun getArtworkUri(songId: Long): Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        .buildUpon()
-        .run {
-            appendPath(songId.toString())
-            appendPath("albumart")
-            build()
-        }
+    fun getArtworkUri(songId: String): Uri = get(songId)?.coverFile
+        ?.let { symphony.database.artworkCache.get(it) }?.toUri()
+        ?: getDefaultArtworkUri()
 
     fun getDefaultArtworkUri() = Assets.getPlaceholderUri(symphony)
 
-    fun createArtworkImageRequest(songId: Long) = createHandyImageRequest(
+    fun createArtworkImageRequest(songId: String) = createHandyImageRequest(
         symphony.applicationContext,
         image = getArtworkUri(songId),
         fallback = Assets.getPlaceholderId(symphony),
     )
+
+    suspend fun getLyrics(song: Song): String? {
+        try {
+            val lrcFilePath = Path(song.path).nameWithoutExtension + ".lrc"
+            symphony.groove.exposer.uris[lrcFilePath]?.let { uri ->
+                symphony.applicationContext.contentResolver
+                    .openInputStream(uri)
+                    ?.use { inputStream ->
+                        val lyrics = String(inputStream.readBytes())
+                        return lyrics
+                    }
+            }
+            return symphony.database.lyricsCache.get(song.id)
+        } catch (err: Exception) {
+            Logger.error("LyricsRepository", "fetch lyrics failed", err)
+        }
+        return null
+    }
 }

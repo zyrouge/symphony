@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddToPlaylistDialog(
     context: ViewContext,
-    songIds: List<Long>,
+    songIds: List<String>,
     onDismissRequest: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()

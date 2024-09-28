@@ -101,7 +101,7 @@ fun FoldersView(context: ViewContext) {
                     derivedStateOf {
                         folder.children.values.mapNotNull {
                             when (it) {
-                                is GrooveExplorer.File -> it.data as Long
+                                is GrooveExplorer.File -> it.data as String
                                 else -> null
                             }
                         }
@@ -300,15 +300,15 @@ private fun FolderTile(
 private fun GrooveExplorer.Folder.createArtworkImageRequest(context: ViewContext) = children.values
     .find { it is GrooveExplorer.File }
     ?.let {
-        val songId = (it as GrooveExplorer.File).data as Long
+        val songId = (it as GrooveExplorer.File).data as String
         context.symphony.groove.song.createArtworkImageRequest(songId)
     }
     ?: Assets.createPlaceholderImageRequest(context.symphony)
 
-private fun GrooveExplorer.Folder.getSortedSongIds(context: ViewContext): List<Long> {
+private fun GrooveExplorer.Folder.getSortedSongIds(context: ViewContext): List<String> {
     val songIds = children.values.mapNotNull {
         when (it) {
-            is GrooveExplorer.File -> it.data as Long
+            is GrooveExplorer.File -> it.data as String
             else -> null
         }
     }

@@ -1,4 +1,4 @@
-import io.github.zyrouge.metaphony.Ogg
+import io.github.zyrouge.metaphony.ogg.Ogg
 import org.junit.jupiter.api.Test
 
 class OggTest {

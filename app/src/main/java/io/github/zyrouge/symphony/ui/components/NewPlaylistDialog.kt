@@ -28,13 +28,13 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun NewPlaylistDialog(
     context: ViewContext,
-    initialSongIds: List<Long> = listOf(),
+    initialSongIds: List<String> = listOf(),
     onDone: (Playlist) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
-    val songIds = remember { mutableStateListOf<Long>(*initialSongIds.toTypedArray()) }
+    val songIds = remember { mutableStateListOf(*initialSongIds.toTypedArray()) }
     val songIdsImmutable = songIds.toList()
     val focusRequester = remember { FocusRequester() }
 

@@ -1,4 +1,4 @@
-import io.github.zyrouge.metaphony.Mpeg4
+import io.github.zyrouge.metaphony.parsers.Mpeg4
 import org.junit.jupiter.api.Test
 
 class Mpeg4Test {

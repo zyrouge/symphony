@@ -1,29 +1,34 @@
 package io.github.zyrouge.symphony.services.database
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.database.adapters.FileDatabaseAdapter
-import org.json.JSONObject
-import java.nio.file.Paths
+import io.github.zyrouge.symphony.services.database.adapters.PersistentCacheDatabaseAdapter
 
 class LyricsCache(val symphony: Symphony) {
-    private val adapter = FileDatabaseAdapter(
-        Paths
-            .get(symphony.applicationContext.cacheDir.absolutePath, "lyrics_cache.json")
-            .toFile()
+    private val adapter = PersistentCacheDatabaseAdapter(
+        symphony.applicationContext,
+        "lyrics",
+        0,
+        PersistentCacheDatabaseAdapter.Transformer.AsString()
     )
 
-    fun read(): Map<String, String> {
-        val content = adapter.read()
-        val output = mutableMapOf<String, String>()
-        val parsed = JSONObject(content)
-        for (x in parsed.keys()) {
-            output[x] = parsed.getString(x)
-        }
-        return output
+    private val tagged = mutableSetOf<String>()
+
+    fun get(key: String): String? {
+        tagged.add(key)
+        return adapter.get(key)
     }
 
-    fun update(value: Map<String, String>) {
-        val json = JSONObject(value)
-        adapter.overwrite(json.toString())
+    fun put(key: String, value: String) {
+        tagged.add(key)
+        adapter.put(key, value)
+    }
+
+    fun delete(key: String): Boolean {
+        tagged.remove(key)
+        return adapter.delete(key)
+    }
+
+    fun trim() {
+        adapter.retain(tagged)
     }
 }

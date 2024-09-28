@@ -1,5 +1,15 @@
-package io.github.zyrouge.metaphony
+package io.github.zyrouge.metaphony.vorbis
 
+import io.github.zyrouge.metaphony.Artwork
+import io.github.zyrouge.metaphony.Metadata
+import io.github.zyrouge.metaphony.utils.xDateToLocalDate
+import io.github.zyrouge.metaphony.utils.xIntAfterSlash
+import io.github.zyrouge.metaphony.utils.xIntBeforeSlash
+import io.github.zyrouge.metaphony.utils.xRead32bitLittleEndian
+import io.github.zyrouge.metaphony.utils.xReadBytes
+import io.github.zyrouge.metaphony.utils.xReadInt
+import io.github.zyrouge.metaphony.utils.xReadString
+import io.github.zyrouge.metaphony.utils.xSkipBytes
 import java.io.InputStream
 import java.time.LocalDate
 import kotlin.io.encoding.Base64
@@ -13,14 +23,22 @@ data class VorbisMetadata(
     override val artists: Set<String> get() = fieldMultiple("artist")
     override val album: String? get() = fieldSingle("album")
     override val albumArtists: Set<String>
-        get() = fieldMultipleOrNull("albumartist") ?: fieldMultipleOrNull("album_artist") ?: setOf()
-    override val composer: String? get() = fieldSingle("composer") ?: fieldSingle("performer") ?: fieldSingle("artist")
+        get() = fieldMultipleOrNull("albumartist") ?: fieldMultiple("album_artist")
+    override val composer: Set<String>
+        get() = fieldMultipleOrNull("composer") ?: fieldMultipleOrNull("performer")
+        ?: fieldMultiple("artist")
     override val genres: Set<String> get() = fieldMultiple("genre")
     override val year: Int? get() = fieldSingle("year")?.toInt() ?: date?.year
-    override val trackNumber: Int? get() = fieldSingle("tracknumber")?.let { it.xIntBeforeSlash() ?: it.toInt() }
+    override val trackNumber: Int?
+        get() = fieldSingle("tracknumber")?.let {
+            it.xIntBeforeSlash() ?: it.toInt()
+        }
     override val trackTotal: Int?
         get() = fieldSingle("tracknumber")?.xIntAfterSlash() ?: fieldSingle("tracktotal")?.toInt()
-    override val discNumber: Int? get() = fieldSingle("discnumber")?.let { it.xIntBeforeSlash() ?: it.toInt() }
+    override val discNumber: Int?
+        get() = fieldSingle("discnumber")?.let {
+            it.xIntBeforeSlash() ?: it.toInt()
+        }
     override val discTotal: Int?
         get() = fieldSingle("discnumber")?.xIntAfterSlash() ?: fieldSingle("disctotal")?.toInt()
     override val lyrics: String? get() = fieldSingle("lyrics") ?: fieldSingle("lyrics-xxx")
@@ -30,7 +48,7 @@ data class VorbisMetadata(
         get() {
             val raw = fieldSingle("date") ?: return null
             if (raw.isEmpty()) return null
-            return parseDate(raw)
+            return raw.xDateToLocalDate()
         }
 
     private fun fieldSingle(name: String) = rawComments[name]?.firstOrNull()

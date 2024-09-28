@@ -8,6 +8,7 @@ compose-material3 = "1.3.0-alpha05"
 compose-navigation = "2.7.7"
 core = "1.13.0"
 core-splashscreen = "1.0.1"
+documentfile = "1.0.1"
 fuzzywuzzy = "1.4.0"
 jaudiotagger = "3.0.1"
 junit-jupiter = "5.11.0"
@@ -35,6 +36,7 @@ compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", versi
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
 core = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }
 jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }

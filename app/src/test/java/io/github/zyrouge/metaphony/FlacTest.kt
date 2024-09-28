@@ -1,5 +1,6 @@
 package io.github.zyrouge.metaphony
 
+import io.github.zyrouge.metaphony.flac.Flac
 import org.junit.jupiter.api.Test
 
 class FlacTest {

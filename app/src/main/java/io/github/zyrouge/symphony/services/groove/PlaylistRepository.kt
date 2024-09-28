@@ -41,7 +41,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
     val count = _count.asStateFlow()
-    private val _favorites = MutableStateFlow<List<Long>>(emptyList())
+    private val _favorites = MutableStateFlow<List<String>>(emptyList())
     val favorites = _favorites.asStateFlow()
 
     private fun emitUpdate(value: Boolean) = _isUpdating.update {
@@ -150,7 +150,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         Playlist.fromM3U(symphony, local)
     }.getOrNull()
 
-    fun create(title: String, songIds: List<Long>) = Playlist(
+    fun create(title: String, songIds: List<String>) = Playlist(
         id = generatePlaylistId(),
         title = title,
         songIds = songIds,
@@ -178,7 +178,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         save()
     }
 
-    suspend fun update(id: String, songIds: List<Long>) {
+    suspend fun update(id: String, songIds: List<String>) {
         val old = get(id) ?: return
         val new = Playlist(
             id = id,
@@ -198,13 +198,13 @@ class PlaylistRepository(private val symphony: Symphony) {
         save()
     }
 
-    fun isFavorite(songId: Long): Boolean {
+    fun isFavorite(songId: String): Boolean {
         val favorites = getFavorites()
         return favorites.songIds.contains(songId)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
-    fun favorite(songId: Long) {
+    fun favorite(songId: String) {
         val favorites = getFavorites()
         if (favorites.songIds.contains(songId)) return
         symphony.groove.coroutineScope.launch {
@@ -212,7 +212,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         }
     }
 
-    fun unfavorite(songId: Long) {
+    fun unfavorite(songId: String) {
         val favorites = getFavorites()
         if (!favorites.songIds.contains(songId)) return
         symphony.groove.coroutineScope.launch {

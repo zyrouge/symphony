@@ -19,17 +19,17 @@ data class Artwork(
         return result
     }
 
-    enum class Format {
-        Jpeg,
-        Png,
-        Gif,
-        Unknown;
+    enum class Format(val extension: String, val mimeType: String) {
+        Jpeg("jpg", "image/jpg"),
+        Png("png", "image/png"),
+        Gif("gif", "image/gif"),
+        Unknown("", "");
 
         companion object {
             fun fromMimeType(value: String) = when (value) {
-                "image/jpeg", "image/jpg" -> Jpeg
-                "image/png" -> Png
-                "image/gif" -> Gif
+                Jpeg.mimeType, "image/jpg" -> Jpeg
+                Png.mimeType -> Png
+                Gif.mimeType -> Gif
                 else -> Unknown
             }
         }

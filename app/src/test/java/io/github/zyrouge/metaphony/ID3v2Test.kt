@@ -1,4 +1,4 @@
-import io.github.zyrouge.metaphony.Mp3
+import io.github.zyrouge.metaphony.mp3.Mp3
 import org.junit.jupiter.api.Test
 
 class ID3v2Test {

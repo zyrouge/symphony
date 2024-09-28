@@ -38,8 +38,8 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun PlaylistManageSongsDialog(
     context: ViewContext,
-    selectedSongIds: List<Long>,
-    onDone: (List<Long>) -> Unit,
+    selectedSongIds: List<String>,
+    onDone: (List<String>) -> Unit,
 ) {
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val nSelectedSongIds = remember { selectedSongIds.toMutableStateList() }

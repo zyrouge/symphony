@@ -31,7 +31,7 @@ enum class SongListType {
 @Composable
 fun SongList(
     context: ViewContext,
-    songIds: List<Long>,
+    songIds: List<String>,
     songsCount: Int? = null,
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,

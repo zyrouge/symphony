@@ -14,8 +14,8 @@ enum class RadioLoopMode {
 }
 
 class RadioQueue(private val symphony: Symphony) {
-    val originalQueue = ConcurrentList<Long>()
-    val currentQueue = ConcurrentList<Long>()
+    val originalQueue = ConcurrentList<String>()
+    val currentQueue = ConcurrentList<String>()
 
     var currentSongIndex = -1
         set(value) {
@@ -35,7 +35,7 @@ class RadioQueue(private val symphony: Symphony) {
             symphony.radio.onUpdate.dispatch(RadioEvents.LoopModeChanged)
         }
 
-    val currentSongId: Long?
+    val currentSongId: String?
         get() = getSongIdAt(currentSongIndex)
 
     fun hasSongAt(index: Int) = index > -1 && index < currentQueue.size
@@ -49,7 +49,7 @@ class RadioQueue(private val symphony: Symphony) {
     }
 
     fun add(
-        songIds: List<Long>,
+        songIds: List<String>,
         index: Int? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
     ) {
@@ -67,7 +67,7 @@ class RadioQueue(private val symphony: Symphony) {
     }
 
     fun add(
-        songId: Long,
+        songId: String,
         index: Int? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
     ) = add(listOf(songId), index, options)
@@ -144,8 +144,8 @@ class RadioQueue(private val symphony: Symphony) {
     data class Serialized(
         val currentSongIndex: Int,
         val playedDuration: Long,
-        val originalQueue: List<Long>,
-        val currentQueue: List<Long>,
+        val originalQueue: List<String>,
+        val currentQueue: List<String>,
         val shuffled: Boolean,
     ) {
         fun serialize() =
@@ -173,8 +173,8 @@ class RadioQueue(private val symphony: Symphony) {
                     return Serialized(
                         currentSongIndex = semi[0].toInt(),
                         playedDuration = semi[1].toLong(),
-                        originalQueue = semi[2].split(",").map { it.toLong() },
-                        currentQueue = semi[3].split(",").map { it.toLong() },
+                        originalQueue = semi[2].split(","),
+                        currentQueue = semi[3].split(","),
                         shuffled = semi[4].toBoolean(),
                     )
                 } catch (_: Exception) {

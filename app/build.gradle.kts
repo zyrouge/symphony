@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.core)
     implementation(libs.core.splashscreen)
+    implementation(libs.documentfile)
     implementation(libs.fuzzywuzzy)
     implementation(libs.jaudiotagger)
     implementation(libs.lifecycle.runtime)

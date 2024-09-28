@@ -13,7 +13,7 @@ import org.json.JSONObject
 data class Playlist(
     val id: String,
     val title: String,
-    val songIds: List<Long>,
+    val songIds: List<String>,
     val numberOfTracks: Int,
     val local: Local?,
 ) {
@@ -82,7 +82,7 @@ data class Playlist(
         fun fromJSONObject(serialized: JSONObject) = Playlist(
             id = serialized.getString(PLAYLIST_ID_KEY),
             title = serialized.getString(PLAYLIST_TITLE_KEY),
-            songIds = serialized.getJSONArray(PLAYLIST_SONGS_KEY).toList { getLong(it) },
+            songIds = serialized.getJSONArray(PLAYLIST_SONGS_KEY).toList { getString(it) },
             numberOfTracks = serialized.getInt(PLAYLIST_NUMBER_OF_TRACKS_KEY),
             local = null,
         )
@@ -94,7 +94,7 @@ data class Playlist(
                 .openInputStream(local.uri)
                 ?.use { String(it.readBytes()) } ?: ""
             val m3u = M3U.parse(content)
-            val songs = mutableListOf<Long>()
+            val songs = mutableListOf<String>()
             m3u.entries.forEach { entry ->
                 val resolvedPath = when {
                     symphony.groove.song.pathCache.containsKey(entry.path) -> entry.path

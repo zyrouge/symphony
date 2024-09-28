@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.services
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Environment
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
@@ -84,6 +85,7 @@ object SettingsKeys {
     const val artistTagSeparators = "artist_tag_separators"
     const val genreTagSeparators = "genre_tag_separators"
     const val miniPlayerTextMarquee = "mini_player_text_marquee"
+    const val mediaFolders = "media_folders"
 }
 
 object SettingsDefaults {
@@ -321,6 +323,9 @@ class SettingsManager(private val symphony: Symphony) {
 
     private val _miniPlayerTextMarquee = MutableStateFlow(getMiniPlayerTextMarquee())
     val miniPlayerTextMarquee = _miniPlayerTextMarquee.asStateFlow()
+
+    private val _mediaFolders = MutableStateFlow(getMediaFolders())
+    val mediaFolders = _mediaFolders.asStateFlow()
 
     fun getThemeMode() = getSharedPreferences().getString(SettingsKeys.themeMode, null)
         ?.let { ThemeMode.valueOf(it) }
@@ -976,6 +981,19 @@ class SettingsManager(private val symphony: Symphony) {
             putBoolean(SettingsKeys.miniPlayerTextMarquee, value)
         }
         _miniPlayerTextMarquee.updateUsingValue(getMiniPlayerTextMarquee())
+    }
+
+    fun getMediaFolders(): Set<Uri> = getSharedPreferences()
+        .getStringSet(SettingsKeys.mediaFolders, null)
+        ?.map { Uri.parse(it) }
+        ?.toSet()
+        ?: setOf()
+
+    fun setMediaFolders(values: Set<Uri>) {
+        getSharedPreferences().edit {
+            putStringSet(SettingsKeys.mediaFolders, values.map { it.toString() }.toSet())
+        }
+        _blacklistFolders.updateUsingValue(getBlacklistFolders())
     }
 
     private fun getSharedPreferences() = symphony.applicationContext.getSharedPreferences(

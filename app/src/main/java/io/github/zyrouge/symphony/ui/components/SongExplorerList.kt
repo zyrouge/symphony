@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,12 +56,11 @@ import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private data class SongExplorerResult(
     val folders: List<GrooveExplorer.Folder>,
-    val files: Map<Long, GrooveExplorer.File>,
+    val files: Map<String, GrooveExplorer.File>,
 )
 
 private const val SongFolderContentType = "folder"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongExplorerList(
     context: ViewContext,
@@ -280,17 +278,17 @@ fun SongExplorerList(
 
 private data class GrooveExplorerCategorizedData(
     val folders: List<GrooveExplorer.Folder>,
-    val files: Map<Long, GrooveExplorer.File>,
+    val files: Map<String, GrooveExplorer.File>,
 )
 
 private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategorizedData {
     val folders = mutableListOf<GrooveExplorer.Folder>()
-    val files = mutableMapOf<Long, GrooveExplorer.File>()
+    val files = mutableMapOf<String, GrooveExplorer.File>()
     children.values.forEach { entity ->
         when (entity) {
             is GrooveExplorer.Folder -> folders.add(entity)
             is GrooveExplorer.File -> {
-                files[entity.data as Long] = entity
+                files[entity.data as String] = entity
             }
         }
     }
@@ -299,7 +297,7 @@ private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategoriz
 
 private fun GrooveExplorer.Folder.childrenAsSongIds() = children.values.mapNotNull { entity ->
     when (entity) {
-        is GrooveExplorer.File -> entity.data as Long
+        is GrooveExplorer.File -> entity.data as String
         else -> null
     }
 }

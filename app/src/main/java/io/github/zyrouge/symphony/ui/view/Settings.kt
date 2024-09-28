@@ -669,7 +669,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.BlacklistFolders)
                         },
-                        explorer = context.symphony.groove.mediaStore.explorer,
+                        explorer = context.symphony.groove.exposer.explorer,
                         initialValues = blacklistFolders,
                         onChange = { values ->
                             context.symphony.settings.setBlacklistFolders(values)
@@ -684,7 +684,7 @@ fun SettingsView(context: ViewContext) {
                         title = {
                             Text(context.symphony.t.WhitelistFolders)
                         },
-                        explorer = context.symphony.groove.mediaStore.explorer,
+                        explorer = context.symphony.groove.exposer.explorer,
                         initialValues = whitelistFolders,
                         onChange = { values ->
                             context.symphony.settings.setWhitelistFolders(values)
@@ -728,7 +728,7 @@ fun SettingsView(context: ViewContext) {
                         },
                         onClick = {
                             coroutineScope.launch {
-                                context.symphony.database.songCache.update(emptyMap())
+                                context.symphony.database.songCache.clear()
                                 refetchLibrary()
                                 snackbarHostState.showSnackbar(
                                     context.symphony.t.SongCacheCleared,
