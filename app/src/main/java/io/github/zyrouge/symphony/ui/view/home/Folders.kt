@@ -314,7 +314,7 @@ private fun GrooveExplorer.Folder.getSortedSongIds(context: ViewContext): List<S
     }
     return context.symphony.groove.song.sort(
         songIds,
-        context.symphony.settings.getLastUsedSongsSortBy(),
-        context.symphony.settings.getLastUsedSongsSortReverse(),
+        context.symphony.settings.lastUsedSongsSortBy.value,
+        context.symphony.settings.lastUsedSongsSortReverse.value,
     )
 }

@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.HeadsetOff
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
@@ -83,8 +84,9 @@ import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.ui.view.settings.SettingsFloatInputTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsLinkTile
-import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiFolderTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiGrooveFolderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiOptionTile
+import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiSystemFolderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsMultiTextOptionTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSideHeading
@@ -139,6 +141,7 @@ fun SettingsView(context: ViewContext) {
     val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
     val fontScale by context.symphony.settings.fontScale.collectAsState()
     val contentScale by context.symphony.settings.contentScale.collectAsState()
+    val mediaFolders by context.symphony.settings.mediaFolders.collectAsState()
 
     val refetchLibrary = {
         context.symphony.radio.stop()
@@ -186,6 +189,11 @@ fun SettingsView(context: ViewContext) {
             ) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     val contentColor = MaterialTheme.colorScheme.onPrimary
+
+                    val seekDurationRange = 3f..60f
+                    val defaultSongsFilterPattern = ".*"
+                    val isLatestVersion =
+                        AppMeta.latestVersion == null || AppMeta.latestVersion == AppMeta.version
 
                     Box(
                         modifier = Modifier
@@ -493,7 +501,6 @@ fun SettingsView(context: ViewContext) {
                             context.symphony.settings.setPauseOnHeadphonesDisconnect(value)
                         }
                     )
-                    val seekDurationRange = 3f..60f
                     SettingsSliderTile(
                         context,
                         icon = {
@@ -638,7 +645,20 @@ fun SettingsView(context: ViewContext) {
                     )
                     HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.Groove)
-                    val defaultSongsFilterPattern = ".*"
+                    SettingsMultiSystemFolderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.LibraryMusic, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.MediaFolders)
+                        },
+                        initialValues = mediaFolders,
+                        onChange = { values ->
+                            context.symphony.settings.setMediaFolders(values)
+                            refetchLibrary()
+                        }
+                    )
                     SettingsTextInputTile(
                         context,
                         icon = {
@@ -661,7 +681,7 @@ fun SettingsView(context: ViewContext) {
                             refetchLibrary()
                         }
                     )
-                    SettingsMultiFolderTile(
+                    SettingsMultiGrooveFolderTile(
                         context,
                         icon = {
                             Icon(Icons.Filled.RuleFolder, null)
@@ -676,7 +696,7 @@ fun SettingsView(context: ViewContext) {
                             refetchLibrary()
                         }
                     )
-                    SettingsMultiFolderTile(
+                    SettingsMultiGrooveFolderTile(
                         context,
                         icon = {
                             Icon(Icons.Filled.RuleFolder, null)
@@ -797,9 +817,6 @@ fun SettingsView(context: ViewContext) {
                     )
                     HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.About)
-                    val isLatestVersion = AppMeta.latestVersion
-                        ?.let { it == AppMeta.version }
-                        ?: true
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.MusicNote, null)

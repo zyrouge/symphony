@@ -47,8 +47,8 @@ data class Playlist(
 
     fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
         songIds,
-        symphony.settings.getLastUsedPlaylistSongsSortBy(),
-        symphony.settings.getLastUsedPlaylistSongsSortReverse(),
+        symphony.settings.lastUsedPlaylistSongsSortBy.value,
+        symphony.settings.lastUsedPlaylistSongsSortReverse.value,
     )
 
     fun isLocal() = local != null

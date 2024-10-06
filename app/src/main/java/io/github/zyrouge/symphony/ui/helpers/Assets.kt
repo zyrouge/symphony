@@ -13,13 +13,13 @@ object Assets {
     val placeholderDarkId = R.raw.placeholder_dark
     val placeholderLightId = R.raw.placeholder_light
 
-    fun getPlaceholderId(isLight: Boolean = false) = when {
+    private fun getPlaceholderId(isLight: Boolean = false) = when {
         isLight -> placeholderLightId
         else -> placeholderDarkId
     }
 
-    fun getPlaceholderId(symphony: Symphony) = Assets.getPlaceholderId(
-        isLight = symphony.settings.getThemeMode().toColorSchemeMode(symphony).isLight(),
+    fun getPlaceholderId(symphony: Symphony) = getPlaceholderId(
+        isLight = symphony.settings.themeMode.value.toColorSchemeMode(symphony).isLight(),
     )
 
     fun getPlaceholderUri(symphony: Symphony) = buildUriOfResource(

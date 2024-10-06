@@ -23,7 +23,6 @@ enum class SongSortBy {
     ARTIST,
     ALBUM,
     DURATION,
-    DATE_ADDED,
     DATE_MODIFIED,
     COMPOSER,
     ALBUM_ARTIST,
@@ -35,6 +34,7 @@ enum class SongSortBy {
 class SongRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Song>()
     internal val pathCache = ConcurrentHashMap<String, String>()
+    internal val idGenerator = TimeBasedIncrementalKeyGenerator()
     private val searcher = FuzzySearcher<String>(
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
@@ -43,7 +43,6 @@ class SongRepository(private val symphony: Symphony) {
             FuzzySearchOption({ v -> get(v)?.album?.let { compareString(it) } })
         )
     )
-    internal val coverIdGenerator = TimeBasedIncrementalKeyGenerator()
 
     val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())
@@ -96,7 +95,6 @@ class SongRepository(private val symphony: Symphony) {
             SongSortBy.ARTIST -> songIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
             SongSortBy.ALBUM -> songIds.sortedBy { get(it)?.album }
             SongSortBy.DURATION -> songIds.sortedBy { get(it)?.duration }
-            SongSortBy.DATE_ADDED -> songIds.sortedBy { get(it)?.dateAdded }
             SongSortBy.DATE_MODIFIED -> songIds.sortedBy { get(it)?.dateModified }
             SongSortBy.COMPOSER -> songIds.sortedBy { get(it)?.composers?.joinToStringIfNotEmpty() }
             SongSortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.albumArtists?.joinToStringIfNotEmpty() }

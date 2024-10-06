@@ -131,7 +131,6 @@ fun SongSortBy.label(context: ViewContext) = when (this) {
     SongSortBy.ARTIST -> context.symphony.t.Artist
     SongSortBy.ALBUM -> context.symphony.t.Album
     SongSortBy.DURATION -> context.symphony.t.Duration
-    SongSortBy.DATE_ADDED -> context.symphony.t.DateAdded
     SongSortBy.DATE_MODIFIED -> context.symphony.t.LastModified
     SongSortBy.COMPOSER -> context.symphony.t.Composer
     SongSortBy.ALBUM_ARTIST -> context.symphony.t.AlbumArtist

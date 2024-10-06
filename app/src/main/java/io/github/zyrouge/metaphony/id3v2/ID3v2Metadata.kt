@@ -25,13 +25,13 @@ data class ID3v2Metadata(
     override val year: Int? get() = date?.year
     override val trackNumber: Int?
         get() = (textFrameSingle("TRK") ?: textFrameSingle("TRCK"))?.let {
-            it.xIntBeforeSlash() ?: it.toInt()
+            it.xIntBeforeSlash() ?: it.toIntOrNull()
         }
     override val trackTotal: Int?
         get() = (textFrameSingle("TRK") ?: textFrameSingle("TRCK"))?.xIntAfterSlash()
     override val discNumber: Int?
         get() = (textFrameSingle("TPA") ?: textFrameSingle("TPOS"))?.let {
-            it.xIntBeforeSlash() ?: it.toInt()
+            it.xIntBeforeSlash() ?: it.toIntOrNull()
         }
     override val discTotal: Int?
         get() = (textFrameSingle("TPA") ?: textFrameSingle("TPOS"))?.xIntAfterSlash()

@@ -27,7 +27,7 @@ data class Artwork(
 
         companion object {
             fun fromMimeType(value: String) = when (value) {
-                Jpeg.mimeType, "image/jpg" -> Jpeg
+                Jpeg.mimeType, "image/jpeg" -> Jpeg
                 Png.mimeType -> Png
                 Gif.mimeType -> Gif
                 else -> Unknown

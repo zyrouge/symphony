@@ -1,7 +1,6 @@
 package io.github.zyrouge.metaphony.id3v2
 
 import io.github.zyrouge.metaphony.Artwork
-import io.github.zyrouge.metaphony.utils.xAvailable
 import io.github.zyrouge.metaphony.utils.xReadBytes
 import io.github.zyrouge.metaphony.utils.xReadInt
 import io.github.zyrouge.metaphony.utils.xSkipBytes
@@ -24,9 +23,7 @@ object ID3v2Frames {
 
     internal fun ID3v2Metadata.Builder.readID3v2Frames(input: InputStream) {
         val header = Id3v2Header.readID3v2Header(input)
-        while (input.xAvailable()) {
-            readID3v2Frames(input, header)
-        }
+        readID3v2Frames(input, header)
     }
 
     private fun ID3v2Metadata.Builder.readID3v2Frames(input: InputStream, header: Id3v2Header) {
@@ -57,42 +54,50 @@ object ID3v2Frames {
                 size--
             }
             val name = frameHeader.name
-            val data = input.xReadBytes(size)
             // NOTE: not everything is parsed, only some needed ones
             when {
                 name == "TXXX" || name == "TXX" -> {
+                    val data = input.xReadBytes(size)
                     readTextDescFrame(data, hasLanguage = false, hasEncodedText = true).let {
                         textDescFrames[it.description] = it
                     }
                 }
 
                 name.firstOrNull() == 'T' -> {
+                    val data = input.xReadBytes(size)
                     textFrames[name] = readTFrame(data)
                 }
 
                 name == "WXXX" || name == "WXX" -> {
+                    val data = input.xReadBytes(size)
                     readTextDescFrame(data, hasLanguage = false, hasEncodedText = false).let {
                         textDescFrames[it.description] = it
                     }
                 }
 
                 name.firstOrNull() == 'W' -> {
+                    val data = input.xReadBytes(size)
                     textFrames[name] = readWFrame(data)
                 }
 
                 name == "COMM" || name == "COM" || name == "USLT" || name == "ULT" -> {
+                    val data = input.xReadBytes(size)
                     readTextDescFrame(data, hasLanguage = true, hasEncodedText = true).let {
                         textDescFrames[it.description] = it
                     }
                 }
 
                 name == "APIC" -> {
+                    val data = input.xReadBytes(size)
                     pictureFrames.add(readAPICFrame(data))
                 }
 
                 name == "PIC" -> {
+                    val data = input.xReadBytes(size)
                     pictureFrames.add(readPICFrame(data))
                 }
+
+                else -> input.xSkipBytes(size)
             }
         }
     }
@@ -146,7 +151,7 @@ object ID3v2Frames {
     private fun readWFrame(data: ByteArray) = readTFrame(byteArrayOf(0) + data)
 
     private fun readAPICFrame(data: ByteArray): Artwork {
-        val dataSplit = data.xSlice(1).xSplit(SINGLE_ZERO_DELIMITER, 4)
+        val dataSplit = data.xSlice(1).xSplit(SINGLE_ZERO_DELIMITER, 3)
         val mimeType = dataSplit.first().decodeToString()
         val bytes = dataSplit.last()
         return Artwork(

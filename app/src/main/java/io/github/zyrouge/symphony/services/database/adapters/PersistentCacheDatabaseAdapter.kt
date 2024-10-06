@@ -46,27 +46,14 @@ class PersistentCacheDatabaseAdapter<T>(
         return count == 1
     }
 
-    fun delete(keys: List<String>): Int {
+    fun delete(keys: Collection<String>): Int {
         if (keys.isEmpty()) {
             return 0
         }
         val selectionPlaceholder = "?, ".repeat(keys.size).let {
-            it.substring(it.length - 2, it.length)
+            it.substring(0, it.length - 2)
         }
         val selection = "$COLUMN_KEY IN (${selectionPlaceholder})"
-        val selectionArgs = keys.toTypedArray()
-        val count = helper.writableDatabase.delete(name, selection, selectionArgs)
-        return count
-    }
-
-    fun retain(keys: Collection<String>): Int {
-        if (keys.isEmpty()) {
-            return 0
-        }
-        val selectionPlaceholder = "?, ".repeat(keys.size).let {
-            it.substring(it.length - 2, it.length)
-        }
-        val selection = "$COLUMN_KEY NOT IN (${selectionPlaceholder})"
         val selectionArgs = keys.toTypedArray()
         val count = helper.writableDatabase.delete(name, selection, selectionArgs)
         return count
@@ -94,7 +81,7 @@ class PersistentCacheDatabaseAdapter<T>(
 
     fun all(): Map<String, T> {
         val all = mutableMapOf<String, T>()
-        val columns = arrayOf(COLUMN_KEY)
+        val columns = arrayOf(COLUMN_KEY, COLUMN_VALUE)
         helper.readableDatabase
             .query(name, columns, null, null, null, null, null)
             .use {

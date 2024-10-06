@@ -5,11 +5,16 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 internal fun InputStream.xSkipBytes(n: Int) {
-    if (n < 0) throw Exception("Cannot skip negative count")
+    if (n < 0) {
+        throw Exception("Cannot skip negative count")
+    }
     skip(n.toLong())
 }
 
 internal fun InputStream.xReadBytes(n: Int): ByteArray {
+    if (n < 0) {
+        throw Exception("Cannot read negative count")
+    }
     val bytes = ByteArray(n)
     read(bytes, 0, n)
     return bytes

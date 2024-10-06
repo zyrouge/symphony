@@ -1,5 +1,8 @@
 package io.github.zyrouge.symphony.ui.view.settings
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -47,15 +50,13 @@ import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
 
 private const val SettingsFolderContentType = "folder"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsMultiFolderTile(
+fun SettingsMultiSystemFolderTile(
     context: ViewContext,
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
-    explorer: GrooveExplorer.Folder,
-    initialValues: Set<String>,
-    onChange: (Set<String>) -> Unit,
+    initialValues: Set<Uri>,
+    onChange: (Set<Uri>) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -77,7 +78,11 @@ fun SettingsMultiFolderTile(
 
     if (showDialog) {
         val values = remember { initialValues.toMutableStateList() }
-        var showPicker by remember { mutableStateOf(false) }
+        val pickFolderLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocumentTree()
+        ) { uri ->
+            uri?.let { _ -> values.add(uri) }
+        }
 
         // TODO: workaround for dialog resize bug
         //       https://issuetracker.google.com/issues/221643630
@@ -112,7 +117,7 @@ fun SettingsMultiFolderTile(
                                     ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(x, modifier = Modifier.weight(1f))
+                                    Text(x.toString(), modifier = Modifier.weight(1f))
                                     IconButton(onClick = { values.removeAt(i) }) {
                                         Icon(Icons.Filled.Delete, null)
                                     }
@@ -124,7 +129,7 @@ fun SettingsMultiFolderTile(
                 actions = {
                     TextButton(
                         onClick = {
-                            showPicker = true
+                            pickFolderLauncher.launch(null)
                         }
                     ) {
                         Text(context.symphony.t.AddFolder)
@@ -145,22 +150,6 @@ fun SettingsMultiFolderTile(
                     ) {
                         Text(context.symphony.t.Done)
                     }
-                }
-            )
-        }
-
-        if (showPicker) {
-            SettingsFolderTilePickerDialog(
-                context,
-                explorer = explorer,
-                onSelect = {
-                    if (it != null) {
-                        val path = "/" + it.subList(1, it.size).joinToString("/")
-                        if (!values.contains(path)) {
-                            values.add(path)
-                        }
-                    }
-                    showPicker = false
                 }
             )
         }

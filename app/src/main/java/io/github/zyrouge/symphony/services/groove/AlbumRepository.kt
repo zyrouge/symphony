@@ -6,6 +6,7 @@ import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.concurrentSetOf
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +43,7 @@ class AlbumRepository(private val symphony: Symphony) {
     internal fun onSong(song: Song) {
         val albumId = getIdFromSong(song) ?: return
         songIdsCache.compute(albumId) { _, value ->
-            value?.apply { add(song.id) } ?: ConcurrentSet(song.id)
+            value?.apply { add(song.id) } ?: concurrentSetOf(song.id)
         }
         cache.compute(albumId) { _, value ->
             value?.apply {

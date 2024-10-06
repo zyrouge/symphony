@@ -7,28 +7,15 @@ class LyricsCache(val symphony: Symphony) {
     private val adapter = PersistentCacheDatabaseAdapter(
         symphony.applicationContext,
         "lyrics",
-        0,
+        1,
         PersistentCacheDatabaseAdapter.Transformer.AsString()
     )
 
-    private val tagged = mutableSetOf<String>()
-
-    fun get(key: String): String? {
-        tagged.add(key)
-        return adapter.get(key)
-    }
-
-    fun put(key: String, value: String) {
-        tagged.add(key)
-        adapter.put(key, value)
-    }
-
-    fun delete(key: String): Boolean {
-        tagged.remove(key)
-        return adapter.delete(key)
-    }
-
-    fun trim() {
-        adapter.retain(tagged)
-    }
+    fun get(key: String) = adapter.get(key)
+    fun put(key: String, value: String) = adapter.put(key, value)
+    fun delete(key: String) = adapter.delete(key)
+    fun delete(keys: Collection<String>) = adapter.delete(keys)
+    fun keys() = adapter.keys()
+    fun all() = adapter.all()
+    fun clear() = adapter.clear()
 }

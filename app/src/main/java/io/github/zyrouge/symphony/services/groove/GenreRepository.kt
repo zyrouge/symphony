@@ -4,6 +4,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.concurrentSetOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,8 +36,7 @@ class GenreRepository(private val symphony: Symphony) {
     internal fun onSong(song: Song) {
         song.genres.forEach { genre ->
             songIdsCache.compute(genre) { _, value ->
-                value?.apply { add(song.id) }
-                    ?: ConcurrentSet(song.id)
+                value?.apply { add(song.id) } ?: concurrentSetOf(song.id)
             }
             cache.compute(genre) { _, value ->
                 value?.apply {

@@ -15,9 +15,9 @@ internal fun String.xDateToLocalDate(): LocalDate {
 
 private fun parseSlashSeparatedNumbers(value: String): Pair<Int, Int>? {
     val split = value.split("/")
-    if (split.size == 2) {
-        return split[0].toInt() to split[1].toInt()
-    }
+//    if (split.size == 2) {
+//        return split[0].toInt() to split[1].toInt()
+//    }
     return null
 }
 

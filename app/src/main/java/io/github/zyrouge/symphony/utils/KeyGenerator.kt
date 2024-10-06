@@ -10,7 +10,7 @@ class TimeBasedIncrementalKeyGenerator(private var i: Int = 0, private var time:
             } else {
                 i++
             }
-            return "$now-$i"
+            return "$now.$i"
         }
     }
 }

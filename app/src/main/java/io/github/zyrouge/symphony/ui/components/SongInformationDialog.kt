@@ -118,17 +118,10 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(context.symphony.t.Size) {
                 LongPressCopyableText(context, "${round((song.size / 1024 / 1024).toDouble())} MB")
             }
-            InformationKeyValue(context.symphony.t.DateAdded) {
-                LongPressCopyableText(
-                    context,
-                    SimpleDateFormat.getInstance().format(Date(song.dateAdded * 1000)),
-                )
-            }
             InformationKeyValue(context.symphony.t.LastModified) {
                 LongPressCopyableText(
                     context,
-                    SimpleDateFormat.getInstance()
-                        .format(Date(song.dateModified * 1000)),
+                    SimpleDateFormat.getInstance().format(Date(song.dateModified * 1000)),
                 )
             }
         },

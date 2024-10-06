@@ -1,43 +1,67 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.content.ContentUris
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.compose.runtime.Immutable
 import androidx.documentfile.provider.DocumentFile
+import io.github.zyrouge.metaphony.Artwork
 import io.github.zyrouge.metaphony.Metadata
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.getIntOrNull
-import io.github.zyrouge.symphony.utils.getStringOrEmptySet
-import io.github.zyrouge.symphony.utils.getStringOrNull
-import org.json.JSONObject
+import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
+import io.github.zyrouge.symphony.utils.UriSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.math.RoundingMode
 import kotlin.io.path.Path
 
 @Immutable
+@Serializable
 data class Song(
+    @SerialName(KEY_ID)
     val id: String,
+    @SerialName(KEY_TITLE)
     val title: String,
+    @SerialName(KEY_ALBUM)
     val album: String?,
+    @SerialName(KEY_ARTISTS)
     val artists: Set<String>,
+    @SerialName(KEY_COMPOSERS)
     val composers: Set<String>,
+    @SerialName(KEY_ALBUM_ARTISTS)
     val albumArtists: Set<String>,
+    @SerialName(KEY_GENRES)
     val genres: Set<String>,
+    @SerialName(KEY_TRACK_NUMBER)
     val trackNumber: Int?,
+    @SerialName(KEY_TRACK_TOTAL)
     val trackTotal: Int?,
+    @SerialName(KEY_DISC_NUMBER)
     val discNumber: Int?,
+    @SerialName(KEY_DISC_TOTAL)
     val discTotal: Int?,
+    @SerialName(KEY_YEAR)
     val year: Int?,
+    @SerialName(KEY_DURATION)
     val duration: Long,
+    @SerialName(KEY_BITRATE)
     val bitrate: Int?,
+    @SerialName(KEY_BITS_PER_SAMPLE)
     val bitsPerSample: Int?,
+    @SerialName(KEY_SAMPLING_RATE)
     val samplingRate: Int?,
+    @SerialName(KEY_CODEC)
     val codec: String?,
-    val dateAdded: Long,
+    @SerialName(KEY_DATE_MODIFIED)
     val dateModified: Long,
+    @SerialName(KEY_SIZE)
     val size: Long,
+    @SerialName(KEY_COVER_FILE)
     val coverFile: String?,
+    @SerialName(KEY_URI)
+    @Serializable(UriSerializer::class)
     val uri: Uri,
+    @SerialName(KEY_PATH)
     val path: String,
 ) {
     val bitrateK: Int? get() = bitrate?.let { it / 1000 }
@@ -72,31 +96,7 @@ data class Song(
         }
     }
 
-    fun toJSONObject() = JSONObject().apply {
-        put(KEY_ID, id)
-        put(KEY_TITLE, title)
-        put(KEY_ALBUM, album)
-        put(KEY_ARTISTS, artists)
-        put(KEY_COMPOSERS, composers)
-        put(KEY_ALBUM_ARTISTS, albumArtists)
-        put(KEY_GENRES, genres)
-        put(KEY_TRACK_NUMBER, trackNumber)
-        put(KEY_TRACK_TOTAL, trackTotal)
-        put(KEY_DISC_NUMBER, discNumber)
-        put(KEY_DISC_TOTAL, discTotal)
-        put(KEY_YEAR, year)
-        put(KEY_DURATION, duration)
-        put(KEY_BITRATE, bitrate)
-        put(KEY_BITS_PER_SAMPLE, bitsPerSample)
-        put(KEY_SAMPLING_RATE, samplingRate)
-        put(KEY_CODEC, codec)
-        put(KEY_DATE_ADDED, dateAdded)
-        put(KEY_DATE_MODIFIED, dateModified)
-        put(KEY_SIZE, size)
-        put(KEY_COVER_FILE, coverFile)
-        put(KEY_URI, uri)
-        put(KEY_PATH, path)
-    }
+    fun toJson() = Json.encodeToString(this)
 
     companion object {
         const val KEY_TITLE = "0"
@@ -115,7 +115,6 @@ data class Song(
         const val KEY_BITS_PER_SAMPLE = "13"
         const val KEY_SAMPLING_RATE = "14"
         const val KEY_CODEC = "15"
-        const val KEY_DATE_ADDED = "16"
         const val KEY_DATE_MODIFIED = "17"
         const val KEY_SIZE = "18"
         const val KEY_URI = "19"
@@ -123,38 +122,7 @@ data class Song(
         const val KEY_ID = "21"
         const val KEY_COVER_FILE = "22"
 
-        fun fromJSONObject(json: JSONObject) = json.run {
-            Song(
-                id = getString(KEY_ID),
-                title = getString(KEY_TITLE),
-                album = getStringOrNull(KEY_ALBUM),
-                artists = getStringOrEmptySet(KEY_ARTISTS),
-                composers = getStringOrEmptySet(KEY_COMPOSERS),
-                albumArtists = getStringOrEmptySet(KEY_ALBUM_ARTISTS),
-                genres = getStringOrEmptySet(KEY_GENRES),
-                trackNumber = getIntOrNull(KEY_TRACK_NUMBER),
-                trackTotal = getIntOrNull(KEY_TRACK_TOTAL),
-                discNumber = getIntOrNull(KEY_DISC_NUMBER),
-                discTotal = getIntOrNull(KEY_DISC_TOTAL),
-                year = getIntOrNull(KEY_YEAR),
-                duration = getLong(KEY_DURATION),
-                bitrate = getIntOrNull(KEY_BITRATE),
-                bitsPerSample = getIntOrNull(KEY_BITS_PER_SAMPLE),
-                samplingRate = getIntOrNull(KEY_SAMPLING_RATE),
-                codec = getString(KEY_CODEC),
-                dateAdded = getLong(KEY_DATE_ADDED),
-                dateModified = getLong(KEY_DATE_MODIFIED),
-                size = getLong(KEY_SIZE),
-                coverFile = getStringOrNull(KEY_COVER_FILE),
-                uri = Uri.parse(getString(KEY_URI)),
-                path = getString(KEY_PATH),
-            )
-        }
-
-        fun buildUri(id: Long) = ContentUris.withAppendedId(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            id,
-        )
+        fun fromJson(json: String) = RelaxedJsonDecoder.decodeFromString<Song>(json)
 
 //        fun fromCursor(
 //            symphony: Symphony,
@@ -194,11 +162,16 @@ data class Song(
             val metadata = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { Metadata.read(it, mimeType) }
                 ?: return null
-            val id = symphony.groove.song.coverIdGenerator.next()
+            val id = symphony.groove.song.idGenerator.next()
             val coverFile = metadata.artworks.firstOrNull()?.let {
-                val name = "$id.${it.format.extension}"
-                symphony.database.artworkCache.get(name).writeBytes(it.data)
-                name
+                when (it.format) {
+                    Artwork.Format.Unknown -> null
+                    else -> {
+                        val name = "$id.${it.format.extension}"
+                        symphony.database.artworkCache.get(name).writeBytes(it.data)
+                        name
+                    }
+                }
             }
             metadata.lyrics?.let {
                 symphony.database.lyricsCache.put(id, it)
@@ -221,9 +194,8 @@ data class Song(
                 bitsPerSample = -1, // TODO
                 samplingRate = -1, // TODO
                 codec = "", // TODO
-                dateAdded = -1, // TODO
-                dateModified = -1, // TODO
-                size = -1, // TODO
+                dateModified = file.lastModified(),
+                size = file.length(),
                 coverFile = coverFile,
                 uri = uri,
                 path = path,

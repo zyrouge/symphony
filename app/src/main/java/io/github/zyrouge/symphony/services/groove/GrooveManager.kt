@@ -3,8 +3,6 @@ package io.github.zyrouge.symphony.services.groove
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.PermissionEvents
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.dispatch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,28 +76,5 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
             fetch()
             readyDeferred.complete(true)
         }
-    }
-}
-
-class GrooveEventerRapidUpdateDispatcher(
-    val eventer: Eventer<Nothing?>,
-    val maxCount: Int = 50,
-    val minTimeDiff: Int = 250,
-) {
-    var count = 0
-    var time = currentTime
-
-    fun dispatch() {
-        if (count > maxCount && (currentTime - time) > minTimeDiff) {
-            eventer.dispatch()
-            count = 0
-            time = System.currentTimeMillis()
-            return
-        }
-        count++
-    }
-
-    companion object {
-        private val currentTime: Long get() = System.currentTimeMillis()
     }
 }
