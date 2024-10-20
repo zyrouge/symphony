@@ -17,7 +17,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun GenericSongListDropdown(
     context: ViewContext,
-    songIds: List<Long>,
+    songIds: List<String>,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
 ) {

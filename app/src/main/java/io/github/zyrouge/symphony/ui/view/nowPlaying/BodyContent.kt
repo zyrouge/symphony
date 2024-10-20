@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -60,7 +59,7 @@ import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.utils.DurationFormatter
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
     val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
@@ -110,7 +109,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                             }
                         }
                         if (data.showSongAdditionalInfo) {
-                            targetStateSong.additional.toSamplingInfoString(context.symphony)?.let {
+                            targetStateSong.toSamplingInfoString(context.symphony)?.let {
                                 val localContentColor = LocalContentColor.current
                                 Text(
                                     it,

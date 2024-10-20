@@ -6,6 +6,7 @@ import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.concurrentSetOf
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,7 @@ enum class AlbumSortBy {
 
 class AlbumRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Album>()
-    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }, 3),
@@ -29,7 +30,7 @@ class AlbumRepository(private val symphony: Symphony) {
         )
     )
 
-    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
@@ -40,10 +41,9 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     internal fun onSong(song: Song) {
-        val albumId = getIdFromSong(song)
-        if (albumId == null) return
+        val albumId = getIdFromSong(song) ?: return
         songIdsCache.compute(albumId) { _, value ->
-            value?.apply { add(song.id) } ?: ConcurrentSet(song.id)
+            value?.apply { add(song.id) } ?: concurrentSetOf(song.id)
         }
         cache.compute(albumId) { _, value ->
             value?.apply {
@@ -77,7 +77,7 @@ class AlbumRepository(private val symphony: Symphony) {
 
     fun getIdFromSong(song: Song): String? {
         if (song.album == null) return null
-        val artists = song.additional.albumArtists.sorted().joinToString("-")
+        val artists = song.albumArtists.sorted().joinToString("-")
         return "${song.album}-${artists}-${song.year ?: 0}"
     }
 

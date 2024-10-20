@@ -16,7 +16,7 @@ class RadioObservatory(private val symphony: Symphony) {
     val playbackPosition = _playbackPosition.asStateFlow()
     private val _queueIndex = MutableStateFlow(-1)
     val queueIndex = _queueIndex.asStateFlow()
-    private val _queue = MutableStateFlow<List<Long>>(emptyList())
+    private val _queue = MutableStateFlow<List<String>>(emptyList())
     val queue = _queue.asStateFlow()
     private val _loopMode = MutableStateFlow(RadioLoopMode.None)
     val loopMode = _loopMode.asStateFlow()

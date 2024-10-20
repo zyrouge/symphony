@@ -51,7 +51,7 @@ fun LyricsText(
         }
     }
     var lyricsState by remember { mutableIntStateOf(0) }
-    var lyricsSongId by remember { mutableStateOf<Long?>(null) }
+    var lyricsSongId by remember { mutableStateOf<String?>(null) }
     var lyrics by remember { mutableStateOf<TimedContent?>(null) }
 
     LaunchedEffect(LocalContext.current) {
@@ -70,7 +70,7 @@ fun LyricsText(
                         lyricsSongId = song?.id
                         coroutineScope.launch {
                             lyrics = song?.let { song ->
-                                context.symphony.groove.lyrics.getLyrics(song)?.let {
+                                context.symphony.groove.song.getLyrics(song)?.let {
                                     TimedContent.fromLyrics(it)
                                 }
                             }

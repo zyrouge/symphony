@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.app)
     alias(libs.plugins.android.kotlin)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -63,13 +65,15 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
-
     packaging {
         resources {
             excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+        }
+    }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
         }
     }
 }
@@ -84,12 +88,15 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.core)
     implementation(libs.core.splashscreen)
+    implementation(libs.documentfile)
     implementation(libs.fuzzywuzzy)
-    implementation(libs.jaudiotagger)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.lifecycle.runtime)
     implementation(libs.media)
     implementation(libs.okhttp3)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
+
+    testImplementation(libs.junit.jupiter)
 }

@@ -4,6 +4,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.concurrentSetOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,12 +18,12 @@ enum class GenreSortBy {
 
 class GenreRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Genre>()
-    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
     )
 
-    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
@@ -33,10 +34,9 @@ class GenreRepository(private val symphony: Symphony) {
     }
 
     internal fun onSong(song: Song) {
-        song.additional.genres.forEach { genre ->
+        song.genres.forEach { genre ->
             songIdsCache.compute(genre) { _, value ->
-                value?.apply { add(song.id) }
-                    ?: ConcurrentSet(song.id)
+                value?.apply { add(song.id) } ?: concurrentSetOf(song.id)
             }
             cache.compute(genre) { _, value ->
                 value?.apply {

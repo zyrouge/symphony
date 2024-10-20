@@ -28,7 +28,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -54,7 +53,6 @@ import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.Logger
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongCard(
     context: ViewContext,
@@ -278,7 +276,7 @@ fun SongDropdownMenu(
                 }
             )
         }
-        song.additional.albumArtists.forEach { albumArtist ->
+        song.albumArtists.forEach { albumArtist ->
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)

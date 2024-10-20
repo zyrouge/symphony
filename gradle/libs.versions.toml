@@ -2,24 +2,27 @@
 activity-compose = "1.8.2"
 coil = "2.6.0"
 compose = "1.6.6"
-compose-compiler = "1.5.12"
 compose-material = "1.6.6"
 compose-material3 = "1.3.0-alpha05"
 compose-navigation = "2.7.7"
 core = "1.13.0"
 core-splashscreen = "1.0.1"
+documentfile = "1.0.1"
 fuzzywuzzy = "1.4.0"
-jaudiotagger = "3.0.1"
+junit-jupiter = "5.11.0"
+kotlinx-serialization-json = "1.7.3"
 lifecycle-runtime = "2.7.0"
 media = "1.7.0"
 okhttp3 = "4.12.0"
 
 android-gradle-plugin = "8.3.2"
-kotlin-gradle-plugin = "1.9.23"
+kotlin-gradle-plugin = "2.0.20"
+kotlin-serialization-plugin = "2.0.20"
 
 compile-sdk = "34"
 min-sdk = "28"
 target-sdk = "34"
+testng = "6.9.6"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
@@ -33,8 +36,10 @@ compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", versi
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
 core = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }
-jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
 media = { group = "androidx.media", name = "media", version.ref = "media" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }
@@ -42,3 +47,5 @@ okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okht
 [plugins]
 android-app = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-gradle-plugin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-gradle-plugin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization-plugin" }

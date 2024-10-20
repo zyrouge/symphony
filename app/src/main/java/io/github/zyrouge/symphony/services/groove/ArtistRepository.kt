@@ -6,6 +6,7 @@ import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.concurrentSetOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,13 +21,13 @@ enum class ArtistSortBy {
 
 class ArtistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Artist>()
-    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<Long>>()
+    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
     )
 
-    val isUpdating get() = symphony.groove.mediaStore.isUpdating
+    val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())
     val all = _all.asStateFlow()
     private val _count = MutableStateFlow(0)
@@ -39,15 +40,13 @@ class ArtistRepository(private val symphony: Symphony) {
     internal fun onSong(song: Song) {
         song.artists.forEach { artist ->
             songIdsCache.compute(artist) { _, value ->
-                value?.apply { add(song.id) }
-                    ?: ConcurrentSet(song.id)
+                value?.apply { add(song.id) } ?: concurrentSetOf(song.id)
             }
             var nNumberOfAlbums = 0
             symphony.groove.album.getIdFromSong(song)?.let { album ->
                 albumIdsCache.compute(artist) { _, value ->
                     nNumberOfAlbums = (value?.size ?: 0) + 1
-                    value?.apply { add(album) }
-                        ?: ConcurrentSet(album)
+                    value?.apply { add(album) } ?: concurrentSetOf(album)
                 }
             }
             cache.compute(artist) { _, value ->

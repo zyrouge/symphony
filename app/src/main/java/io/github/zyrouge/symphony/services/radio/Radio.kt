@@ -365,8 +365,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         symphony.settings.getPreviousSongQueue()?.let { previous ->
             var currentSongIndex = previous.currentSongIndex
             var playedDuration = previous.playedDuration
-            val originalQueue = mutableListOf<Long>()
-            val currentQueue = mutableListOf<Long>()
+            val originalQueue = mutableListOf<String>()
+            val currentQueue = mutableListOf<String>()
             previous.originalQueue.forEach { songId ->
                 if (symphony.groove.song.get(songId) != null) {
                     originalQueue.add(songId)

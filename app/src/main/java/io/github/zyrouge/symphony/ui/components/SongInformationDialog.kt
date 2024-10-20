@@ -34,9 +34,9 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     }
                 }
             }
-            if (song.additional.albumArtists.isNotEmpty()) {
+            if (song.albumArtists.isNotEmpty()) {
                 InformationKeyValue(context.symphony.t.AlbumArtist) {
-                    LongPressCopyableAndTappableText(context, song.additional.albumArtists) {
+                    LongPressCopyableAndTappableText(context, song.albumArtists) {
                         onDismissRequest()
                         context.navController.navigate(Routes.AlbumArtist.build(it))
                     }
@@ -59,9 +59,9 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     }
                 }
             }
-            if (song.additional.genres.isNotEmpty()) {
+            if (song.genres.isNotEmpty()) {
                 InformationKeyValue(context.symphony.t.Genre) {
-                    LongPressCopyableAndTappableText(context, song.additional.genres) {
+                    LongPressCopyableAndTappableText(context, song.genres) {
                         onDismissRequest()
                         context.navController.navigate(Routes.Genre.build(it))
                     }
@@ -89,22 +89,22 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(context.symphony.t.Duration) {
                 LongPressCopyableText(context, DurationFormatter.formatMs(song.duration))
             }
-            song.additional.codec?.let {
+            song.codec?.let {
                 InformationKeyValue(context.symphony.t.Codec) {
                     LongPressCopyableText(context, it)
                 }
             }
-            song.additional.bitrateK?.let {
+            song.bitrateK?.let {
                 InformationKeyValue(context.symphony.t.Bitrate) {
                     LongPressCopyableText(context, context.symphony.t.XKbps(it.toString()))
                 }
             }
-            song.additional.bitsPerSample?.let {
+            song.bitsPerSample?.let {
                 InformationKeyValue(context.symphony.t.BitDepth) {
                     LongPressCopyableText(context, context.symphony.t.XBit(it.toString()))
                 }
             }
-            song.additional.samplingRateK?.let {
+            song.samplingRateK?.let {
                 InformationKeyValue(context.symphony.t.SamplingRate) {
                     LongPressCopyableText(context, context.symphony.t.XKHz(it.toString()))
                 }
@@ -118,17 +118,10 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(context.symphony.t.Size) {
                 LongPressCopyableText(context, "${round((song.size / 1024 / 1024).toDouble())} MB")
             }
-            InformationKeyValue(context.symphony.t.DateAdded) {
-                LongPressCopyableText(
-                    context,
-                    SimpleDateFormat.getInstance().format(Date(song.dateAdded * 1000)),
-                )
-            }
             InformationKeyValue(context.symphony.t.LastModified) {
                 LongPressCopyableText(
                     context,
-                    SimpleDateFormat.getInstance()
-                        .format(Date(song.dateModified * 1000)),
+                    SimpleDateFormat.getInstance().format(Date(song.dateModified * 1000)),
                 )
             }
         },

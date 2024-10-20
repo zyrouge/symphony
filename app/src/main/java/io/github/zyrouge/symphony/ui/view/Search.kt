@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private data class SearchResult(
-    val songIds: List<Long>,
+    val songIds: List<String>,
     val artistNames: List<String>,
     val albumIds: List<String>,
     val albumArtistNames: List<String>,
@@ -99,7 +99,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
         currentTermsRoutine = coroutineScope.launch {
             withContext(Dispatchers.Default) {
                 delay(250)
-                val songIds = mutableListOf<Long>()
+                val songIds = mutableListOf<String>()
                 val artistNames = mutableListOf<String>()
                 val albumIds = mutableListOf<String>()
                 val albumArtistNames = mutableListOf<String>()

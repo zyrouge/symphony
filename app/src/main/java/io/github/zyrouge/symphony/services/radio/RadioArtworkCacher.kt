@@ -10,7 +10,7 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 
 class RadioArtworkCacher(val symphony: Symphony) {
     private var default: Bitmap? = null
-    private var cached = mutableMapOf<Long, Bitmap>()
+    private var cached = mutableMapOf<String, Bitmap>()
     private val cacheLimit = 3
 
     suspend fun getArtwork(song: Song): Bitmap {
@@ -34,7 +34,7 @@ class RadioArtworkCacher(val symphony: Symphony) {
         }
     }
 
-    private fun updateCache(key: Long, value: Bitmap) {
+    private fun updateCache(key: String, value: Bitmap) {
         if (!cached.containsKey(key) && cached.size >= cacheLimit) {
             cached.remove(cached.keys.first())
         }

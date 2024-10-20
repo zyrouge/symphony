@@ -91,7 +91,7 @@ fun ForYouView(context: ViewContext) {
                     runIfOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(
                             songIds.toList(),
-                            SongSortBy.DATE_ADDED,
+                            SongSortBy.DATE_MODIFIED,
                             true
                         )
                     }

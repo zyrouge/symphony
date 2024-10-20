@@ -36,7 +36,7 @@ class RadioSession(val symphony: Symphony) {
     )
     val notification = RadioNotification(symphony)
 
-    private var currentSongId: Long? = null
+    private var currentSongId: String? = null
     private var receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.action?.let { action ->
