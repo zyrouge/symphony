@@ -1,6 +1,6 @@
-package io.github.zyrouge.metaphony.id3v2
+package io.github.zyrouge.metaphony.metadata.id3v2
 
-internal object ID3v2Genres {
+object ID3v2Genres {
     private val id3v2Genres = listOf(
         "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk", "Grunge",
         "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies", "Other", "Pop", "R&B",

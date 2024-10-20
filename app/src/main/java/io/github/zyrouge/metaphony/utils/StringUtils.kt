@@ -13,13 +13,17 @@ internal fun String.xDateToLocalDate(): LocalDate {
     return LocalDate.parse(this, format)
 }
 
-private fun parseSlashSeparatedNumbers(value: String): Pair<Int, Int>? {
-    val split = value.split("/")
-//    if (split.size == 2) {
-//        return split[0].toInt() to split[1].toInt()
-//    }
-    return null
+internal fun String.xDateToLocalDateOrNull() = kotlin.runCatching { xDateToLocalDate() }.getOrNull()
+
+internal fun String.xSplitToPairOrNull(delimiter: String): Pair<String, String>? {
+    val values = split(delimiter, limit = 2)
+    return when (values.size) {
+        2 -> values[0] to values[1]
+        else -> null
+    }
 }
 
-internal fun String.xIntBeforeSlash() = parseSlashSeparatedNumbers(this)?.first
-internal fun String.xIntAfterSlash() = parseSlashSeparatedNumbers(this)?.second
+internal fun String.xIntBeforeSlashOrNull() = xSplitToPairOrNull("/")?.first?.toIntOrNull()
+internal fun String.xIntAfterSlashOrNull() = xSplitToPairOrNull("/")?.second?.toIntOrNull()
+
+internal fun String.xIntBeforeSlashOrIntOrNull() = xIntBeforeSlashOrNull() ?: toIntOrNull()

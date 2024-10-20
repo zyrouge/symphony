@@ -3,8 +3,8 @@ package io.github.zyrouge.symphony.services.groove
 import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.documentfile.provider.DocumentFile
-import io.github.zyrouge.metaphony.Artwork
-import io.github.zyrouge.metaphony.Metadata
+import io.github.zyrouge.metaphony.AudioArtwork
+import io.github.zyrouge.metaphony.AudioFile
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
 import io.github.zyrouge.symphony.utils.UriSerializer
@@ -45,11 +45,11 @@ data class Song(
     @SerialName(KEY_DURATION)
     val duration: Long,
     @SerialName(KEY_BITRATE)
-    val bitrate: Int?,
+    val bitrate: Long?,
     @SerialName(KEY_BITS_PER_SAMPLE)
     val bitsPerSample: Int?,
     @SerialName(KEY_SAMPLING_RATE)
-    val samplingRate: Int?,
+    val samplingRate: Long?,
     @SerialName(KEY_CODEC)
     val codec: String?,
     @SerialName(KEY_DATE_MODIFIED)
@@ -64,7 +64,7 @@ data class Song(
     @SerialName(KEY_PATH)
     val path: String,
 ) {
-    val bitrateK: Int? get() = bitrate?.let { it / 1000 }
+    val bitrateK: Long? get() = bitrate?.let { it / 1000 }
     val samplingRateK: Float?
         get() = samplingRate?.let {
             (it.toFloat() / 1000)
@@ -159,13 +159,15 @@ data class Song(
             val path = file.name!!
             val mimeType = file.type!!
             val uri = file.uri
-            val metadata = symphony.applicationContext.contentResolver.openInputStream(uri)
-                ?.use { Metadata.read(it, mimeType) }
+            val audio = symphony.applicationContext.contentResolver.openInputStream(uri)
+                ?.use { AudioFile.read(it, mimeType) }
                 ?: return null
+            val metadata = audio.getMetadata()
+            val stream = audio.getStreamInfo()
             val id = symphony.groove.song.idGenerator.next()
             val coverFile = metadata.artworks.firstOrNull()?.let {
                 when (it.format) {
-                    Artwork.Format.Unknown -> null
+                    AudioArtwork.Format.Unknown -> null
                     else -> {
                         val name = "$id.${it.format.extension}"
                         symphony.database.artworkCache.get(name).writeBytes(it.data)
@@ -189,11 +191,11 @@ data class Song(
                 discNumber = metadata.discNumber,
                 discTotal = metadata.discTotal,
                 year = metadata.year,
-                duration = -1, // TODO
-                bitrate = -1, // TODO
-                bitsPerSample = -1, // TODO
-                samplingRate = -1, // TODO
-                codec = "", // TODO
+                duration = stream.duration ?: 0,
+                bitrate = stream.bitrate,
+                bitsPerSample = stream.bitsPerSample,
+                samplingRate = stream.samplingRate,
+                codec = stream.codec,
                 dateModified = file.lastModified(),
                 size = file.length(),
                 coverFile = coverFile,

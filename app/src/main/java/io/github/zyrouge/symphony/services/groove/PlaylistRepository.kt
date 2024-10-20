@@ -1,23 +1,21 @@
 package io.github.zyrouge.symphony.services.groove
 
+import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.database.PlaylistsBox
-import io.github.zyrouge.symphony.services.parsers.M3U
-import io.github.zyrouge.symphony.services.parsers.M3UEntry
-import io.github.zyrouge.symphony.utils.CursorShorty
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.Logger
-import io.github.zyrouge.symphony.utils.getColumnIndices
+import io.github.zyrouge.symphony.utils.TimeBasedIncrementalKeyGenerator
 import io.github.zyrouge.symphony.utils.mutate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
-import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 enum class PlaylistSortBy {
@@ -28,7 +26,7 @@ enum class PlaylistSortBy {
 
 class PlaylistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Playlist>()
-    private var favoritesId: String? = null
+    internal val idGenerator = TimeBasedIncrementalKeyGenerator()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }))
     )
@@ -59,48 +57,38 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun fetch() {
         emitUpdate(true)
         try {
-            val data = symphony.database.playlists.read()
-            val locals = queryAllLocalPlaylistsMap()
-            data.custom.forEach { playlist ->
-                cache[playlist.id] = playlist
-                _all.update {
-                    it + playlist.id
-                }
-                emitUpdateId()
-                emitCount()
-            }
-            data.local.forEach {
-                try {
-                    locals[it.path]?.let { extended ->
-                        parseLocal(extended)?.let { playlist ->
-                            cache[playlist.id] = playlist
-                            _all.update {
-                                it + playlist.id
-                            }
-                            emitUpdateId()
-                            emitCount()
+            val context = symphony.applicationContext
+            val permissions = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            val playlists = symphony.database.playlists.all()
+            runBlocking {
+                playlists.values.map { x ->
+                    val playlist = when {
+                        x.isLocal() -> {
+                            context.contentResolver.takePersistableUriPermission(
+                                x.uri!!,
+                                permissions
+                            )
+                            async(Dispatchers.IO) {
+                                Playlist.parse(symphony, x.uri)
+                            }.await()
                         }
+
+                        else -> x
                     }
-                } catch (err: Exception) {
-                    Logger.error("PlaylistRepository", "parsing ${it.path} failed", err)
+                    cache[playlist.id] = playlist
+                    _all.update {
+                        it + playlist.id
+                    }
+                    emitUpdateId()
+                    emitCount()
                 }
             }
-            favoritesId = data.favorites.id
-            cache[data.favorites.id] = data.favorites
-            _all.update {
-                it + data.favorites.id
-            }
-            emitUpdateId()
-            emitCount()
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
             Logger.error("PlaylistRepository", "fetch failed", err)
         }
-        if (favoritesId == null) {
-            createFavorites()
-        }
         _favorites.update {
-            getFavorites().songIds
+            getFavorites().getSongIds(symphony)
         }
         emitUpdateId()
         emitUpdate(false)
@@ -126,7 +114,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun sort(playlistIds: List<String>, by: PlaylistSortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
             PlaylistSortBy.CUSTOM -> {
-                val prefix = listOfNotNull(favoritesId)
+                val prefix = listOfNotNull(FAVORITE_PLAYLIST)
                 val others = playlistIds.toMutableList()
                 prefix.forEach { others.remove(it) }
                 prefix + others
@@ -144,157 +132,106 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun get(id: String) = cache[id]
     fun get(ids: List<String>) = ids.mapNotNull { get(it) }
-    fun getFavorites() = favoritesId?.let { cache[it] } ?: createFavorites()
-
-    fun parseLocal(local: Playlist.LocalExtended) = kotlin.runCatching {
-        Playlist.fromM3U(symphony, local)
-    }.getOrNull()
+    fun getFavorites() = cache[FAVORITE_PLAYLIST] ?: createFavorites()
 
     fun create(title: String, songIds: List<String>) = Playlist(
-        id = generatePlaylistId(),
+        id = idGenerator.next(),
         title = title,
-        songIds = songIds,
-        numberOfTracks = songIds.size,
-        local = null,
+        songPaths = songIds.mapNotNull { symphony.groove.song.get(it)?.path },
+        uri = null,
+        path = null,
     )
 
-    suspend fun add(playlist: Playlist) {
+    fun add(playlist: Playlist) {
         cache[playlist.id] = playlist
         _all.update {
             it + playlist.id
         }
         emitUpdateId()
         emitCount()
-        save()
+        symphony.database.playlists.put(playlist.id, playlist)
     }
 
-    suspend fun delete(id: String) {
+    fun delete(id: String) {
         cache.remove(id)
         _all.update {
             it - id
         }
         emitUpdateId()
         emitCount()
-        save()
+        symphony.database.playlists.delete(id)
     }
 
-    suspend fun update(id: String, songIds: List<String>) {
+    fun update(id: String, songIds: List<String>) {
         val old = get(id) ?: return
         val new = Playlist(
             id = id,
             title = old.title,
-            songIds = songIds.distinct().toList(),
-            numberOfTracks = songIds.size,
-            local = null,
+            songPaths = songIds.mapNotNull { symphony.groove.song.get(it)?.path },
+            uri = old.uri,
+            path = old.path,
         )
         cache[id] = new
         emitUpdateId()
         emitCount()
-        if (id == favoritesId) {
+        if (id == FAVORITE_PLAYLIST) {
             _favorites.update {
                 songIds
             }
         }
-        save()
-    }
-
-    fun isFavorite(songId: String): Boolean {
-        val favorites = getFavorites()
-        return favorites.songIds.contains(songId)
+        symphony.database.playlists.put(id, new)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
     fun favorite(songId: String) {
         val favorites = getFavorites()
-        if (favorites.songIds.contains(songId)) return
+        val songIds = favorites.getSongIds(symphony)
+        if (songIds.contains(songId)) {
+            return
+        }
         symphony.groove.coroutineScope.launch {
-            update(favorites.id, favorites.songIds.mutate { add(songId) })
+            update(favorites.id, songIds.mutate { add(songId) })
         }
     }
 
     fun unfavorite(songId: String) {
         val favorites = getFavorites()
-        if (!favorites.songIds.contains(songId)) return
+        val songIds = favorites.getSongIds(symphony)
+        if (!songIds.contains(songId)) {
+            return
+        }
         symphony.groove.coroutineScope.launch {
-            update(favorites.id, favorites.songIds.mutate { remove(songId) })
+            update(favorites.id, songIds.mutate { remove(songId) })
         }
     }
 
-    fun isFavoritesPlaylist(playlist: Playlist) = playlist.id == favoritesId
+    fun isFavoritesPlaylist(playlist: Playlist) = playlist.id == FAVORITE_PLAYLIST
     fun isBuiltInPlaylist(playlist: Playlist) = isFavoritesPlaylist(playlist)
 
-    suspend fun save() {
-        val custom = mutableListOf<Playlist>()
-        val local = mutableListOf<Playlist.Local>()
-        val favorites = getFavorites()
-        cache.values.forEach { playlist ->
-            when {
-                playlist.id == favorites.id -> return@forEach
-                playlist.isLocal() -> playlist.local!!.let { local.add(it) }
-                else -> custom.add(playlist)
-            }
-        }
-        symphony.database.playlists.update(
-            PlaylistsBox.Data(custom = custom, local = local, favorites = favorites)
-        )
-    }
-
-    fun queryAllLocalPlaylists() = queryAllLocalPlaylistsMap().values.toList()
-    fun queryAllLocalPlaylistsMap(): Map<String, Playlist.LocalExtended> {
-        val playlists = mutableMapOf<String, Playlist.LocalExtended>()
-        symphony.applicationContext.contentResolver.query(
-            getExternalVolumeUri(),
-            null,
-            MediaStore.Files.FileColumns.MIME_TYPE + " == ?",
-            arrayOf(M3U.mimeType),
-            null,
-        )?.use { cursor ->
-            val shorty = CursorShorty(cursor, cursor.getColumnIndices(projectedColumns))
-            while (cursor.moveToNext()) {
-                val id = shorty.getLong(MediaStore.Files.FileColumns._ID)
-                val path = shorty.getString(MediaStore.Files.FileColumns.DATA)
-                if (!cache.containsKey(path)) {
-                    playlists[path] = Playlist.LocalExtended(
-                        id = id,
-                        uri = getExternalVolumeUri(id),
-                        local = Playlist.Local(path),
-                    )
-                }
-            }
-        }
-        return playlists
-    }
-
-    fun savePlaylist(playlist: Playlist, uri: Uri) {
+    fun savePlaylistToUri(playlist: Playlist, uri: Uri) {
         val outputStream = symphony.applicationContext.contentResolver.openOutputStream(uri, "w")
-        outputStream?.use { _ ->
-            val m3u = M3U(
-                playlist.songIds.mapIndexedNotNull { i, songId ->
-                    symphony.groove.song.get(songId)?.let { song ->
-                        val path = GrooveExplorer.Path(song.path)
-                        M3UEntry(i, path.basename, song.path)
-                    }
-                }
-            )
-            outputStream.write(m3u.stringify().toByteArray())
+        outputStream?.use {
+            val content = playlist.songPaths.joinToString("\n")
+            it.write(content.toByteArray())
         }
     }
 
-    suspend fun renamePlaylist(playlist: Playlist, title: String) {
-        val renamed = playlist.renamed(title)
+    fun renamePlaylist(playlist: Playlist, title: String) {
+        val renamed = playlist.withTitle(title)
         cache[playlist.id] = renamed
         emitUpdateId()
-        save()
-    }
-
-    internal fun onMediaStoreUpdate(value: Boolean) {
-        emitUpdate(value)
+        symphony.database.playlists.put(playlist.id, renamed)
     }
 
     private fun createFavorites(): Playlist {
-        val playlist = PlaylistsBox.Data.createFavoritesPlaylist()
+        val playlist = Playlist(
+            id = FAVORITE_PLAYLIST,
+            title = "Favorites",
+            songPaths = emptyList(),
+            uri = null,
+            path = null,
+        )
         cache[playlist.id] = playlist
-        favoritesId = playlist.id
         _all.update {
             it + playlist.id
         }
@@ -304,19 +241,6 @@ class PlaylistRepository(private val symphony: Symphony) {
     }
 
     companion object {
-        private const val FILES_EXTERNAL_VOLUME = "external"
-
-        val projectedColumns = listOf(
-            MediaStore.Files.FileColumns._ID,
-            MediaStore.Files.FileColumns.DATA
-        )
-
-        fun generatePlaylistId() = UUID.randomUUID().toString()
-
-        private fun getExternalVolumeUri() =
-            MediaStore.Files.getContentUri(FILES_EXTERNAL_VOLUME)
-
-        private fun getExternalVolumeUri(rowId: Long) =
-            MediaStore.Files.getContentUri(FILES_EXTERNAL_VOLUME, rowId)
+        private const val FAVORITE_PLAYLIST = "favorites"
     }
 }

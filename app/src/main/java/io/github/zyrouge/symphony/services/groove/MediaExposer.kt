@@ -23,11 +23,8 @@ class MediaExposer(private val symphony: Symphony) {
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
 
-    private fun emitUpdate(value: Boolean) {
-        _isUpdating.update {
-            value
-        }
-        symphony.groove.onMediaStoreUpdate(value)
+    private fun emitUpdate(value: Boolean) = _isUpdating.update {
+        value
     }
 
     private inner class ScanCycle {
@@ -94,7 +91,7 @@ class MediaExposer(private val symphony: Symphony) {
             explorer.addRelativePath(GrooveExplorer.Path(path))
             val mimeType = file.type ?: return
             when {
-                mimeType == "audio/x-mpegurl" -> scanM3UFile(cycle, file)
+                mimeType == MIMETYPE_M3U8 -> scanM3UFile(cycle, file)
                 path.endsWith(".lrc") -> scanLrcFile(cycle, file)
                 mimeType.startsWith("audio/") -> scanAudioFile(cycle, file)
             }
@@ -123,12 +120,12 @@ class MediaExposer(private val symphony: Symphony) {
         }
     }
 
-    private suspend fun scanLrcFile(cycle: ScanCycle, file: DocumentFile) {
+    private fun scanLrcFile(cycle: ScanCycle, file: DocumentFile) {
         val path = file.name!!
         uris[path] = file.uri
     }
 
-    private suspend fun scanM3UFile(cycle: ScanCycle, file: DocumentFile) {
+    private fun scanM3UFile(cycle: ScanCycle, file: DocumentFile) {
         val path = file.name!!
         uris[path] = file.uri
     }
@@ -198,5 +195,9 @@ class MediaExposer(private val symphony: Symphony) {
             }
             return wFilter != null
         }
+    }
+
+    companion object {
+        const val MIMETYPE_M3U8 = "application/x-mpegURL"
     }
 }

@@ -54,12 +54,14 @@ fun AddToPlaylistDialog(
                 playlists.isEmpty() -> SubtleCaptionText(context.symphony.t.NoInAppPlaylistsFound)
                 else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
                     items(playlists) { playlist ->
+                        val playlistSongIds = playlist.getSongIds(context.symphony)
+
                         GenericGrooveCard(
                             image = playlist
                                 .createArtworkImageRequest(context.symphony)
                                 .build(),
                             imageLabel = when {
-                                songIds.size == 1 && playlist.songIds.contains(songIds[0]) -> ({
+                                songIds.size == 1 && playlistSongIds.contains(songIds[0]) -> ({
                                     Icon(
                                         Icons.Filled.Check,
                                         null,
@@ -84,7 +86,7 @@ fun AddToPlaylistDialog(
                                 coroutineScope.launch {
                                     context.symphony.groove.playlist.update(
                                         playlist.id,
-                                        playlist.songIds.mutate { addAll(songIds) },
+                                        playlistSongIds.mutate { addAll(songIds) },
                                     )
                                     onDismissRequest()
                                 }

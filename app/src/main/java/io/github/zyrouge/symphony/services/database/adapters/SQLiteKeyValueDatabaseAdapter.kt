@@ -5,19 +5,19 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class PersistentCacheDatabaseAdapter<T>(
-    context: Context,
-    val name: String,
-    val version: Int,
+class SQLiteKeyValueDatabaseAdapter<T>(
     private val transformer: Transformer<T>,
+    private val helper: SQLiteOpenHelper,
 ) {
-    private val helper = Helper(context, name, version)
+    private val name: String get() = helper.databaseName
+    private val readableDatabase: SQLiteDatabase get() = helper.readableDatabase
+    private val writableDatabase: SQLiteDatabase get() = helper.writableDatabase
 
     fun get(key: String): T? {
         val columns = arrayOf(COLUMN_VALUE)
         val selection = "$COLUMN_KEY = ?"
         val selectionArgs = arrayOf(key)
-        helper.readableDatabase
+        readableDatabase
             .query(name, columns, selection, selectionArgs, null, null, null)
             .use {
                 val valueIndex = it.getColumnIndexOrThrow(COLUMN_VALUE)
@@ -35,14 +35,14 @@ class PersistentCacheDatabaseAdapter<T>(
             put(COLUMN_VALUE, transformer.serialize(value))
         }
         val conflict = SQLiteDatabase.CONFLICT_REPLACE
-        val rowId = helper.writableDatabase.insertWithOnConflict(name, null, values, conflict)
+        val rowId = writableDatabase.insertWithOnConflict(name, null, values, conflict)
         return rowId != -1L
     }
 
     fun delete(key: String): Boolean {
         val selection = "$COLUMN_KEY = ?"
         val selectionArgs = arrayOf(key)
-        val count = helper.writableDatabase.delete(name, selection, selectionArgs)
+        val count = writableDatabase.delete(name, selection, selectionArgs)
         return count == 1
     }
 
@@ -55,19 +55,19 @@ class PersistentCacheDatabaseAdapter<T>(
         }
         val selection = "$COLUMN_KEY IN (${selectionPlaceholder})"
         val selectionArgs = keys.toTypedArray()
-        val count = helper.writableDatabase.delete(name, selection, selectionArgs)
+        val count = writableDatabase.delete(name, selection, selectionArgs)
         return count
     }
 
     fun clear(): Int {
-        val count = helper.writableDatabase.delete(name, null, null)
+        val count = writableDatabase.delete(name, null, null)
         return count
     }
 
     fun keys(): List<String> {
         val keys = mutableListOf<String>()
         val columns = arrayOf(COLUMN_KEY)
-        helper.readableDatabase
+        readableDatabase
             .query(name, columns, null, null, null, null, null)
             .use {
                 val keyIndex = it.getColumnIndexOrThrow(COLUMN_KEY)
@@ -82,7 +82,7 @@ class PersistentCacheDatabaseAdapter<T>(
     fun all(): Map<String, T> {
         val all = mutableMapOf<String, T>()
         val columns = arrayOf(COLUMN_KEY, COLUMN_VALUE)
-        helper.readableDatabase
+        readableDatabase
             .query(name, columns, null, null, null, null, null)
             .use {
                 val keyIndex = it.getColumnIndexOrThrow(COLUMN_KEY)
@@ -97,7 +97,7 @@ class PersistentCacheDatabaseAdapter<T>(
         return all
     }
 
-    private class Helper(context: Context, val name: String, version: Int) :
+    class CacheOpenHelper(context: Context, val name: String, version: Int) :
         SQLiteOpenHelper(context, name, null, version) {
         override fun onCreate(db: SQLiteDatabase) {
             val query =

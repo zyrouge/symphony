@@ -2,114 +2,98 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
+import androidx.documentfile.provider.DocumentFile
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.ui.helpers.Assets
-import io.github.zyrouge.symphony.utils.toList
-import org.json.JSONArray
-import org.json.JSONObject
+import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
+import io.github.zyrouge.symphony.utils.UriSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlin.io.path.Path
+import kotlin.io.path.name
+import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.pathString
 
 @Immutable
+@Serializable
 data class Playlist(
+    @SerialName(KEY_ID)
     val id: String,
+    @SerialName(KEY_TITLE)
     val title: String,
-    val songIds: List<String>,
-    val numberOfTracks: Int,
-    val local: Local?,
+    @SerialName(KEY_SONG_PATHS)
+    val songPaths: List<String>,
+    @SerialName(KEY_URI)
+    @Serializable(UriSerializer::class)
+    val uri: Uri?,
+    @SerialName(KEY_PATH)
+    val path: String?,
 ) {
-    val basename: String get() = "$title.m3u"
-
-    data class LocalExtended(val id: Long, val uri: Uri, val local: Local) {
-        val path: String get() = local.path
-    }
-
-    @Immutable
-    data class Local(val path: String) {
-        fun toJSONObject(): JSONObject {
-            val json = JSONObject()
-            json.put(PLAYLIST_LOCAL_PATH_KEY, path)
-            return json
-        }
-
-        companion object {
-            const val PLAYLIST_LOCAL_PATH_KEY = "l_path"
-
-            fun fromJSONObject(serialized: JSONObject): Local {
-                return Local(serialized.getString(PLAYLIST_LOCAL_PATH_KEY))
-            }
-        }
-    }
+    val numberOfTracks: Int get() = songPaths.size
+    val basename: String get() = path?.let { Path(it).name } ?: "$title.m3u"
+    private val dirname: String? get() = path?.let { Path(it).parent.pathString }
 
     fun createArtworkImageRequest(symphony: Symphony) =
-        songIds.firstOrNull()
+        getSongIds(symphony).firstOrNull()
             ?.let { symphony.groove.song.get(it)?.createArtworkImageRequest(symphony) }
             ?: Assets.createPlaceholderImageRequest(symphony)
 
+    fun getSongIds(symphony: Symphony) = songPaths.mapNotNull { x ->
+        symphony.groove.song.pathCache[x]
+            ?: dirname?.let { symphony.groove.song.pathCache[Path(it, x).pathString] }
+            ?: symphony.groove.song.pathCache[Path(ROOT_STORAGE, x).pathString]
+    }
+
     fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
-        songIds,
+        getSongIds(symphony),
         symphony.settings.lastUsedPlaylistSongsSortBy.value,
         symphony.settings.lastUsedPlaylistSongsSortReverse.value,
     )
 
-    fun isLocal() = local != null
-    fun isNotLocal() = local == null
+    fun isLocal() = uri != null
+    fun isNotLocal() = uri == null
 
-    fun renamed(title: String) = Playlist(
+    fun withTitle(title: String) = Playlist(
         id = id,
         title = title,
-        songIds = songIds,
-        numberOfTracks = numberOfTracks,
-        local = local,
+        songPaths = songPaths,
+        uri = uri,
+        path = path,
     )
 
-    fun toJSONObject(): JSONObject {
-        val json = JSONObject()
-        json.put(PLAYLIST_ID_KEY, id)
-        json.put(PLAYLIST_TITLE_KEY, title)
-        json.put(PLAYLIST_SONGS_KEY, JSONArray(songIds))
-        json.put(PLAYLIST_NUMBER_OF_TRACKS_KEY, numberOfTracks)
-        return json
-    }
+    fun toJson() = Json.encodeToString(this)
 
     companion object {
         private const val ROOT_STORAGE = "/storage/emulated/0"
 
-        const val PLAYLIST_ID_KEY = "id"
-        const val PLAYLIST_TITLE_KEY = "title"
-        const val PLAYLIST_SONGS_KEY = "songs"
-        const val PLAYLIST_NUMBER_OF_TRACKS_KEY = "n_tracks"
+        const val KEY_ID = "0"
+        const val KEY_TITLE = "1"
+        const val KEY_SONG_PATHS = "2"
+        const val KEY_URI = "3"
+        const val KEY_PATH = "4"
 
-        fun fromJSONObject(serialized: JSONObject) = Playlist(
-            id = serialized.getString(PLAYLIST_ID_KEY),
-            title = serialized.getString(PLAYLIST_TITLE_KEY),
-            songIds = serialized.getJSONArray(PLAYLIST_SONGS_KEY).toList { getString(it) },
-            numberOfTracks = serialized.getInt(PLAYLIST_NUMBER_OF_TRACKS_KEY),
-            local = null,
-        )
+        fun fromJson(json: String) = RelaxedJsonDecoder.decodeFromString<Playlist>(json)
 
-        fun fromM3U(symphony: Symphony, local: LocalExtended): Playlist {
-            val path = GrooveExplorer.Path(local.path)
-            val dir = path.dirname
-            val content = symphony.applicationContext.contentResolver
-                .openInputStream(local.uri)
+        fun parse(symphony: Symphony, uri: Uri): Playlist {
+            val file = DocumentFile.fromSingleUri(symphony.applicationContext, uri)!!
+            val path = file.name!!
+            val content = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { String(it.readBytes()) } ?: ""
-            val m3u = M3U.parse(content)
-            val songs = mutableListOf<String>()
-            m3u.entries.forEach { entry ->
-                val resolvedPath = when {
-                    symphony.groove.song.pathCache.containsKey(entry.path) -> entry.path
-                    GrooveExplorer.Path.isAbsolute(entry.path) -> ROOT_STORAGE + entry.path
-                    else -> "/" + dir.resolve(GrooveExplorer.Path(entry.path)).toString()
+            val songPaths = content.lineSequence()
+                .map { it.trim() }
+                .filter {
+                    it.isNotEmpty() && it[0] != '#'
                 }
-                val id = symphony.groove.song.pathCache[resolvedPath]
-                id?.let { songs.add(it) }
-            }
+                .toList()
+            val id = symphony.groove.playlist.idGenerator.next()
             return Playlist(
-                id = local.path,
-                title = path.basename.removeSuffix(".m3u"),
-                songIds = songs,
-                numberOfTracks = songs.size,
-                local = local.local,
+                id = id,
+                title = Path(path).nameWithoutExtension,
+                songPaths = songPaths,
+                uri = uri,
+                path = path,
             )
         }
     }

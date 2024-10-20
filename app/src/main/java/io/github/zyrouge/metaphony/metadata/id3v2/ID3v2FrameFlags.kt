@@ -1,11 +1,11 @@
-package io.github.zyrouge.metaphony.id3v2
+package io.github.zyrouge.metaphony.metadata.id3v2
 
 import io.github.zyrouge.metaphony.utils.xBitSetAt
 import io.github.zyrouge.metaphony.utils.xReadByte
 import io.github.zyrouge.metaphony.utils.xSkipBytes
 import java.io.InputStream
 
-internal data class ID3v2FrameFlags(
+data class ID3v2FrameFlags(
     val flagsSize: Int,
     val compression: Boolean,
     val encryption: Boolean,

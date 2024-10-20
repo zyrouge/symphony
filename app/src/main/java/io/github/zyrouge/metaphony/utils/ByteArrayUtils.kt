@@ -1,7 +1,14 @@
 package io.github.zyrouge.metaphony.utils
 
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+
 internal fun ByteArray.xDecodeToInt(bitSize: Int = 8) = fold(0) { value, x ->
     (value shl bitSize) or x.xDecodeToUInt()
+}
+
+internal fun ByteArray.xDecodeToLong(bitSize: Int = 8) = fold(0L) { value, x ->
+    (value shl bitSize) or x.xDecodeToULong()
 }
 
 internal fun ByteArray.xSlice(from: Int = 0, to: Int = size) = copyOfRange(from, to)
@@ -47,3 +54,8 @@ internal fun ByteArray.xSplit(delimiter: ByteArray, limit: Int = -1): List<ByteA
     }
     return values
 }
+
+
+internal fun ByteArray.xDecodeToOrderedBuffer(order: ByteOrder) = ByteBuffer.wrap(this).order(order)
+internal fun ByteArray.xDecodeToLEBuffer() = xDecodeToOrderedBuffer(ByteOrder.LITTLE_ENDIAN)
+internal fun ByteArray.xDecodeToBEOrderedBuffer() = xDecodeToOrderedBuffer(ByteOrder.BIG_ENDIAN)

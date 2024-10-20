@@ -1,6 +1,6 @@
-package io.github.zyrouge.metaphony.id3v2
+package io.github.zyrouge.metaphony.metadata.id3v2
 
-import io.github.zyrouge.metaphony.Artwork
+import io.github.zyrouge.metaphony.AudioArtwork
 import io.github.zyrouge.metaphony.utils.xReadBytes
 import io.github.zyrouge.metaphony.utils.xReadInt
 import io.github.zyrouge.metaphony.utils.xSkipBytes
@@ -21,12 +21,12 @@ object ID3v2Frames {
     internal val ZERO_BYTE_CHARACTER = String(SINGLE_ZERO_DELIMITER)
     internal const val NULL_CHARACTER = 0.toChar()
 
-    internal fun ID3v2Metadata.Builder.readID3v2Frames(input: InputStream) {
-        val header = Id3v2Header.readID3v2Header(input)
+    internal fun ID3v2Metadata.readID3v2Frames(input: InputStream) {
+        val header = Id3v2Header.readID3v2Header(input) ?: return
         readID3v2Frames(input, header)
     }
 
-    private fun ID3v2Metadata.Builder.readID3v2Frames(input: InputStream, header: Id3v2Header) {
+    private fun ID3v2Metadata.readID3v2Frames(input: InputStream, header: Id3v2Header) {
         var offset = header.offset
         while (offset < header.size) {
             val frameHeader = ID3v2FrameHeader.readID3v2FrameHeader(input, header.version)
@@ -150,22 +150,22 @@ object ID3v2Frames {
 
     private fun readWFrame(data: ByteArray) = readTFrame(byteArrayOf(0) + data)
 
-    private fun readAPICFrame(data: ByteArray): Artwork {
+    private fun readAPICFrame(data: ByteArray): AudioArtwork {
         val dataSplit = data.xSlice(1).xSplit(SINGLE_ZERO_DELIMITER, 3)
         val mimeType = dataSplit.first().decodeToString()
         val bytes = dataSplit.last()
-        return Artwork(
-            format = Artwork.Format.fromMimeType(mimeType),
+        return AudioArtwork(
+            format = AudioArtwork.Format.fromMimeType(mimeType),
             data = bytes,
         )
     }
 
-    private fun readPICFrame(data: ByteArray): Artwork {
+    private fun readPICFrame(data: ByteArray): AudioArtwork {
         val mimeType = data.xSlice(1, 4).decodeToString()
         val descSplit = data.xSlice(5).xSplit(SINGLE_ZERO_DELIMITER, 2)
         val bytes = descSplit.last()
-        return Artwork(
-            format = Artwork.Format.fromMimeType(mimeType),
+        return AudioArtwork(
+            format = AudioArtwork.Format.fromMimeType(mimeType),
             data = bytes,
         )
     }

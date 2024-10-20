@@ -1,4 +1,4 @@
-package io.github.zyrouge.metaphony.id3v2
+package io.github.zyrouge.metaphony.metadata.id3v2
 
 import io.github.zyrouge.metaphony.utils.xBitSetAt
 import io.github.zyrouge.metaphony.utils.xReadByte
@@ -7,17 +7,19 @@ import io.github.zyrouge.metaphony.utils.xReadString
 import io.github.zyrouge.metaphony.utils.xSkipBytes
 import java.io.InputStream
 
-internal data class Id3v2Header(
+data class Id3v2Header(
     val version: ID3v2Version,
     val size: Int,
     val unsynchronization: Boolean,
     val offset: Int,
 ) {
     companion object {
-        internal fun readID3v2Header(input: InputStream): Id3v2Header {
+        internal fun readID3v2Header(input: InputStream): Id3v2Header? {
+            input.mark(3)
             val marker = input.xReadString(3)
             if (marker != "ID3") {
-                throw Exception("Missing marker")
+                input.reset()
+                return null
             }
             val rawVersion = input.xReadInt(1)
             val version = when (rawVersion) {

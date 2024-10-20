@@ -49,7 +49,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
         derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
     }
     val songIds by remember(playlist) {
-        derivedStateOf { playlist?.songIds ?: emptyList() }
+        derivedStateOf { playlist?.getSongIds(context.symphony) ?: emptyList() }
     }
     val isViable by remember(allPlaylistIds, playlistId) {
         derivedStateOf { allPlaylistIds.contains(playlistId) }
@@ -149,9 +149,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                                         coroutineScope.launch {
                                             context.symphony.groove.playlist.update(
                                                 it.id,
-                                                it.songIds.mutate {
-                                                    remove(song.id)
-                                                },
+                                                songIds.mutate { remove(song.id) },
                                             )
                                         }
                                     }

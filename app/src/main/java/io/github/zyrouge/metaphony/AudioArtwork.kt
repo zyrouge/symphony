@@ -1,13 +1,13 @@
 package io.github.zyrouge.metaphony
 
-data class Artwork(
+data class AudioArtwork(
     val format: Format,
     val data: ByteArray,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-        other as Artwork
+        other as AudioArtwork
         if (format != other.format) return false
         if (!data.contentEquals(other.data)) return false
         return true

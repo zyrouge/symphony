@@ -1,14 +1,12 @@
 package io.github.zyrouge.symphony.services.database
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.database.adapters.PersistentCacheDatabaseAdapter
+import io.github.zyrouge.symphony.services.database.adapters.SQLiteKeyValueDatabaseAdapter
 
 class LyricsCache(val symphony: Symphony) {
-    private val adapter = PersistentCacheDatabaseAdapter(
-        symphony.applicationContext,
-        "lyrics",
-        1,
-        PersistentCacheDatabaseAdapter.Transformer.AsString()
+    private val adapter = SQLiteKeyValueDatabaseAdapter(
+        SQLiteKeyValueDatabaseAdapter.Transformer.AsString(),
+        SQLiteKeyValueDatabaseAdapter.CacheOpenHelper(symphony.applicationContext, "lyrics", 1)
     )
 
     fun get(key: String) = adapter.get(key)

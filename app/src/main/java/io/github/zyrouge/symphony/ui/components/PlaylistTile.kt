@@ -27,7 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,15 +45,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.groove.MediaExposer
 import io.github.zyrouge.symphony.services.groove.Playlist
-import io.github.zyrouge.symphony.services.parsers.M3U
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistTile(context: ViewContext, playlist: Playlist) {
     Card(
@@ -143,11 +141,11 @@ fun PlaylistDropdownMenu(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val savePlaylistLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument(M3U.mimeType)
+        ActivityResultContracts.CreateDocument(MediaExposer.MIMETYPE_M3U8)
     ) { uri ->
         uri?.let { _ ->
             try {
-                context.symphony.groove.playlist.savePlaylist(playlist, uri)
+                context.symphony.groove.playlist.savePlaylistToUri(playlist, uri)
                 Toast.makeText(
                     context.activity,
                     context.symphony.t.ExportedX(playlist.basename),
@@ -314,7 +312,7 @@ fun PlaylistDropdownMenu(
     if (showSongsPicker) {
         PlaylistManageSongsDialog(
             context,
-            selectedSongIds = playlist.songIds,
+            selectedSongIds = playlist.getSongIds(context.symphony),
             onDone = {
                 coroutineScope.launch {
                     context.symphony.groove.playlist.update(playlist.id, it)
@@ -349,7 +347,7 @@ fun PlaylistDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = playlist.songIds,
+            songIds = playlist.getSongIds(context.symphony),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

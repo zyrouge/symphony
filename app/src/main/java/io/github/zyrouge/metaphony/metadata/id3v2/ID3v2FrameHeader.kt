@@ -1,10 +1,10 @@
-package io.github.zyrouge.metaphony.id3v2
+package io.github.zyrouge.metaphony.metadata.id3v2
 
 import io.github.zyrouge.metaphony.utils.xReadInt
 import io.github.zyrouge.metaphony.utils.xReadString
 import java.io.InputStream
 
-internal data class ID3v2FrameHeader(
+data class ID3v2FrameHeader(
     val name: String,
     val size: Int,
     val headerSize: Int,

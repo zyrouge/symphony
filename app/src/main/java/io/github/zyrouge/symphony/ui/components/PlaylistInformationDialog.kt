@@ -28,9 +28,9 @@ fun PlaylistInformationDialog(
                     }
                 )
             }
-            playlist.local?.let { local ->
+            playlist.path?.let {
                 InformationKeyValue(context.symphony.t.Path) {
-                    LongPressCopyableText(context, local.path)
+                    LongPressCopyableText(context, it)
                 }
             }
         },
