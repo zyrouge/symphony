@@ -90,7 +90,6 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.documentfile)
     implementation(libs.fuzzywuzzy)
-    implementation(libs.jaudiotagger)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.lifecycle.runtime)
     implementation(libs.media)
