@@ -1,25 +1,25 @@
 # Symphony i18n
 
-> Last updated at 5/11/2024, 1:20:00 PM
+> Last updated at 10/20/2024, 1:35:43 PM
 
 Read [Translations Guide](https://github.com/zyrouge/symphony/wiki/Translations-Guide) on how Symphony handles localization.
 
 | Status | Locale | % Translated |
 | --- | --- | --- |
-| ⚠️ | [`be`](https://github.com/zyrouge/symphony/blob/main/i18n/be.toml) | 98.6% |
-| ⚠️ | [`de`](https://github.com/zyrouge/symphony/blob/main/i18n/de.toml) | 87.9% |
+| ⚠️ | [`be`](https://github.com/zyrouge/symphony/blob/main/i18n/be.toml) | 98.1% |
+| ⚠️ | [`de`](https://github.com/zyrouge/symphony/blob/main/i18n/de.toml) | 87.4% |
 | ✅ | [`en`](https://github.com/zyrouge/symphony/blob/main/i18n/en.toml) | 100.0% |
-| ⚠️ | [`es`](https://github.com/zyrouge/symphony/blob/main/i18n/es.toml) | 86.4% |
-| ⚠️ | [`fa`](https://github.com/zyrouge/symphony/blob/main/i18n/fa.toml) | 91.6% |
-| ⚠️ | [`fr`](https://github.com/zyrouge/symphony/blob/main/i18n/fr.toml) | 81.3% |
-| ⚠️ | [`it`](https://github.com/zyrouge/symphony/blob/main/i18n/it.toml) | 89.3% |
-| ✅ | [`ja`](https://github.com/zyrouge/symphony/blob/main/i18n/ja.toml) | 100.0% |
-| ✅ | [`pl`](https://github.com/zyrouge/symphony/blob/main/i18n/pl.toml) | 100.0% |
-| ✅ | [`pt`](https://github.com/zyrouge/symphony/blob/main/i18n/pt.toml) | 100.0% |
-| ⚠️ | [`ro`](https://github.com/zyrouge/symphony/blob/main/i18n/ro.toml) | 92.1% |
-| ✅ | [`ru`](https://github.com/zyrouge/symphony/blob/main/i18n/ru.toml) | 100.0% |
-| ✅ | [`ryu`](https://github.com/zyrouge/symphony/blob/main/i18n/ryu.toml) | 100.0% |
-| ⚠️ | [`tr`](https://github.com/zyrouge/symphony/blob/main/i18n/tr.toml) | 90.2% |
-| ⚠️ | [`uk`](https://github.com/zyrouge/symphony/blob/main/i18n/uk.toml) | 98.6% |
-| ✅ | [`vi`](https://github.com/zyrouge/symphony/blob/main/i18n/vi.toml) | 100.0% |
-| ⚠️ | [`zh-Hans`](https://github.com/zyrouge/symphony/blob/main/i18n/zh-Hans.toml) | 78.0% |
+| ⚠️ | [`es`](https://github.com/zyrouge/symphony/blob/main/i18n/es.toml) | 86.0% |
+| ⚠️ | [`fa`](https://github.com/zyrouge/symphony/blob/main/i18n/fa.toml) | 91.2% |
+| ⚠️ | [`fr`](https://github.com/zyrouge/symphony/blob/main/i18n/fr.toml) | 80.9% |
+| ⚠️ | [`it`](https://github.com/zyrouge/symphony/blob/main/i18n/it.toml) | 88.8% |
+| ⚠️ | [`ja`](https://github.com/zyrouge/symphony/blob/main/i18n/ja.toml) | 99.5% |
+| ⚠️ | [`pl`](https://github.com/zyrouge/symphony/blob/main/i18n/pl.toml) | 99.5% |
+| ⚠️ | [`pt`](https://github.com/zyrouge/symphony/blob/main/i18n/pt.toml) | 99.5% |
+| ⚠️ | [`ro`](https://github.com/zyrouge/symphony/blob/main/i18n/ro.toml) | 91.6% |
+| ⚠️ | [`ru`](https://github.com/zyrouge/symphony/blob/main/i18n/ru.toml) | 99.5% |
+| ⚠️ | [`ryu`](https://github.com/zyrouge/symphony/blob/main/i18n/ryu.toml) | 99.5% |
+| ⚠️ | [`tr`](https://github.com/zyrouge/symphony/blob/main/i18n/tr.toml) | 89.8% |
+| ⚠️ | [`uk`](https://github.com/zyrouge/symphony/blob/main/i18n/uk.toml) | 98.1% |
+| ⚠️ | [`vi`](https://github.com/zyrouge/symphony/blob/main/i18n/vi.toml) | 99.5% |
+| ⚠️ | [`zh-Hans`](https://github.com/zyrouge/symphony/blob/main/i18n/zh-Hans.toml) | 77.7% |
