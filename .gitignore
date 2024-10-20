@@ -21,3 +21,5 @@ phrasey-dist
 app/src/main/assets/i18n
 dist
 secrets
+.kotlin
+

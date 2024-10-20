@@ -44,7 +44,7 @@ fun PlaylistsView(context: ViewContext) {
     var showPlaylistCreator by remember { mutableStateOf(false) }
 
     val openPlaylistLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument(MediaExposer.MIMETYPE_M3U8)
+        ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let { _ ->
             try {
@@ -73,7 +73,7 @@ fun PlaylistsView(context: ViewContext) {
                         showPlaylistCreator = true
                     },
                     showPlaylistPicker = {
-                        openPlaylistLauncher.launch(null)
+                        openPlaylistLauncher.launch(arrayOf(MediaExposer.MIMETYPE_M3U8))
                     },
                 )
                 Spacer(modifier = Modifier.height(4.dp))
