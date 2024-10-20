@@ -16,7 +16,6 @@ data class OggPageHeader(
     val granulePosition: Int,
 ) {
     companion object {
-        @OptIn(ExperimentalStdlibApi::class)
         fun readOggPageHeader(input: InputStream): OggPageHeader {
             val marker = input.xReadString(4)
             if (marker != "OggS") {

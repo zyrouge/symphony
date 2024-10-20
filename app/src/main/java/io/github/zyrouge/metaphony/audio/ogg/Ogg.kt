@@ -1,6 +1,6 @@
 package io.github.zyrouge.metaphony.audio.ogg
 
-import io.github.zyrouge.metaphony.AudioFile
+import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.metaphony.metadata.vorbis.VorbisMetadata
 import io.github.zyrouge.metaphony.metadata.vorbis.readVorbisComments
 import io.github.zyrouge.metaphony.utils.xAvailable
@@ -10,7 +10,7 @@ import io.github.zyrouge.metaphony.utils.xSkipBytes
 import io.github.zyrouge.metaphony.utils.xStartsWith
 import java.io.InputStream
 
-class Ogg : AudioFile {
+class Ogg : AudioParser {
     val metadata = VorbisMetadata()
     val stream = OggStreamInfo()
 

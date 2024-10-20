@@ -17,7 +17,6 @@ class Mpeg4Atoms(val metadata: Mpeg4Metadata, val stream: Mpeg4StreamInfo) {
     fun readAtoms(input: InputStream) {
         while (input.xAvailable()) {
             var (name, size) = readAtomHeader(input)
-            println(name)
             if (name == "meta") {
                 input.xSkipBytes(4)
                 readAtoms(input)
@@ -139,7 +138,6 @@ class Mpeg4Atoms(val metadata: Mpeg4Metadata, val stream: Mpeg4StreamInfo) {
         }
         val duration = timeLength / timeScale
         stream.mDuration = duration
-        println("$version to skip $n")
         input.xSkipBytes(n)
     }
 

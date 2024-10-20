@@ -1,6 +1,6 @@
 package io.github.zyrouge.metaphony.audio.flac
 
-import io.github.zyrouge.metaphony.AudioFile
+import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.metaphony.metadata.vorbis.VorbisMetadata
 import io.github.zyrouge.metaphony.metadata.vorbis.readVorbisComments
 import io.github.zyrouge.metaphony.metadata.vorbis.readVorbisPicture
@@ -12,7 +12,7 @@ import io.github.zyrouge.metaphony.utils.xSkipBytes
 import java.io.InputStream
 import kotlin.experimental.and
 
-class Flac : AudioFile {
+class Flac : AudioParser {
     val stream = FlacStreamInfo()
     val metadata = VorbisMetadata()
 

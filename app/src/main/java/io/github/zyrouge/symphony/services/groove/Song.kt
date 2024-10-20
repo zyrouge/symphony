@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.documentfile.provider.DocumentFile
 import io.github.zyrouge.metaphony.AudioArtwork
-import io.github.zyrouge.metaphony.AudioFile
+import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
 import io.github.zyrouge.symphony.utils.UriSerializer
@@ -160,7 +160,7 @@ data class Song(
             val mimeType = file.type!!
             val uri = file.uri
             val audio = symphony.applicationContext.contentResolver.openInputStream(uri)
-                ?.use { AudioFile.read(it, mimeType) }
+                ?.use { AudioParser.read(it, mimeType) }
                 ?: return null
             val metadata = audio.getMetadata()
             val stream = audio.getStreamInfo()

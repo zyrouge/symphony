@@ -1,11 +1,11 @@
 package io.github.zyrouge.metaphony.audio.mpeg4
 
-import io.github.zyrouge.metaphony.AudioFile
+import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.metaphony.metadata.mpeg4.Mpeg4Atoms
 import io.github.zyrouge.metaphony.metadata.mpeg4.Mpeg4Metadata
 import java.io.InputStream
 
-class Mpeg4 : AudioFile {
+class Mpeg4 : AudioParser {
     val stream = Mpeg4StreamInfo()
     val metadata = Mpeg4Metadata()
 
