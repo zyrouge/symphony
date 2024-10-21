@@ -2,10 +2,10 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
-import androidx.documentfile.provider.DocumentFile
 import io.github.zyrouge.metaphony.AudioArtwork
 import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
 import io.github.zyrouge.symphony.utils.UriSerializer
 import kotlinx.serialization.SerialName
@@ -124,40 +124,9 @@ data class Song(
 
         fun fromJson(json: String) = RelaxedJsonDecoder.decodeFromString<Song>(json)
 
-//        fun fromCursor(
-//            symphony: Symphony,
-//            shorty: CursorShorty,
-//            fetchCachedAttributes: (Long) -> SongCache.Attributes?,
-//        ): Song {
-//            val artistSeparators = symphony.settings.artistTagSeparators.value
-//            val id = shorty.getLong(AudioColumns._ID)
-//            val dateModified = shorty.getLong(AudioColumns.DATE_MODIFIED)
-//            return Song(
-//                id = id,
-//                title = shorty.getString(AudioColumns.TITLE),
-//                trackNumber = shorty.getIntNullable(AudioColumns.TRACK)?.takeIf { it > 0 },
-//                year = shorty.getIntNullable(AudioColumns.YEAR)?.takeIf { it > 0 },
-//                duration = shorty.getLong(AudioColumns.DURATION),
-//                album = shorty.getStringNullable(AudioColumns.ALBUM),
-//                artists = shorty.getStringNullable(AudioColumns.ARTIST)
-//                    ?.let { parseMultiValue(it, artistSeparators) } ?: setOf(),
-//                composers = shorty.getStringNullable(AudioColumns.COMPOSER)
-//                    ?.let { parseMultiValue(it, artistSeparators) } ?: setOf(),
-//                dateAdded = shorty.getLong(AudioColumns.DATE_ADDED),
-//                dateModified = dateModified,
-//                size = shorty.getLong(AudioColumns.SIZE),
-//                path = shorty.getString(AudioColumns.DATA),
-//                additional = fetchCachedAttributes(id)
-//                    ?.takeIf { it.lastModified == dateModified }
-//                    ?.runCatching { AdditionalMetadata.fromSongCacheAttributes(symphony, this) }
-//                    ?.getOrNull()
-//                    ?: AdditionalMetadata.fetch(symphony, id),
-//            )
-//        }
-
-        fun parse(symphony: Symphony, file: DocumentFile): Song? {
-            val path = file.name!!
-            val mimeType = file.type!!
+        fun parse(symphony: Symphony, file: DocumentFileX): Song? {
+            val path = file.name
+            val mimeType = file.mimeType
             val uri = file.uri
             val audio = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { AudioParser.read(it, mimeType) }
@@ -196,8 +165,8 @@ data class Song(
                 bitsPerSample = stream.bitsPerSample,
                 samplingRate = stream.samplingRate,
                 codec = stream.codec,
-                dateModified = file.lastModified(),
-                size = file.length(),
+                dateModified = file.lastModified,
+                size = file.size,
                 coverFile = coverFile,
                 uri = uri,
                 path = path,

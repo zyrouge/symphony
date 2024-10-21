@@ -7,8 +7,8 @@ import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.KeyGenerator
 import io.github.zyrouge.symphony.utils.Logger
-import io.github.zyrouge.symphony.utils.TimeBasedIncrementalKeyGenerator
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +34,7 @@ enum class SongSortBy {
 class SongRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Song>()
     internal val pathCache = ConcurrentHashMap<String, String>()
-    internal val idGenerator = TimeBasedIncrementalKeyGenerator()
+    internal val idGenerator = KeyGenerator.TimeIncremental()
     private val searcher = FuzzySearcher<String>(
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),

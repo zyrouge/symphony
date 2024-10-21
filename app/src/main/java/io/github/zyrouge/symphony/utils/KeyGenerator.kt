@@ -1,8 +1,10 @@
 package io.github.zyrouge.symphony.utils
 
-class TimeBasedIncrementalKeyGenerator(private var i: Int = 0, private var time: Long = 0) {
-    fun next(): String {
-        synchronized(this) {
+interface KeyGenerator {
+    fun next(): String
+
+    class TimeIncremental(private var i: Int = 0, private var time: Long = 0) : KeyGenerator {
+        override fun next() = synchronized(this) {
             val now = System.currentTimeMillis()
             if (now == time) {
                 i = 0
@@ -10,7 +12,7 @@ class TimeBasedIncrementalKeyGenerator(private var i: Int = 0, private var time:
             } else {
                 i++
             }
-            return "$now.$i"
+            "$now.$i"
         }
     }
 }

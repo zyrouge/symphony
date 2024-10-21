@@ -4,10 +4,10 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.adapters.SQLiteKeyValueDatabaseAdapter
 import io.github.zyrouge.symphony.services.groove.Playlist
 
-class PlaylistsBox(private val symphony: Symphony) {
+class PlaylistBox(private val symphony: Symphony) {
     private val adapter = SQLiteKeyValueDatabaseAdapter(
         PlaylistTransformer(),
-        SQLiteKeyValueDatabaseAdapter.CacheOpenHelper(symphony.applicationContext, "songs", 1)
+        SQLiteKeyValueDatabaseAdapter.CacheOpenHelper(symphony.applicationContext, "playlists", 1)
     )
 
     fun get(key: String) = adapter.get(key)
@@ -18,7 +18,7 @@ class PlaylistsBox(private val symphony: Symphony) {
     fun all() = adapter.all()
     fun clear() = adapter.clear()
 
-    private class PlaylistTransformer : SQLiteKeyValueDatabaseAdapter.Transformer<Playlist>() {
+    private class PlaylistTransformer : SQLiteKeyValueDatabaseAdapter.Transformer<Playlist> {
         override fun serialize(data: Playlist) = data.toJson()
         override fun deserialize(data: String) = Playlist.fromJson(data)
     }

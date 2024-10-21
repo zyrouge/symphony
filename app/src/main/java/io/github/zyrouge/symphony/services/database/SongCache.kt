@@ -18,7 +18,7 @@ class SongCache(val symphony: Symphony) {
     fun all() = adapter.all()
     fun clear() = adapter.clear()
 
-    private class SongTransformer : SQLiteKeyValueDatabaseAdapter.Transformer<Song>() {
+    private class SongTransformer : SQLiteKeyValueDatabaseAdapter.Transformer<Song> {
         override fun serialize(data: Song) = data.toJson()
         override fun deserialize(data: String) = Song.fromJson(data)
     }

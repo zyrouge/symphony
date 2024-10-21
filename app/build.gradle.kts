@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.core)
     implementation(libs.core.splashscreen)
-    implementation(libs.documentfile)
     implementation(libs.fuzzywuzzy)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.lifecycle.runtime)

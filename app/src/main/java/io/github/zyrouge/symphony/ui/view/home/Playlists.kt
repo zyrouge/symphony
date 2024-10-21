@@ -73,7 +73,7 @@ fun PlaylistsView(context: ViewContext) {
                         showPlaylistCreator = true
                     },
                     showPlaylistPicker = {
-                        openPlaylistLauncher.launch(arrayOf(MediaExposer.MIMETYPE_M3U8))
+                        openPlaylistLauncher.launch(arrayOf(MediaExposer.MIMETYPE_M3U))
                     },
                 )
                 Spacer(modifier = Modifier.height(4.dp))

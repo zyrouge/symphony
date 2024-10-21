@@ -2,9 +2,9 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
-import androidx.documentfile.provider.DocumentFile
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
+import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
 import io.github.zyrouge.symphony.utils.UriSerializer
 import kotlinx.serialization.SerialName
@@ -77,7 +77,7 @@ data class Playlist(
         fun fromJson(json: String) = RelaxedJsonDecoder.decodeFromString<Playlist>(json)
 
         fun parse(symphony: Symphony, uri: Uri): Playlist {
-            val file = DocumentFile.fromSingleUri(symphony.applicationContext, uri)!!
+            val file = DocumentFileX.fromSingleUri(symphony.applicationContext, uri)!!
             val path = file.name!!
             val content = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { String(it.readBytes()) } ?: ""

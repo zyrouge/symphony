@@ -5,8 +5,8 @@ import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.KeyGenerator
 import io.github.zyrouge.symphony.utils.Logger
-import io.github.zyrouge.symphony.utils.TimeBasedIncrementalKeyGenerator
 import io.github.zyrouge.symphony.utils.mutate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -26,7 +26,7 @@ enum class PlaylistSortBy {
 
 class PlaylistRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Playlist>()
-    internal val idGenerator = TimeBasedIncrementalKeyGenerator()
+    internal val idGenerator = KeyGenerator.TimeIncremental()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }))
     )

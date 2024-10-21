@@ -116,11 +116,11 @@ class SQLiteKeyValueDatabaseAdapter<T>(
         }
     }
 
-    abstract class Transformer<T> {
-        abstract fun serialize(data: T): String
-        abstract fun deserialize(data: String): T
+    interface Transformer<T> {
+        fun serialize(data: T): String
+        fun deserialize(data: String): T
 
-        class AsString : Transformer<String>() {
+        class AsString : Transformer<String> {
             override fun serialize(data: String) = data
             override fun deserialize(data: String) = data
         }

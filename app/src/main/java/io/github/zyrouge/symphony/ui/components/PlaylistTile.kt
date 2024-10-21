@@ -141,7 +141,7 @@ fun PlaylistDropdownMenu(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val savePlaylistLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument(MediaExposer.MIMETYPE_M3U8)
+        ActivityResultContracts.CreateDocument(MediaExposer.MIMETYPE_M3U)
     ) { uri ->
         uri?.let { _ ->
             try {

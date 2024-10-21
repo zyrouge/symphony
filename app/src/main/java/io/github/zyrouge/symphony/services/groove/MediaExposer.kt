@@ -2,8 +2,8 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.content.Intent
 import android.net.Uri
-import androidx.documentfile.provider.DocumentFile
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.concurrentSetOf
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +13,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -32,6 +33,11 @@ class MediaExposer(private val symphony: Symphony) {
         val songCacheUnused = concurrentSetOf(songCache.keys)
         val artworkCacheUnused = concurrentSetOf(symphony.database.artworkCache.all())
         val lyricsCacheUnused = concurrentSetOf(symphony.database.lyricsCache.keys())
+        val filter = MediaFilter(
+            symphony.settings.songsFilterPattern.value,
+            symphony.settings.blacklistFolders.value.toSortedSet(),
+            symphony.settings.whitelistFolders.value.toSortedSet()
+        )
     }
 
     fun fetch() {
@@ -45,7 +51,7 @@ class MediaExposer(private val symphony: Symphony) {
                 folderUris.map { x ->
                     async(Dispatchers.IO) {
                         context.contentResolver.takePersistableUriPermission(x, permissions)
-                        DocumentFile.fromTreeUri(context, x)?.let {
+                        DocumentFileX.fromTreeUri(context, x)?.let {
                             scanMediaTree(cycle, it)
                         }
                     }
@@ -59,39 +65,33 @@ class MediaExposer(private val symphony: Symphony) {
         emitFinish()
     }
 
-    private suspend fun scanMediaTree(cycle: ScanCycle, file: DocumentFile) {
+    private suspend fun scanMediaTree(cycle: ScanCycle, file: DocumentFileX) {
         try {
-            val filter = MediaFilter(
-                symphony.settings.songsFilterPattern.value,
-                symphony.settings.blacklistFolders.value.toSortedSet(),
-                symphony.settings.whitelistFolders.value.toSortedSet()
-            )
-            val path = file.name ?: return
-            if (!filter.isWhitelisted(path)) {
+            if (!cycle.filter.isWhitelisted(file.name)) {
                 return
             }
             coroutineScope {
-                file.listFiles().toList().map { x ->
-                    async(Dispatchers.IO) {
+                file.list {
+                    launch(Dispatchers.IO) {
                         when {
-                            x.isDirectory -> scanMediaTree(cycle, x)
-                            x.isFile -> scanMediaFile(cycle, x)
+                            it.isDirectory -> scanMediaTree(cycle, it)
+                            else -> scanMediaFile(cycle, it)
                         }
                     }
-                }.awaitAll()
+                }
             }
         } catch (err: Exception) {
             Logger.error("MediaExposer", "scan media tree failed", err)
         }
     }
 
-    private suspend fun scanMediaFile(cycle: ScanCycle, file: DocumentFile) {
+    private suspend fun scanMediaFile(cycle: ScanCycle, file: DocumentFileX) {
         try {
             val path = file.name!!
             explorer.addRelativePath(GrooveExplorer.Path(path))
-            val mimeType = file.type ?: return
+            val mimeType = file.mimeType ?: return
             when {
-                mimeType == MIMETYPE_M3U8 -> scanM3UFile(cycle, file)
+                mimeType == MIMETYPE_M3U -> scanM3UFile(cycle, file)
                 path.endsWith(".lrc") -> scanLrcFile(cycle, file)
                 mimeType.startsWith("audio/") -> scanAudioFile(cycle, file)
             }
@@ -100,10 +100,10 @@ class MediaExposer(private val symphony: Symphony) {
         }
     }
 
-    private suspend fun scanAudioFile(cycle: ScanCycle, file: DocumentFile) {
-        val path = file.name!!
+    private suspend fun scanAudioFile(cycle: ScanCycle, file: DocumentFileX) {
+        val path = file.name
         uris[path] = file.uri
-        val lastModified = file.lastModified()
+        val lastModified = file.lastModified
         val cached = cycle.songCache[path]?.takeIf {
             it.dateModified == lastModified
                     && it.coverFile?.let { x -> cycle.artworkCacheUnused.contains(x) } ?: true
@@ -120,12 +120,12 @@ class MediaExposer(private val symphony: Symphony) {
         }
     }
 
-    private fun scanLrcFile(cycle: ScanCycle, file: DocumentFile) {
+    private fun scanLrcFile(cycle: ScanCycle, file: DocumentFileX) {
         val path = file.name!!
         uris[path] = file.uri
     }
 
-    private fun scanM3UFile(cycle: ScanCycle, file: DocumentFile) {
+    private fun scanM3UFile(cycle: ScanCycle, file: DocumentFileX) {
         val path = file.name!!
         uris[path] = file.uri
     }
@@ -198,6 +198,6 @@ class MediaExposer(private val symphony: Symphony) {
     }
 
     companion object {
-        const val MIMETYPE_M3U8 = "application/x-mpegURL"
+        const val MIMETYPE_M3U = "audio/x-mpegurl"
     }
 }

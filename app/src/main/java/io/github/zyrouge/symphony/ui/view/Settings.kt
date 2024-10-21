@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -94,6 +95,7 @@ import io.github.zyrouge.symphony.ui.view.settings.SettingsSimpleTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSliderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsTextInputTile
+import io.github.zyrouge.symphony.utils.startBrowserActivity
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -200,9 +202,9 @@ fun SettingsView(context: ViewContext) {
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.primary)
                             .clickable {
-                                context.symphony.shorty.startBrowserActivity(
+                                startBrowserActivity(
                                     context.activity,
-                                    AppMeta.contributingUrl,
+                                    Uri.parse(AppMeta.contributingUrl)
                                 )
                             }
                     ) {
@@ -832,12 +834,9 @@ fun SettingsView(context: ViewContext) {
                             else -> null
                         },
                         onClick = {
-                            context.symphony.shorty.startBrowserActivity(
+                            startBrowserActivity(
                                 context.activity,
-                                when {
-                                    isLatestVersion -> AppMeta.githubRepositoryUrl
-                                    else -> AppMeta.githubLatestReleaseUrl
-                                }
+                                Uri.parse(if (isLatestVersion) AppMeta.githubRepositoryUrl else AppMeta.githubLatestReleaseUrl)
                             )
                         }
                     )
