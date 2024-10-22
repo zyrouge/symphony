@@ -8,11 +8,15 @@ body:
       attributes:
           label: Description
           description: A clear and concise description of what the problem is.
+      validations:
+          required: true
 
     - type: textarea
       attributes:
           label: Solution
           description: A clear and concise description of what you want to happen.
+      validations:
+          required: true
 
     - type: textarea
       attributes:
@@ -31,7 +35,6 @@ body:
     - type: checkboxes
       attributes:
           label: Contribution Guidelines
-          description: By submitting this issue, you agree to follow the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
           options:
               - label: I agree to follow the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
                 required: true

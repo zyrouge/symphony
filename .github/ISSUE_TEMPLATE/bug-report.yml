@@ -8,6 +8,8 @@ body:
       attributes:
           label: Description
           description: A clear and concise description of what the bug is.
+      validations:
+          required: true
 
     - type: textarea
       attributes:
@@ -17,11 +19,15 @@ body:
               2. Click on '....'
               3. Scroll down to '....'
               4. See error
+      validations:
+          required: true
 
     - type: textarea
       attributes:
           label: Expected Behavior
           description: A clear and concise description of what you expected to happen.
+      validations:
+          required: true
 
     - type: textarea
       attributes:
@@ -48,16 +54,19 @@ body:
       attributes:
           label: OS
           placeholder: Android 13
+      validations:
+          required: true
 
     - type: input
       attributes:
           label: Version
           placeholder: "2023.04.20"
+      validations:
+          required: true
 
     - type: checkboxes
       attributes:
           label: Contribution Guidelines
-          description: By submitting this issue, you agree to follow the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
           options:
               - label: I agree to follow the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
                 required: true
