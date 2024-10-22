@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.services.radio
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -64,6 +65,7 @@ class RadioSession(val symphony: Symphony) {
                 // no clue what the difference here is... but here we are.
             )
         } else {
+            @SuppressLint("UnspecifiedRegisterReceiverFlag")
             symphony.applicationContext.registerReceiver(
                 receiver,
                 IntentFilter().apply {
@@ -71,7 +73,7 @@ class RadioSession(val symphony: Symphony) {
                     addAction(ACTION_PREVIOUS)
                     addAction(ACTION_NEXT)
                     addAction(ACTION_STOP)
-                }
+                },
             )
         }
         mediaSession.setCallback(
@@ -133,7 +135,7 @@ class RadioSession(val symphony: Symphony) {
                     return when (keyEvent?.keyCode) {
                         KeyEvent.KEYCODE_MEDIA_PREVIOUS,
                         KeyEvent.KEYCODE_MEDIA_REWIND,
-                        -> {
+                            -> {
                             handleAction(ACTION_PREVIOUS)
                             true
                         }
@@ -145,7 +147,7 @@ class RadioSession(val symphony: Symphony) {
 
                         KeyEvent.KEYCODE_MEDIA_CLOSE,
                         KeyEvent.KEYCODE_MEDIA_STOP,
-                        -> {
+                            -> {
                             handleAction(ACTION_STOP)
                             true
                         }
@@ -163,7 +165,7 @@ class RadioSession(val symphony: Symphony) {
                 RadioEvents.ResumePlaying,
                 RadioEvents.SongStaged,
                 RadioEvents.SongSeeked,
-                -> update()
+                    -> update()
 
                 RadioEvents.QueueEnded -> cancel()
                 else -> {}

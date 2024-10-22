@@ -70,10 +70,10 @@ object GrooveExplorer {
             val b = to.parts.toMutableList()
             while (true) {
                 when (b.firstOrNull()) {
-                    "." -> b.removeFirst()
+                    "." -> b.removeAt(0)
                     ".." -> {
-                        b.removeFirst()
-                        a.removeLast()
+                        b.removeAt(0)
+                        a.removeAt(a.lastIndex)
                     }
 
                     else -> break

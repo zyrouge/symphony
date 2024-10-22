@@ -10,7 +10,7 @@ data class TimedContent(val pairs: List<Pair<Long, String>>) {
 
         fun fromLyrics(content: String): TimedContent {
             var lastTime = 0L
-            val pairs = content.split("\n").mapNotNull { x ->
+            val pairs = content.split("\n").map { x ->
                 val match = lrcLineRegex.matchEntire(x)
                 val pair = when {
                     match != null -> Duration

@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -326,7 +327,7 @@ private fun NowPlayingSeekBar(
     val trackHeight = 4.dp
 
     var dragging by remember { mutableStateOf(false) }
-    var dragRatio by remember { mutableStateOf(0f) }
+    var dragRatio by remember { mutableFloatStateOf(0f) }
 
     BoxWithConstraints(
         modifier = Modifier

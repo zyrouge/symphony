@@ -11,8 +11,8 @@ object DurationFormatter {
     )
 
     fun formatMinSec(d: Long, h: Long, m: Long, s: Long) = when {
-        d == 0L && h == 0L -> String.format("%02d:%02d", m, s)
-        d == 0L -> String.format("%02d:%02d:%02d", h, m, s)
-        else -> String.format("%02d:%02d:%02d:%02d", d, h, m, s)
+        d == 0L && h == 0L -> String.format(null, "%02d:%02d", m, s)
+        d == 0L -> String.format(null, "%02d:%02d:%02d", h, m, s)
+        else -> String.format(null, "%02d:%02d:%02d:%02d", d, h, m, s)
     }
 }
