@@ -1,5 +1,6 @@
 name: Feature Request
 title: "[Feature] <title>"
+description: Use this to submit a feature request.
 labels: ["type: enhancement"]
 
 body:
