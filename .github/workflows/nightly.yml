@@ -59,7 +59,7 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  ./gradlew build
+                  ./gradlew assemble
                   ./gradlew bundle
                   npm run postbuild
               env:
