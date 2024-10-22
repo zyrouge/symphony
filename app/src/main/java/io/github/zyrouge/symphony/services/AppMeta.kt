@@ -8,6 +8,7 @@ import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
 
+@Suppress("ConstPropertyName")
 object AppMeta {
     const val appName = "Symphony"
     const val author = "Zyrouge"

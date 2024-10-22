@@ -64,6 +64,10 @@ async function createTranslationKt(phrasey, state, log) {
     /**
      * @type {string[]}
      */
+    const containerKeys = [];
+    /**
+     * @type {string[]}
+     */
     const staticKeys = [];
     /**
      * @type {string[]}
@@ -71,15 +75,16 @@ async function createTranslationKt(phrasey, state, log) {
     const dynamicKeys = [];
 
     for (const x of state.getSchema().z.keys) {
+        containerKeys.push(`        val ${x.name}: String,`);
         if (x.parameters && x.parameters.length > 0) {
             const params = x.parameters.map((x) => `${x}: String`).join(", ");
             const callArgs = x.parameters.join(", ");
             dynamicKeys.push(
-                `    fun ${x.name}(${params}): String = _keysJson.getString("${x.name}").format(${callArgs})`,
+                `    fun ${x.name}(${params}): String = container.keys.${x.name}.format(${callArgs})`,
             );
         } else {
             staticKeys.push(
-                `    val ${x.name}: String get() = _keysJson.getString("${x.name}")`,
+                `    val ${x.name}: String get() = container.keys.${x.name}`,
             );
         }
     }
@@ -87,17 +92,34 @@ async function createTranslationKt(phrasey, state, log) {
     const content = `
 package io.github.zyrouge.symphony.services.i18n
 
-import org.json.JSONObject
+import androidx.compose.runtime.Immutable
+import kotlinx.serialization.Serializable
 
-@Suppress("ClassName")
-open class _Translation(val json: JSONObject) {
-    private val _localeJson = json.getJSONObject("locale")
-    private val _keysJson = json.getJSONObject("keys")
+@Suppress("ClassName", "Unused", "PropertyName", "FunctionName")
+open class _Translation(private val container: _Container) {
+    @Immutable
+    @Serializable
+    data class _Container(val locale: _Locale, val keys: _Keys)
 
-    val LocaleDisplayName: String get() = _localeJson.getString("display")
-    val LocaleNativeName: String get() = _localeJson.getString("native")
-    val LocaleCode: String get() = _localeJson.getString("code")
-    val LocaleDirection: String get() = _localeJson.getString("direction")
+    @Immutable
+    @Serializable
+    data class _Locale(
+        val display: String,
+        val native: String,
+        val code: String,
+        val direction: String,
+    )
+
+    @Immutable
+    @Serializable
+    data class _Keys(
+${containerKeys.join("\n")}
+    )
+
+    val LocaleDisplayName: String get() = container.locale.display
+    val LocaleNativeName: String get() = container.locale.native
+    val LocaleCode: String get() = container.locale.code
+    val LocaleDirection: String get() = container.locale.direction
 
 ${staticKeys.join("\n")}
 
