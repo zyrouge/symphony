@@ -1,0 +1,62 @@
+name: Bug Report
+title: "[Bug] <title>"
+labels: ["type: bug"]
+
+body:
+    - type: textarea
+      attributes:
+          label: Description
+          description: A clear and concise description of what the bug is.
+
+    - type: textarea
+      attributes:
+          label: Steps to Reproduce
+          placeholder: |
+              1. Go to '...'
+              2. Click on '....'
+              3. Scroll down to '....'
+              4. See error
+
+    - type: textarea
+      attributes:
+          label: Expected Behavior
+          description: A clear and concise description of what you expected to happen.
+
+    - type: textarea
+      attributes:
+          label: Screenshots
+          description: If applicable, add screenshots to help explain your problem.
+      validations:
+          required: false
+
+    - type: textarea
+      attributes:
+          label: Additional Context
+          description: Add any other context about the problem here.
+      validations:
+          required: false
+
+    - type: input
+      attributes:
+          label: Device
+          placeholder: Google Pixel 6
+      validations:
+          required: false
+
+    - type: input
+      attributes:
+          label: OS
+          placeholder: Android 13
+
+    - type: input
+      attributes:
+          label: Version
+          placeholder: "2023.04.20"
+
+    - type: checkboxes
+      attributes:
+          label: Contribution Guidelines
+          description: By submitting this issue, you agree to follow the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
+          options:
+              - label: I agree to follow the [Contribution Guidelines](https://github.com/zyrouge/symphony/wiki/Contributions-Guidelines#issues).
+                required: true
