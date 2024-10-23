@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
 data class RadioSessionUpdateRequest(
     val song: Song,
     val artworkUri: Uri,
-    val artworkUriString: String,
     val artworkBitmap: Bitmap,
     val playbackPosition: PlaybackPosition,
     val isPlaying: Boolean,
@@ -221,22 +220,21 @@ class RadioSession(val symphony: Symphony) {
         currentSongId = song.id
 
         val artworkUri = symphony.groove.song.getArtworkUri(song.id)
-        val artworkUriString = artworkUri.toString()
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition
             ?: PlaybackPosition(played = 0L, total = song.duration)
         val isPlaying = symphony.radio.isPlaying
+        if (currentSongId != song.id) {
+            return
+        }
 
         val req = RadioSessionUpdateRequest(
             song = song,
             artworkUri = artworkUri,
-            artworkUriString = artworkUriString,
             artworkBitmap = artworkBitmap,
             playbackPosition = playbackPosition,
             isPlaying = isPlaying,
         )
-        if (currentSongId != song.id) return
-
         updateSession(req)
         notification.update(req)
     }
@@ -254,11 +252,6 @@ class RadioSession(val symphony: Symphony) {
                         )
                     }
                     putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.album)
-                    req.artworkUriString.let {
-                        putString(MediaMetadataCompat.METADATA_KEY_ART_URI, it)
-                        putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, it)
-                        putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, it)
-                    }
                     req.artworkBitmap.let {
                         putBitmap(MediaMetadataCompat.METADATA_KEY_ART, it)
                         putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, it)

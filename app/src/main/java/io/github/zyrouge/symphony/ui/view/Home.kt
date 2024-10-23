@@ -82,7 +82,7 @@ import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.view.home.AlbumArtistsView
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
@@ -189,7 +189,7 @@ fun HomeView(context: ViewContext) {
                             Icon(Icons.Filled.Search, null)
                         },
                         onClick = {
-                            context.navController.navigate(Routes.Search.build(currentTab.kind))
+                            context.navController.navigateTo(Routes.Search.build(currentTab.kind))
                         }
                     )
                 },
@@ -244,7 +244,7 @@ fun HomeView(context: ViewContext) {
                                     },
                                     onClick = {
                                         showOptionsDropdown = false
-                                        context.navController.navigate(Routes.Settings)
+                                        context.navController.navigateTo(Routes.Settings)
                                     }
                                 )
                             }

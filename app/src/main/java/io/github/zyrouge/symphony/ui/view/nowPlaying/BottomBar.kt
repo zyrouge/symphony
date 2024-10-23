@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
@@ -88,7 +88,7 @@ fun NowPlayingBodyBottomBar(
         ) {
             TextButton(
                 onClick = {
-                    context.navController.navigate(Routes.Queue)
+                    context.navController.navigateTo(Routes.Queue)
                 }
             ) {
                 Icon(
@@ -119,7 +119,7 @@ fun NowPlayingBodyBottomBar(
                             }
 
                             NowPlayingLyricsLayout.SeparatePage -> {
-                                context.navController.navigate(Routes.Lyrics)
+                                context.navController.navigateTo(Routes.Lyrics)
                             }
                         }
                     }

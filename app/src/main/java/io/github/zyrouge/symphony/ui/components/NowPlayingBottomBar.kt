@@ -67,7 +67,7 @@ import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigate
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.utils.runIfOrThis
 import kotlin.math.absoluteValue
 
@@ -145,7 +145,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         .wrapContentHeight()
                         .swipeable(
                             onSwipeUp = {
-                                context.navController.navigate(Routes.NowPlaying)
+                                context.navController.navigateTo(Routes.NowPlaying)
                             },
                             onSwipeDown = {
                                 context.symphony.radio.stop()
@@ -153,7 +153,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         ),
                     shape = RectangleShape,
                     onClick = {
-                        context.navController.navigate(Routes.NowPlaying)
+                        context.navController.navigateTo(Routes.NowPlaying)
                     }
                 ) {
                     Row(

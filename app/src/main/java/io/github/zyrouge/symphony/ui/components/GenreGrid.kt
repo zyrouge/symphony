@@ -36,6 +36,7 @@ import io.github.zyrouge.symphony.services.groove.GenreSortBy
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private object GenreTile {
@@ -131,7 +132,7 @@ fun GenreGrid(
                                     ),
                                 colors = GenreTile.cardColors(i),
                                 onClick = {
-                                    context.navController.navigate(Routes.Genre.build(genre.name))
+                                    context.navController.navigateTo(Routes.Genre.build(genre.name))
                                 }
                             ) {
                                 Box(

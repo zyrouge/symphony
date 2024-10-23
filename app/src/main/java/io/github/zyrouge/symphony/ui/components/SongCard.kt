@@ -51,6 +51,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.utils.Logger
 
 @Composable
@@ -272,7 +273,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(Routes.Artist.build(artistName))
+                    context.navController.navigateTo(Routes.Artist.build(artistName))
                 }
             )
         }
@@ -286,7 +287,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(Routes.AlbumArtist.build(albumArtist))
+                    context.navController.navigateTo(Routes.AlbumArtist.build(albumArtist))
                 }
             )
         }
@@ -300,7 +301,7 @@ fun SongDropdownMenu(
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(Routes.Album.build(albumId))
+                    context.navController.navigateTo(Routes.Album.build(albumId))
                 }
             )
         }

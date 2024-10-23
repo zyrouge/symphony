@@ -87,9 +87,9 @@ class MediaExposer(private val symphony: Symphony) {
 
     private suspend fun scanMediaFile(cycle: ScanCycle, file: DocumentFileX) {
         try {
-            val path = file.name!!
+            val path = file.name
             explorer.addRelativePath(GrooveExplorer.Path(path))
-            val mimeType = file.mimeType ?: return
+            val mimeType = file.mimeType
             when {
                 mimeType == MIMETYPE_M3U -> scanM3UFile(cycle, file)
                 path.endsWith(".lrc") -> scanLrcFile(cycle, file)
@@ -121,12 +121,12 @@ class MediaExposer(private val symphony: Symphony) {
     }
 
     private fun scanLrcFile(cycle: ScanCycle, file: DocumentFileX) {
-        val path = file.name!!
+        val path = file.name
         uris[path] = file.uri
     }
 
     private fun scanM3UFile(cycle: ScanCycle, file: DocumentFileX) {
-        val path = file.name!!
+        val path = file.name
         uris[path] = file.uri
     }
 

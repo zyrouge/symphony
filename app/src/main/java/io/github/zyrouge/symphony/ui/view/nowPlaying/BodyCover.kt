@@ -34,6 +34,7 @@ import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
 
@@ -137,7 +138,7 @@ private fun NowPlayingBodyCoverArtwork(context: ViewContext, song: Song) {
                             context.symphony.groove.album
                                 .getIdFromSong(song)
                                 ?.let {
-                                    context.navController.navigate(
+                                    context.navController.navigateTo(
                                         Routes.Album.build(it)
                                     )
                                 }

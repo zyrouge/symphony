@@ -56,6 +56,7 @@ import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.utils.DurationFormatter
@@ -97,7 +98,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                                         overflow = TextOverflow.Ellipsis,
                                         modifier = Modifier.pointerInput(Unit) {
                                             detectTapGestures { _ ->
-                                                context.navController.navigate(
+                                                context.navController.navigateTo(
                                                     Routes.Artist.build(it)
                                                 )
                                             }

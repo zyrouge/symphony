@@ -43,7 +43,8 @@ data object Routes {
     val Lyrics = Route.Simple("lyrics")
 }
 
-fun NavHostController.navigate(route: Route.Simple) = navigate(route.route)
+fun NavHostController.navigateTo(route: Route.Simple) = navigate(route.route)
+fun NavHostController.navigateTo(route: String) = navigate(route)
 
 fun NavBackStackEntry.getRouteArgument(key: String) = arguments?.getString(key)
 fun NavBackStackEntry.getRouteParameter() =

@@ -64,6 +64,7 @@ import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -362,7 +363,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigate(
+                                                            context.navController.navigateTo(
                                                                 Routes.Artist.build(artist.name)
                                                             )
                                                         }
@@ -394,7 +395,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigate(
+                                                            context.navController.navigateTo(
                                                                 Routes.Album.build(album.id)
                                                             )
                                                         }
@@ -423,7 +424,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigate(
+                                                            context.navController.navigateTo(
                                                                 Routes.AlbumArtist.build(
                                                                     albumArtist.name
                                                                 )
@@ -454,7 +455,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigate(
+                                                            context.navController.navigateTo(
                                                                 Routes.Playlist.build(playlist.id)
                                                             )
                                                         }
@@ -479,7 +480,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                                         },
                                                         options = null,
                                                         onClick = {
-                                                            context.navController.navigate(
+                                                            context.navController.navigateTo(
                                                                 Routes.Genre.build(genre.name)
                                                             )
                                                         }

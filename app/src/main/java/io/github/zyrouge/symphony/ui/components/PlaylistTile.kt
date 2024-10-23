@@ -49,6 +49,7 @@ import io.github.zyrouge.symphony.services.groove.MediaExposer
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
@@ -61,7 +62,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         onClick = {
-            context.navController.navigate(Routes.Playlist.build(playlist.id))
+            context.navController.navigateTo(Routes.Playlist.build(playlist.id))
         }
     ) {
         Box(modifier = Modifier.padding(12.dp)) {
