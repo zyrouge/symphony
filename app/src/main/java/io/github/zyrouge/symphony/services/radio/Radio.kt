@@ -68,6 +68,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED
     var persistedPitch: Float = RadioPlayer.DEFAULT_PITCH
+    var persistedReverb: Float = RadioPlayer.DEFAULT_REVERB
     var sleepTimer: RadioSleepTimer? = null
     var pauseOnCurrentSongEnd = false
 
@@ -244,7 +245,15 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             onUpdate.dispatch(RadioEvents.PitchChanged)
         }
     }
-
+    fun setReverb(reverb: Float, persist: Boolean) {
+        player?.let {
+            it.setReverb(reverb)
+            if (persist) {
+                persistedReverb = reverb
+            }
+            onUpdate.dispatch(RadioEvents.PitchChanged)
+        }
+    }
     fun setSleepTimer(
         duration: Long,
         quitOnEnd: Boolean,
