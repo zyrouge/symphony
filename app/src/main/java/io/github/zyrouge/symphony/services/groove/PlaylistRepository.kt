@@ -142,7 +142,13 @@ class PlaylistRepository(private val symphony: Symphony) {
     }
 
     suspend fun delete(id: String) {
-        cache.remove(id)
+        cache.remove(id)?.let {
+            it.uri?.let { uri ->
+                runCatching {
+                    ActivityUtils.makePersistableReadableUri(symphony.applicationContext, uri)
+                }
+            }
+        }
         _all.update {
             it - id
         }

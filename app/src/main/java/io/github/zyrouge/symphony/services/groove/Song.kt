@@ -93,7 +93,7 @@ data class Song(
             }
             return Song(
                 id = id,
-                title = metadata.title ?: path.nameWithoutExtension, // TODO
+                title = metadata.title ?: path.nameWithoutExtension,
                 album = metadata.album,
                 artists = metadata.artists,
                 composers = metadata.composer,
@@ -104,7 +104,7 @@ data class Song(
                 discNumber = metadata.discNumber,
                 discTotal = metadata.discTotal,
                 year = metadata.year,
-                duration = stream.duration ?: 0,
+                duration = stream.duration?.let { it * 1000 } ?: 0,
                 bitrate = stream.bitrate,
                 bitsPerSample = stream.bitsPerSample,
                 samplingRate = stream.samplingRate,

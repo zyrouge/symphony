@@ -26,4 +26,11 @@ object ActivityUtils {
             Intent.FLAG_GRANT_READ_URI_PERMISSION
         )
     }
+
+    fun releasePersistableReadableUri(context: Context, uri: Uri) {
+        context.contentResolver.releasePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+    }
 }

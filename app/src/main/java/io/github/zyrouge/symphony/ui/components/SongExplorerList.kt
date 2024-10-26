@@ -70,9 +70,7 @@ fun SongExplorerList(
 ) {
     var currentFolder by remember(key) {
         mutableStateOf(
-            initialPath
-                ?.let { explorer.navigateToFolder(it.subList(1, it.size)) }
-                ?: explorer
+            initialPath?.let { explorer.navigateToFolder(it.subList(1, it.size)) } ?: explorer
         )
     }
     val sortBy by context.symphony.settings.lastUsedBrowserSortBy.collectAsState()
@@ -80,7 +78,6 @@ fun SongExplorerList(
     val sortedEntities by remember(key, currentFolder) {
         derivedStateOf {
             val categorized = currentFolder.categorizedChildren()
-
             SongExplorerResult(
                 folders = run {
                     val sorted = when (sortBy) {
@@ -199,7 +196,7 @@ fun SongExplorerList(
                     ) {
                         items(
                             sortedEntities.folders,
-                            key = { it.fullPath },
+                            key = { it.fullPath.pathString },
                             contentType = { SongFolderContentType }
                         ) { folder ->
                             Card(

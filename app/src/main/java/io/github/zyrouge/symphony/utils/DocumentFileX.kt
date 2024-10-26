@@ -80,6 +80,10 @@ data class DocumentFileX(
 
         fun getParentPathOfTreeUri(treeUri: Uri) = runCatching {
             DocumentsContract.getTreeDocumentId(treeUri)
-        }.getOrNull()?.let { SimplePath(it) }
+        }.getOrNull()
+
+        fun getParentPathOfSingleUri(uri: Uri) = runCatching {
+            DocumentsContract.getDocumentId(uri)
+        }.getOrNull()
     }
 }

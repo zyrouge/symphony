@@ -1,14 +1,16 @@
 package io.github.zyrouge.symphony.utils
 
+import kotlin.text.split
+
 class SimplePath(val parts: List<String>) {
     constructor(path: String) : this(n(p(path)))
-    constructor(path: String, vararg subParts: String) : this(n(p(path) + subParts))
-    constructor(path: SimplePath, vararg subParts: String) : this(n(path.parts + subParts))
+    constructor(path: String, vararg subParts: String) : this(n(p(path) + p(*subParts)))
+    constructor(path: SimplePath, vararg subParts: String) : this(n(path.parts + p(*subParts)))
 
     val name get() = parts.last()
     val nameWithoutExtension get() = name.substringBeforeLast(".")
     val extension get() = name.substringAfterLast(".", "")
-    val parent get() = if (parts.size > 1) SimplePath(parts.subList(0, parts.size)) else null
+    val parent get() = if (parts.size > 1) SimplePath(parts.subList(0, parts.lastIndex)) else null
     val size get() = parts.size
     val pathString get() = parts.joinToString("/")
 
@@ -17,7 +19,9 @@ class SimplePath(val parts: List<String>) {
     override fun toString() = pathString
 
     companion object {
-        private fun p(path: String) = path.split("/", "\\")
+        private fun p(vararg path: String) = path.fold(listOf<String>()) { prev, curr ->
+            prev + curr.split("/", "\\")
+        }
 
         private fun n(parts: List<String>): List<String> {
             val normalized = mutableListOf<String>()
@@ -25,11 +29,11 @@ class SimplePath(val parts: List<String>) {
                 when {
                     x.isEmpty() -> {}
                     x == "." -> {}
-                    x == ".." -> normalized.removeAt(parts.lastIndex)
+                    x == ".." -> normalized.removeAt(normalized.lastIndex)
                     else -> normalized.add(x)
                 }
             }
-            return parts
+            return normalized
         }
     }
 }

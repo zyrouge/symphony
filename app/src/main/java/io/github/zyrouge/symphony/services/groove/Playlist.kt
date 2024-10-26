@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
-import android.provider.DocumentsContract
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -32,7 +31,7 @@ data class Playlist(
             ?: Assets.createPlaceholderImageRequest(symphony)
 
     fun getSongIds(symphony: Symphony): List<String> {
-        val parentPath = path?.let { SimplePath(it) }
+        val parentPath = path?.let { SimplePath(it) }?.parent
         val primaryPath = SimplePath(PRIMARY_STORAGE)
         return songPaths.mapNotNull { x ->
             symphony.groove.song.pathCache[x]
@@ -67,7 +66,7 @@ data class Playlist(
                 .filter { it.isNotEmpty() && it[0] != '#' }
                 .toList()
             val id = symphony.groove.playlist.idGenerator.next()
-            val path = runCatching { DocumentsContract.getDocumentId(uri) }.getOrNull() ?: file.name
+            val path = DocumentFileX.getParentPathOfSingleUri(file.uri) ?: file.name
             return Playlist(
                 id = id,
                 title = Path(path).nameWithoutExtension,

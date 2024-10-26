@@ -69,8 +69,7 @@ class MediaExposer(private val symphony: Symphony) {
             folderUris.map { x ->
                 ActivityUtils.makePersistableReadableUri(context, x)
                 DocumentFileX.fromTreeUri(context, x)?.let {
-                    val parent = DocumentFileX.getParentPathOfTreeUri(x)
-                    val path = parent?.join(it.name) ?: SimplePath(it.name)
+                    val path = SimplePath(DocumentFileX.getParentPathOfTreeUri(x) ?: it.name)
                     with(Dispatchers.IO) {
                         scanMediaTree(cycle, path, it)
                     }

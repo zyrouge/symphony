@@ -28,6 +28,15 @@ sealed class SimpleFileSystem(val parent: Folder?, val name: String) {
         val isEmpty get() = children.isEmpty()
         val childFoldersCount get() = children.values.count { it is Folder }
 
+        fun addChildFolder(name: String): Folder {
+            if (children.containsKey(name)) {
+                throw Exception("Child '$name' already exists")
+            }
+            val child = Folder(this, name)
+            children[name] = child
+            return child
+        }
+
         fun addChildFile(name: String): File {
             if (children.containsKey(name)) {
                 throw Exception("Child '$name' already exists")
@@ -45,7 +54,7 @@ sealed class SimpleFileSystem(val parent: Folder?, val name: String) {
                 val found = parent.children[x]
                 parent = when (found) {
                     is Folder -> found
-                    null -> Folder(parent, x)
+                    null -> parent.addChildFolder(x)
                     else -> throw Exception("Child '$x' is not a folder")
                 }
             }
