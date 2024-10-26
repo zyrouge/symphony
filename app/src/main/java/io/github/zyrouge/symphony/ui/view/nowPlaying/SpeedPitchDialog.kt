@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.view.nowPlaying
 
-import android.media.audiofx.PresetReverb
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -210,103 +209,6 @@ fun NowPlayingPitchDialog(
             TextButton(
                 onClick = {
                     context.symphony.radio.setPitch(1f, persistent)
-                    onDismissRequest()
-                }
-            ) {
-                Text(context.symphony.t.Reset)
-            }
-            TextButton(
-                onClick = onDismissRequest
-            ) {
-                Text(context.symphony.t.Done)
-            }
-        },
-    )
-}
-
-@Composable
-fun NowPlayingReverbDialog(
-    context: ViewContext,
-    currentReverb: Float,
-    persistedReverb: Float,
-    onDismissRequest: () -> Unit,
-) {
-    val allowedReverb = listOf(0.5f, 1f, 1.5f, 2f, 3f)
-    val allowedReverbRange = allowedReverb.first()..allowedReverb.last()
-    var persistent by remember {
-        mutableStateOf(currentReverb == persistedReverb)
-    }
-
-    ScaffoldDialog(
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(context.symphony.t.Reverb)
-        },
-        content = {
-            Column(modifier = Modifier.padding(0.dp, 8.dp)) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        4.dp,
-                        Alignment.CenterHorizontally
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                ) {
-                    allowedReverb.forEach { reverb ->
-                        val onClick = {
-                            context.symphony.radio.setReverb(reverb, persistent)
-                        }
-                        val shape = RoundedCornerShape(4.dp)
-
-                        Text(
-                            "x$reverb",
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    shape,
-                                )
-                                .clip(shape)
-                                . clickable(onClick = onClick)
-                                .padding(8.dp, 4.dp)
-                        )
-                    }
-                }
-                Slider(
-                    value = currentReverb,
-                    onChange = { value ->
-                        val reverb = (value * 10).roundToInt().toFloat() / 10
-                        context.symphony.radio.setReverb(reverb, persistent)
-                    },
-                    range = allowedReverbRange,
-                    label = { value ->
-                        Text("x$value")
-                    },
-                    modifier = Modifier
-                        .padding(top = 24.dp, bottom = 8.dp)
-                )
-
-                Row(
-                    modifier = Modifier.padding(12.dp, 0.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = persistent,
-                        onCheckedChange = {
-                            persistent = !persistent
-                            context.symphony.radio.setReverb(currentReverb, persistent)
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(context.symphony.t.PersistUntilQueueEnd)
-                }
-            }
-        },
-        actions = {
-            TextButton(
-                onClick = {
-                    context.symphony.radio.setReverb(1f, persistent)
                     onDismissRequest()
                 }
             ) {

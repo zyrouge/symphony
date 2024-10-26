@@ -54,7 +54,6 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
     var volume: Float = MAX_VOLUME
     var speed: Float = DEFAULT_SPEED
     var pitch: Float = DEFAULT_PITCH
-    var reverb: Float = DEFAULT_REVERB
     val fadePlayback: Boolean
         get() = symphony.settings.fadePlayback.value
     val audioSessionId: Int?
@@ -188,26 +187,6 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
     }
 
-    @JvmName("setReverbTo")
-    fun setReverb(to: Float) {
-        if (!hasPlayedOnce) {
-            reverb = to
-            return
-        }
-        mediaPlayer?.let {
-            val isPlaying = it.isPlaying
-            try {
-                it.playbackParams = it.playbackParams.setReverb(to)
-                reverb = to
-            } catch (err: Exception) {
-                Logger.error("RadioPlayer", "changing reverb failed", err)
-            }
-            if (!isPlaying) {
-                it.pause()
-            }
-        }
-    }
-
     fun setOnPlaybackPositionListener(listener: RadioPlayerOnPlaybackPositionListener?) {
         onPlaybackPosition = listener
     }
@@ -239,6 +218,5 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         const val DUCK_VOLUME = 0.2f
         const val DEFAULT_SPEED = 1f
         const val DEFAULT_PITCH = 1f
-        const val DEFAULT_REVERB = 1f
     }
 }
