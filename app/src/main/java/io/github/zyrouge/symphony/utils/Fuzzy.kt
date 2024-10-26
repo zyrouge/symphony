@@ -59,9 +59,9 @@ object Fuzzy {
         normalizeTerms(against),
     )
 
+    private val symbolsRegex = Regex("""[~${'$'}&+,:;=?@#|'"<>.^*()\[\]%!\-_/\\]+""")
     private val whitespaceRegex = Regex("""\s+""")
-    private val alphaNumericRegex = Regex("""[^A-Za-z0-9]""")
     private fun normalizeTerms(terms: String) = terms.lowercase()
+        .replace(symbolsRegex, "")
         .replace(whitespaceRegex, " ")
-        .replace(alphaNumericRegex, "")
 }
