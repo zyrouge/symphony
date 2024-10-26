@@ -10,15 +10,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
-enum class GrooveKinds {
-    SONG,
-    ALBUM,
-    ARTIST,
-    ALBUM_ARTIST,
-    GENRE,
-    PLAYLIST,
-}
-
 class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     val coroutineScope = CoroutineScope(Dispatchers.Default)
     var readyDeferred = CompletableDeferred<Boolean>()

@@ -7,5 +7,9 @@ import io.github.zyrouge.symphony.Symphony
 data class ViewContext(
     val symphony: Symphony,
     val activity: MainActivity,
-    val navController: NavHostController
-)
+    val navController: NavHostController,
+) {
+    companion object {
+        fun <T> parameterizedFn(fn: (ViewContext) -> T) = fn
+    }
+}

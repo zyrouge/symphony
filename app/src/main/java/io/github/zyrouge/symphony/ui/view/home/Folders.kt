@@ -28,9 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveExplorer
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.PathSortBy
 import io.github.zyrouge.symphony.ui.components.AddToPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
@@ -45,7 +43,8 @@ import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.nowPlaying.defaultHorizontalPadding
-import io.github.zyrouge.symphony.utils.wrapInViewContext
+import io.github.zyrouge.symphony.utils.SimpleFileSystem
+import io.github.zyrouge.symphony.utils.StringListUtils
 import java.util.Stack
 
 @Composable
@@ -55,8 +54,8 @@ fun FoldersView(context: ViewContext) {
     val explorer = context.symphony.groove.song.explorer
 
     val folders = remember(id) {
-        val entities = mutableMapOf<String, GrooveExplorer.Folder>()
-        val stack = Stack<GrooveExplorer.Folder>()
+        val entities = mutableMapOf<String, SimpleFileSystem.Folder>()
+        val stack = Stack<SimpleFileSystem.Folder>()
         stack.add(explorer)
         while (stack.isNotEmpty()) {
             val current = stack.pop()
@@ -64,20 +63,20 @@ fun FoldersView(context: ViewContext) {
             var hasSongs = false
             current.children.values.forEach {
                 when (it) {
-                    is GrooveExplorer.Folder -> stack.push(it)
-                    is GrooveExplorer.File -> {
+                    is SimpleFileSystem.Folder -> stack.push(it)
+                    is SimpleFileSystem.File -> {
                         hasSongs = true
                     }
                 }
             }
             if (hasSongs) {
-                entities[current.fullPath] = current
+                entities[current.fullPath.pathString] = current
             }
         }
         entities.toMap()
     }
     var currentFolder by remember(id) {
-        mutableStateOf<GrooveExplorer.Folder?>(null)
+        mutableStateOf<SimpleFileSystem.Folder?>(null)
     }
 
     BackHandler(currentFolder != null) {
@@ -101,7 +100,7 @@ fun FoldersView(context: ViewContext) {
                     derivedStateOf {
                         folder.children.values.mapNotNull {
                             when (it) {
-                                is GrooveExplorer.File -> it.data as String
+                                is SimpleFileSystem.File -> it.data as String
                                 else -> null
                             }
                         }
@@ -125,10 +124,7 @@ fun FoldersView(context: ViewContext) {
                                 ),
                             )
                         }
-                        Text(
-                            folder.basename,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                        Text(folder.name, style = MaterialTheme.typography.bodyLarge)
                     }
                     HorizontalDivider()
                     SongList(context, songIds = songIds, songsCount = songIds.size)
@@ -149,14 +145,14 @@ fun FoldersView(context: ViewContext) {
 @Composable
 private fun FoldersGrid(
     context: ViewContext,
-    folders: Map<String, GrooveExplorer.Folder>,
-    onClick: (GrooveExplorer.Folder) -> Unit,
+    folders: Map<String, SimpleFileSystem.Folder>,
+    onClick: (SimpleFileSystem.Folder) -> Unit,
 ) {
     val sortBy by context.symphony.settings.lastUsedFoldersSortBy.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedFoldersSortReverse.collectAsState()
     val sortedFolderNames by remember(folders, sortBy, sortReverse) {
         derivedStateOf {
-            GrooveExplorer.sort(folders.keys.toList(), sortBy, sortReverse)
+            StringListUtils.sort(folders.keys.toList(), sortBy, sortReverse)
         }
     }
 
@@ -169,8 +165,8 @@ private fun FoldersGrid(
                     context.symphony.settings.setLastUsedFoldersSortReverse(it)
                 },
                 sort = sortBy,
-                sorts = PathSortBy.entries
-                    .associateWith { x -> wrapInViewContext { x.label(context) } },
+                sorts = StringListUtils.SortBy.entries
+                    .associateWith { x -> ViewContext.parameterizedFn { x.label(context) } },
                 onSortChange = {
                     context.symphony.settings.setLastUsedFoldersSortBy(it)
                 },
@@ -214,7 +210,7 @@ private fun FoldersGrid(
 @Composable
 private fun FolderTile(
     context: ViewContext,
-    folder: GrooveExplorer.Folder,
+    folder: SimpleFileSystem.Folder,
     onClick: () -> Unit,
 ) {
     SquareGrooveTile(
@@ -282,7 +278,7 @@ private fun FolderTile(
         },
         content = {
             Text(
-                folder.basename,
+                folder.name,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
@@ -297,18 +293,19 @@ private fun FolderTile(
     )
 }
 
-private fun GrooveExplorer.Folder.createArtworkImageRequest(context: ViewContext) = children.values
-    .find { it is GrooveExplorer.File }
-    ?.let {
-        val songId = (it as GrooveExplorer.File).data as String
-        context.symphony.groove.song.createArtworkImageRequest(songId)
-    }
-    ?: Assets.createPlaceholderImageRequest(context.symphony)
+private fun SimpleFileSystem.Folder.createArtworkImageRequest(context: ViewContext) =
+    children.values
+        .find { it is SimpleFileSystem.File }
+        ?.let {
+            val songId = (it as SimpleFileSystem.File).data as String
+            context.symphony.groove.song.createArtworkImageRequest(songId)
+        }
+        ?: Assets.createPlaceholderImageRequest(context.symphony)
 
-private fun GrooveExplorer.Folder.getSortedSongIds(context: ViewContext): List<String> {
+private fun SimpleFileSystem.Folder.getSortedSongIds(context: ViewContext): List<String> {
     val songIds = children.values.mapNotNull {
         when (it) {
-            is GrooveExplorer.File -> it.data as String
+            is SimpleFileSystem.File -> it.data as String
             else -> null
         }
     }

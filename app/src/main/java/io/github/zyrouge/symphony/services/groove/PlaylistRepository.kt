@@ -1,30 +1,27 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.content.Intent
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.KeyGenerator
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.mutate
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
 
-enum class PlaylistSortBy {
-    CUSTOM,
-    TITLE,
-    TRACKS_COUNT,
-}
-
 class PlaylistRepository(private val symphony: Symphony) {
+    enum class SortBy {
+        CUSTOM,
+        TITLE,
+        TRACKS_COUNT,
+    }
+
     private val cache = ConcurrentHashMap<String, Playlist>()
     internal val idGenerator = KeyGenerator.TimeIncremental()
     private val searcher = FuzzySearcher<String>(
@@ -54,34 +51,26 @@ class PlaylistRepository(private val symphony: Symphony) {
         cache.size
     }
 
-    fun fetch() {
+    suspend fun fetch() {
         emitUpdate(true)
         try {
             val context = symphony.applicationContext
-            val permissions = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            val playlists = symphony.database.playlists.all()
-            runBlocking {
-                playlists.values.map { x ->
-                    val playlist = when {
-                        x.isLocal() -> {
-                            context.contentResolver.takePersistableUriPermission(
-                                x.uri!!,
-                                permissions
-                            )
-                            async(Dispatchers.IO) {
-                                Playlist.parse(symphony, x.uri)
-                            }.await()
-                        }
+            val playlists = symphony.database.playlists.entries()
+            playlists.values.map { x ->
+                val playlist = when {
+                    x.isLocal -> {
+                        ActivityUtils.makePersistableReadableUri(context, x.uri!!)
+                        Playlist.parse(symphony, x.uri)
+                    }
 
-                        else -> x
-                    }
-                    cache[playlist.id] = playlist
-                    _all.update {
-                        it + playlist.id
-                    }
-                    emitUpdateId()
-                    emitCount()
+                    else -> x
                 }
+                cache[playlist.id] = playlist
+                _all.update {
+                    it + playlist.id
+                }
+                emitUpdateId()
+                emitCount()
             }
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
@@ -111,17 +100,17 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun search(playlistIds: List<String>, terms: String, limit: Int = 7) = searcher
         .search(terms, playlistIds, maxLength = limit)
 
-    fun sort(playlistIds: List<String>, by: PlaylistSortBy, reverse: Boolean): List<String> {
+    fun sort(playlistIds: List<String>, by: SortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
-            PlaylistSortBy.CUSTOM -> {
+            SortBy.CUSTOM -> {
                 val prefix = listOfNotNull(FAVORITE_PLAYLIST)
                 val others = playlistIds.toMutableList()
                 prefix.forEach { others.remove(it) }
                 prefix + others
             }
 
-            PlaylistSortBy.TITLE -> playlistIds.sortedBy { get(it)?.title }
-            PlaylistSortBy.TRACKS_COUNT -> playlistIds.sortedBy { get(it)?.numberOfTracks }
+            SortBy.TITLE -> playlistIds.sortedBy { get(it)?.title }
+            SortBy.TRACKS_COUNT -> playlistIds.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted
     }
@@ -142,27 +131,27 @@ class PlaylistRepository(private val symphony: Symphony) {
         path = null,
     )
 
-    fun add(playlist: Playlist) {
+    suspend fun add(playlist: Playlist) {
         cache[playlist.id] = playlist
         _all.update {
             it + playlist.id
         }
         emitUpdateId()
         emitCount()
-        symphony.database.playlists.put(playlist.id, playlist)
+        symphony.database.playlists.insert(playlist)
     }
 
-    fun delete(id: String) {
+    suspend fun delete(id: String) {
         cache.remove(id)
         _all.update {
             it - id
         }
         emitUpdateId()
         emitCount()
-        symphony.database.playlists.delete(id)
+        symphony.database.playlists.delete(listOf(id))
     }
 
-    fun update(id: String, songIds: List<String>) {
+    suspend fun update(id: String, songIds: List<String>) {
         val old = get(id) ?: return
         val new = Playlist(
             id = id,
@@ -179,7 +168,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 songIds
             }
         }
-        symphony.database.playlists.put(id, new)
+        symphony.database.playlists.update(new)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
@@ -216,11 +205,11 @@ class PlaylistRepository(private val symphony: Symphony) {
         }
     }
 
-    fun renamePlaylist(playlist: Playlist, title: String) {
+    suspend fun renamePlaylist(playlist: Playlist, title: String) {
         val renamed = playlist.withTitle(title)
         cache[playlist.id] = renamed
         emitUpdateId()
-        symphony.database.playlists.put(playlist.id, renamed)
+        symphony.database.playlists.update(renamed)
     }
 
     private fun createFavorites(): Playlist {

@@ -55,11 +55,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.GrooveExplorer
-import io.github.zyrouge.symphony.services.groove.PathSortBy
-import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.SimplePath
+import io.github.zyrouge.symphony.utils.StringListUtils
 
 @Composable
 fun SongTreeList(
@@ -83,15 +83,14 @@ fun SongTreeList(
     val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
     val sortedTree by remember(tree, pathsSortBy, pathsSortReverse, songsSortBy, songsSortReverse) {
         derivedStateOf {
-            val pairs =
-                GrooveExplorer.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
-                    .map {
-                        it to context.symphony.groove.song.sort(
-                            tree[it]!!,
-                            songsSortBy,
-                            songsSortReverse
-                        )
-                    }
+            val pairs = StringListUtils.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
+                .map {
+                    it to context.symphony.groove.song.sort(
+                        tree[it]!!,
+                        songsSortBy,
+                        songsSortReverse
+                    )
+                }
             mapOf(*pairs.toTypedArray())
         }
     }
@@ -356,13 +355,13 @@ fun SongTreeListSongCardIconButton(
 private fun SongTreeListMediaSortBar(
     context: ViewContext,
     songsCount: Int,
-    pathsSortBy: PathSortBy,
+    pathsSortBy: StringListUtils.SortBy,
     pathsSortReverse: Boolean,
-    songsSortBy: SongSortBy,
+    songsSortBy: SongRepository.SortBy,
     songsSortReverse: Boolean,
-    setPathsSortBy: (PathSortBy) -> Unit,
+    setPathsSortBy: (StringListUtils.SortBy) -> Unit,
     setPathsSortReverse: (Boolean) -> Unit,
-    setSongsSortBy: (SongSortBy) -> Unit,
+    setSongsSortBy: (SongRepository.SortBy) -> Unit,
     setSongsSortReverse: (Boolean) -> Unit,
 ) {
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
@@ -428,7 +427,7 @@ private fun SongTreeListMediaSortBar(
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
-                        PathSortBy.entries.forEach { sortBy ->
+                        StringListUtils.SortBy.entries.forEach { sortBy ->
                             SongTreeListMediaSortBarDropdownMenuItem(
                                 selected = pathsSortBy == sortBy,
                                 reversed = pathsSortReverse,
@@ -448,7 +447,7 @@ private fun SongTreeListMediaSortBar(
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
-                        SongSortBy.entries.forEach { sortBy ->
+                        SongRepository.SortBy.entries.forEach { sortBy ->
                             SongTreeListMediaSortBarDropdownMenuItem(
                                 selected = songsSortBy == sortBy,
                                 reversed = songsSortReverse,
@@ -515,9 +514,9 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
     )
 }
 
-fun PathSortBy.label(context: ViewContext) = when (this) {
-    PathSortBy.CUSTOM -> context.symphony.t.Custom
-    PathSortBy.NAME -> context.symphony.t.Name
+fun StringListUtils.SortBy.label(context: ViewContext) = when (this) {
+    StringListUtils.SortBy.CUSTOM -> context.symphony.t.Custom
+    StringListUtils.SortBy.NAME -> context.symphony.t.Name
 }
 
 private fun createLinearTree(
@@ -527,8 +526,8 @@ private fun createLinearTree(
     val result = mutableMapOf<String, MutableList<String>>()
     songIds.forEach { songId ->
         val song = context.symphony.groove.song.get(songId) ?: return@forEach
-        val parsedPath = GrooveExplorer.Path(song.path)
-        val dirname = parsedPath.dirname.toString()
+        val parsedPath = SimplePath(song.path)
+        val dirname = parsedPath.parent!!.pathString
         if (!result.containsKey(dirname)) {
             result[dirname] = mutableListOf()
         }

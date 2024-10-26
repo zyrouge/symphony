@@ -149,7 +149,7 @@ fun PlaylistDropdownMenu(
                 context.symphony.groove.playlist.savePlaylistToUri(playlist, uri)
                 Toast.makeText(
                     context.activity,
-                    context.symphony.t.ExportedX(playlist.basename),
+                    context.symphony.t.ExportedX(playlist.title),
                     Toast.LENGTH_SHORT,
                 ).show()
             } catch (err: Exception) {
@@ -217,7 +217,7 @@ fun PlaylistDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        if (playlist.isNotLocal()) {
+        if (playlist.isNotLocal) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
@@ -243,7 +243,7 @@ fun PlaylistDropdownMenu(
                 showInfoDialog = true
             }
         )
-        if (playlist.isNotLocal()) {
+        if (playlist.isNotLocal) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Save, null)
@@ -254,7 +254,7 @@ fun PlaylistDropdownMenu(
                 onClick = {
                     onDismissRequest()
                     try {
-                        savePlaylistLauncher.launch(playlist.basename)
+                        savePlaylistLauncher.launch("${playlist.title}.m3u")
                     } catch (err: Exception) {
                         Logger.error("PlaylistTile", "export failed", err)
                         Toast.makeText(

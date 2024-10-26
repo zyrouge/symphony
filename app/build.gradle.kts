@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.android.kotlin)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -32,6 +34,7 @@ android {
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
         }
     }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
@@ -76,6 +79,10 @@ android {
             it.useJUnitPlatform()
         }
     }
+
+    room {
+        schemaDirectory("$projectDir/room-schemas")
+    }
 }
 
 dependencies {
@@ -93,6 +100,9 @@ dependencies {
     implementation(libs.lifecycle.runtime)
     implementation(libs.media)
     implementation(libs.okhttp3)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
+    implementation(libs.room.runtime)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

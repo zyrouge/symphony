@@ -32,12 +32,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GenreSortBy
+import io.github.zyrouge.symphony.services.groove.GenreRepository
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateTo
-import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 private object GenreTile {
     val colors = listOf(
@@ -87,8 +86,8 @@ fun GenreGrid(
                         context.symphony.settings.setLastUsedGenresSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = GenreSortBy.entries
-                        .associateWith { x -> wrapInViewContext { x.label(it) } },
+                    sorts = GenreRepository.SortBy.entries
+                        .associateWith { x -> ViewContext.parameterizedFn { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedGenresSortBy(it)
                     },
@@ -185,8 +184,8 @@ fun GenreGrid(
     )
 }
 
-private fun GenreSortBy.label(context: ViewContext) = when (this) {
-    GenreSortBy.CUSTOM -> context.symphony.t.Custom
-    GenreSortBy.GENRE -> context.symphony.t.Genre
-    GenreSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
+private fun GenreRepository.SortBy.label(context: ViewContext) = when (this) {
+    GenreRepository.SortBy.CUSTOM -> context.symphony.t.Custom
+    GenreRepository.SortBy.GENRE -> context.symphony.t.Genre
+    GenreRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

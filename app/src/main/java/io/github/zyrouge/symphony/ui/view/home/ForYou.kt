@@ -48,7 +48,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.Routes
@@ -92,7 +92,7 @@ fun ForYouView(context: ViewContext) {
                     runIfOrDefault(!songsIsUpdating, listOf()) {
                         context.symphony.groove.song.sort(
                             songIds.toList(),
-                            SongSortBy.DATE_MODIFIED,
+                            SongRepository.SortBy.DATE_MODIFIED,
                             true
                         )
                     }

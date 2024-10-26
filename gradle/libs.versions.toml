@@ -13,10 +13,12 @@ kotlinx-serialization-json = "1.7.3"
 lifecycle-runtime = "2.8.6"
 media = "1.7.0"
 okhttp3 = "4.12.0"
+room = "2.6.1"
 
 android-gradle-plugin = "8.7.1"
 kotlin-gradle-plugin = "2.0.21"
 kotlin-serialization-plugin = "2.0.21"
+ksp-plugin = "2.0.21-1.0.26"
 
 compile-sdk = "34"
 min-sdk = "28"
@@ -40,9 +42,14 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
 media = { group = "androidx.media", name = "media", version.ref = "media" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 
 [plugins]
 android-app = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-gradle-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-gradle-plugin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization-plugin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
+room = { id = "androidx.room", version.ref = "room" }

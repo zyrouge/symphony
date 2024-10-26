@@ -6,13 +6,12 @@ import android.net.Uri
 import android.os.Environment
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.AlbumArtistSortBy
-import io.github.zyrouge.symphony.services.groove.AlbumSortBy
-import io.github.zyrouge.symphony.services.groove.ArtistSortBy
-import io.github.zyrouge.symphony.services.groove.GenreSortBy
-import io.github.zyrouge.symphony.services.groove.PathSortBy
-import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
-import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.groove.AlbumArtistRepository
+import io.github.zyrouge.symphony.services.groove.AlbumRepository
+import io.github.zyrouge.symphony.services.groove.ArtistRepository
+import io.github.zyrouge.symphony.services.groove.GenreRepository
+import io.github.zyrouge.symphony.services.groove.PlaylistRepository
+import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
@@ -20,6 +19,7 @@ import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
+import io.github.zyrouge.symphony.utils.StringListUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -91,17 +91,17 @@ object SettingsKeys {
 object SettingsDefaults {
     val themeMode = ThemeMode.SYSTEM
     const val useMaterialYou = true
-    val lastUsedSongSortBy = SongSortBy.TITLE
-    val lastUsedArtistsSortBy = ArtistSortBy.ARTIST_NAME
-    val lastUsedAlbumArtistsSortBy = AlbumArtistSortBy.ARTIST_NAME
-    val lastUsedAlbumsSortBy = AlbumSortBy.ALBUM_NAME
-    val lastUsedGenresSortBy = GenreSortBy.GENRE
-    val lastUsedBrowserSortBy = SongSortBy.FILENAME
-    val lastUsedPlaylistsSortBy = PlaylistSortBy.TITLE
-    val lastUsedPlaylistSongsSortBy = SongSortBy.CUSTOM
-    val lastUsedAlbumSongsSortBy = SongSortBy.TRACK_NUMBER
-    val lastUsedTreePathSortBy = PathSortBy.NAME
-    val lastUsedFoldersSortBy = PathSortBy.NAME
+    val lastUsedSongSortBy = SongRepository.SortBy.TITLE
+    val lastUsedArtistsSortBy = ArtistRepository.SortBy.ARTIST_NAME
+    val lastUsedAlbumArtistsSortBy = AlbumArtistRepository.SortBy.ARTIST_NAME
+    val lastUsedAlbumsSortBy = AlbumRepository.SortBy.ALBUM_NAME
+    val lastUsedGenresSortBy = GenreRepository.SortBy.GENRE
+    val lastUsedBrowserSortBy = SongRepository.SortBy.FILENAME
+    val lastUsedPlaylistsSortBy = PlaylistRepository.SortBy.TITLE
+    val lastUsedPlaylistSongsSortBy = SongRepository.SortBy.CUSTOM
+    val lastUsedAlbumSongsSortBy = SongRepository.SortBy.TRACK_NUMBER
+    val lastUsedTreePathSortBy = StringListUtils.SortBy.NAME
+    val lastUsedFoldersSortBy = StringListUtils.SortBy.NAME
     const val checkForUpdates = false
     const val fadePlayback = false
     const val requireAudioFocus = true
@@ -363,7 +363,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedSongsSortBy, null)
         ?: SettingsDefaults.lastUsedSongSortBy
 
-    fun setLastUsedSongsSortBy(sortBy: SongSortBy) {
+    fun setLastUsedSongsSortBy(sortBy: SongRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedSongsSortBy, sortBy)
         }
@@ -384,7 +384,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedArtistsSortBy, null)
         ?: SettingsDefaults.lastUsedArtistsSortBy
 
-    fun setLastUsedArtistsSortBy(sortBy: ArtistSortBy) {
+    fun setLastUsedArtistsSortBy(sortBy: ArtistRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedArtistsSortBy, sortBy)
         }
@@ -405,7 +405,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedAlbumArtistsSortBy, null)
         ?: SettingsDefaults.lastUsedAlbumArtistsSortBy
 
-    fun setLastUsedAlbumArtistsSortBy(sortBy: AlbumArtistSortBy) {
+    fun setLastUsedAlbumArtistsSortBy(sortBy: AlbumArtistRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumArtistsSortBy, sortBy)
         }
@@ -426,7 +426,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedAlbumsSortBy, null)
         ?: SettingsDefaults.lastUsedAlbumsSortBy
 
-    fun setLastUsedAlbumsSortBy(sortBy: AlbumSortBy) {
+    fun setLastUsedAlbumsSortBy(sortBy: AlbumRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumsSortBy, sortBy)
         }
@@ -447,7 +447,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedGenresSortBy, null)
         ?: SettingsDefaults.lastUsedGenresSortBy
 
-    fun setLastUsedGenresSortBy(sortBy: GenreSortBy) {
+    fun setLastUsedGenresSortBy(sortBy: GenreRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedGenresSortBy, sortBy)
         }
@@ -468,7 +468,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedBrowserSortBy, null)
         ?: SettingsDefaults.lastUsedBrowserSortBy
 
-    fun setLastUsedBrowserSortBy(sortBy: SongSortBy) {
+    fun setLastUsedBrowserSortBy(sortBy: SongRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedBrowserSortBy, sortBy)
         }
@@ -500,7 +500,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedPlaylistsSortBy, null)
         ?: SettingsDefaults.lastUsedPlaylistsSortBy
 
-    fun setLastUsedPlaylistsSortBy(sortBy: PlaylistSortBy) {
+    fun setLastUsedPlaylistsSortBy(sortBy: PlaylistRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedPlaylistsSortBy, sortBy)
         }
@@ -521,7 +521,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedPlaylistSongsSortBy, null)
         ?: SettingsDefaults.lastUsedPlaylistSongsSortBy
 
-    fun setLastUsedPlaylistSongsSortBy(sortBy: SongSortBy) {
+    fun setLastUsedPlaylistSongsSortBy(sortBy: SongRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedPlaylistSongsSortBy, sortBy)
         }
@@ -542,7 +542,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedAlbumSongsSortBy, null)
         ?: SettingsDefaults.lastUsedAlbumSongsSortBy
 
-    fun setLastUsedAlbumSongsSortBy(sortBy: SongSortBy) {
+    fun setLastUsedAlbumSongsSortBy(sortBy: SongRepository.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedAlbumSongsSortBy, sortBy)
         }
@@ -563,7 +563,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedTreePathSortBy, null)
         ?: SettingsDefaults.lastUsedTreePathSortBy
 
-    fun setLastUsedTreePathSortBy(sortBy: PathSortBy) {
+    fun setLastUsedTreePathSortBy(sortBy: StringListUtils.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedTreePathSortBy, sortBy)
         }
@@ -584,7 +584,7 @@ class SettingsManager(private val symphony: Symphony) {
         .getEnum(SettingsKeys.lastUsedFoldersSortBy, null)
         ?: SettingsDefaults.lastUsedFoldersSortBy
 
-    fun setLastUsedFoldersSortBy(sortBy: PathSortBy) {
+    fun setLastUsedFoldersSortBy(sortBy: StringListUtils.SortBy) {
         getSharedPreferences().edit {
             putEnum(SettingsKeys.lastUsedFoldersSortBy, sortBy)
         }

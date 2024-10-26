@@ -18,19 +18,21 @@ data class DocumentFileX(
     val isDirectory: Boolean
         get() = mimeType.contentEquals(DocumentsContract.Document.MIME_TYPE_DIR)
 
-    fun list(onChild: (file: DocumentFileX) -> Unit) {
+    fun list(): List<DocumentFileX> {
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
             uri,
             DocumentsContract.getDocumentId(uri)
         )
+        val items = mutableListOf<DocumentFileX>()
         context.contentResolver.query(childrenUri, selectionColumns, null, null, null)?.use {
             while (it.moveToNext()) {
                 val file = fromCursor(context, it) { id ->
                     DocumentsContract.buildDocumentUriUsingTree(uri, id)
                 }
-                onChild(file)
+                items.add(file)
             }
         }
+        return items
     }
 
     companion object {
@@ -75,5 +77,9 @@ data class DocumentFileX(
                 DocumentsContract.getTreeDocumentId(treeUri)
             )
         )
+
+        fun getParentPathOfTreeUri(treeUri: Uri) = runCatching {
+            DocumentsContract.getTreeDocumentId(treeUri)
+        }.getOrNull()?.let { SimplePath(it) }
     }
 }

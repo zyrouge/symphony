@@ -40,13 +40,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveExplorer
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialogDefaults
 import io.github.zyrouge.symphony.ui.components.SubtleCaptionText
 import io.github.zyrouge.symphony.ui.components.drawScrollBar
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
+import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.SimpleFileSystem
 
 private const val SettingsFolderContentType = "folder"
 
@@ -81,7 +82,10 @@ fun SettingsMultiSystemFolderTile(
         val pickFolderLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.OpenDocumentTree()
         ) { uri ->
-            uri?.let { _ -> values.add(uri) }
+            uri?.let { _ ->
+                ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, uri)
+                values.add(uri)
+            }
         }
 
         // TODO: workaround for dialog resize bug
@@ -160,7 +164,7 @@ fun SettingsMultiSystemFolderTile(
 @Composable
 private fun SettingsFolderTilePickerDialog(
     context: ViewContext,
-    explorer: GrooveExplorer.Folder,
+    explorer: SimpleFileSystem.Folder,
     onSelect: (List<String>?) -> Unit,
 ) {
     var currentFolder by remember { mutableStateOf(explorer) }
@@ -168,14 +172,14 @@ private fun SettingsFolderTilePickerDialog(
         derivedStateOf {
             currentFolder.children.values.mapNotNull { entity ->
                 when (entity) {
-                    is GrooveExplorer.Folder -> entity
+                    is SimpleFileSystem.Folder -> entity
                     else -> null
                 }
             }
         }
     }
     val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.pathParts }
+        derivedStateOf { currentFolder.fullPath.parts }
     }
     val currentPathScrollState = rememberScrollState()
 
@@ -245,7 +249,7 @@ private fun SettingsFolderTilePickerDialog(
                     ) {
                         items(
                             sortedEntities,
-                            key = { it.basename },
+                            key = { it.name },
                             contentType = { SettingsFolderContentType }
                         ) { folder ->
                             Card(
@@ -266,10 +270,10 @@ private fun SettingsFolderTilePickerDialog(
                                     )
                                     Spacer(modifier = Modifier.width(20.dp))
                                     Column {
-                                        Text(folder.basename)
+                                        Text(folder.name)
                                         Text(
                                             context.symphony.t.XFolders(
-                                                folder.countChildrenFolders().toString()
+                                                folder.childFoldersCount.toString()
                                             ),
                                             style = MaterialTheme.typography.labelSmall,
                                         )
@@ -291,6 +295,3 @@ private fun SettingsFolderTilePickerDialog(
         },
     )
 }
-
-private fun GrooveExplorer.Folder.countChildrenFolders() = children.values
-    .count { it is GrooveExplorer.Folder }

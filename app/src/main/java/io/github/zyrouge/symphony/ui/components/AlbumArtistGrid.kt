@@ -10,10 +10,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import io.github.zyrouge.symphony.services.groove.AlbumArtistSortBy
+import io.github.zyrouge.symphony.services.groove.AlbumArtistRepository
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 @Composable
 fun AlbumArtistGrid(
@@ -38,8 +37,8 @@ fun AlbumArtistGrid(
                     context.symphony.settings.setLastUsedAlbumArtistsSortReverse(it)
                 },
                 sort = sortBy,
-                sorts = AlbumArtistSortBy.entries
-                    .associateWith { x -> wrapInViewContext { x.label(context) } },
+                sorts = AlbumArtistRepository.SortBy.entries
+                    .associateWith { x -> ViewContext.parameterizedFn { x.label(context) } },
                 onSortChange = {
                     context.symphony.settings.setLastUsedAlbumArtistsSortBy(it)
                 },
@@ -82,9 +81,9 @@ fun AlbumArtistGrid(
     )
 }
 
-private fun AlbumArtistSortBy.label(context: ViewContext) = when (this) {
-    AlbumArtistSortBy.CUSTOM -> context.symphony.t.Custom
-    AlbumArtistSortBy.ARTIST_NAME -> context.symphony.t.Artist
-    AlbumArtistSortBy.ALBUMS_COUNT -> context.symphony.t.AlbumCount
-    AlbumArtistSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
+private fun AlbumArtistRepository.SortBy.label(context: ViewContext) = when (this) {
+    AlbumArtistRepository.SortBy.CUSTOM -> context.symphony.t.Custom
+    AlbumArtistRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
+    AlbumArtistRepository.SortBy.ALBUMS_COUNT -> context.symphony.t.AlbumCount
+    AlbumArtistRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

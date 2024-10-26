@@ -59,7 +59,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
-import io.github.zyrouge.symphony.utils.DurationFormatter
+import io.github.zyrouge.symphony.utils.DurationUtils
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -421,7 +421,7 @@ private fun NowPlayingPlaybackPositionText(
     alignment: Alignment,
 ) {
     val textStyle = MaterialTheme.typography.labelMedium
-    val durationFormatted = DurationFormatter.formatMs(duration)
+    val durationFormatted = DurationUtils.formatMs(duration)
 
     Box(contentAlignment = alignment) {
         Text(

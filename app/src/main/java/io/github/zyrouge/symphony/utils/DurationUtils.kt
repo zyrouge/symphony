@@ -2,7 +2,7 @@ package io.github.zyrouge.symphony.utils
 
 import java.util.concurrent.TimeUnit
 
-object DurationFormatter {
+object DurationUtils {
     fun formatMs(ms: Long) = formatMinSec(
         TimeUnit.MILLISECONDS.toDays(ms).floorDiv(TimeUnit.DAYS.toDays(1)),
         TimeUnit.MILLISECONDS.toHours(ms) % TimeUnit.DAYS.toHours(1),

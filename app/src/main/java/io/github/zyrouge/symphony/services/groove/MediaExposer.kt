@@ -1,26 +1,28 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.content.Intent
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.utils.SimpleFileSystem
+import io.github.zyrouge.symphony.utils.SimplePath
 import io.github.zyrouge.symphony.utils.concurrentSetOf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 class MediaExposer(private val symphony: Symphony) {
     internal val uris = ConcurrentHashMap<String, Uri>()
-    var explorer = GrooveExplorer.Folder()
+    var explorer = SimpleFileSystem.Folder()
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
 
@@ -28,34 +30,51 @@ class MediaExposer(private val symphony: Symphony) {
         value
     }
 
-    private inner class ScanCycle {
-        val songCache = ConcurrentHashMap(symphony.database.songCache.all())
-        val songCacheUnused = concurrentSetOf(songCache.keys)
-        val artworkCacheUnused = concurrentSetOf(symphony.database.artworkCache.all())
-        val lyricsCacheUnused = concurrentSetOf(symphony.database.lyricsCache.keys())
-        val filter = MediaFilter(
-            symphony.settings.songsFilterPattern.value,
-            symphony.settings.blacklistFolders.value.toSortedSet(),
-            symphony.settings.whitelistFolders.value.toSortedSet()
-        )
+    private data class ScanCycle(
+        val songCache: ConcurrentHashMap<String, Song>,
+        val songCacheUnused: ConcurrentSet<String>,
+        val artworkCacheUnused: ConcurrentSet<String>,
+        val lyricsCacheUnused: ConcurrentSet<String>,
+        val filter: MediaFilter,
+    ) {
+        companion object {
+            suspend fun create(symphony: Symphony): ScanCycle {
+                val songCache = ConcurrentHashMap(symphony.database.songCache.entriesPathMapped())
+                val songCacheUnused = concurrentSetOf(songCache.keys)
+                val artworkCacheUnused = concurrentSetOf(symphony.database.artworkCache.all())
+                val lyricsCacheUnused = concurrentSetOf(symphony.database.lyricsCache.keys())
+                val filter = MediaFilter(
+                    symphony.settings.songsFilterPattern.value,
+                    symphony.settings.blacklistFolders.value.toSortedSet(),
+                    symphony.settings.whitelistFolders.value.toSortedSet()
+                )
+                return ScanCycle(
+                    songCache = songCache,
+                    songCacheUnused = songCacheUnused,
+                    artworkCacheUnused = artworkCacheUnused,
+                    lyricsCacheUnused = lyricsCacheUnused,
+                    filter = filter,
+                )
+            }
+        }
     }
 
-    fun fetch() {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun fetch() {
         emitUpdate(true)
         try {
             val context = symphony.applicationContext
             val folderUris = symphony.settings.mediaFolders.value
-            val permissions = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            val cycle = ScanCycle()
-            runBlocking {
-                folderUris.map { x ->
-                    async(Dispatchers.IO) {
-                        context.contentResolver.takePersistableUriPermission(x, permissions)
-                        DocumentFileX.fromTreeUri(context, x)?.let {
-                            scanMediaTree(cycle, it)
-                        }
+            val cycle = ScanCycle.create(symphony)
+            folderUris.map { x ->
+                ActivityUtils.makePersistableReadableUri(context, x)
+                DocumentFileX.fromTreeUri(context, x)?.let {
+                    val parent = DocumentFileX.getParentPathOfTreeUri(x)
+                    val path = parent?.join(it.name) ?: SimplePath(it.name)
+                    with(Dispatchers.IO) {
+                        scanMediaTree(cycle, path, it)
                     }
-                }.awaitAll()
+                }
             }
             trimCache(cycle)
         } catch (err: Exception) {
@@ -65,72 +84,79 @@ class MediaExposer(private val symphony: Symphony) {
         emitFinish()
     }
 
-    private suspend fun scanMediaTree(cycle: ScanCycle, file: DocumentFileX) {
+    private suspend fun scanMediaTree(cycle: ScanCycle, path: SimplePath, file: DocumentFileX) {
         try {
             if (!cycle.filter.isWhitelisted(file.name)) {
                 return
             }
             coroutineScope {
-                file.list {
-                    launch(Dispatchers.IO) {
+                file.list().map {
+                    val childPath = path.join(it.name)
+                    async {
                         when {
-                            it.isDirectory -> scanMediaTree(cycle, it)
-                            else -> scanMediaFile(cycle, it)
+                            it.isDirectory -> scanMediaTree(cycle, childPath, it)
+                            else -> scanMediaFile(cycle, childPath, it)
                         }
                     }
-                }
+                }.awaitAll()
             }
         } catch (err: Exception) {
             Logger.error("MediaExposer", "scan media tree failed", err)
         }
     }
 
-    private suspend fun scanMediaFile(cycle: ScanCycle, file: DocumentFileX) {
+    private suspend fun scanMediaFile(cycle: ScanCycle, path: SimplePath, file: DocumentFileX) {
         try {
-            val path = file.name
-            explorer.addRelativePath(GrooveExplorer.Path(path))
-            val mimeType = file.mimeType
             when {
-                mimeType == MIMETYPE_M3U -> scanM3UFile(cycle, file)
-                path.endsWith(".lrc") -> scanLrcFile(cycle, file)
-                mimeType.startsWith("audio/") -> scanAudioFile(cycle, file)
+                path.extension == "lrc" -> scanLrcFile(cycle, path, file)
+                file.mimeType == MIMETYPE_M3U -> scanM3UFile(cycle, path, file)
+                file.mimeType.startsWith("audio/") -> scanAudioFile(cycle, path, file)
             }
         } catch (err: Exception) {
             Logger.error("MediaExposer", "scan media file failed", err)
         }
     }
 
-    private suspend fun scanAudioFile(cycle: ScanCycle, file: DocumentFileX) {
-        val path = file.name
-        uris[path] = file.uri
+    private suspend fun scanAudioFile(cycle: ScanCycle, path: SimplePath, file: DocumentFileX) {
+        val pathString = path.pathString
+        uris[pathString] = file.uri
         val lastModified = file.lastModified
-        val cached = cycle.songCache[path]?.takeIf {
+        val cached = cycle.songCache[pathString]?.takeIf {
             it.dateModified == lastModified
-                    && it.coverFile?.let { x -> cycle.artworkCacheUnused.contains(x) } ?: true
+                    && it.coverFile?.let { x -> cycle.artworkCacheUnused.contains(x) } != false
         }
-        val song = cached ?: Song.parse(symphony, file) ?: return
+        val song = cached ?: Song.parse(symphony, path, file) ?: return
         if (cached == null) {
-            symphony.database.songCache.put(path, song)
+            symphony.database.songCache.insert(song)
         }
-        cycle.songCacheUnused.remove(path)
+        cycle.songCacheUnused.remove(pathString)
         song.coverFile?.let { cycle.artworkCacheUnused.remove(it) }
         cycle.lyricsCacheUnused.remove(song.id)
+        explorer.addChildFile(path)
         withContext(Dispatchers.Main) {
             emitSong(song)
         }
     }
 
-    private fun scanLrcFile(cycle: ScanCycle, file: DocumentFileX) {
-        val path = file.name
-        uris[path] = file.uri
+    private fun scanLrcFile(
+        @Suppress("Unused") cycle: ScanCycle,
+        path: SimplePath,
+        file: DocumentFileX,
+    ) {
+        uris[path.pathString] = file.uri
+        explorer.addChildFile(path)
     }
 
-    private fun scanM3UFile(cycle: ScanCycle, file: DocumentFileX) {
-        val path = file.name
-        uris[path] = file.uri
+    private fun scanM3UFile(
+        @Suppress("Unused") cycle: ScanCycle,
+        path: SimplePath,
+        file: DocumentFileX,
+    ) {
+        uris[path.pathString] = file.uri
+        explorer.addChildFile(path)
     }
 
-    private fun trimCache(cycle: ScanCycle) {
+    private suspend fun trimCache(cycle: ScanCycle) {
         try {
             symphony.database.songCache.delete(cycle.songCacheUnused)
         } catch (err: Exception) {
@@ -153,7 +179,7 @@ class MediaExposer(private val symphony: Symphony) {
     fun reset() {
         emitUpdate(true)
         uris.clear()
-        explorer = GrooveExplorer.Folder()
+        explorer = SimpleFileSystem.Folder()
         emitUpdate(false)
     }
 

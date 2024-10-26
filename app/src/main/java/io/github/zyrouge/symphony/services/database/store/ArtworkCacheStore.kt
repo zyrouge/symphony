@@ -1,10 +1,10 @@
-package io.github.zyrouge.symphony.services.database
+package io.github.zyrouge.symphony.services.database.store
 
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.adapters.FileTreeDatabaseAdapter
 import java.nio.file.Paths
 
-class ArtworkCache(val symphony: Symphony) {
+class ArtworkCacheStore(val symphony: Symphony) {
     private val adapter = FileTreeDatabaseAdapter(
         Paths
             .get(symphony.applicationContext.dataDir.absolutePath, "covers")

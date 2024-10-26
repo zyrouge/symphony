@@ -12,9 +12,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.PlaylistSortBy
+import io.github.zyrouge.symphony.services.groove.PlaylistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.wrapInViewContext
 
 @Composable
 fun PlaylistGrid(
@@ -42,8 +41,8 @@ fun PlaylistGrid(
                         context.symphony.settings.setLastUsedPlaylistsSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = PlaylistSortBy.entries
-                        .associateWith { x -> wrapInViewContext { x.label(it) } },
+                    sorts = PlaylistRepository.SortBy.entries
+                        .associateWith { x -> ViewContext.parameterizedFn { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedPlaylistsSortBy(it)
                     },
@@ -88,8 +87,8 @@ fun PlaylistGrid(
     )
 }
 
-private fun PlaylistSortBy.label(context: ViewContext) = when (this) {
-    PlaylistSortBy.CUSTOM -> context.symphony.t.Custom
-    PlaylistSortBy.TITLE -> context.symphony.t.Title
-    PlaylistSortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
+private fun PlaylistRepository.SortBy.label(context: ViewContext) = when (this) {
+    PlaylistRepository.SortBy.CUSTOM -> context.symphony.t.Custom
+    PlaylistRepository.SortBy.TITLE -> context.symphony.t.Title
+    PlaylistRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

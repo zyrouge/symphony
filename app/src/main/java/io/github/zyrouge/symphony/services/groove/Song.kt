@@ -2,66 +2,40 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import io.github.zyrouge.metaphony.AudioArtwork
 import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
-import io.github.zyrouge.symphony.utils.RelaxedJsonDecoder
-import io.github.zyrouge.symphony.utils.UriSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import io.github.zyrouge.symphony.utils.SimplePath
 import java.math.RoundingMode
-import kotlin.io.path.Path
 
 @Immutable
-@Serializable
+@Entity("songs")
 data class Song(
-    @SerialName(KEY_ID)
+    @PrimaryKey
     val id: String,
-    @SerialName(KEY_TITLE)
     val title: String,
-    @SerialName(KEY_ALBUM)
     val album: String?,
-    @SerialName(KEY_ARTISTS)
     val artists: Set<String>,
-    @SerialName(KEY_COMPOSERS)
     val composers: Set<String>,
-    @SerialName(KEY_ALBUM_ARTISTS)
     val albumArtists: Set<String>,
-    @SerialName(KEY_GENRES)
     val genres: Set<String>,
-    @SerialName(KEY_TRACK_NUMBER)
     val trackNumber: Int?,
-    @SerialName(KEY_TRACK_TOTAL)
     val trackTotal: Int?,
-    @SerialName(KEY_DISC_NUMBER)
     val discNumber: Int?,
-    @SerialName(KEY_DISC_TOTAL)
     val discTotal: Int?,
-    @SerialName(KEY_YEAR)
     val year: Int?,
-    @SerialName(KEY_DURATION)
     val duration: Long,
-    @SerialName(KEY_BITRATE)
     val bitrate: Long?,
-    @SerialName(KEY_BITS_PER_SAMPLE)
     val bitsPerSample: Int?,
-    @SerialName(KEY_SAMPLING_RATE)
     val samplingRate: Long?,
-    @SerialName(KEY_CODEC)
     val codec: String?,
-    @SerialName(KEY_DATE_MODIFIED)
     val dateModified: Long,
-    @SerialName(KEY_SIZE)
     val size: Long,
-    @SerialName(KEY_COVER_FILE)
     val coverFile: String?,
-    @SerialName(KEY_URI)
-    @Serializable(UriSerializer::class)
     val uri: Uri,
-    @SerialName(KEY_PATH)
     val path: String,
 ) {
     val bitrateK: Long? get() = bitrate?.let { it / 1000 }
@@ -73,7 +47,7 @@ data class Song(
                 .toFloat()
         }
 
-    val filename = Path(path).fileName.toString()
+    val filename get() = SimplePath(path).name
 
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.song.createArtworkImageRequest(id)
@@ -96,40 +70,10 @@ data class Song(
         }
     }
 
-    fun toJson() = Json.encodeToString(this)
-
     companion object {
-        const val KEY_TITLE = "0"
-        const val KEY_ALBUM = "1"
-        const val KEY_ARTISTS = "2"
-        const val KEY_COMPOSERS = "3"
-        const val KEY_ALBUM_ARTISTS = "4"
-        const val KEY_GENRES = "5"
-        const val KEY_TRACK_NUMBER = "6"
-        const val KEY_TRACK_TOTAL = "7"
-        const val KEY_DISC_NUMBER = "8"
-        const val KEY_DISC_TOTAL = "9"
-        const val KEY_YEAR = "10"
-        const val KEY_DURATION = "11"
-        const val KEY_BITRATE = "12"
-        const val KEY_BITS_PER_SAMPLE = "13"
-        const val KEY_SAMPLING_RATE = "14"
-        const val KEY_CODEC = "15"
-        const val KEY_DATE_MODIFIED = "17"
-        const val KEY_SIZE = "18"
-        const val KEY_URI = "19"
-        const val KEY_PATH = "20"
-        const val KEY_ID = "21"
-        const val KEY_COVER_FILE = "22"
-
-        fun fromJson(json: String) = RelaxedJsonDecoder.decodeFromString<Song>(json)
-
-        fun parse(symphony: Symphony, file: DocumentFileX): Song? {
-            val path = file.name
-            val mimeType = file.mimeType
-            val uri = file.uri
-            val audio = symphony.applicationContext.contentResolver.openInputStream(uri)
-                ?.use { AudioParser.read(it, mimeType) }
+        fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX): Song? {
+            val audio = symphony.applicationContext.contentResolver.openInputStream(file.uri)
+                ?.use { AudioParser.read(it, file.mimeType) }
                 ?: return null
             val metadata = audio.getMetadata()
             val stream = audio.getStreamInfo()
@@ -149,7 +93,7 @@ data class Song(
             }
             return Song(
                 id = id,
-                title = metadata.title ?: path, // TODO
+                title = metadata.title ?: path.nameWithoutExtension, // TODO
                 album = metadata.album,
                 artists = metadata.artists,
                 composers = metadata.composer,
@@ -168,8 +112,8 @@ data class Song(
                 dateModified = file.lastModified,
                 size = file.size,
                 coverFile = coverFile,
-                uri = uri,
-                path = path,
+                uri = file.uri,
+                path = path.pathString,
             )
         }
 

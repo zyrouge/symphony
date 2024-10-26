@@ -95,7 +95,7 @@ import io.github.zyrouge.symphony.ui.view.settings.SettingsSimpleTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSliderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsTextInputTile
-import io.github.zyrouge.symphony.utils.startBrowserActivity
+import io.github.zyrouge.symphony.utils.ActivityUtils
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -202,7 +202,7 @@ fun SettingsView(context: ViewContext) {
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.primary)
                             .clickable {
-                                startBrowserActivity(
+                                ActivityUtils.startBrowserActivity(
                                     context.activity,
                                     Uri.parse(AppMeta.contributingUrl)
                                 )
@@ -834,7 +834,7 @@ fun SettingsView(context: ViewContext) {
                             else -> null
                         },
                         onClick = {
-                            startBrowserActivity(
+                            ActivityUtils.startBrowserActivity(
                                 context.activity,
                                 Uri.parse(if (isLatestVersion) AppMeta.githubRepositoryUrl else AppMeta.githubLatestReleaseUrl)
                             )

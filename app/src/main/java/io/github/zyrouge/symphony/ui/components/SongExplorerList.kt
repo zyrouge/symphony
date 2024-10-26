@@ -46,17 +46,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveExplorer
 import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.SongSortBy
+import io.github.zyrouge.symphony.services.groove.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
-import io.github.zyrouge.symphony.utils.wrapInViewContext
+import io.github.zyrouge.symphony.utils.SimpleFileSystem
 
 private data class SongExplorerResult(
-    val folders: List<GrooveExplorer.Folder>,
-    val files: Map<String, GrooveExplorer.File>,
+    val folders: List<SimpleFileSystem.Folder>,
+    val files: Map<String, SimpleFileSystem.File>,
 )
 
 private const val SongFolderContentType = "folder"
@@ -66,7 +65,7 @@ fun SongExplorerList(
     context: ViewContext,
     key: Any?,
     initialPath: List<String>?,
-    explorer: GrooveExplorer.Folder,
+    explorer: SimpleFileSystem.Folder,
     onPathChange: (List<String>) -> Unit,
 ) {
     var currentFolder by remember(key) {
@@ -85,9 +84,9 @@ fun SongExplorerList(
             SongExplorerResult(
                 folders = run {
                     val sorted = when (sortBy) {
-                        SongSortBy.TITLE,
-                        SongSortBy.FILENAME,
-                        -> categorized.folders.sortedBy { it.basename }
+                        SongRepository.SortBy.TITLE,
+                        SongRepository.SortBy.FILENAME,
+                            -> categorized.folders.sortedBy { it.name }
 
                         else -> categorized.folders
                     }
@@ -100,7 +99,7 @@ fun SongExplorerList(
         }
     }
     val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.pathParts }
+        derivedStateOf { currentFolder.fullPath.parts }
     }
     val currentPathScrollState = rememberScrollState()
 
@@ -156,8 +155,8 @@ fun SongExplorerList(
                         context.symphony.settings.setLastUsedBrowserSortReverse(it)
                     },
                     sort = sortBy,
-                    sorts = SongSortBy.entries
-                        .associateWith { x -> wrapInViewContext { x.label(it) } },
+                    sorts = SongRepository.SortBy.entries
+                        .associateWith { x -> ViewContext.parameterizedFn { x.label(it) } },
                     onSortChange = {
                         context.symphony.settings.setLastUsedBrowserSortBy(it)
                     },
@@ -227,7 +226,7 @@ fun SongExplorerList(
                                     Spacer(modifier = Modifier.width(20.dp))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            folder.basename,
+                                            folder.name,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                         )
@@ -277,17 +276,17 @@ fun SongExplorerList(
 }
 
 private data class GrooveExplorerCategorizedData(
-    val folders: List<GrooveExplorer.Folder>,
-    val files: Map<String, GrooveExplorer.File>,
+    val folders: List<SimpleFileSystem.Folder>,
+    val files: Map<String, SimpleFileSystem.File>,
 )
 
-private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategorizedData {
-    val folders = mutableListOf<GrooveExplorer.Folder>()
-    val files = mutableMapOf<String, GrooveExplorer.File>()
+private fun SimpleFileSystem.Folder.categorizedChildren(): GrooveExplorerCategorizedData {
+    val folders = mutableListOf<SimpleFileSystem.Folder>()
+    val files = mutableMapOf<String, SimpleFileSystem.File>()
     children.values.forEach { entity ->
         when (entity) {
-            is GrooveExplorer.Folder -> folders.add(entity)
-            is GrooveExplorer.File -> {
+            is SimpleFileSystem.Folder -> folders.add(entity)
+            is SimpleFileSystem.File -> {
                 files[entity.data as String] = entity
             }
         }
@@ -295,9 +294,9 @@ private fun GrooveExplorer.Folder.categorizedChildren(): GrooveExplorerCategoriz
     return GrooveExplorerCategorizedData(folders = folders, files = files)
 }
 
-private fun GrooveExplorer.Folder.childrenAsSongIds() = children.values.mapNotNull { entity ->
+private fun SimpleFileSystem.Folder.childrenAsSongIds() = children.values.mapNotNull { entity ->
     when (entity) {
-        is GrooveExplorer.File -> entity.data as String
+        is SimpleFileSystem.File -> entity.data as String
         else -> null
     }
 }

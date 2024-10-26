@@ -13,14 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
 
-enum class AlbumSortBy {
-    CUSTOM,
-    ALBUM_NAME,
-    ARTIST_NAME,
-    TRACKS_COUNT,
-}
-
 class AlbumRepository(private val symphony: Symphony) {
+    enum class SortBy {
+        CUSTOM,
+        ALBUM_NAME,
+        ARTIST_NAME,
+        TRACKS_COUNT,
+    }
+
     private val cache = ConcurrentHashMap<String, Album>()
     private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
     private val searcher = FuzzySearcher<String>(
@@ -94,16 +94,12 @@ class AlbumRepository(private val symphony: Symphony) {
     fun search(albumIds: List<String>, terms: String, limit: Int = 7) = searcher
         .search(terms, albumIds, maxLength = limit)
 
-    fun sort(
-        albumIds: List<String>,
-        by: AlbumSortBy,
-        reverse: Boolean,
-    ): List<String> {
+    fun sort(albumIds: List<String>, by: SortBy, reverse: Boolean): List<String> {
         val sorted = when (by) {
-            AlbumSortBy.CUSTOM -> albumIds
-            AlbumSortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
-            AlbumSortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
-            AlbumSortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
+            SortBy.CUSTOM -> albumIds
+            SortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
+            SortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
+            SortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted
     }

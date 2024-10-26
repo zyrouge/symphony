@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.DurationFormatter
+import io.github.zyrouge.symphony.utils.DurationUtils
 import java.time.Duration
 import java.util.Timer
 import kotlin.concurrent.timer
@@ -75,7 +75,7 @@ fun NowPlayingSleepTimerDialog(
         },
         content = {
             Text(
-                DurationFormatter.formatMs(endsIn),
+                DurationUtils.formatMs(endsIn),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
@@ -167,7 +167,7 @@ fun NowPlayingSleepTimerSetDialog(
                         val shape = RoundedCornerShape(4.dp)
 
                         Text(
-                            DurationFormatter.formatMinSec(0L, 0L, hours, minutes),
+                            DurationUtils.formatMinSec(0L, 0L, hours, minutes),
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier
                                 .background(

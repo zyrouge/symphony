@@ -13,8 +13,8 @@ import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateTo
-import io.github.zyrouge.symphony.utils.DurationFormatter
-import io.github.zyrouge.symphony.utils.copyToClipboardWithToast
+import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.DurationUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.round
@@ -88,7 +88,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 }
             }
             InformationKeyValue(context.symphony.t.Duration) {
-                LongPressCopyableText(context, DurationFormatter.formatMs(song.duration))
+                LongPressCopyableText(context, DurationUtils.formatMs(song.duration))
             }
             song.codec?.let {
                 InformationKeyValue(context.symphony.t.Codec) {
@@ -149,7 +149,7 @@ private fun LongPressCopyableAndTappableText(
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = { _ ->
-                            copyToClipboardWithToast(context, it)
+                            ActivityUtils.copyToClipboardAndNotify(context.symphony, it)
                         },
                         onTap = { _ ->
                             onTap(it)

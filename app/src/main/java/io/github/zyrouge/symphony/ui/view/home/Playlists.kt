@@ -32,6 +32,7 @@ import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.PlaylistGrid
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 
@@ -44,14 +45,17 @@ fun PlaylistsView(context: ViewContext) {
     var showPlaylistCreator by remember { mutableStateOf(false) }
 
     val openPlaylistLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        uri?.let { _ ->
+        ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris ->
+        uris.forEach { x ->
             try {
-                val playlist = Playlist.parse(context.symphony, uri)
-                context.symphony.groove.playlist.add(playlist)
+                ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, x)
+                val playlist = Playlist.parse(context.symphony, x)
+                coroutineScope.launch {
+                    context.symphony.groove.playlist.add(playlist)
+                }
             } catch (err: Exception) {
-                Logger.error("PlaylistTile", "import failed (activity result)", err)
+                Logger.error("PlaylistView", "import failed (activity result)", err)
                 Toast.makeText(
                     context.symphony.applicationContext,
                     context.symphony.t.InvalidM3UFile,

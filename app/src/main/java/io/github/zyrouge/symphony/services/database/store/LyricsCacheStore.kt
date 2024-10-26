@@ -1,9 +1,9 @@
-package io.github.zyrouge.symphony.services.database
+package io.github.zyrouge.symphony.services.database.store
 
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.adapters.SQLiteKeyValueDatabaseAdapter
 
-class LyricsCache(val symphony: Symphony) {
+class LyricsCacheStore(val symphony: Symphony) {
     private val adapter = SQLiteKeyValueDatabaseAdapter(
         SQLiteKeyValueDatabaseAdapter.Transformer.AsString(),
         SQLiteKeyValueDatabaseAdapter.CacheOpenHelper(symphony.applicationContext, "lyrics", 1)

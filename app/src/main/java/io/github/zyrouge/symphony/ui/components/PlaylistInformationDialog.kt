@@ -23,7 +23,7 @@ fun PlaylistInformationDialog(
                 LongPressCopyableText(
                     context,
                     when {
-                        playlist.isLocal() -> context.symphony.t.LocalStorage
+                        playlist.isLocal -> context.symphony.t.LocalStorage
                         else -> context.symphony.t.AppBuiltIn
                     }
                 )

@@ -7,7 +7,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.startBrowserActivity
+import io.github.zyrouge.symphony.utils.ActivityUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,7 +20,7 @@ fun SettingsLinkTile(
     Card(
         colors = SettingsTileDefaults.cardColors(),
         onClick = {
-            startBrowserActivity(context.activity, Uri.parse(url))
+            ActivityUtils.startBrowserActivity(context.activity, Uri.parse(url))
         }
     ) {
         ListItem(
