@@ -24,6 +24,9 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
     InformationDialog(
         context,
         content = {
+            InformationKeyValue(context.symphony.t.Id) {
+                LongPressCopyableText(context, song.id)
+            }
             InformationKeyValue(context.symphony.t.TrackName) {
                 LongPressCopyableText(context, song.title)
             }
@@ -73,18 +76,24 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     LongPressCopyableText(context, it.toString())
                 }
             }
-            song.trackNumber?.let { raw ->
-                val (discNumber, trackNumber) = when {
-                    raw >= 1000 -> raw / 1000 to raw % 1000
-                    else -> null to raw
-                }
-                discNumber?.let {
-                    InformationKeyValue(context.symphony.t.DiscNumber) {
-                        LongPressCopyableText(context, it.toString())
-                    }
-                }
+            song.trackNumber?.let {
                 InformationKeyValue(context.symphony.t.TrackNumber) {
-                    LongPressCopyableText(context, trackNumber.toString())
+                    LongPressCopyableText(context, it.toString())
+                }
+            }
+            song.trackTotal?.let {
+                InformationKeyValue(context.symphony.t.TrackCount) {
+                    LongPressCopyableText(context, it.toString())
+                }
+            }
+            song.discNumber?.let {
+                InformationKeyValue(context.symphony.t.DiscNumber) {
+                    LongPressCopyableText(context, it.toString())
+                }
+            }
+            song.discTotal?.let {
+                InformationKeyValue(context.symphony.t.DiscTotal) {
+                    LongPressCopyableText(context, it.toString())
                 }
             }
             InformationKeyValue(context.symphony.t.Duration) {
@@ -92,6 +101,11 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             }
             song.codec?.let {
                 InformationKeyValue(context.symphony.t.Codec) {
+                    LongPressCopyableText(context, it)
+                }
+            }
+            song.encoder?.let {
+                InformationKeyValue(context.symphony.t.Encoder) {
                     LongPressCopyableText(context, it)
                 }
             }

@@ -683,3 +683,12 @@ name = "Rose"
 
 [[keys]]
 name = "MediaFolders"
+
+[[keys]]
+name = "Id"
+
+[[keys]]
+name = "DiscTotal"
+
+[[keys]]
+name = "Encoder"

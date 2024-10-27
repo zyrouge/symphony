@@ -124,7 +124,7 @@ class MediaExposer(private val symphony: Symphony) {
             it.dateModified == lastModified
                     && it.coverFile?.let { x -> cycle.artworkCacheUnused.contains(x) } != false
         }
-        val song = cached ?: Song.parse(symphony, path, file) ?: return
+        val song = cached ?: Song.parse(symphony, path, file)
         if (cached == null) {
             symphony.database.songCache.insert(song)
         }
@@ -175,10 +175,11 @@ class MediaExposer(private val symphony: Symphony) {
         }
     }
 
-    fun reset() {
+    suspend fun reset() {
         emitUpdate(true)
         uris.clear()
         explorer = SimpleFileSystem.Folder()
+        symphony.database.songCache.clear()
         emitUpdate(false)
     }
 

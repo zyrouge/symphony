@@ -99,7 +99,9 @@ class SongRepository(private val symphony: Symphony) {
             SortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.albumArtists?.joinToStringIfNotEmpty() }
             SortBy.YEAR -> songIds.sortedBy { get(it)?.year }
             SortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
-            SortBy.TRACK_NUMBER -> songIds.sortedBy { get(it)?.trackNumber }
+            SortBy.TRACK_NUMBER -> songIds.sortedWith(
+                compareBy({ get(it)?.discNumber }, { get(it)?.trackNumber }),
+            )
         }
         return if (reverse) sorted.reversed() else sorted
     }
@@ -125,14 +127,11 @@ class SongRepository(private val symphony: Symphony) {
 
     suspend fun getLyrics(song: Song): String? {
         try {
-            val lrcFilePath = SimplePath(song.path).nameWithoutExtension + ".lrc"
-            symphony.groove.exposer.uris[lrcFilePath]?.let { uri ->
-                symphony.applicationContext.contentResolver
-                    .openInputStream(uri)
-                    ?.use { inputStream ->
-                        val lyrics = String(inputStream.readBytes())
-                        return lyrics
-                    }
+            val lrcPath = SimplePath(song.path).nameWithoutExtension + ".lrc"
+            symphony.groove.exposer.uris[lrcPath]?.let { uri ->
+                symphony.applicationContext.contentResolver.openInputStream(uri)?.use {
+                    return String(it.readBytes())
+                }
             }
             return symphony.database.lyricsCache.get(song.id)
         } catch (err: Exception) {

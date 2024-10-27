@@ -1,6 +1,10 @@
 package io.github.zyrouge.symphony.services.groove
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -9,6 +13,7 @@ import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.SimplePath
+import java.io.FileOutputStream
 import java.math.RoundingMode
 
 @Immutable
@@ -32,6 +37,7 @@ data class Song(
     val bitsPerSample: Int?,
     val samplingRate: Long?,
     val codec: String?,
+    val encoder: String?,
     val dateModified: Long,
     val size: Long,
     val coverFile: String?,
@@ -71,12 +77,20 @@ data class Song(
     }
 
     companion object {
-        fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX): Song? {
-            val audio = symphony.applicationContext.contentResolver.openInputStream(file.uri)
+        fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX) =
+            parseUsingMetaphony(symphony, path, file)
+                ?: parseUsingMediaMetadataRetriever(symphony, path, file)
+
+        private fun parseUsingMetaphony(
+            symphony: Symphony,
+            path: SimplePath,
+            file: DocumentFileX,
+        ): Song? {
+            val parser = symphony.applicationContext.contentResolver.openInputStream(file.uri)
                 ?.use { AudioParser.read(it, file.mimeType) }
                 ?: return null
-            val metadata = audio.getMetadata()
-            val stream = audio.getStreamInfo()
+            val metadata = parser.getMetadata()
+            val stream = parser.getStreamInfo()
             val id = symphony.groove.song.idGenerator.next()
             val coverFile = metadata.artworks.firstOrNull()?.let {
                 when (it.format) {
@@ -91,14 +105,16 @@ data class Song(
             metadata.lyrics?.let {
                 symphony.database.lyricsCache.put(id, it)
             }
+            val artistSeparators = symphony.settings.artistTagSeparators.value
+            val genreSeparators = symphony.settings.genreTagSeparators.value
             return Song(
                 id = id,
                 title = metadata.title ?: path.nameWithoutExtension,
                 album = metadata.album,
-                artists = metadata.artists,
-                composers = metadata.composer,
-                albumArtists = metadata.albumArtists,
-                genres = metadata.genres,
+                artists = parseMultiValue(metadata.artists, artistSeparators),
+                composers = parseMultiValue(metadata.composer, artistSeparators),
+                albumArtists = parseMultiValue(metadata.albumArtists, artistSeparators),
+                genres = parseMultiValue(metadata.genres, genreSeparators),
                 trackNumber = metadata.trackNumber,
                 trackTotal = metadata.trackTotal,
                 discNumber = metadata.discNumber,
@@ -109,6 +125,7 @@ data class Song(
                 bitsPerSample = stream.bitsPerSample,
                 samplingRate = stream.samplingRate,
                 codec = stream.codec,
+                encoder = metadata.encoder,
                 dateModified = file.lastModified,
                 size = file.size,
                 coverFile = coverFile,
@@ -117,22 +134,112 @@ data class Song(
             )
         }
 
-        val prettyCodecs = mapOf(
+        fun parseUsingMediaMetadataRetriever(
+            symphony: Symphony,
+            path: SimplePath,
+            file: DocumentFileX,
+        ): Song {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(symphony.applicationContext, file.uri)
+            val id = symphony.groove.song.idGenerator.next() + ".mr"
+            val coverFile = retriever.embeddedPicture?.let {
+                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                val name = "$id.${AudioArtwork.Format.Jpeg.extension}"
+                FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, writer)
+                }
+                name
+            }
+            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+            val artists = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            val composers = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
+            val albumArtists =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
+            val genres = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+            val trackNumber = retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)
+                ?.toIntOrNull()
+            val trackTotal = retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS)
+                ?.toIntOrNull()
+            val discNumber = retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)
+                ?.toIntOrNull()
+            val year = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
+                ?.toIntOrNull()
+            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull()
+            val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                ?.toLongOrNull()
+            var bitsPerSample: Int? = null
+            var samplingRate: Long? = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                bitsPerSample = retriever
+                    .extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITS_PER_SAMPLE)
+                    ?.toIntOrNull()
+                samplingRate = retriever
+                    .extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
+                    ?.toLongOrNull()
+            }
+            val codec = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+                ?.let { getCodecFromMimetype(it) }
+            val artistSeparators = symphony.settings.artistTagSeparators.value
+            val genreSeparators = symphony.settings.genreTagSeparators.value
+            return Song(
+                id = id,
+                title = title ?: path.nameWithoutExtension,
+                album = album,
+                artists = parseMultiValue(artists, artistSeparators),
+                composers = parseMultiValue(composers, artistSeparators),
+                albumArtists = parseMultiValue(albumArtists, artistSeparators),
+                genres = parseMultiValue(genres, genreSeparators),
+                trackNumber = trackNumber,
+                trackTotal = trackTotal,
+                discNumber = discNumber,
+                discTotal = null,
+                year = year,
+                duration = duration ?: 0,
+                bitrate = bitrate,
+                bitsPerSample = bitsPerSample,
+                samplingRate = samplingRate,
+                codec = codec,
+                encoder = null,
+                dateModified = file.lastModified,
+                size = file.size,
+                coverFile = coverFile,
+                uri = file.uri,
+                path = path.pathString,
+            )
+        }
+
+        fun parseMultiValue(value: String?, separators: Set<String>) = value?.let {
+            parseMultiValue(setOf(it), separators)
+        } ?: emptySet()
+
+        fun parseMultiValue(values: Set<String>, separators: Set<String>): Set<String> {
+            val result = mutableSetOf<String>()
+            for (x in values) {
+                val trimmed = x.trim()
+                if (trimmed.isEmpty()) {
+                    continue
+                }
+                result.addAll(trimmed.split(*separators.toTypedArray()))
+            }
+            return result
+        }
+
+        private val prettyCodecs = mapOf(
             "opus" to "Opus",
             "vorbis" to "Vorbis",
         )
 
-        fun prettyMimetype(mimetype: String): String? {
+        private fun getCodecFromMimetype(mimetype: String): String? {
             val codec = mimetype.lowercase().replaceFirst("audio/", "")
-            if (codec.isBlank()) {
-                return null
+            return when {
+                codec.isBlank() -> null
+                else -> prettyCodecs[codec] ?: codec.uppercase()
             }
-            return prettyCodecs[codec] ?: codec.uppercase()
         }
-
-        fun parseMultiValue(value: String, separators: Set<String>) = value
-            .split(*separators.toTypedArray())
-            .mapNotNull { x -> x.trim().takeIf { it.isNotEmpty() } }
-            .toSet()
     }
 }
