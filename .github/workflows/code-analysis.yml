@@ -1,0 +1,44 @@
+name: Code Analysis
+
+on:
+    push:
+        branches-ignore:
+            - site
+            - gh-pages
+            - i18n-summary
+        paths:
+            - app/**
+            - i18n/**
+            - gradle/**
+    pull_request_review:
+        types:
+            - submitted
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        if: github.event_name != 'pull_request_review' || github.event.review.state == 'approved'
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20.x
+                  cache: npm
+
+            - uses: actions/setup-java@v4
+              with:
+                  distribution: zulu
+                  java-version: 17
+                  cache: gradle
+
+            - name: 🚧 Do prerequisites
+              run: npm ci
+
+            - name: 🚨 Analyze code
+              run: |
+                  npm run prebuild
+                  chmod +x ./gradlew
+                  ./gradlew lintRelease

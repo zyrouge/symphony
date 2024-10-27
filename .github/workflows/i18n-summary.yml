@@ -7,11 +7,15 @@ on:
         paths:
             - .phrasey/**
             - i18n/**
+    pull_request_review:
+        types:
+            - submitted
     workflow_dispatch:
 
 jobs:
     i18n-summary:
         runs-on: ubuntu-latest
+        if: github.event_name != 'pull_request_review' || github.event.review.state == 'approved'
 
         steps:
             - uses: actions/checkout@v4
@@ -32,3 +36,5 @@ jobs:
               with:
                   directory: phrasey-dist
                   branch: i18n-summary
+                  checkout-orphan: true
+                  force: true
