@@ -37,6 +37,7 @@ android {
 
     buildTypes {
         getByName("release") {
+            applicationIdSuffix = System.getenv("APP_ID_SUFFIX")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

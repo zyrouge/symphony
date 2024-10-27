@@ -1,20 +1,25 @@
-name: Nightly
+name: Canary
 
 on:
+    schedule:
+        - cron: "0 0 * * *"
     workflow_dispatch:
 
 env:
+    SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
     BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app-release.aab
     OUTPUT_DIR: ./dist
 
 jobs:
-    nightly-build:
+    canary-build:
         runs-on: ubuntu-latest
 
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
             - uses: actions/setup-node@v4
               with:
@@ -32,14 +37,17 @@ jobs:
 
             - name: 🔢 Get version
               id: app_version
-              run: echo "version=$(npm run --silent version:print-nightly)" >> $GITHUB_OUTPUT
+              run: echo "version=$(npm run --silent version:print-canary)" >> $GITHUB_OUTPUT
 
             - name: 🔎 Check for release
-              run: npm run --silent git:tag-exists -- $TAG_NAME
+              run: |
+                  last_tag=$(npm run --silent git:latest-tag)
+                  echo "SKIP_RELEASE=$(npm run --silent git:no-affects-app-yn -- $last_tag)" >> $GITHUB_ENV
               env:
                   TAG_NAME: v${{ steps.app_version.outputs.version }}
 
             - name: 🔨 Generate certificate
+              if: env.SKIP_RELEASE == 'no'
               run: |
                   mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
                   echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
@@ -47,6 +55,7 @@ jobs:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
             - name: 🔨 Build assets
+              if: env.SKIP_RELEASE == 'no'
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
@@ -60,20 +69,28 @@ jobs:
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
             - name: 📝 Rename assets
+              if: env.SKIP_RELEASE == 'no'
               run: |
                   mkdir -p $OUTPUT_DIR
                   mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
                   mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
               env:
+                  APP_ID_SUFFIX: .canary
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
             - name: 🚀 Upload assets
+              if: env.SKIP_RELEASE == 'no'
               uses: ncipollo/release-action@v1
               with:
                   tag: v${{ steps.app_version.outputs.version }}
                   artifacts: ${{ env.OUTPUT_DIR }}/*
                   body: "Refer [commits of v${{ steps.app_version.outputs.version }}](https://github.com/zyrouge/symphony/commits/v${{ steps.app_version.outputs.version }}) for the changes."
                   generateReleaseNotes: false
-                  draft: false
-                  prerelease: true
+                  draft: true
                   artifactErrorsFailBuild: true
+
+            - name: 🔖 Was Release skipped?
+              if: env.SKIP_RELEASE == 'yes'
+              run: echo "Skipping since tag $TAG_NAME already exists"
+              env:
+                  TAG_NAME: v${{ steps.app_version.outputs.version }}
