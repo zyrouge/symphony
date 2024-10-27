@@ -24,7 +24,7 @@ data class RadioSessionUpdateRequest(
     val song: Song,
     val artworkUri: Uri,
     val artworkBitmap: Bitmap,
-    val playbackPosition: PlaybackPosition,
+    val playbackPosition: RadioPlayer.PlaybackPosition,
     val isPlaying: Boolean,
 )
 
@@ -159,14 +159,14 @@ class RadioSession(val symphony: Symphony) {
         notification.start()
         symphony.radio.onUpdate.subscribe {
             when (it) {
-                RadioEvents.StartPlaying,
-                RadioEvents.PausePlaying,
-                RadioEvents.ResumePlaying,
-                RadioEvents.SongStaged,
-                RadioEvents.SongSeeked,
+                Radio.Events.StartPlaying,
+                Radio.Events.PausePlaying,
+                Radio.Events.ResumePlaying,
+                Radio.Events.SongStaged,
+                Radio.Events.SongSeeked,
                     -> update()
 
-                RadioEvents.QueueEnded -> cancel()
+                Radio.Events.QueueEnded -> cancel()
                 else -> {}
             }
         }
@@ -222,7 +222,7 @@ class RadioSession(val symphony: Symphony) {
         val artworkUri = symphony.groove.song.getArtworkUri(song.id)
         val artworkBitmap = artworkCacher.getArtwork(song)
         val playbackPosition = symphony.radio.currentPlaybackPosition
-            ?: PlaybackPosition(played = 0L, total = song.duration)
+            ?: RadioPlayer.PlaybackPosition(played = 0L, total = song.duration)
         val isPlaying = symphony.radio.isPlaying
         if (currentSongId != song.id) {
             return

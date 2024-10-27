@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
@@ -10,37 +9,37 @@ import java.util.Date
 import java.util.Timer
 import kotlin.math.max
 
-enum class RadioEvents {
-    StartPlaying,
-    StopPlaying,
-    PausePlaying,
-    ResumePlaying,
-    SongSeeked,
-    SongQueued,
-    SongDequeued,
-    QueueIndexChanged,
-    QueueModified,
-    LoopModeChanged,
-    ShuffleModeChanged,
-    SongStaged,
-    QueueCleared,
-    QueueEnded,
-    SleepTimerSet,
-    SleepTimerRemoved,
-    SpeedChanged,
-    PitchChanged,
-    PauseOnCurrentSongEndChanged,
-}
+class Radio(private val symphony: Symphony) : Symphony.Hooks {
+    enum class Events {
+        StartPlaying,
+        StopPlaying,
+        PausePlaying,
+        ResumePlaying,
+        SongSeeked,
+        SongQueued,
+        SongDequeued,
+        QueueIndexChanged,
+        QueueModified,
+        LoopModeChanged,
+        ShuffleModeChanged,
+        SongStaged,
+        QueueCleared,
+        QueueEnded,
+        SleepTimerSet,
+        SleepTimerRemoved,
+        SpeedChanged,
+        PitchChanged,
+        PauseOnCurrentSongEndChanged,
+    }
 
-data class RadioSleepTimer(
-    val duration: Long,
-    val endsAt: Long,
-    val timer: Timer,
-    var quitOnEnd: Boolean,
-)
+    data class SleepTimer(
+        val duration: Long,
+        val endsAt: Long,
+        val timer: Timer,
+        var quitOnEnd: Boolean,
+    )
 
-class Radio(private val symphony: Symphony) : SymphonyHooks {
-    val onUpdate = Eventer<RadioEvents>()
+    val onUpdate = Eventer<Events>()
     val queue = RadioQueue(symphony)
     val shorty = RadioShorty(symphony)
     val session = RadioSession(symphony)
@@ -56,7 +55,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         get() = player?.usable ?: false
     val isPlaying: Boolean
         get() = player?.isPlaying ?: false
-    val currentPlaybackPosition: PlaybackPosition?
+    val currentPlaybackPosition: RadioPlayer.PlaybackPosition?
         get() = player?.playbackPosition
     val currentSpeed: Float
         get() = player?.speed ?: RadioPlayer.DEFAULT_SPEED
@@ -64,11 +63,11 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         get() = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
     val audioSessionId: Int?
         get() = player?.audioSessionId
-    val onPlaybackPositionUpdate = Eventer<PlaybackPosition>()
+    val onPlaybackPositionUpdate = Eventer<RadioPlayer.PlaybackPosition>()
 
     var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED
     var persistedPitch: Float = RadioPlayer.DEFAULT_PITCH
-    var sleepTimer: RadioSleepTimer? = null
+    var sleepTimer: SleepTimer? = null
     var pauseOnCurrentSongEnd = false
 
     init {
@@ -125,7 +124,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                     }
                 }
             }
-            onUpdate.dispatch(RadioEvents.SongStaged)
+            onUpdate.dispatch(Events.SongStaged)
             player!!.prepare {
                 options.startPosition?.let {
                     if (it > 0L) {
@@ -160,8 +159,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 it.start()
                 onUpdate.dispatch(
                     when {
-                        !it.hasPlayedOnce -> RadioEvents.StartPlaying
-                        else -> RadioEvents.ResumePlaying
+                        !it.hasPlayedOnce -> Events.StartPlaying
+                        else -> Events.ResumePlaying
                     }
                 )
             }
@@ -179,7 +178,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 it.pause()
                 abandonFocus()
                 onFinish()
-                onUpdate.dispatch(RadioEvents.PausePlaying)
+                onUpdate.dispatch(Events.PausePlaying)
             }
         }
     }
@@ -187,7 +186,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun pauseInstant() {
         player?.let {
             it.pause()
-            onUpdate.dispatch(RadioEvents.PausePlaying)
+            onUpdate.dispatch(Events.PausePlaying)
         }
     }
 
@@ -197,7 +196,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         clearSleepTimer()
         persistedSpeed = RadioPlayer.DEFAULT_SPEED
         persistedPitch = RadioPlayer.DEFAULT_PITCH
-        if (ended) onUpdate.dispatch(RadioEvents.QueueEnded)
+        if (ended) onUpdate.dispatch(Events.QueueEnded)
     }
 
     fun jumpTo(index: Int) = play(PlayOptions(index = index))
@@ -209,7 +208,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     fun seek(position: Long) {
         player?.let {
             it.seek(position.toInt())
-            onUpdate.dispatch(RadioEvents.SongSeeked)
+            onUpdate.dispatch(Events.SongSeeked)
         }
     }
 
@@ -231,7 +230,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             if (persist) {
                 persistedSpeed = speed
             }
-            onUpdate.dispatch(RadioEvents.SpeedChanged)
+            onUpdate.dispatch(Events.SpeedChanged)
         }
     }
 
@@ -241,7 +240,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             if (persist) {
                 persistedPitch = pitch
             }
-            onUpdate.dispatch(RadioEvents.PitchChanged)
+            onUpdate.dispatch(Events.PitchChanged)
         }
     }
 
@@ -264,25 +263,25 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             Date.from(Instant.ofEpochMilli(endsAt)),
         )
         clearSleepTimer()
-        sleepTimer = RadioSleepTimer(
+        sleepTimer = SleepTimer(
             duration = duration,
             endsAt = endsAt,
             timer = timer,
             quitOnEnd = quitOnEnd,
         )
-        onUpdate.dispatch(RadioEvents.SleepTimerSet)
+        onUpdate.dispatch(Events.SleepTimerSet)
     }
 
     fun clearSleepTimer() {
         sleepTimer?.timer?.cancel()
         sleepTimer = null
-        onUpdate.dispatch(RadioEvents.SleepTimerRemoved)
+        onUpdate.dispatch(Events.SleepTimerRemoved)
     }
 
     @JvmName("setPauseOnCurrentSongEndTo")
     fun setPauseOnCurrentSongEnd(value: Boolean) {
         pauseOnCurrentSongEnd = value
-        onUpdate.dispatch(RadioEvents.PauseOnCurrentSongEndChanged)
+        onUpdate.dispatch(Events.PauseOnCurrentSongEndChanged)
     }
 
     private fun stopCurrentSong() {
@@ -291,7 +290,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             it.setOnPlaybackPositionListener {}
             it.setVolume(RadioPlayer.MIN_VOLUME) { _ ->
                 it.stop()
-                onUpdate.dispatch(RadioEvents.StopPlaying)
+                onUpdate.dispatch(Events.StopPlaying)
             }
         }
     }
@@ -414,7 +413,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         symphony.settings.setPreviousSongQueue(
             RadioQueue.Serialized.create(
                 queue = queue,
-                playbackPosition = currentPlaybackPosition ?: PlaybackPosition.zero
+                playbackPosition = currentPlaybackPosition ?: RadioPlayer.PlaybackPosition.zero
             )
         )
     }

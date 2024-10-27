@@ -9,27 +9,27 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.services.AppMeta
-import io.github.zyrouge.symphony.services.PermissionsManager
-import io.github.zyrouge.symphony.services.SettingsManager
+import io.github.zyrouge.symphony.services.Permissions
 import io.github.zyrouge.symphony.services.database.Database
-import io.github.zyrouge.symphony.services.groove.GrooveManager
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.i18n.Translator
 import io.github.zyrouge.symphony.services.radio.Radio
+import io.github.zyrouge.symphony.services.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-interface SymphonyHooks {
-    fun onSymphonyReady() {}
-    fun onSymphonyPause() {}
-    fun onSymphonyDestroy() {}
-}
+class Symphony(application: Application) : AndroidViewModel(application), Symphony.Hooks {
+    interface Hooks {
+        fun onSymphonyReady() {}
+        fun onSymphonyPause() {}
+        fun onSymphonyDestroy() {}
+    }
 
-class Symphony(application: Application) : AndroidViewModel(application), SymphonyHooks {
-    val permission = PermissionsManager(this)
-    val settings = SettingsManager(this)
+    val permission = Permissions(this)
+    val settings = Settings(this)
     val database = Database(this)
-    val groove = GrooveManager(this)
+    val groove = Groove(this)
     val radio = Radio(this)
     val translator = Translator(this)
 
@@ -64,7 +64,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
         }
     }
 
-    private fun notifyHooks(fn: SymphonyHooks.() -> Unit) {
+    private fun notifyHooks(fn: Hooks.() -> Unit) {
         hooks.forEach { fn.invoke(it) }
     }
 

@@ -72,8 +72,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.AppMeta
-import io.github.zyrouge.symphony.services.SettingsDefaults
 import io.github.zyrouge.symphony.services.i18n.CommonTranslation
+import io.github.zyrouge.symphony.services.settings.SettingsDefaults
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle

@@ -1,8 +1,13 @@
 package io.github.zyrouge.symphony.services.groove
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.SymphonyHooks
-import io.github.zyrouge.symphony.services.PermissionEvents
+import io.github.zyrouge.symphony.services.Permissions
+import io.github.zyrouge.symphony.services.groove.repositories.AlbumArtistRepository
+import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
+import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
+import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository
+import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
+import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +15,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
-class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
+class Groove(private val symphony: Symphony) : Symphony.Hooks {
+    enum class Kinds {
+        SONG,
+        ALBUM,
+        ARTIST,
+        ALBUM_ARTIST,
+        GENRE,
+        PLAYLIST,
+    }
+
     val coroutineScope = CoroutineScope(Dispatchers.Default)
     var readyDeferred = CompletableDeferred<Boolean>()
 
@@ -25,7 +39,7 @@ class GrooveManager(private val symphony: Symphony) : SymphonyHooks {
     init {
         symphony.permission.onUpdate.subscribe {
             when (it) {
-                PermissionEvents.MEDIA_PERMISSION_GRANTED -> coroutineScope.launch {
+                Permissions.Events.MEDIA_PERMISSION_GRANTED -> coroutineScope.launch {
                     fetch()
                 }
             }

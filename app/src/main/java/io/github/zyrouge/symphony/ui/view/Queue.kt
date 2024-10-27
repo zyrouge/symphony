@@ -37,7 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholderSize
 import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.SongCard
@@ -132,7 +132,7 @@ fun QueueView(context: ViewContext) {
                         itemsIndexed(
                             queue,
                             key = { i, id -> "$i-$id" },
-                            contentType = { _, _ -> GrooveKinds.SONG },
+                            contentType = { _, _ -> Groove.Kinds.SONG },
                         ) { i, songId ->
                             context.symphony.groove.song.get(songId)?.let { song ->
                                 Box {

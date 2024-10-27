@@ -46,8 +46,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.SongRepository
+import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
@@ -255,7 +255,7 @@ fun SongExplorerList(
                         itemsIndexed(
                             sortedEntities.files.entries.toList(),
                             key = { i, x -> "$i-${x.key}" },
-                            contentType = { _, _ -> GrooveKinds.SONG }
+                            contentType = { _, _ -> Groove.Kinds.SONG }
                         ) { i, entry ->
                             context.symphony.groove.song.get(entry.key)?.let { song ->
                                 SongCard(context, song) {

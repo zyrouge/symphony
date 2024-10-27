@@ -3,7 +3,7 @@ package io.github.zyrouge.symphony.ui.helpers
 import android.net.Uri
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 
 abstract class Route(val route: String) {
     class Simple(route: String) : Route(route)
@@ -32,8 +32,8 @@ data object Routes {
     val NowPlaying = Route.Simple("now_playing")
     val Queue = Route.Simple("queue")
     val Settings = Route.Simple("settings")
-    val Search = object : Route.Parameterized<GrooveKinds?>("search") {
-        override fun build(param: GrooveKinds?) = withParam(param?.name ?: "null")
+    val Search = object : Route.Parameterized<Groove.Kinds?>("search") {
+        override fun build(param: Groove.Kinds?) = withParam(param?.name ?: "null")
     }
     val Artist = Route.StringParameterized("artist")
     val Album = Route.StringParameterized("album")

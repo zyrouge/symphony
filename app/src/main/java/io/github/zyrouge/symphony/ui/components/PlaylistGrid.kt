@@ -11,8 +11,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
-import io.github.zyrouge.symphony.services.groove.PlaylistRepository
+import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
@@ -75,7 +75,7 @@ fun PlaylistGrid(
                     itemsIndexed(
                         sortedPlaylistIds,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> GrooveKinds.PLAYLIST }
+                        contentType = { _, _ -> Groove.Kinds.PLAYLIST }
                     ) { _, playlistId ->
                         context.symphony.groove.playlist.get(playlistId)?.let { playlist ->
                             PlaylistTile(context, playlist)

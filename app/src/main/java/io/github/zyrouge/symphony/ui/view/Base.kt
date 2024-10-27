@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
@@ -83,7 +83,7 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                         context,
                         backStackEntry.getRouteParameter()
                             .takeIf { it != "null" }
-                            ?.let { GrooveKinds.valueOf(it) }
+                            ?.let { Groove.Kinds.valueOf(it) }
                     )
                 }
                 composable(

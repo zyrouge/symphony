@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GenreRepository
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository
 import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateTo
@@ -118,7 +118,7 @@ fun GenreGrid(
                     itemsIndexed(
                         sortedGenreNames,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> GrooveKinds.GENRE }
+                        contentType = { _, _ -> Groove.Kinds.GENRE }
                     ) { i, genreName ->
                         context.symphony.groove.genre.get(genreName)?.let { genre ->
                             Card(

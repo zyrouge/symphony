@@ -1,6 +1,8 @@
-package io.github.zyrouge.symphony.services.groove
+package io.github.zyrouge.symphony.services.groove.repositories
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.Artist
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet

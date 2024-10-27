@@ -1,7 +1,8 @@
-package io.github.zyrouge.symphony.services.groove
+package io.github.zyrouge.symphony.services.groove.repositories
 
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
@@ -60,7 +61,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 val playlist = when {
                     x.isLocal -> {
                         ActivityUtils.makePersistableReadableUri(context, x.uri!!)
-                        Playlist.parse(symphony, x.uri)
+                        Playlist.Companion.parse(symphony, x.uri)
                     }
 
                     else -> x

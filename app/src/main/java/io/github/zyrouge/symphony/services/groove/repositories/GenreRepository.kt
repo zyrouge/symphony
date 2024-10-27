@@ -1,6 +1,8 @@
-package io.github.zyrouge.symphony.services.groove
+package io.github.zyrouge.symphony.services.groove.repositories
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.Genre
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher

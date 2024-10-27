@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.AddToPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
@@ -192,7 +192,7 @@ private fun FoldersGrid(
                     itemsIndexed(
                         sortedFolderNames,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> GrooveKinds.ARTIST }
+                        contentType = { _, _ -> Groove.Kinds.ARTIST }
                     ) { _, folderName ->
                         folders[folderName]?.let { folder ->
                             FolderTile(

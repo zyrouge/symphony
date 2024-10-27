@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.radio.RadioSleepTimer
+import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationUtils
@@ -48,7 +48,7 @@ import kotlin.concurrent.timer
 @Composable
 fun NowPlayingSleepTimerDialog(
     context: ViewContext,
-    sleepTimer: RadioSleepTimer,
+    sleepTimer: Radio.SleepTimer,
     onDismissRequest: () -> Unit,
 ) {
     var updateTimer by remember { mutableStateOf<Timer?>(null) }

@@ -12,7 +12,7 @@ class RadioObservatory(private val symphony: Symphony) {
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
-    private val _playbackPosition = MutableStateFlow(PlaybackPosition.zero)
+    private val _playbackPosition = MutableStateFlow(RadioPlayer.PlaybackPosition.zero)
     val playbackPosition = _playbackPosition.asStateFlow()
     private val _queueIndex = MutableStateFlow(-1)
     val queueIndex = _queueIndex.asStateFlow()
@@ -22,7 +22,7 @@ class RadioObservatory(private val symphony: Symphony) {
     val loopMode = _loopMode.asStateFlow()
     private val _shuffleMode = MutableStateFlow(false)
     val shuffleMode = _shuffleMode.asStateFlow()
-    private val _sleepTimer = MutableStateFlow<RadioSleepTimer?>(null)
+    private val _sleepTimer = MutableStateFlow<Radio.SleepTimer?>(null)
     val sleepTimer = _sleepTimer.asStateFlow()
     private val _pauseOnCurrentSongEnd = MutableStateFlow<Boolean>(false)
     val pauseOnCurrentSongEnd = _pauseOnCurrentSongEnd.asStateFlow()
@@ -38,42 +38,42 @@ class RadioObservatory(private val symphony: Symphony) {
     fun start() {
         updateSubscriber = symphony.radio.onUpdate.subscribe { event ->
             when (event) {
-                RadioEvents.StartPlaying,
-                RadioEvents.StopPlaying,
-                RadioEvents.PausePlaying,
-                RadioEvents.ResumePlaying,
-                -> emitIsPlaying()
+                Radio.Events.StartPlaying,
+                Radio.Events.StopPlaying,
+                Radio.Events.PausePlaying,
+                Radio.Events.ResumePlaying,
+                    -> emitIsPlaying()
 
-                RadioEvents.SongSeeked -> emitPlaybackPosition()
-                RadioEvents.SongQueued,
-                RadioEvents.SongDequeued,
-                RadioEvents.QueueModified,
-                RadioEvents.QueueCleared,
-                -> emitQueue()
+                Radio.Events.SongSeeked -> emitPlaybackPosition()
+                Radio.Events.SongQueued,
+                Radio.Events.SongDequeued,
+                Radio.Events.QueueModified,
+                Radio.Events.QueueCleared,
+                    -> emitQueue()
 
-                RadioEvents.QueueIndexChanged -> emitQueueIndex()
-                RadioEvents.LoopModeChanged -> emitLoopMode()
-                RadioEvents.ShuffleModeChanged -> emitShuffleMode()
-                RadioEvents.SongStaged,
-                RadioEvents.QueueEnded,
-                -> {
+                Radio.Events.QueueIndexChanged -> emitQueueIndex()
+                Radio.Events.LoopModeChanged -> emitLoopMode()
+                Radio.Events.ShuffleModeChanged -> emitShuffleMode()
+                Radio.Events.SongStaged,
+                Radio.Events.QueueEnded,
+                    -> {
                 }
 
-                RadioEvents.SleepTimerSet,
-                RadioEvents.SleepTimerRemoved,
-                -> emitSleepTimer()
+                Radio.Events.SleepTimerSet,
+                Radio.Events.SleepTimerRemoved,
+                    -> emitSleepTimer()
 
-                RadioEvents.SpeedChanged -> {
+                Radio.Events.SpeedChanged -> {
                     emitSpeed()
                     emitPersistedSpeed()
                 }
 
-                RadioEvents.PitchChanged -> {
+                Radio.Events.PitchChanged -> {
                     emitPitch()
                     emitPersistedPitch()
                 }
 
-                RadioEvents.PauseOnCurrentSongEndChanged -> emitPauseOnCurrentSongEnd()
+                Radio.Events.PauseOnCurrentSongEndChanged -> emitPauseOnCurrentSongEnd()
             }
         }
         playbackPositionUpdateSubscriber = symphony.radio.onPlaybackPositionUpdate.subscribe {
@@ -91,7 +91,7 @@ class RadioObservatory(private val symphony: Symphony) {
     }
 
     private fun emitPlaybackPosition() = _playbackPosition.update {
-        symphony.radio.currentPlaybackPosition ?: PlaybackPosition.zero
+        symphony.radio.currentPlaybackPosition ?: RadioPlayer.PlaybackPosition.zero
     }
 
     private fun emitQueueIndex() = _queueIndex.update {

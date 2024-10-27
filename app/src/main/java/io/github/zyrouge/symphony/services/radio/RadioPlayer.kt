@@ -8,24 +8,21 @@ import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 import java.util.Timer
 
-data class PlaybackPosition(
-    val played: Long,
-    val total: Long,
-) {
-    val ratio: Float
-        get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
-
-    companion object {
-        val zero = PlaybackPosition(0L, 0L)
-    }
-}
-
 typealias RadioPlayerOnPreparedListener = () -> Unit
-typealias RadioPlayerOnPlaybackPositionListener = (PlaybackPosition) -> Unit
+typealias RadioPlayerOnPlaybackPositionListener = (RadioPlayer.PlaybackPosition) -> Unit
 typealias RadioPlayerOnFinishListener = () -> Unit
 typealias RadioPlayerOnErrorListener = (Int, Int) -> Unit
 
 class RadioPlayer(val symphony: Symphony, uri: Uri) {
+    data class PlaybackPosition(val played: Long, val total: Long) {
+        val ratio: Float
+            get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
+
+        companion object {
+            val zero = PlaybackPosition(0L, 0L)
+        }
+    }
+
     var usable = false
     var hasPlayedOnce = false
 

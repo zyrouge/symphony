@@ -10,8 +10,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import io.github.zyrouge.symphony.services.groove.AlbumRepository
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
@@ -65,7 +65,7 @@ fun AlbumGrid(
                     itemsIndexed(
                         sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> GrooveKinds.ALBUM }
+                        contentType = { _, _ -> Groove.Kinds.ALBUM }
                     ) { _, albumId ->
                         context.symphony.groove.album.get(albumId)?.let { album ->
                             AlbumTile(context, album)

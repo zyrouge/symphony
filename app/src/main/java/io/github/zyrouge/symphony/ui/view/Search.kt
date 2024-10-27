@@ -53,7 +53,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.AlbumArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
@@ -83,14 +83,14 @@ private data class SearchResult(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
+fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
     val coroutineScope = rememberCoroutineScope()
     var terms by rememberSaveable { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<SearchResult?>(null) }
 
     var selectedChip by rememberSaveable { mutableStateOf(initialChip) }
-    fun isChipSelected(kind: GrooveKinds) = selectedChip == null || selectedChip == kind
+    fun isChipSelected(kind: Groove.Kinds) = selectedChip == null || selectedChip == kind
 
     var currentTermsRoutine: Job? = null
     fun setTerms(nTerms: String) {
@@ -108,42 +108,42 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                 val playlistIds = mutableListOf<String>()
 
                 if (nTerms.isNotEmpty()) {
-                    if (isChipSelected(GrooveKinds.SONG)) {
+                    if (isChipSelected(Groove.Kinds.SONG)) {
                         songIds.addAll(
                             context.symphony.groove.song
                                 .search(context.symphony.groove.song.ids(), terms)
                                 .map { it.entity }
                         )
                     }
-                    if (isChipSelected(GrooveKinds.ARTIST)) {
+                    if (isChipSelected(Groove.Kinds.ARTIST)) {
                         artistNames.addAll(
                             context.symphony.groove.artist
                                 .search(context.symphony.groove.artist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
-                    if (isChipSelected(GrooveKinds.ALBUM)) {
+                    if (isChipSelected(Groove.Kinds.ALBUM)) {
                         albumIds.addAll(
                             context.symphony.groove.album
                                 .search(context.symphony.groove.album.ids(), terms)
                                 .map { it.entity }
                         )
                     }
-                    if (isChipSelected(GrooveKinds.ALBUM_ARTIST)) {
+                    if (isChipSelected(Groove.Kinds.ALBUM_ARTIST)) {
                         albumArtistNames.addAll(
                             context.symphony.groove.albumArtist
                                 .search(context.symphony.groove.albumArtist.ids(), terms)
                                 .map { it.entity }
                         )
                     }
-                    if (isChipSelected(GrooveKinds.GENRE)) {
+                    if (isChipSelected(Groove.Kinds.GENRE)) {
                         genreNames.addAll(
                             context.symphony.groove.genre
                                 .search(context.symphony.groove.genre.ids(), terms)
                                 .map { it.entity }
                         )
                     }
-                    if (isChipSelected(GrooveKinds.PLAYLIST)) {
+                    if (isChipSelected(Groove.Kinds.PLAYLIST)) {
                         playlistIds.addAll(
                             context.symphony.groove.playlist
                                 .search(context.symphony.groove.playlist.ids(), terms)
@@ -237,7 +237,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                             setTerms(terms)
                         }
                     )
-                    GrooveKinds.entries.map {
+                    Groove.Kinds.entries.map {
                         FilterChip(
                             selected = selectedChip == it,
                             label = {
@@ -278,14 +278,14 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
         },
         content = { contentPadding ->
             results?.run {
-                val hasSongs = isChipSelected(GrooveKinds.SONG) && songIds.isNotEmpty()
-                val hasArtists = isChipSelected(GrooveKinds.ARTIST) && artistNames.isNotEmpty()
-                val hasAlbums = isChipSelected(GrooveKinds.ALBUM) && albumIds.isNotEmpty()
+                val hasSongs = isChipSelected(Groove.Kinds.SONG) && songIds.isNotEmpty()
+                val hasArtists = isChipSelected(Groove.Kinds.ARTIST) && artistNames.isNotEmpty()
+                val hasAlbums = isChipSelected(Groove.Kinds.ALBUM) && albumIds.isNotEmpty()
                 val hasAlbumArtists =
-                    isChipSelected(GrooveKinds.ALBUM_ARTIST) && albumArtistNames.isNotEmpty()
+                    isChipSelected(Groove.Kinds.ALBUM_ARTIST) && albumArtistNames.isNotEmpty()
                 val hasPlaylists =
-                    isChipSelected(GrooveKinds.PLAYLIST) && playlistIds.isNotEmpty()
-                val hasGenres = isChipSelected(GrooveKinds.GENRE) && genreNames.isNotEmpty()
+                    isChipSelected(Groove.Kinds.PLAYLIST) && playlistIds.isNotEmpty()
+                val hasGenres = isChipSelected(Groove.Kinds.GENRE) && genreNames.isNotEmpty()
                 val hasNoResults =
                     !hasSongs && !hasArtists && !hasAlbums && !hasAlbumArtists && !hasPlaylists && !hasGenres
 
@@ -333,7 +333,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                             else -> {
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                     if (hasSongs) {
-                                        SideHeading(context, GrooveKinds.SONG)
+                                        SideHeading(context, Groove.Kinds.SONG)
                                         songIds.forEach { songId ->
                                             context.symphony.groove.song.get(songId)?.let { song ->
                                                 SongCard(context, song) {
@@ -343,7 +343,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                         }
                                     }
                                     if (hasArtists) {
-                                        SideHeading(context, GrooveKinds.ARTIST)
+                                        SideHeading(context, Groove.Kinds.ARTIST)
                                         artistNames.forEach { artistName ->
                                             context.symphony.groove.artist.get(artistName)
                                                 ?.let { artist ->
@@ -372,7 +372,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                         }
                                     }
                                     if (hasAlbums) {
-                                        SideHeading(context, GrooveKinds.ALBUM)
+                                        SideHeading(context, Groove.Kinds.ALBUM)
                                         albumIds.forEach { albumId ->
                                             context.symphony.groove.album.get(albumId)
                                                 ?.let { album ->
@@ -404,7 +404,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                         }
                                     }
                                     if (hasAlbumArtists) {
-                                        SideHeading(context, GrooveKinds.ALBUM_ARTIST)
+                                        SideHeading(context, Groove.Kinds.ALBUM_ARTIST)
                                         albumArtistNames.forEach { albumArtistName ->
                                             context.symphony.groove.albumArtist.get(albumArtistName)
                                                 ?.let { albumArtist ->
@@ -435,7 +435,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                         }
                                     }
                                     if (hasPlaylists) {
-                                        SideHeading(context, GrooveKinds.PLAYLIST)
+                                        SideHeading(context, Groove.Kinds.PLAYLIST)
                                         playlistIds.forEach { playlistId ->
                                             context.symphony.groove.playlist.get(playlistId)
                                                 ?.let { playlist ->
@@ -464,7 +464,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
                                         }
                                     }
                                     if (hasGenres) {
-                                        SideHeading(context, GrooveKinds.GENRE)
+                                        SideHeading(context, Groove.Kinds.GENRE)
                                         genreNames.forEach { genreName ->
                                             context.symphony.groove.genre.get(genreName)
                                                 ?.let { genre ->
@@ -503,7 +503,7 @@ fun SearchView(context: ViewContext, initialChip: GrooveKinds?) {
 }
 
 @Composable
-private fun SideHeading(context: ViewContext, kind: GrooveKinds) {
+private fun SideHeading(context: ViewContext, kind: Groove.Kinds) {
     SideHeading(kind.label(context))
 }
 
@@ -516,11 +516,11 @@ private fun SideHeading(text: String) {
     )
 }
 
-private fun GrooveKinds.label(context: ViewContext) = when (this) {
-    GrooveKinds.SONG -> context.symphony.t.Songs
-    GrooveKinds.ALBUM -> context.symphony.t.Albums
-    GrooveKinds.ARTIST -> context.symphony.t.Artists
-    GrooveKinds.ALBUM_ARTIST -> context.symphony.t.AlbumArtists
-    GrooveKinds.GENRE -> context.symphony.t.Genres
-    GrooveKinds.PLAYLIST -> context.symphony.t.Playlists
+private fun Groove.Kinds.label(context: ViewContext) = when (this) {
+    Groove.Kinds.SONG -> context.symphony.t.Songs
+    Groove.Kinds.ALBUM -> context.symphony.t.Albums
+    Groove.Kinds.ARTIST -> context.symphony.t.Artists
+    Groove.Kinds.ALBUM_ARTIST -> context.symphony.t.AlbumArtists
+    Groove.Kinds.GENRE -> context.symphony.t.Genres
+    Groove.Kinds.PLAYLIST -> context.symphony.t.Playlists
 }

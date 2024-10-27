@@ -8,13 +8,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import io.github.zyrouge.symphony.ui.view.BaseView
 import io.github.zyrouge.symphony.utils.Logger
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private var gSymphony: Symphony? = null
@@ -22,7 +17,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val ignition: IgnitionViewModel by viewModels()
+        val ignition: ActivityIgnition by viewModels()
         if (savedInstanceState == null) {
             installSplashScreen().apply {
                 setKeepOnScreenCondition { !ignition.ready.value }
@@ -71,17 +66,5 @@ class MainActivity : ComponentActivity() {
         gSymphony?.closeApp = {
             finish()
         }
-    }
-}
-
-class IgnitionViewModel : ViewModel() {
-    private val readyFlow = MutableStateFlow(false)
-    val ready = readyFlow.asStateFlow()
-    val isReady: Boolean
-        get() = readyFlow.value
-
-    fun toReady() {
-        if (readyFlow.value) return
-        viewModelScope.launch { readyFlow.emit(true) }
     }
 }

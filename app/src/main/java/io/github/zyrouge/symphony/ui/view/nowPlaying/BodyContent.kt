@@ -51,7 +51,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.SettingsDefaults.enableSeekControls
+import io.github.zyrouge.symphony.services.settings.SettingsDefaults.enableSeekControls
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes

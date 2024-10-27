@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
@@ -22,7 +22,7 @@ fun AlbumRow(context: ViewContext, albumIds: List<String>) {
             itemsIndexed(
                 albumIds,
                 key = { i, x -> "$i-$x" },
-                contentType = { _, _ -> GrooveKinds.ALBUM }
+                contentType = { _, _ -> Groove.Kinds.ALBUM }
             ) { _, albumId ->
                 context.symphony.groove.album.get(albumId)?.let { album ->
                     Box(modifier = Modifier.width(width)) {

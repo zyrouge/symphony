@@ -15,9 +15,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.services.groove.SongRepository
+import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -94,7 +94,7 @@ fun SongList(
                         itemsIndexed(
                             sortedSongIds,
                             key = { i, x -> "$i-$x" },
-                            contentType = { _, _ -> GrooveKinds.SONG }
+                            contentType = { _, _ -> Groove.Kinds.SONG }
                         ) { i, songId ->
                             context.symphony.groove.song.get(songId)?.let { song ->
                                 SongCard(

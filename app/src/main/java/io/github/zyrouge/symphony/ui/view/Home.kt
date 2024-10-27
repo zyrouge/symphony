@@ -73,7 +73,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.GrooveKinds
+import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -96,7 +96,7 @@ import io.github.zyrouge.symphony.ui.view.home.TreeView
 import kotlinx.coroutines.launch
 
 enum class HomePages(
-    val kind: GrooveKinds? = null,
+    val kind: Groove.Kinds? = null,
     val label: (context: ViewContext) -> String,
     val selectedIcon: @Composable () -> ImageVector,
     val unselectedIcon: @Composable () -> ImageVector,
@@ -107,37 +107,37 @@ enum class HomePages(
         unselectedIcon = { Icons.Outlined.Face }
     ),
     Songs(
-        kind = GrooveKinds.SONG,
+        kind = Groove.Kinds.SONG,
         label = { it.symphony.t.Songs },
         selectedIcon = { Icons.Filled.MusicNote },
         unselectedIcon = { Icons.Outlined.MusicNote }
     ),
     Artists(
-        kind = GrooveKinds.ARTIST,
+        kind = Groove.Kinds.ARTIST,
         label = { it.symphony.t.Artists },
         selectedIcon = { Icons.Filled.Group },
         unselectedIcon = { Icons.Outlined.Group }
     ),
     Albums(
-        kind = GrooveKinds.ALBUM,
+        kind = Groove.Kinds.ALBUM,
         label = { it.symphony.t.Albums },
         selectedIcon = { Icons.Filled.Album },
         unselectedIcon = { Icons.Outlined.Album }
     ),
     AlbumArtists(
-        kind = GrooveKinds.ALBUM_ARTIST,
+        kind = Groove.Kinds.ALBUM_ARTIST,
         label = { it.symphony.t.AlbumArtists },
         selectedIcon = { Icons.Filled.SupervisorAccount },
         unselectedIcon = { Icons.Outlined.SupervisorAccount }
     ),
     Genres(
-        kind = GrooveKinds.GENRE,
+        kind = Groove.Kinds.GENRE,
         label = { it.symphony.t.Genres },
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
     ),
     Playlists(
-        kind = GrooveKinds.PLAYLIST,
+        kind = Groove.Kinds.PLAYLIST,
         label = { it.symphony.t.Playlists },
         selectedIcon = { Icons.AutoMirrored.Filled.QueueMusic },
         unselectedIcon = { Icons.AutoMirrored.Outlined.QueueMusic }

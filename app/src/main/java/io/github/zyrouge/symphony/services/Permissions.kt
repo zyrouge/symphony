@@ -8,29 +8,31 @@ import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.Eventer
 
-enum class PermissionEvents {
-    MEDIA_PERMISSION_GRANTED,
-}
+class Permissions(private val symphony: Symphony) {
+    enum class Events {
+        MEDIA_PERMISSION_GRANTED,
+    }
 
-data class PermissionsState(
-    val required: List<String>,
-    val granted: List<String>,
-    val denied: List<String>,
-) {
-    fun hasAll() = denied.isEmpty()
-}
+    data class State(
+        val required: List<String>,
+        val granted: List<String>,
+        val denied: List<String>,
+    ) {
+        fun hasAll() = denied.isEmpty()
+    }
 
-class PermissionsManager(private val symphony: Symphony) {
-    val onUpdate = Eventer<PermissionEvents>()
+    val onUpdate = Eventer<Events>()
 
     fun handle(activity: MainActivity) {
         val state = getState(activity)
-        if (state.hasAll()) return
+        if (state.hasAll()) {
+            return
+        }
         activity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
             if (permissions.count { it.value } > 0) {
-                onUpdate.dispatch(PermissionEvents.MEDIA_PERMISSION_GRANTED)
+                onUpdate.dispatch(Events.MEDIA_PERMISSION_GRANTED)
             }
         }.launch(state.denied.toTypedArray())
     }
@@ -44,7 +46,7 @@ class PermissionsManager(private val symphony: Symphony) {
         return required
     }
 
-    private fun getState(activity: MainActivity): PermissionsState {
+    private fun getState(activity: MainActivity): State {
         val required = getRequiredPermissions()
         val granted = mutableListOf<String>()
         val denied = mutableListOf<String>()
@@ -55,10 +57,6 @@ class PermissionsManager(private val symphony: Symphony) {
                 denied.add(it)
             }
         }
-        return PermissionsState(
-            required = required,
-            granted = granted,
-            denied = denied,
-        )
+        return State(required = required, granted = granted, denied = denied)
     }
 }
