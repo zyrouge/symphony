@@ -30,6 +30,7 @@
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/actions/workflows/release.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg"></a>
+    <a href="https://github.com/zyrouge/symphony/actions/workflows/code-analysis.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/code-analysis.yml/badge.svg"></a>
     <a href="./LICENSE"><img src="https://img.shields.io/github/license/zyrouge/symphony"></a>
 </p>
 
