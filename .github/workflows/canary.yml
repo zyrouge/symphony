@@ -8,8 +8,8 @@ on:
 env:
     SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/canary/app-release.apk
-    BUILD_AAB_FILE: ./app/build/outputs/bundle/canary/app-release.aab
+    BUILD_APK_FILE: ./app/build/outputs/apk/canary/app-canary.apk
+    BUILD_AAB_FILE: ./app/build/outputs/bundle/canary/app-canary.aab
     OUTPUT_DIR: ./dist
 
 jobs:
@@ -72,7 +72,6 @@ jobs:
               if: env.SKIP_RELEASE == 'no'
               run: |
                   mkdir -p $OUTPUT_DIR
-                  find . -name "*.apk"
                   mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
                   mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
               env:
