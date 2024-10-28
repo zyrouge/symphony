@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.unit.dp
 
-object ContentDrawScopeScrollBarDefaults {
+data object ContentDrawScopeScrollBarDefaults {
     val scrollPointerWidth = 4.dp
     val scrollPointerHeight = 16.dp
 }

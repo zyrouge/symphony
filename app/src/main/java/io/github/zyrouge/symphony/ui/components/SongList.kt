@@ -1,6 +1,10 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -8,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,11 +20,16 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
+import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.navigateTo
+import io.github.zyrouge.symphony.ui.view.SettingsViewElements
 
 enum class SongListType {
     Default,
@@ -39,6 +49,7 @@ fun SongList(
     cardThumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     type: SongListType = SongListType.Default,
     disableHeartIcon: Boolean = false,
+    enableAddMediaFoldersHint: Boolean = false,
 ) {
     val sortBy by type.getLastUsedSortBy(context).collectAsState()
     val sortReverse by type.getLastUsedSortReverse(context).collectAsState()
@@ -74,13 +85,26 @@ fun SongList(
             when {
                 songIds.isEmpty() -> IconTextBody(
                     icon = { modifier ->
-                        Icon(
-                            Icons.Filled.MusicNote,
-                            null,
-                            modifier = modifier,
-                        )
+                        Icon(Icons.Filled.MusicNote, null, modifier = modifier)
                     },
-                    content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
+                    content = {
+                        Text(context.symphony.t.DamnThisIsSoEmpty)
+                        if (enableAddMediaFoldersHint) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                context.symphony.t.HintAddMediaFolders,
+                                style = MaterialTheme.typography.labelMedium,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .clickable {
+                                        context.navController.navigateTo(
+                                            Routes.Settings.build(SettingsViewElements.MediaFolders)
+                                        )
+                                    }
+                                    .padding(2.dp),
+                            )
+                        }
+                    }
                 )
 
                 else -> {

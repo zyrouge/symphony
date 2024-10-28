@@ -16,7 +16,7 @@ import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.utils.StringListUtils
 
 @Suppress("ConstPropertyName")
-object SettingsDefaults {
+data object SettingsDefaults {
     val themeMode = ThemeMode.SYSTEM
     const val useMaterialYou = true
     val lastUsedSongSortBy = SongRepository.SortBy.TITLE

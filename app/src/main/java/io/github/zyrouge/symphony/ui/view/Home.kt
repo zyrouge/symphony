@@ -244,7 +244,7 @@ fun HomeView(context: ViewContext) {
                                     },
                                     onClick = {
                                         showOptionsDropdown = false
-                                        context.navController.navigateTo(Routes.Settings)
+                                        context.navController.navigateTo(Routes.Settings.build())
                                     }
                                 )
                             }

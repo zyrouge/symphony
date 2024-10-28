@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.services.settings
 
 @Suppress("ConstPropertyName")
-object SettingsKeys {
+data object SettingsKeys {
     const val identifier = "settings"
     const val themeMode = "theme_mode"
     const val language = "language"

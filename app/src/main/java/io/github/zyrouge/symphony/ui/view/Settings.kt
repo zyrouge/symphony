@@ -1,6 +1,9 @@
 package io.github.zyrouge.symphony.ui.view
 
 import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.repeatable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -62,21 +67,27 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.services.settings.SettingsDefaults
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
@@ -96,6 +107,7 @@ import io.github.zyrouge.symphony.ui.view.settings.SettingsSliderTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.view.settings.SettingsTextInputTile
 import io.github.zyrouge.symphony.utils.ActivityUtils
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -105,11 +117,16 @@ private val scalingPresets = listOf(
     2.25f, 2.5f, 2.75f, 3f,
 )
 
+enum class SettingsViewElements {
+    MediaFolders,
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsView(context: ViewContext) {
+fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollState = rememberScrollState()
 
     val language by context.symphony.settings.language.collectAsState()
     val fontFamily by context.symphony.settings.fontFamily.collectAsState()
@@ -144,13 +161,6 @@ fun SettingsView(context: ViewContext) {
     val fontScale by context.symphony.settings.fontScale.collectAsState()
     val contentScale by context.symphony.settings.contentScale.collectAsState()
     val mediaFolders by context.symphony.settings.mediaFolders.collectAsState()
-
-    val refetchLibrary = {
-        context.symphony.radio.stop()
-        coroutineScope.launch {
-            context.symphony.groove.refetch()
-        }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -189,7 +199,7 @@ fun SettingsView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Column(modifier = Modifier.verticalScroll(scrollState)) {
                     val contentColor = MaterialTheme.colorScheme.onPrimary
 
                     val seekDurationRange = 3f..60f
@@ -647,20 +657,22 @@ fun SettingsView(context: ViewContext) {
                     )
                     HorizontalDivider()
                     SettingsSideHeading(context.symphony.t.Groove)
-                    SettingsMultiSystemFolderTile(
-                        context,
-                        icon = {
-                            Icon(Icons.Filled.LibraryMusic, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.MediaFolders)
-                        },
-                        initialValues = mediaFolders,
-                        onChange = { values ->
-                            context.symphony.settings.setMediaFolders(values)
-                            refetchLibrary()
-                        }
-                    )
+                    SpotlightTile(initialElement == SettingsViewElements.MediaFolders) {
+                        SettingsMultiSystemFolderTile(
+                            context,
+                            icon = {
+                                Icon(Icons.Filled.LibraryMusic, null)
+                            },
+                            title = {
+                                Text(context.symphony.t.MediaFolders)
+                            },
+                            initialValues = mediaFolders,
+                            onChange = { values ->
+                                context.symphony.settings.setMediaFolders(values)
+                                refetchMediaLibrary(coroutineScope, context.symphony)
+                            }
+                        )
+                    }
                     SettingsTextInputTile(
                         context,
                         icon = {
@@ -680,7 +692,7 @@ fun SettingsView(context: ViewContext) {
                                     else -> value
                                 }
                             )
-                            refetchLibrary()
+                            refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
                     SettingsMultiGrooveFolderTile(
@@ -695,7 +707,7 @@ fun SettingsView(context: ViewContext) {
                         initialValues = blacklistFolders,
                         onChange = { values ->
                             context.symphony.settings.setBlacklistFolders(values)
-                            refetchLibrary()
+                            refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
                     SettingsMultiGrooveFolderTile(
@@ -710,7 +722,7 @@ fun SettingsView(context: ViewContext) {
                         initialValues = whitelistFolders,
                         onChange = { values ->
                             context.symphony.settings.setWhitelistFolders(values)
-                            refetchLibrary()
+                            refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
                     SettingsMultiTextOptionTile(
@@ -724,7 +736,7 @@ fun SettingsView(context: ViewContext) {
                         values = artistTagSeparators.toList(),
                         onChange = {
                             context.symphony.settings.setArtistTagSeparators(it)
-                            refetchLibrary()
+                            refetchMediaLibrary(coroutineScope, context.symphony)
                         },
                     )
                     SettingsMultiTextOptionTile(
@@ -738,7 +750,7 @@ fun SettingsView(context: ViewContext) {
                         values = genreTagSeparators.toList(),
                         onChange = {
                             context.symphony.settings.setGenreTagSeparators(it)
-                            refetchLibrary()
+                            refetchMediaLibrary(coroutineScope, context.symphony)
                         },
                     )
                     SettingsSimpleTile(
@@ -751,7 +763,7 @@ fun SettingsView(context: ViewContext) {
                         onClick = {
                             coroutineScope.launch {
                                 context.symphony.database.songCache.clear()
-                                refetchLibrary()
+                                refetchMediaLibrary(coroutineScope, context.symphony)
                                 snackbarHostState.showSnackbar(
                                     context.symphony.t.SongCacheCleared,
                                     withDismissAction = true,
@@ -904,4 +916,43 @@ fun PrimaryThemeColors.label(context: ViewContext) = when (this) {
     PrimaryThemeColors.Fuchsia -> context.symphony.t.Fuchsia
     PrimaryThemeColors.Pink -> context.symphony.t.Pink
     PrimaryThemeColors.Rose -> context.symphony.t.Rose
+}
+
+private fun refetchMediaLibrary(coroutineScope: CoroutineScope, symphony: Symphony) {
+    symphony.radio.stop()
+    coroutineScope.launch {
+        symphony.groove.refetch()
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun SpotlightTile(isInSpotlight: Boolean, content: @Composable (() -> Unit)) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    var animateSpotlightEffect by remember { mutableStateOf(false) }
+    val highlightAlphaAnimated by animateFloatAsState(
+        targetValue = if (animateSpotlightEffect) 0.25f else 0f,
+        label = "spotlight-outline-alpha",
+        animationSpec = repeatable(2, TransitionDurations.Slow.asTween()),
+    )
+    val highlightColor = MaterialTheme.colorScheme.surfaceTint
+
+    LaunchedEffect(isInSpotlight) {
+        if (isInSpotlight) {
+            animateSpotlightEffect = true
+            bringIntoViewRequester.bringIntoView()
+            animateSpotlightEffect = false
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .drawWithContent {
+                drawContent()
+                drawRect(color = highlightColor, alpha = highlightAlphaAnimated)
+            }
+    ) {
+        content()
+    }
 }

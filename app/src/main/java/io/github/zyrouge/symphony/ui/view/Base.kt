@@ -14,6 +14,7 @@ import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.getRouteArgument
 import io.github.zyrouge.symphony.ui.helpers.getRouteParameter
 import io.github.zyrouge.symphony.ui.theme.SymphonyTheme
 
@@ -55,10 +56,15 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 }
                 composable(
                     Routes.Settings.template(),
+                    arguments = Routes.Settings.arguments(),
                     enterTransition = { ScaleTransition.scaleDown.enterTransition() },
                     exitTransition = { ScaleTransition.scaleUp.exitTransition() },
-                ) {
-                    SettingsView(context)
+                ) { backStackEntry ->
+                    SettingsView(
+                        context,
+                        initialElement = backStackEntry.getRouteArgument(Routes.Settings.ELEMENT_ARGUMENT_NAME)
+                            ?.let { SettingsViewElements.valueOf(it) },
+                    )
                 }
                 composable(
                     Routes.Artist.template(),

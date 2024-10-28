@@ -18,6 +18,7 @@ fun SongsView(context: ViewContext) {
             context,
             songIds = songIds,
             songsCount = songsCount,
+            enableAddMediaFoldersHint = true,
         )
     }
 }

@@ -692,3 +692,6 @@ name = "DiscTotal"
 
 [[keys]]
 name = "Encoder"
+
+[[keys]]
+name = "HintAddMediaFolders"
