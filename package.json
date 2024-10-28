@@ -25,7 +25,7 @@
     "author": "Zyrouge",
     "license": "AGPL-3.0",
     "devDependencies": {
-        "@types/archiver": "^6.0.2",
+        "@types/archiver": "^6.0.3",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^22.8.1",
         "@zyrouge/phrasey-json": "^1.0.3",
