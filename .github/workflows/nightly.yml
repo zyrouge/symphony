@@ -5,8 +5,8 @@ on:
 
 env:
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
-    BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app-release.aab
+    BUILD_APK_FILE: ./app/build/outputs/apk/nightly/app-release.apk
+    BUILD_AAB_FILE: ./app/build/outputs/bundle/nightly/app-release.aab
     OUTPUT_DIR: ./dist
 
 jobs:

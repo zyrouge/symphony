@@ -8,8 +8,8 @@ on:
 env:
     SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/release/app-release.apk
-    BUILD_AAB_FILE: ./app/build/outputs/bundle/release/app-release.aab
+    BUILD_APK_FILE: ./app/build/outputs/apk/canary/app-release.apk
+    BUILD_AAB_FILE: ./app/build/outputs/bundle/canary/app-release.aab
     OUTPUT_DIR: ./dist
 
 jobs:
