@@ -59,8 +59,8 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  ./gradlew assemble
-                  ./gradlew bundle
+                  ./gradlew assembleCanary
+                  ./gradlew bundleCanary
                   npm run postbuild
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
@@ -75,7 +75,6 @@ jobs:
                   mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
                   mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
               env:
-                  APP_ID_SUFFIX: .canary
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
             - name: 🚀 Upload assets

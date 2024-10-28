@@ -27,8 +27,7 @@ android {
 
     signingConfigs {
         register("release") {
-            val storeFileEnv = System.getenv("SIGNING_KEYSTORE_FILE")
-            storeFile = if (null != storeFileEnv) rootProject.file(storeFileEnv) else null
+            storeFile = System.getenv("SIGNING_KEYSTORE_FILE")?.let { rootProject.file(it) }
             storePassword = System.getenv("SIGNING_KEYSTORE_PASSWORD")
             keyAlias = System.getenv("SIGNING_KEY_ALIAS")
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
@@ -37,7 +36,6 @@ android {
 
     buildTypes {
         getByName("release") {
-            applicationIdSuffix = System.getenv("APP_ID_SUFFIX")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -47,6 +45,10 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
+        }
+        create("canary") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".canary"
         }
         getByName("debug") {
             applicationIdSuffix = ".debug"

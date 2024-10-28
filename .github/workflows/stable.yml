@@ -1,4 +1,4 @@
-name: Release
+name: Stable
 
 on:
     workflow_dispatch:

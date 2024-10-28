@@ -29,7 +29,7 @@
     <a href="https://github.com/zyrouge/symphony/tree/i18n-summary"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zyrouge/symphony/i18n-summary/badge-strings.json"></a>
     <a href="https://github.com/zyrouge/symphony/releases"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/total?color=E08312"></a>
     <a href="https://github.com/zyrouge/symphony/releases/latest"><img src="https://img.shields.io/github/downloads/zyrouge/symphony/latest/total?color=E08312"></a>
-    <a href="https://github.com/zyrouge/symphony/actions/workflows/release.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/release.yml/badge.svg"></a>
+    <a href="https://github.com/zyrouge/symphony/actions/workflows/stable.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/stable.yml/badge.svg"></a>
     <a href="https://github.com/zyrouge/symphony/actions/workflows/code-analysis.yml"><img src="https://github.com/zyrouge/symphony/actions/workflows/code-analysis.yml/badge.svg"></a>
     <a href="./LICENSE"><img src="https://img.shields.io/github/license/zyrouge/symphony"></a>
 </p>
