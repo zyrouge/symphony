@@ -72,6 +72,7 @@ jobs:
               if: env.SKIP_RELEASE == 'no'
               run: |
                   mkdir -p $OUTPUT_DIR
+                  find . -name "*.apk"
                   mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
                   mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
               env:
