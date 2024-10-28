@@ -50,8 +50,8 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  ./gradlew assemble
-                  ./gradlew bundle
+                  ./gradlew assembleNightly
+                  ./gradlew bundleNightly
                   npm run postbuild
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}

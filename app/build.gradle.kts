@@ -46,6 +46,9 @@ android {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
         }
+        create("nightly") {
+            initWith(getByName("release"))
+        }
         create("canary") {
             initWith(getByName("release"))
             applicationIdSuffix = ".canary"
