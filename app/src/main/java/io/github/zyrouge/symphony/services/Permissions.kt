@@ -40,7 +40,6 @@ class Permissions(private val symphony: Symphony) {
     private fun getRequiredPermissions(): List<String> {
         val required = mutableListOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            required.add(Manifest.permission.READ_MEDIA_AUDIO)
             required.add(Manifest.permission.POST_NOTIFICATIONS)
         }
         return required
