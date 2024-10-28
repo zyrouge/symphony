@@ -15,6 +15,7 @@ import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.SimplePath
 import java.io.FileOutputStream
 import java.math.RoundingMode
+import java.time.LocalDate
 
 @Immutable
 @Entity("songs")
@@ -31,11 +32,16 @@ data class Song(
     val trackTotal: Int?,
     val discNumber: Int?,
     val discTotal: Int?,
+    val date: LocalDate?,
     val year: Int?,
     val duration: Long,
     val bitrate: Long?,
+    val minBitrate: Long?,
+    val maxBitrate: Long?,
     val bitsPerSample: Int?,
     val samplingRate: Long?,
+    val samples: Long?,
+    val channels: Int?,
     val codec: String?,
     val encoder: String?,
     val dateModified: Long,
@@ -44,7 +50,10 @@ data class Song(
     val uri: Uri,
     val path: String,
 ) {
+    val variableBitrate get() = minBitrate != null && minBitrate != maxBitrate
     val bitrateK: Long? get() = bitrate?.let { it / 1000 }
+    val minBitrateK: Long? get() = minBitrate?.let { it / 1000 }
+    val maxBitrateK: Long? get() = maxBitrate?.let { it / 1000 }
     val samplingRateK: Float?
         get() = samplingRate?.let {
             (it.toFloat() / 1000)
@@ -60,12 +69,22 @@ data class Song(
 
     fun toSamplingInfoString(symphony: Symphony): String? {
         val values = mutableListOf<String>()
-        codec?.let { values.add(it) }
+        codec?.let {
+            values.add(it)
+        }
+        channels?.let {
+            values.add(symphony.t.XChannels(it.toString()))
+        }
         bitsPerSample?.let {
             values.add(symphony.t.XBit(it.toString()))
         }
         bitrateK?.let {
-            values.add(symphony.t.XKbps(it.toString()))
+            values.add(buildString {
+                append(symphony.t.XKbps(it.toString()))
+                if (variableBitrate) {
+                    append(" (${symphony.t.VBR})")
+                }
+            })
         }
         samplingRateK?.let {
             values.add(symphony.t.XKHz(it.toString()))
@@ -119,11 +138,16 @@ data class Song(
                 trackTotal = metadata.trackTotal,
                 discNumber = metadata.discNumber,
                 discTotal = metadata.discTotal,
+                date = metadata.date,
                 year = metadata.year,
                 duration = stream.duration?.let { it * 1000 } ?: 0,
                 bitrate = stream.bitrate,
+                minBitrate = stream.minBitrate,
+                maxBitrate = stream.maxBitrate,
                 bitsPerSample = stream.bitsPerSample,
                 samplingRate = stream.samplingRate,
+                samples = stream.samples,
+                channels = stream.channels,
                 codec = stream.codec,
                 encoder = metadata.encoder,
                 dateModified = file.lastModified,
@@ -166,6 +190,7 @@ data class Song(
             val discNumber = retriever
                 .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)
                 ?.toIntOrNull()
+            val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
             val year = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
                 ?.toIntOrNull()
             val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -198,11 +223,16 @@ data class Song(
                 trackTotal = trackTotal,
                 discNumber = discNumber,
                 discTotal = null,
+                date = runCatching { LocalDate.parse(date) }.getOrNull(),
                 year = year,
                 duration = duration ?: 0,
                 bitrate = bitrate,
+                minBitrate = null,
+                maxBitrate = null,
                 bitsPerSample = bitsPerSample,
                 samplingRate = samplingRate,
+                samples = null,
+                channels = null,
                 codec = codec,
                 encoder = null,
                 dateModified = file.lastModified,

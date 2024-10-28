@@ -4,24 +4,31 @@ import android.net.Uri
 import androidx.room.TypeConverter
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.time.LocalDate
 
 @Suppress("unused")
 class RoomConvertors {
     @TypeConverter
-    fun serializeUri(value: String) = Uri.parse(value)
+    fun serializeUri(value: Uri) = value.toString()
 
     @TypeConverter
-    fun deserializeUri(value: Uri) = value.toString()
+    fun deserializeUri(value: String) = Uri.parse(value)
 
     @TypeConverter
-    fun serializeStringSet(value: String) = Json.decodeFromString<Set<String>>(value)
+    fun serializeStringSet(value: Set<String>) = Json.encodeToString(value)
 
     @TypeConverter
-    fun deserializeStringSet(value: Set<String>) = Json.encodeToString(value)
+    fun deserializeStringSet(value: String) = Json.decodeFromString<Set<String>>(value)
 
     @TypeConverter
-    fun serializeStringList(value: String) = Json.decodeFromString<List<String>>(value)
+    fun serializeStringList(value: List<String>) = Json.encodeToString(value)
 
     @TypeConverter
-    fun deserializeStringList(value: List<String>) = Json.encodeToString(value)
+    fun deserializeStringList(value: String) = Json.decodeFromString<List<String>>(value)
+
+    @TypeConverter
+    fun serializeLocalDate(value: LocalDate) = value.toString()
+
+    @TypeConverter
+    fun deserializeLocalDate(value: String): LocalDate = LocalDate.parse(value)
 }

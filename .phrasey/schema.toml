@@ -695,3 +695,28 @@ name = "Encoder"
 
 [[keys]]
 name = "HintAddMediaFolders"
+
+[[keys]]
+name = "XChannels"
+parameters = ["x"]
+
+[[keys]]
+name = "VBR"
+
+[[keys]]
+name = "AudioChannels"
+
+[[keys]]
+name = "Variable"
+
+[[keys]]
+name = "MinimumBitrate"
+
+[[keys]]
+name = "MaximumBitrate"
+
+[[keys]]
+name = "Date"
+
+[[keys]]
+name = "TotalSamples"
