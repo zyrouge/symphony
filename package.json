@@ -11,7 +11,6 @@
         "version:print-canary": "tsx ./cli/version/print-canary.ts",
         "git:tag-exists": "tsx ./cli/git/tag-exists.ts",
         "git:tag-exists-yn": "tsx ./cli/git/tag-exists-yn.ts",
-        "git:no-affects-app-yn": "tsx ./cli/git/no-affects-app-yn.ts",
         "git:latest-tag": "tsx ./cli/git/latest-tag.ts",
         "android:pack-symbols": "tsx ./cli/android/pack-symbols.ts",
         "android:move-outputs": "tsx ./cli/android/move-outputs.ts",

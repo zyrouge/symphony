@@ -1,12 +1,9 @@
 name: Canary
 
 on:
-    schedule:
-        - cron: "0 0 * * *"
     workflow_dispatch:
 
 env:
-    SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     OUTPUT_DIR: ./dist
 
@@ -37,15 +34,7 @@ jobs:
               id: app_version
               run: echo "version=$(npm run --silent version:print-canary)" >> $GITHUB_OUTPUT
 
-            - name: 🔎 Check for release
-              run: |
-                  last_tag=$(npm run --silent git:latest-tag)
-                  echo "SKIP_RELEASE=$(npm run --silent git:no-affects-app-yn -- $last_tag)" >> $GITHUB_ENV
-              env:
-                  TAG_NAME: v${{ steps.app_version.outputs.version }}
-
             - name: 🔨 Generate certificate
-              if: env.SKIP_RELEASE == 'no'
               run: |
                   mkdir -p $(dirname $SIGNING_KEYSTORE_FILE)
                   echo $SIGNING_KEYSTORE_FILE_CONTENT | base64 -di > $SIGNING_KEYSTORE_FILE
@@ -53,7 +42,6 @@ jobs:
                   SIGNING_KEYSTORE_FILE_CONTENT: ${{ secrets.SIGNING_KEYSTORE_FILE }}
 
             - name: 🔨 Build assets
-              if: env.SKIP_RELEASE == 'no'
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
@@ -67,19 +55,20 @@ jobs:
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-            - name: 🚀 Upload assets
-              if: env.SKIP_RELEASE == 'no'
-              uses: ncipollo/release-action@v1
+            - name: 🚀 Upload apk
+              uses: actions/upload-artifact@v4
               with:
-                  tag: v${{ steps.app_version.outputs.version }}
-                  artifacts: ${{ env.OUTPUT_DIR }}/*
-                  body: "Refer [commits of v${{ steps.app_version.outputs.version }}](https://github.com/zyrouge/symphony/commits/v${{ steps.app_version.outputs.version }}) for the changes."
-                  generateReleaseNotes: false
-                  allowUpdates: true
-                  artifactErrorsFailBuild: true
+                  name: symphony-v${{ steps.app_version.outputs.version }}-apk
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}.apk
 
-            - name: 🔖 Was Release skipped?
-              if: env.SKIP_RELEASE == 'yes'
-              run: echo "Skipping since tag $TAG_NAME already exists"
-              env:
-                  TAG_NAME: v${{ steps.app_version.outputs.version }}
+            - name: 🚀 Upload aab
+              uses: actions/upload-artifact@v4
+              with:
+                  name: symphony-v${{ steps.app_version.outputs.version }}-aab
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}.aab
+
+            - name: 🚀 Upload symbols
+              uses: actions/upload-artifact@v4
+              with:
+                  name: symbols
+                  path: ${{ env.OUTPUT_DIR }}/symbols.zip
