@@ -63,6 +63,7 @@ jobs:
                   ./gradlew bundleCanary
                   npm run postbuild
               env:
+                  APP_BUILD_TYPE: canary
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
