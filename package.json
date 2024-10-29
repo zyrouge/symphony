@@ -14,8 +14,9 @@
         "git:no-affects-app-yn": "tsx ./cli/git/no-affects-app-yn.ts",
         "git:latest-tag": "tsx ./cli/git/latest-tag.ts",
         "android:pack-symbols": "tsx ./cli/android/pack-symbols.ts",
+        "android:move-outputs": "tsx ./cli/android/move-outputs.ts",
         "prebuild": "npm run i18n:build",
-        "postbuild": "npm run android:pack-symbols",
+        "postbuild": "npm run android:move-outputs && npm run android:pack-symbols",
         "release": "gh workflow run release"
     },
     "repository": {

@@ -5,8 +5,6 @@ on:
 
 env:
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/nightly/app-nightly.apk
-    BUILD_AAB_FILE: ./app/build/outputs/bundle/nightly/app-nightly.aab
     OUTPUT_DIR: ./dist
 
 jobs:
@@ -59,14 +57,6 @@ jobs:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-
-            - name: 📝 Rename assets
-              run: |
-                  mkdir -p $OUTPUT_DIR
-                  mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
-                  mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
-              env:
-                  APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
 
             - name: 🚀 Upload assets
               uses: ncipollo/release-action@v1

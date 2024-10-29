@@ -8,8 +8,6 @@ on:
 env:
     SKIP_RELEASE: "yes"
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
-    BUILD_APK_FILE: ./app/build/outputs/apk/canary/app-canary.apk
-    BUILD_AAB_FILE: ./app/build/outputs/bundle/canary/app-canary.aab
     OUTPUT_DIR: ./dist
 
 jobs:
@@ -69,15 +67,6 @@ jobs:
                   SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
                   SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-            - name: 📝 Rename assets
-              if: env.SKIP_RELEASE == 'no'
-              run: |
-                  mkdir -p $OUTPUT_DIR
-                  mv $BUILD_APK_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.apk
-                  mv $BUILD_AAB_FILE $OUTPUT_DIR/symphony-v$APP_VERSION_NAME.aab
-              env:
-                  APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
-
             - name: 🚀 Upload assets
               if: env.SKIP_RELEASE == 'no'
               uses: ncipollo/release-action@v1
@@ -86,7 +75,7 @@ jobs:
                   artifacts: ${{ env.OUTPUT_DIR }}/*
                   body: "Refer [commits of v${{ steps.app_version.outputs.version }}](https://github.com/zyrouge/symphony/commits/v${{ steps.app_version.outputs.version }}) for the changes."
                   generateReleaseNotes: false
-                  draft: true
+                  allowUpdates: true
                   artifactErrorsFailBuild: true
 
             - name: 🔖 Was Release skipped?
