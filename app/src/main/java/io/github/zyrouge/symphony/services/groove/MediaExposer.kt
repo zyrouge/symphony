@@ -40,7 +40,7 @@ class MediaExposer(private val symphony: Symphony) {
         companion object {
             suspend fun create(symphony: Symphony): ScanCycle {
                 val songCache = ConcurrentHashMap(symphony.database.songCache.entriesPathMapped())
-                val songCacheUnused = concurrentSetOf(songCache.keys)
+                val songCacheUnused = concurrentSetOf(songCache.map { it.value.id })
                 val artworkCacheUnused = concurrentSetOf(symphony.database.artworkCache.all())
                 val lyricsCacheUnused = concurrentSetOf(symphony.database.lyricsCache.keys())
                 val filter = MediaFilter(
@@ -120,15 +120,18 @@ class MediaExposer(private val symphony: Symphony) {
         val pathString = path.pathString
         uris[pathString] = file.uri
         val lastModified = file.lastModified
-        val cached = cycle.songCache[pathString]?.takeIf {
-            it.dateModified == lastModified
-                    && it.coverFile?.let { x -> cycle.artworkCacheUnused.contains(x) } != false
+        val cached = cycle.songCache[pathString]
+        val cacheHit = cached != null
+                && cached.dateModified == lastModified
+                && (cached.coverFile?.let { cycle.artworkCacheUnused.contains(it) } != false)
+        val song = when {
+            cacheHit -> cached
+            else -> Song.parse(symphony, path, file)
         }
-        val song = cached ?: Song.parse(symphony, path, file)
-        if (cached == null) {
+        if (!cacheHit) {
             symphony.database.songCache.insert(song)
         }
-        cycle.songCacheUnused.remove(pathString)
+        cycle.songCacheUnused.remove(song.id)
         song.coverFile?.let { cycle.artworkCacheUnused.remove(it) }
         cycle.lyricsCacheUnused.remove(song.id)
         explorer.addChildFile(path)

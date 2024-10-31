@@ -4,15 +4,16 @@ interface KeyGenerator {
     fun next(): String
 
     class TimeIncremental(private var i: Int = 0, private var time: Long = 0) : KeyGenerator {
-        override fun next() = synchronized(this) {
+        @Synchronized
+        override fun next(): String {
             val now = System.currentTimeMillis()
-            if (now == time) {
-                i = 0
+            if (now != time) {
                 time = now
+                i = 0
             } else {
                 i++
             }
-            "$now.$i"
+            return "$now.$i"
         }
     }
 }
