@@ -6,12 +6,13 @@ data class TimedContent(val pairs: List<Pair<Long, String>>) {
     val isSynced: Boolean get() = pairs.firstOrNull()?.first != pairs.lastOrNull()?.first
 
     companion object {
-        val lrcLineRegex = Regex("""^\[\s*(\d+):(\d+)\.(\d+)?\s*](.*)""")
+        val lrcLineSeparatorRegex = Regex("""\\n|\\r|\\r\\n""")
+        val lrcLineFilterRegex = Regex("""^\[\s*(\d+):(\d+)\.(\d+)?\s*](.*)""")
 
         fun fromLyrics(content: String): TimedContent {
             var lastTime = 0L
-            val pairs = content.split("\n").map { x ->
-                val match = lrcLineRegex.matchEntire(x)
+            val pairs = content.split(lrcLineSeparatorRegex).map { x ->
+                val match = lrcLineFilterRegex.matchEntire(x)
                 val pair = when {
                     match != null -> Duration
                         .ofMinutes(match.groupValues[1].toLong())
