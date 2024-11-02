@@ -127,7 +127,9 @@ class SongRepository(private val symphony: Symphony) {
 
     suspend fun getLyrics(song: Song): String? {
         try {
-            val lrcPath = SimplePath(song.path).nameWithoutExtension + ".lrc"
+            val lrcPath = SimplePath(song.path).let {
+                it.parent?.join(it.nameWithoutExtension + ".lrc")?.pathString
+            }
             symphony.groove.exposer.uris[lrcPath]?.let { uri ->
                 symphony.applicationContext.contentResolver.openInputStream(uri)?.use {
                     return String(it.readBytes())
