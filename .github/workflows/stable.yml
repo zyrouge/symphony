@@ -48,10 +48,12 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  ./gradlew buildRelease
+                  ./gradlew assembleRelease
                   ./gradlew bundleRelease
+                  echo "test"
                   find . -name ".apk"
                   find . -name ".aab"
+                  echo "test1"
                   npm run postbuild
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
