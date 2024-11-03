@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         }
 
         Thread.setDefaultUncaughtExceptionHandler { _, err ->
-            Logger.error("MainActivity", "Uncaught exception", err)
+            Logger.error("MainActivity", "uncaught exception", err)
             ErrorActivity.start(this, err)
             finish()
         }

@@ -12,6 +12,7 @@ import io.github.zyrouge.metaphony.AudioArtwork
 import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
+import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
 import java.io.FileOutputStream
 import java.math.RoundingMode
@@ -96,9 +97,17 @@ data class Song(
     }
 
     companion object {
-        fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX) =
-            parseUsingMetaphony(symphony, path, file)
-                ?: parseUsingMediaMetadataRetriever(symphony, path, file)
+        fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX): Song {
+            try {
+                val song = parseUsingMetaphony(symphony, path, file)
+                if (song != null) {
+                    return song
+                }
+            } catch (err: Exception) {
+                Logger.error("Song", "could not parse using metaphony", err)
+            }
+            return parseUsingMediaMetadataRetriever(symphony, path, file)
+        }
 
         private fun parseUsingMetaphony(
             symphony: Symphony,
