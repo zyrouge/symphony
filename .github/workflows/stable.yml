@@ -50,6 +50,8 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew buildRelease
                   ./gradlew bundleRelease
+                  find . -name ".apk"
+                  find . -name ".aab"
                   npm run postbuild
               env:
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
