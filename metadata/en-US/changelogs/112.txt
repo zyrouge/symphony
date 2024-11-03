@@ -1,0 +1,10 @@
+* **BREAKING CHANGE**: This update removes support for playlists of previous versions due to removal of `MediaStore` usage. It is HIGHLY RECOMMENDED to export the playlists using the previous version before updating. You can re-import them after updating.
+* Implemented custom media resolver and metadata decoder. (Experimental)
+* Added speed and pitch slider.
+* Fixed incorrect lyrics parsing when content contain CRLF.
+* Fixed popup overflow in Settings.
+* Improved M3U playlist parser.
+* Use Artists separator for Album Artists.
+* Fixed Albums categorization when Artists are different.
+* Improved fuzzy search.
+* Updated translations.
