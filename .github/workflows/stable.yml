@@ -48,8 +48,8 @@ jobs:
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
-                  ./gradlew build
-                  ./gradlew bundle
+                  ./gradlew buildRelease
+                  ./gradlew bundleRelease
                   npm run postbuild
               env:
                   SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
