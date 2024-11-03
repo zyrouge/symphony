@@ -6,7 +6,7 @@ data class TimedContent(val pairs: List<Pair<Long, String>>) {
     val isSynced: Boolean get() = pairs.firstOrNull()?.first != pairs.lastOrNull()?.first
 
     companion object {
-        val lrcLineSeparatorRegex = Regex("""\\n|\\r|\\r\\n""")
+        val lrcLineSeparatorRegex = Regex("""\n|\r|\r\n""")
         val lrcLineFilterRegex = Regex("""^\[\s*(\d+):(\d+)\.(\d+)?\s*](.*)""")
 
         fun fromLyrics(content: String): TimedContent {
