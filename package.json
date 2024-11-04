@@ -6,6 +6,7 @@
         "i18n:build": "phrasey build -p ./.phrasey/config.toml -f toml",
         "i18n:summary": "tsx ./cli/i18n/summary.ts",
         "version:bump": "tsx ./cli/version/bump.ts",
+        "version:bump-build": "tsx ./cli/version/bump-build.ts",
         "version:print": "tsx ./cli/version/print.ts",
         "version:print-nightly": "tsx ./cli/version/print-nightly.ts",
         "version:print-canary": "tsx ./cli/version/print-canary.ts",

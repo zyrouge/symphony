@@ -1,8 +1,8 @@
 import { Versioner } from "../helpers/version";
 
 const main = async () => {
-    const { versionName } = await Versioner.getVersion();
-    console.log(versionName);
+    const version = await Versioner.getVersion();
+    console.log(version);
 };
 
 main();
