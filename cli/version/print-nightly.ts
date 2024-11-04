@@ -12,7 +12,7 @@ const main = async () => {
         "nightly",
         sha,
     );
-    console.log(version);
+    console.log(version.toString());
 };
 
 main();
