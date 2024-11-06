@@ -35,6 +35,9 @@ data class Playlist(
         val primaryPath = SimplePath(PRIMARY_STORAGE)
         return songPaths.mapNotNull { x ->
             symphony.groove.song.pathCache[x]
+                ?: x.takeIf { x[0] == '/' }?.let {
+                    symphony.groove.song.pathCache[it.substring(1).replaceFirst("/", ":")]
+                }
                 ?: parentPath?.let { symphony.groove.song.pathCache[it.join(x).pathString] }
                 ?: symphony.groove.song.pathCache[primaryPath.join(x).pathString]
         }
