@@ -17,6 +17,7 @@ import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
+import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.StringListUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -269,7 +270,11 @@ class Settings(private val symphony: Symphony) {
                 putStringSet(key, value.map { it.toString() }.toSet())
             }
     }
-    val artworkQuality = IntEntry("artwork_quality", 50)
+    val artworkQuality = EnumEntry(
+        "artwork_quality",
+        enumEntries<ImagePreserver.Quality>(),
+        ImagePreserver.Quality.Medium,
+    )
 
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)

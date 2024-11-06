@@ -12,6 +12,7 @@ import io.github.zyrouge.metaphony.AudioArtwork
 import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
+import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
 import java.io.FileOutputStream
@@ -121,14 +122,23 @@ data class Song(
             val stream = parser.getStreamInfo()
             val id = symphony.groove.song.idGenerator.next()
             val coverFile = metadata.artworks.firstOrNull()?.let {
-                when (it.format) {
-                    AudioArtwork.Format.Unknown -> null
-                    else -> {
-                        val name = "$id.${it.format.extension}"
-                        symphony.database.artworkCache.get(name).writeBytes(it.data)
-                        name
-                    }
+                if (it.format == AudioArtwork.Format.Unknown) {
+                    return@let null
                 }
+                val quality = symphony.settings.artworkQuality.value
+                if (quality.maxSide == null) {
+                    val name = "$id.${it.format.extension}"
+                    symphony.database.artworkCache.get(name).writeBytes(it.data)
+                    return@let name
+                }
+                val bitmap = BitmapFactory.decodeByteArray(it.data, 0, it.data.size)
+                val name = "$id.${AudioArtwork.Format.Jpeg.extension}"
+                FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
+                    ImagePreserver
+                        .resize(bitmap, quality)
+                        .compress(Bitmap.CompressFormat.JPEG, 100, writer)
+                }
+                name
             }
             metadata.lyrics?.let {
                 symphony.database.lyricsCache.put(id, it)
@@ -177,9 +187,12 @@ data class Song(
             val id = symphony.groove.song.idGenerator.next() + ".mr"
             val coverFile = retriever.embeddedPicture?.let {
                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                val quality = symphony.settings.artworkQuality.value
                 val name = "$id.${AudioArtwork.Format.Jpeg.extension}"
                 FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, writer)
+                    ImagePreserver
+                        .resize(bitmap, quality)
+                        .compress(Bitmap.CompressFormat.JPEG, 100, writer)
                 }
                 name
             }
