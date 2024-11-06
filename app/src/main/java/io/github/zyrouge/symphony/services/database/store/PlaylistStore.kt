@@ -10,13 +10,13 @@ import io.github.zyrouge.symphony.services.groove.Playlist
 @Dao
 interface PlaylistStore {
     @Insert
-    suspend fun insert(vararg playlist: Playlist)
+    suspend fun insert(vararg playlist: Playlist): List<Long>
 
     @Update
-    suspend fun update(vararg playlist: Playlist)
+    suspend fun update(vararg playlist: Playlist): Int
 
     @Query("DELETE FROM playlists WHERE id IN (:playlistIds)")
-    suspend fun delete(playlistIds: Collection<String>)
+    suspend fun delete(playlistIds: Collection<String>): Int
 
     @Query("SELECT * FROM playlists")
     suspend fun entries(): Map<@MapColumn("id") String, Playlist>

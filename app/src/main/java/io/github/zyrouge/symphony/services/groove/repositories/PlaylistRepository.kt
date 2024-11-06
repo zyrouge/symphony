@@ -61,7 +61,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 val playlist = when {
                     x.isLocal -> {
                         ActivityUtils.makePersistableReadableUri(context, x.uri!!)
-                        Playlist.Companion.parse(symphony, x.uri)
+                        Playlist.parse(symphony, x.uri)
                     }
 
                     else -> x
@@ -72,6 +72,9 @@ class PlaylistRepository(private val symphony: Symphony) {
                 }
                 emitUpdateId()
                 emitCount()
+            }
+            if (!cache.containsKey(FAVORITE_PLAYLIST)) {
+                add(getFavorites())
             }
         } catch (_: FileNotFoundException) {
         } catch (err: Exception) {
@@ -122,10 +125,13 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun get(id: String) = cache[id]
     fun get(ids: List<String>) = ids.mapNotNull { get(it) }
-    fun getFavorites() = cache[FAVORITE_PLAYLIST] ?: createFavorites()
 
-    fun create(title: String, songIds: List<String>) = Playlist(
-        id = idGenerator.next(),
+    fun getFavorites() = cache[FAVORITE_PLAYLIST]
+        ?: create(FAVORITE_PLAYLIST, "Favorites", emptyList())
+
+    fun create(title: String, songIds: List<String>) = create(idGenerator.next(), title, songIds)
+    private fun create(id: String, title: String, songIds: List<String>) = Playlist(
+        id = id,
         title = title,
         songPaths = songIds.mapNotNull { symphony.groove.song.get(it)?.path },
         uri = null,
@@ -159,15 +165,15 @@ class PlaylistRepository(private val symphony: Symphony) {
     }
 
     suspend fun update(id: String, songIds: List<String>) {
-        val old = get(id) ?: return
-        val new = Playlist(
+        val playlist = get(id) ?: return
+        val updated = Playlist(
             id = id,
-            title = old.title,
+            title = playlist.title,
             songPaths = songIds.mapNotNull { symphony.groove.song.get(it)?.path },
-            uri = old.uri,
-            path = old.path,
+            uri = playlist.uri,
+            path = playlist.path,
         )
-        cache[id] = new
+        cache[id] = updated
         emitUpdateId()
         emitCount()
         if (id == FAVORITE_PLAYLIST) {
@@ -175,7 +181,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 songIds
             }
         }
-        symphony.database.playlists.update(new)
+        symphony.database.playlists.update(updated)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
@@ -217,23 +223,6 @@ class PlaylistRepository(private val symphony: Symphony) {
         cache[playlist.id] = renamed
         emitUpdateId()
         symphony.database.playlists.update(renamed)
-    }
-
-    private fun createFavorites(): Playlist {
-        val playlist = Playlist(
-            id = FAVORITE_PLAYLIST,
-            title = "Favorites",
-            songPaths = emptyList(),
-            uri = null,
-            path = null,
-        )
-        cache[playlist.id] = playlist
-        _all.update {
-            it + playlist.id
-        }
-        emitUpdateId()
-        emitCount()
-        return playlist
     }
 
     companion object {

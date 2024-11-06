@@ -34,16 +34,14 @@ class SQLiteKeyValueDatabaseAdapter<T>(
             put(COLUMN_KEY, key)
             put(COLUMN_VALUE, transformer.serialize(value))
         }
-        val conflict = SQLiteDatabase.CONFLICT_REPLACE
-        val rowId = writableDatabase.insertWithOnConflict(name, null, values, conflict)
+        val rowId = writableDatabase.insert(name, null, values)
         return rowId != -1L
     }
 
     fun delete(key: String): Boolean {
         val selection = "$COLUMN_KEY = ?"
         val selectionArgs = arrayOf(key)
-        val count = writableDatabase.delete(name, selection, selectionArgs)
-        return count == 1
+        return writableDatabase.delete(name, selection, selectionArgs) == 1
     }
 
     fun delete(keys: Collection<String>): Int {
@@ -55,14 +53,10 @@ class SQLiteKeyValueDatabaseAdapter<T>(
         }
         val selection = "$COLUMN_KEY IN (${selectionPlaceholder})"
         val selectionArgs = keys.toTypedArray()
-        val count = writableDatabase.delete(name, selection, selectionArgs)
-        return count
+        return writableDatabase.delete(name, selection, selectionArgs)
     }
 
-    fun clear(): Int {
-        val count = writableDatabase.delete(name, null, null)
-        return count
-    }
+    fun clear() = writableDatabase.delete(name, null, null)
 
     fun keys(): List<String> {
         val keys = mutableListOf<String>()
