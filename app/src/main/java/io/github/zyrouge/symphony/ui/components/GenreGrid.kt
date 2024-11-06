@@ -68,8 +68,8 @@ fun GenreGrid(
     genreNames: List<String>,
     genresCount: Int? = null,
 ) {
-    val sortBy by context.symphony.settings.lastUsedGenresSortBy.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedGenresSortReverse.collectAsState()
+    val sortBy by context.symphony.settings.lastUsedGenresSortBy.flow.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedGenresSortReverse.flow.collectAsState()
     val sortedGenreNames by remember(genreNames, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.genre.sort(genreNames, sortBy, sortReverse)
@@ -83,13 +83,13 @@ fun GenreGrid(
                     context,
                     reverse = sortReverse,
                     onReverseChange = {
-                        context.symphony.settings.setLastUsedGenresSortReverse(it)
+                        context.symphony.settings.lastUsedGenresSortReverse.setValue(it)
                     },
                     sort = sortBy,
                     sorts = GenreRepository.SortBy.entries
                         .associateWith { x -> ViewContext.parameterizedFn { x.label(it) } },
                     onSortChange = {
-                        context.symphony.settings.setLastUsedGenresSortBy(it)
+                        context.symphony.settings.lastUsedGenresSortBy.setValue(it)
                     },
                     label = {
                         Text(

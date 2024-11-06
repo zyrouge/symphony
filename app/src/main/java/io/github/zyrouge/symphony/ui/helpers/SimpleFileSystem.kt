@@ -1,12 +1,13 @@
 package io.github.zyrouge.symphony.ui.helpers
 
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
+import io.github.zyrouge.symphony.utils.SimplePath
 
-fun SimpleFileSystem.Folder.navigateToFolder(parts: List<String>): SimpleFileSystem.Folder? {
+fun SimpleFileSystem.Folder.navigateToFolder(path: SimplePath): SimpleFileSystem.Folder? {
     var folder: SimpleFileSystem.Folder? = this
-    parts.forEach { part ->
+    path.parts.forEach { x ->
         folder = folder?.let {
-            val child = it.children[part]
+            val child = it.children[x]
             child as? SimpleFileSystem.Folder
         }
     }

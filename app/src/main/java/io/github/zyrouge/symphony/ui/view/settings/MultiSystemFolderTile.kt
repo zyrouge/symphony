@@ -48,6 +48,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
+import io.github.zyrouge.symphony.utils.SimplePath
 
 private const val SettingsFolderContentType = "folder"
 
@@ -165,7 +166,7 @@ fun SettingsMultiSystemFolderTile(
 private fun SettingsFolderTilePickerDialog(
     context: ViewContext,
     explorer: SimpleFileSystem.Folder,
-    onSelect: (List<String>?) -> Unit,
+    onSelect: (SimplePath?) -> Unit,
 ) {
     var currentFolder by remember { mutableStateOf(explorer) }
     val sortedEntities by remember(currentFolder) {
@@ -179,7 +180,7 @@ private fun SettingsFolderTilePickerDialog(
         }
     }
     val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.fullPath.parts }
+        derivedStateOf { currentFolder.fullPath }
     }
     val currentPathScrollState = rememberScrollState()
 
@@ -207,15 +208,16 @@ private fun SettingsFolderTilePickerDialog(
                     .horizontalScroll(currentPathScrollState)
                     .padding(12.dp, 8.dp),
             ) {
-                currentPath.mapIndexed { i, basename ->
+                currentPath.parts.mapIndexed { i, basename ->
                     Text(
                         basename,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
                             .clickable {
+                                val path = SimplePath(currentPath.parts.subList(1, i + 1))
                                 explorer
-                                    .navigateToFolder(currentPath.subList(1, i + 1))
+                                    .navigateToFolder(path)
                                     ?.let { currentFolder = it }
                             }
                             .padding(8.dp, 4.dp),

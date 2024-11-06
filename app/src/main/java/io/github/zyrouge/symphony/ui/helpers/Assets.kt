@@ -19,7 +19,8 @@ object Assets {
     }
 
     fun getPlaceholderId(symphony: Symphony) = getPlaceholderId(
-        isLight = symphony.settings.themeMode.value.toColorSchemeMode(symphony).isLight(),
+        isLight = symphony.settings.themeMode.value.toColorSchemeMode(symphony)
+            .isLight(),
     )
 
     fun getPlaceholderUri(symphony: Symphony) = buildUriOfResource(

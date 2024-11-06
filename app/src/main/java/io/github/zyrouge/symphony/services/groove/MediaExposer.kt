@@ -130,9 +130,16 @@ class MediaExposer(private val symphony: Symphony) {
         }
         if (!cacheHit) {
             symphony.database.songCache.insert(song)
+            cached?.coverFile?.let {
+                if (symphony.database.artworkCache.get(it).delete()) {
+                    cycle.artworkCacheUnused.remove(it)
+                }
+            }
         }
         cycle.songCacheUnused.remove(song.id)
-        song.coverFile?.let { cycle.artworkCacheUnused.remove(it) }
+        song.coverFile?.let {
+            cycle.artworkCacheUnused.remove(it)
+        }
         cycle.lyricsCacheUnused.remove(song.id)
         explorer.addChildFile(path)
         withContext(Dispatchers.Main) {

@@ -48,19 +48,15 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
             }
         }
 
-    var volume: Float = MAX_VOLUME
-    var speed: Float = DEFAULT_SPEED
-    var pitch: Float = DEFAULT_PITCH
-    val fadePlayback: Boolean
-        get() = symphony.settings.fadePlayback.value
-    val audioSessionId: Int?
-        get() = mediaPlayer?.audioSessionId
+    var volume = MAX_VOLUME
+    var speed = DEFAULT_SPEED
+    var pitch = DEFAULT_PITCH
+    val fadePlayback get() = symphony.settings.fadePlayback.value
+    val audioSessionId get() = mediaPlayer?.audioSessionId
 
-    private val fadePlaybackDuration: Int
-        get() = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()
+    private val fadePlaybackDuration get() = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()
     private var fader: RadioEffects.Fader? = null
-    val isPlaying: Boolean
-        get() = mediaPlayer?.isPlaying ?: false
+    val isPlaying get() = mediaPlayer?.isPlaying == true
 
     init {
         unsafeMediaPlayer = MediaPlayer().also { ump ->

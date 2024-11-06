@@ -12,7 +12,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -41,12 +40,12 @@ fun SymphonyTheme(
     context: ViewContext,
     content: @Composable () -> Unit,
 ) {
-    val themeMode by context.symphony.settings.themeMode.collectAsState()
-    val useMaterialYou by context.symphony.settings.useMaterialYou.collectAsState()
-    val primaryColorName by context.symphony.settings.primaryColor.collectAsState()
-    val fontName by context.symphony.settings.fontFamily.collectAsState()
-    val fontScale by context.symphony.settings.fontScale.collectAsState()
-    val contentScale by context.symphony.settings.contentScale.collectAsState()
+    val themeMode by context.symphony.settings.themeMode.flow.collectAsState()
+    val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsState()
+    val primaryColorName by context.symphony.settings.primaryColor.flow.collectAsState()
+    val fontName by context.symphony.settings.fontFamily.flow.collectAsState()
+    val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
+    val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
 
     val colorSchemeMode = themeMode.toColorSchemeMode(isSystemInDarkTheme())
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && useMaterialYou) {
@@ -71,7 +70,8 @@ fun SymphonyTheme(
     if (!view.isInEditMode) {
         val activity = view.context as Activity
         SideEffect {
-            activity.window.statusBarColor = colorScheme.background.toArgb()
+            // TODO: validate this change
+            // activity.window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(activity.window, view)
                 .isAppearanceLightStatusBars = colorSchemeMode == ColorSchemeMode.LIGHT
         }

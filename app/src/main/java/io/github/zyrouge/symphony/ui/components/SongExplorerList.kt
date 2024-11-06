@@ -52,6 +52,7 @@ import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
+import io.github.zyrouge.symphony.utils.SimplePath
 
 private data class SongExplorerResult(
     val folders: List<SimpleFileSystem.Folder>,
@@ -64,17 +65,17 @@ private const val SongFolderContentType = "folder"
 fun SongExplorerList(
     context: ViewContext,
     key: Any?,
-    initialPath: List<String>?,
+    initialPath: SimplePath?,
     explorer: SimpleFileSystem.Folder,
-    onPathChange: (List<String>) -> Unit,
+    onPathChange: (SimplePath) -> Unit,
 ) {
     var currentFolder by remember(key) {
         mutableStateOf(
-            initialPath?.let { explorer.navigateToFolder(it.subList(1, it.size)) } ?: explorer
+            initialPath?.let { explorer.navigateToFolder(it) } ?: explorer
         )
     }
-    val sortBy by context.symphony.settings.lastUsedBrowserSortBy.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedBrowserSortReverse.collectAsState()
+    val sortBy by context.symphony.settings.lastUsedBrowserSortBy.flow.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedBrowserSortReverse.flow.collectAsState()
     val sortedEntities by remember(key, currentFolder) {
         derivedStateOf {
             val categorized = currentFolder.categorizedChildren()
@@ -96,7 +97,7 @@ fun SongExplorerList(
         }
     }
     val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.fullPath.parts }
+        derivedStateOf { currentFolder.fullPath }
     }
     val currentPathScrollState = rememberScrollState()
 
@@ -120,16 +121,19 @@ fun SongExplorerList(
                         .horizontalScroll(currentPathScrollState)
                         .padding(12.dp, 0.dp),
                 ) {
-                    currentPath.mapIndexed { i, basename ->
+                    currentPath.parts.mapIndexed { i, basename ->
                         Text(
                             basename,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
                                 .clickable {
+                                    val path = SimplePath(currentPath.parts.subList(1, i + 1))
                                     explorer
-                                        .navigateToFolder(currentPath.subList(1, i + 1))
-                                        ?.let { currentFolder = it }
+                                        .navigateToFolder(path)
+                                        ?.let {
+                                            currentFolder = it
+                                        }
                                 }
                                 .padding(8.dp, 4.dp),
                         )
@@ -149,13 +153,13 @@ fun SongExplorerList(
                     context,
                     reverse = sortReverse,
                     onReverseChange = {
-                        context.symphony.settings.setLastUsedBrowserSortReverse(it)
+                        context.symphony.settings.lastUsedBrowserSortReverse.setValue(it)
                     },
                     sort = sortBy,
                     sorts = SongRepository.SortBy.entries
                         .associateWith { x -> ViewContext.parameterizedFn { x.label(it) } },
                     onSortChange = {
-                        context.symphony.settings.setLastUsedBrowserSortBy(it)
+                        context.symphony.settings.lastUsedBrowserSortBy.setValue(it)
                     },
                     label = {
                         Text(

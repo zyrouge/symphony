@@ -1,7 +1,9 @@
 package io.github.zyrouge.symphony.utils
 
+import androidx.compose.runtime.Immutable
 import kotlin.text.split
 
+@Immutable
 class SimplePath(val parts: List<String>) {
     constructor(path: String) : this(n(p(path)))
     constructor(path: String, vararg subParts: String) : this(n(p(path) + p(*subParts)))

@@ -361,7 +361,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     private fun restorePreviousQueue() {
         if (!queue.isEmpty()) return
-        symphony.settings.getPreviousSongQueue()?.let { previous ->
+        symphony.settings.previousSongQueue.value?.let { previous ->
             var currentSongIndex = previous.currentSongIndex
             var playedDuration = previous.playedDuration
             val originalQueue = mutableListOf<String>()
@@ -410,7 +410,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     private fun saveCurrentQueue() {
         if (queue.isEmpty()) return
-        symphony.settings.setPreviousSongQueue(
+        symphony.settings.previousSongQueue.setValue(
             RadioQueue.Serialized.create(
                 queue = queue,
                 playbackPosition = currentPlaybackPosition ?: RadioPlayer.PlaybackPosition.zero

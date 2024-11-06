@@ -51,7 +51,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.settings.SettingsDefaults.enableSeekControls
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.Routes
@@ -237,7 +236,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
                 color = NowPlayingControlButtonColors.Transparent,
             ),
         )
-        if (enableSeekControls) {
+        if (data.enableSeekControls) {
             NowPlayingFastRewindButton(
                 context,
                 data = data,
@@ -254,7 +253,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
                 size = NowPlayingControlButtonSize.Large,
             ),
         )
-        if (enableSeekControls) {
+        if (data.enableSeekControls) {
             NowPlayingFastForwardButton(
                 context,
                 data = data,

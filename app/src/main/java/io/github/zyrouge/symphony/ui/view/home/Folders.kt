@@ -148,8 +148,8 @@ private fun FoldersGrid(
     folders: Map<String, SimpleFileSystem.Folder>,
     onClick: (SimpleFileSystem.Folder) -> Unit,
 ) {
-    val sortBy by context.symphony.settings.lastUsedFoldersSortBy.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedFoldersSortReverse.collectAsState()
+    val sortBy by context.symphony.settings.lastUsedFoldersSortBy.flow.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedFoldersSortReverse.flow.collectAsState()
     val sortedFolderNames by remember(folders, sortBy, sortReverse) {
         derivedStateOf {
             StringListUtils.sort(folders.keys.toList(), sortBy, sortReverse)
@@ -162,13 +162,13 @@ private fun FoldersGrid(
                 context,
                 reverse = sortReverse,
                 onReverseChange = {
-                    context.symphony.settings.setLastUsedFoldersSortReverse(it)
+                    context.symphony.settings.lastUsedFoldersSortReverse.setValue(it)
                 },
                 sort = sortBy,
                 sorts = StringListUtils.SortBy.entries
                     .associateWith { x -> ViewContext.parameterizedFn { x.label(context) } },
                 onSortChange = {
-                    context.symphony.settings.setLastUsedFoldersSortBy(it)
+                    context.symphony.settings.lastUsedFoldersSortBy.setValue(it)
                 },
                 label = {
                     Text(context.symphony.t.XFolders(folders.size.toString()))

@@ -20,8 +20,8 @@ fun AlbumArtistGrid(
     albumArtistNames: List<String>,
     albumArtistsCount: Int? = null,
 ) {
-    val sortBy by context.symphony.settings.lastUsedAlbumArtistsSortBy.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedAlbumArtistsSortReverse.collectAsState()
+    val sortBy by context.symphony.settings.lastUsedAlbumArtistsSortBy.flow.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedAlbumArtistsSortReverse.flow.collectAsState()
     val sortedAlbumArtistNames by remember(albumArtistNames, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.albumArtist.sort(albumArtistNames, sortBy, sortReverse)
@@ -34,13 +34,13 @@ fun AlbumArtistGrid(
                 context,
                 reverse = sortReverse,
                 onReverseChange = {
-                    context.symphony.settings.setLastUsedAlbumArtistsSortReverse(it)
+                    context.symphony.settings.lastUsedAlbumArtistsSortReverse.setValue(it)
                 },
                 sort = sortBy,
                 sorts = AlbumArtistRepository.SortBy.entries
                     .associateWith { x -> ViewContext.parameterizedFn { x.label(context) } },
                 onSortChange = {
-                    context.symphony.settings.setLastUsedAlbumArtistsSortBy(it)
+                    context.symphony.settings.lastUsedAlbumArtistsSortBy.setValue(it)
                 },
                 label = {
                     Text(

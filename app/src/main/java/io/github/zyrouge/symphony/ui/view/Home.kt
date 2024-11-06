@@ -59,6 +59,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -169,10 +170,15 @@ enum class HomePageBottomBarLabelVisibility {
 @Composable
 fun HomeView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.collectAsState()
-    val tabs by context.symphony.settings.homeTabs.collectAsState()
-    val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
-    val currentTab by context.symphony.settings.homeLastTab.collectAsState()
+    val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.flow.collectAsState()
+    val tabs by context.symphony.settings.homeTabs.flow.collectAsState()
+    val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsState()
+    val currentTabRaw by context.symphony.settings.lastHomeTab.flow.collectAsState()
+    val currentTab by remember(currentTabRaw) {
+        derivedStateOf {
+            if (tabs.contains(currentTabRaw)) currentTabRaw else tabs.first()
+        }
+    }
     var showOptionsDropdown by remember { mutableStateOf(false) }
     var showTabsSheet by remember { mutableStateOf(false) }
 
@@ -333,7 +339,7 @@ fun HomeView(context: ViewContext) {
                                         showTabsSheet = true
                                     }
 
-                                    else -> context.symphony.settings.setHomeLastTab(x)
+                                    else -> context.symphony.settings.lastHomeTab.setValue(x)
                                 }
                             }
                         )
@@ -381,7 +387,7 @@ fun HomeView(context: ViewContext) {
                             .padding(2.dp, 0.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .clickable {
-                                context.symphony.settings.setHomeLastTab(x)
+                                context.symphony.settings.lastHomeTab.setValue(x)
                                 showTabsSheet = false
                             }
                             .background(containerColor)
@@ -411,7 +417,7 @@ fun HomeView(context: ViewContext) {
         IntroductoryDialog(
             context,
             onDismissRequest = {
-                context.symphony.settings.setReadIntroductoryMessage(true)
+                context.symphony.settings.readIntroductoryMessage.setValue(true)
             },
         )
     }

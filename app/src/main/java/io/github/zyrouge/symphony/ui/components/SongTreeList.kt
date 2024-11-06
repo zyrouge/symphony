@@ -77,10 +77,10 @@ fun SongTreeList(
             addAll(initialDisabled)
         }
     }
-    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.collectAsState()
-    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.collectAsState()
-    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.collectAsState()
-    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.collectAsState()
+    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.flow.collectAsState()
+    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.flow.collectAsState()
+    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsState()
+    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsState()
     val sortedTree by remember(tree, pathsSortBy, pathsSortReverse, songsSortBy, songsSortReverse) {
         derivedStateOf {
             val pairs = StringListUtils.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
@@ -108,16 +108,16 @@ fun SongTreeList(
                 songsSortBy = songsSortBy,
                 songsSortReverse = songsSortReverse,
                 setPathsSortBy = {
-                    context.symphony.settings.setLastUsedTreePathSortBy(it)
+                    context.symphony.settings.lastUsedTreePathSortBy.setValue(it)
                 },
                 setPathsSortReverse = {
-                    context.symphony.settings.setLastUsedTreePathSortReverse(it)
+                    context.symphony.settings.lastUsedTreePathSortReverse.setValue(it)
                 },
                 setSongsSortBy = {
-                    context.symphony.settings.setLastUsedSongsSortBy(it)
+                    context.symphony.settings.lastUsedSongsSortBy.setValue(it)
                 },
                 setSongsSortReverse = {
-                    context.symphony.settings.setLastUsedSongsSortReverse(it)
+                    context.symphony.settings.lastUsedSongsSortReverse.setValue(it)
                 },
             )
         },

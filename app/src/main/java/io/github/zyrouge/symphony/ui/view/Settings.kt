@@ -83,7 +83,6 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.services.i18n.CommonTranslation
-import io.github.zyrouge.symphony.services.settings.SettingsDefaults
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -128,39 +127,40 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
-    val language by context.symphony.settings.language.collectAsState()
-    val fontFamily by context.symphony.settings.fontFamily.collectAsState()
-    val themeMode by context.symphony.settings.themeMode.collectAsState()
-    val useMaterialYou by context.symphony.settings.useMaterialYou.collectAsState()
-    val primaryColor by context.symphony.settings.primaryColor.collectAsState()
-    val homeTabs by context.symphony.settings.homeTabs.collectAsState()
-    val forYouContents by context.symphony.settings.forYouContents.collectAsState()
-    val homePageBottomBarLabelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.collectAsState()
-    val fadePlayback by context.symphony.settings.fadePlayback.collectAsState()
-    val fadePlaybackDuration by context.symphony.settings.fadePlaybackDuration.collectAsState()
-    val requireAudioFocus by context.symphony.settings.requireAudioFocus.collectAsState()
-    val ignoreAudioFocusLoss by context.symphony.settings.ignoreAudioFocusLoss.collectAsState()
-    val playOnHeadphonesConnect by context.symphony.settings.playOnHeadphonesConnect.collectAsState()
-    val pauseOnHeadphonesDisconnect by context.symphony.settings.pauseOnHeadphonesDisconnect.collectAsState()
-    val seekBackDuration by context.symphony.settings.seekBackDuration.collectAsState()
-    val seekForwardDuration by context.symphony.settings.seekForwardDuration.collectAsState()
-    val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.collectAsState()
-    val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.collectAsState()
-    val miniPlayerTextMarquee by context.symphony.settings.miniPlayerTextMarquee.collectAsState()
-    val nowPlayingControlsLayout by context.symphony.settings.nowPlayingControlsLayout.collectAsState()
-    val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.collectAsState()
-    val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.collectAsState()
-    val nowPlayingLyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.collectAsState()
-    val songsFilterPattern by context.symphony.settings.songsFilterPattern.collectAsState()
-    val blacklistFolders by context.symphony.settings.blacklistFolders.collectAsState()
-    val whitelistFolders by context.symphony.settings.whitelistFolders.collectAsState()
-    val artistTagSeparators by context.symphony.settings.artistTagSeparators.collectAsState()
-    val genreTagSeparators by context.symphony.settings.genreTagSeparators.collectAsState()
-    val checkForUpdates by context.symphony.settings.checkForUpdates.collectAsState()
-    val showUpdateToast by context.symphony.settings.showUpdateToast.collectAsState()
-    val fontScale by context.symphony.settings.fontScale.collectAsState()
-    val contentScale by context.symphony.settings.contentScale.collectAsState()
-    val mediaFolders by context.symphony.settings.mediaFolders.collectAsState()
+    val language by context.symphony.settings.language.flow.collectAsState()
+    val fontFamily by context.symphony.settings.fontFamily.flow.collectAsState()
+    val themeMode by context.symphony.settings.themeMode.flow.collectAsState()
+    val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsState()
+    val primaryColor by context.symphony.settings.primaryColor.flow.collectAsState()
+    val homeTabs by context.symphony.settings.homeTabs.flow.collectAsState()
+    val forYouContents by context.symphony.settings.forYouContents.flow.collectAsState()
+    val homePageBottomBarLabelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsState()
+    val fadePlayback by context.symphony.settings.fadePlayback.flow.collectAsState()
+    val fadePlaybackDuration by context.symphony.settings.fadePlaybackDuration.flow.collectAsState()
+    val requireAudioFocus by context.symphony.settings.requireAudioFocus.flow.collectAsState()
+    val ignoreAudioFocusLoss by context.symphony.settings.ignoreAudioFocusLoss.flow.collectAsState()
+    val playOnHeadphonesConnect by context.symphony.settings.playOnHeadphonesConnect.flow.collectAsState()
+    val pauseOnHeadphonesDisconnect by context.symphony.settings.pauseOnHeadphonesDisconnect.flow.collectAsState()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsState()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
+    val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsState()
+    val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsState()
+    val miniPlayerTextMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsState()
+    val nowPlayingControlsLayout by context.symphony.settings.nowPlayingControlsLayout.flow.collectAsState()
+    val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.flow.collectAsState()
+    val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.flow.collectAsState()
+    val nowPlayingLyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.flow.collectAsState()
+    val songsFilterPattern by context.symphony.settings.songsFilterPattern.flow.collectAsState()
+    val blacklistFolders by context.symphony.settings.blacklistFolders.flow.collectAsState()
+    val whitelistFolders by context.symphony.settings.whitelistFolders.flow.collectAsState()
+    val artistTagSeparators by context.symphony.settings.artistTagSeparators.flow.collectAsState()
+    val genreTagSeparators by context.symphony.settings.genreTagSeparators.flow.collectAsState()
+    val checkForUpdates by context.symphony.settings.checkForUpdates.flow.collectAsState()
+    val showUpdateToast by context.symphony.settings.showUpdateToast.flow.collectAsState()
+    val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
+    val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
+    val mediaFolders by context.symphony.settings.mediaFolders.flow.collectAsState()
+    val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -277,7 +277,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                             ) + context.symphony.translator.translations.localeDisplayNames
                         },
                         onChange = { value ->
-                            context.symphony.settings.setLanguage(value.takeUnless { it == "" })
+                            context.symphony.settings.language.setValue(value.takeUnless { it == "" })
                         }
                     )
                     SettingsOptionTile(
@@ -290,7 +290,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         value = SymphonyTypography.resolveFont(fontFamily).fontName,
                         values = SymphonyTypography.all.keys.associateWith { it },
                         onChange = { value ->
-                            context.symphony.settings.setFontFamily(value)
+                            context.symphony.settings.fontFamily.setValue(value)
                         }
                     )
                     SettingsFloatInputTile(
@@ -305,12 +305,12 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         presets = scalingPresets,
                         labelText = { "x$it" },
                         onReset = {
-                            context.symphony.settings.setFontScale(
-                                SettingsDefaults.fontScale
+                            context.symphony.settings.fontScale.setValue(
+                                context.symphony.settings.fontScale.defaultValue,
                             )
                         },
                         onChange = { value ->
-                            context.symphony.settings.setFontScale(value)
+                            context.symphony.settings.fontScale.setValue(value)
                         }
                     )
                     SettingsFloatInputTile(
@@ -325,12 +325,12 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         presets = scalingPresets,
                         labelText = { "x$it" },
                         onReset = {
-                            context.symphony.settings.setContentScale(
-                                SettingsDefaults.contentScale
+                            context.symphony.settings.contentScale.setValue(
+                                context.symphony.settings.contentScale.defaultValue,
                             )
                         },
                         onChange = { value ->
-                            context.symphony.settings.setContentScale(value)
+                            context.symphony.settings.contentScale.setValue(value)
                         }
                     )
                     SettingsOptionTile(
@@ -349,7 +349,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                             ThemeMode.BLACK to context.symphony.t.Black,
                         ),
                         onChange = { value ->
-                            context.symphony.settings.setThemeMode(value)
+                            context.symphony.settings.themeMode.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -361,7 +361,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = useMaterialYou,
                         onChange = { value ->
-                            context.symphony.settings.setUseMaterialYou(value)
+                            context.symphony.settings.useMaterialYou.setValue(value)
                         }
                     )
                     SettingsOptionTile(
@@ -375,7 +375,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         values = PrimaryThemeColors.entries.associateWith { it.label(context) },
                         enabled = !useMaterialYou,
                         onChange = { value ->
-                            context.symphony.settings.setPrimaryColor(value.name)
+                            context.symphony.settings.primaryColor.setValue(value.name)
                         }
                     )
                     HorizontalDivider()
@@ -395,7 +395,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         values = HomePages.entries.associateWith { it.label(context) },
                         satisfies = { it.size in 2..5 },
                         onChange = { value ->
-                            context.symphony.settings.setHomeTabs(value)
+                            context.symphony.settings.homeTabs.setValue(value)
                         }
                     )
                     SettingsMultiOptionTile(
@@ -409,7 +409,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         value = forYouContents,
                         values = ForYou.entries.associateWith { it.label(context) },
                         onChange = { value ->
-                            context.symphony.settings.setForYouContents(value)
+                            context.symphony.settings.forYouContents.setValue(value)
                         }
                     )
                     SettingsOptionTile(
@@ -423,7 +423,9 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         values = HomePageBottomBarLabelVisibility.entries
                             .associateWith { it.label(context) },
                         onChange = { value ->
-                            context.symphony.settings.setHomePageBottomBarLabelVisibility(value)
+                            context.symphony.settings.homePageBottomBarLabelVisibility.setValue(
+                                value,
+                            )
                         }
                     )
                     HorizontalDivider()
@@ -437,7 +439,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = fadePlayback,
                         onChange = { value ->
-                            context.symphony.settings.setFadePlayback(value)
+                            context.symphony.settings.fadePlayback.setValue(value)
                         }
                     )
                     SettingsSliderTile(
@@ -457,11 +459,11 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                             value.times(2).roundToInt().toFloat().div(2)
                         },
                         onChange = { value ->
-                            context.symphony.settings.setFadePlaybackDuration(value)
+                            context.symphony.settings.fadePlaybackDuration.setValue(value)
                         },
                         onReset = {
-                            context.symphony.settings.setFadePlaybackDuration(
-                                SettingsDefaults.fadePlaybackDuration
+                            context.symphony.settings.fadePlaybackDuration.setValue(
+                                context.symphony.settings.fadePlaybackDuration.defaultValue,
                             )
                         },
                     )
@@ -474,7 +476,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = requireAudioFocus,
                         onChange = { value ->
-                            context.symphony.settings.setRequireAudioFocus(value)
+                            context.symphony.settings.requireAudioFocus.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -486,7 +488,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = ignoreAudioFocusLoss,
                         onChange = { value ->
-                            context.symphony.settings.setIgnoreAudioFocusLoss(value)
+                            context.symphony.settings.ignoreAudioFocusLoss.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -498,7 +500,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = playOnHeadphonesConnect,
                         onChange = { value ->
-                            context.symphony.settings.setPlayOnHeadphonesConnect(value)
+                            context.symphony.settings.playOnHeadphonesConnect.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -510,7 +512,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = pauseOnHeadphonesDisconnect,
                         onChange = { value ->
-                            context.symphony.settings.setPauseOnHeadphonesDisconnect(value)
+                            context.symphony.settings.pauseOnHeadphonesDisconnect.setValue(value)
                         }
                     )
                     SettingsSliderTile(
@@ -530,11 +532,11 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                             value.roundToInt().toFloat()
                         },
                         onChange = { value ->
-                            context.symphony.settings.setSeekBackDuration(value.toInt())
+                            context.symphony.settings.seekBackDuration.setValue(value.toInt())
                         },
                         onReset = {
-                            context.symphony.settings.setSeekBackDuration(
-                                SettingsDefaults.seekBackDuration
+                            context.symphony.settings.seekBackDuration.setValue(
+                                context.symphony.settings.seekBackDuration.defaultValue,
                             )
                         },
                     )
@@ -555,11 +557,11 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                             value.roundToInt().toFloat()
                         },
                         onChange = { value ->
-                            context.symphony.settings.setSeekForwardDuration(value.toInt())
+                            context.symphony.settings.seekForwardDuration.setValue(value.toInt())
                         },
                         onReset = {
-                            context.symphony.settings.setSeekForwardDuration(
-                                SettingsDefaults.seekForwardDuration
+                            context.symphony.settings.seekForwardDuration.setValue(
+                                context.symphony.settings.seekForwardDuration.defaultValue,
                             )
                         },
                     )
@@ -574,7 +576,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = miniPlayerTrackControls,
                         onChange = { value ->
-                            context.symphony.settings.setMiniPlayerTrackControls(value)
+                            context.symphony.settings.miniPlayerTrackControls.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -586,7 +588,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = miniPlayerSeekControls,
                         onChange = { value ->
-                            context.symphony.settings.setMiniPlayerSeekControls(value)
+                            context.symphony.settings.miniPlayerSeekControls.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -598,7 +600,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = miniPlayerTextMarquee,
                         onChange = { value ->
-                            context.symphony.settings.setMiniPlayerTextMarquee(value)
+                            context.symphony.settings.miniPlayerTextMarquee.setValue(value)
                         }
                     )
                     HorizontalDivider()
@@ -614,7 +616,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         values = NowPlayingControlsLayout.entries
                             .associateWith { it.label(context) },
                         onChange = { value ->
-                            context.symphony.settings.setNowPlayingControlsLayout(value)
+                            context.symphony.settings.nowPlayingControlsLayout.setValue(value)
                         }
                     )
                     SettingsOptionTile(
@@ -628,7 +630,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         values = NowPlayingLyricsLayout.entries
                             .associateWith { it.label(context) },
                         onChange = { value ->
-                            context.symphony.settings.setNowPlayingLyricsLayout(value)
+                            context.symphony.settings.nowPlayingLyricsLayout.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -640,7 +642,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = nowPlayingAdditionalInfo,
                         onChange = { value ->
-                            context.symphony.settings.showNowPlayingAdditionalInfo(value)
+                            context.symphony.settings.nowPlayingAdditionalInfo.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -652,7 +654,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = nowPlayingSeekControls,
                         onChange = { value ->
-                            context.symphony.settings.setNowPlayingSeekControls(value)
+                            context.symphony.settings.nowPlayingSeekControls.setValue(value)
                         }
                     )
                     HorizontalDivider()
@@ -668,7 +670,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                             },
                             initialValues = mediaFolders,
                             onChange = { values ->
-                                context.symphony.settings.setMediaFolders(values)
+                                context.symphony.settings.mediaFolders.setValue(values)
                                 refetchMediaLibrary(coroutineScope, context.symphony)
                             }
                         )
@@ -683,10 +685,10 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = songsFilterPattern ?: defaultSongsFilterPattern,
                         onReset = {
-                            context.symphony.settings.setSongsFilterPattern(null)
+                            context.symphony.settings.songsFilterPattern.setValue(null)
                         },
                         onChange = { value ->
-                            context.symphony.settings.setSongsFilterPattern(
+                            context.symphony.settings.songsFilterPattern.setValue(
                                 when (value) {
                                     defaultSongsFilterPattern -> null
                                     else -> value
@@ -706,7 +708,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         explorer = context.symphony.groove.exposer.explorer,
                         initialValues = blacklistFolders,
                         onChange = { values ->
-                            context.symphony.settings.setBlacklistFolders(values)
+                            context.symphony.settings.blacklistFolders.setValue(values)
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
@@ -721,7 +723,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         explorer = context.symphony.groove.exposer.explorer,
                         initialValues = whitelistFolders,
                         onChange = { values ->
-                            context.symphony.settings.setWhitelistFolders(values)
+                            context.symphony.settings.whitelistFolders.setValue(values)
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
@@ -735,7 +737,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         values = artistTagSeparators.toList(),
                         onChange = {
-                            context.symphony.settings.setArtistTagSeparators(it)
+                            context.symphony.settings.artistTagSeparators.setValue(it.toSet())
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         },
                     )
@@ -749,7 +751,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         values = genreTagSeparators.toList(),
                         onChange = {
-                            context.symphony.settings.setGenreTagSeparators(it)
+                            context.symphony.settings.genreTagSeparators.setValue(it.toSet())
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         },
                     )
@@ -763,6 +765,8 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         onClick = {
                             coroutineScope.launch {
                                 context.symphony.database.songCache.clear()
+                                context.symphony.database.artworkCache.clear()
+                                context.symphony.database.lyricsCache.clear()
                                 refetchMediaLibrary(coroutineScope, context.symphony)
                                 snackbarHostState.showSnackbar(
                                     context.symphony.t.SongCacheCleared,
@@ -782,7 +786,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = checkForUpdates,
                         onChange = { value ->
-                            context.symphony.settings.setCheckForUpdates(value)
+                            context.symphony.settings.checkForUpdates.setValue(value)
                         }
                     )
                     SettingsSwitchTile(
@@ -794,7 +798,7 @@ fun SettingsView(context: ViewContext, initialElement: SettingsViewElements?) {
                         },
                         value = showUpdateToast,
                         onChange = { value ->
-                            context.symphony.settings.setShowUpdateToast(value)
+                            context.symphony.settings.showUpdateToast.setValue(value)
                         }
                     )
                     HorizontalDivider()

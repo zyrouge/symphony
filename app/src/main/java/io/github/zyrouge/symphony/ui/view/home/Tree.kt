@@ -12,16 +12,16 @@ fun TreeView(context: ViewContext) {
     val isUpdating by context.symphony.groove.song.isUpdating.collectAsState()
     val songIds by context.symphony.groove.song.all.collectAsState()
     val songsCount by context.symphony.groove.song.count.collectAsState()
-    val disabledTreePaths by context.symphony.settings.lastDisabledTreePaths.collectAsState()
+    val disabledTreePaths by context.symphony.settings.lastDisabledTreePaths.flow.collectAsState()
 
     LoaderScaffold(context, isLoading = isUpdating) {
         SongTreeList(
             context,
             songIds = songIds,
             songsCount = songsCount,
-            initialDisabled = disabledTreePaths,
+            initialDisabled = disabledTreePaths.toList(),
             onDisable = { paths ->
-                context.symphony.settings.setLastDisabledTreePaths(paths)
+                context.symphony.settings.lastDisabledTreePaths.setValue(paths.toSet())
             },
         )
     }

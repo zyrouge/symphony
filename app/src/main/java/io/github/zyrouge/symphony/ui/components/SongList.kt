@@ -51,8 +51,8 @@ fun SongList(
     disableHeartIcon: Boolean = false,
     enableAddMediaFoldersHint: Boolean = false,
 ) {
-    val sortBy by type.getLastUsedSortBy(context).collectAsState()
-    val sortReverse by type.getLastUsedSortReverse(context).collectAsState()
+    val sortBy by type.getLastUsedSortBy(context).flow.collectAsState()
+    val sortReverse by type.getLastUsedSortReverse(context).flow.collectAsState()
     val sortedSongIds by remember(songIds, sortBy, sortReverse) {
         derivedStateOf {
             context.symphony.groove.song.sort(songIds, sortBy, sortReverse)
@@ -170,9 +170,9 @@ fun SongListType.getLastUsedSortBy(context: ViewContext) = when (this) {
 
 fun SongListType.setLastUsedSortBy(context: ViewContext, sort: SongRepository.SortBy) =
     when (this) {
-        SongListType.Default -> context.symphony.settings.setLastUsedSongsSortBy(sort)
-        SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortBy(sort)
-        SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortBy(sort)
+        SongListType.Default -> context.symphony.settings.lastUsedSongsSortBy.setValue(sort)
+        SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortBy.setValue(sort)
+        SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortBy.setValue(sort)
     }
 
 fun SongListType.getLastUsedSortReverse(context: ViewContext) = when (this) {
@@ -182,7 +182,10 @@ fun SongListType.getLastUsedSortReverse(context: ViewContext) = when (this) {
 }
 
 fun SongListType.setLastUsedSortReverse(context: ViewContext, reverse: Boolean) = when (this) {
-    SongListType.Default -> context.symphony.settings.setLastUsedSongsSortReverse(reverse)
-    SongListType.Playlist -> context.symphony.settings.setLastUsedPlaylistSongsSortReverse(reverse)
-    SongListType.Album -> context.symphony.settings.setLastUsedAlbumSongsSortReverse(reverse)
+    SongListType.Default -> context.symphony.settings.lastUsedSongsSortReverse.setValue(reverse)
+    SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortReverse.setValue(
+        reverse
+    )
+
+    SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortReverse.setValue(reverse)
 }
