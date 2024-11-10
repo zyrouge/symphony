@@ -85,7 +85,7 @@ class MediaExposer(private val symphony: Symphony) {
 
     private suspend fun scanMediaTree(cycle: ScanCycle, path: SimplePath, file: DocumentFileX) {
         try {
-            if (!cycle.filter.isWhitelisted(file.name)) {
+            if (!cycle.filter.isWhitelisted(path.pathString)) {
                 return
             }
             coroutineScope {
@@ -222,12 +222,14 @@ class MediaExposer(private val symphony: Symphony) {
                     return false
                 }
             }
-            val bFilter = blacklisted.findLast { x -> path.startsWith(x) }
+            val bFilter = blacklisted.findLast {
+                path.startsWith(it)
+            }
             if (bFilter == null) {
                 return true
             }
-            val wFilter = whitelisted.findLast { x ->
-                x.startsWith(bFilter) && path.startsWith(x)
+            val wFilter = whitelisted.findLast {
+                it.startsWith(bFilter) && path.startsWith(it)
             }
             return wFilter != null
         }

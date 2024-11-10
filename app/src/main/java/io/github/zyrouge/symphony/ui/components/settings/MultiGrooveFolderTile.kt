@@ -155,7 +155,7 @@ fun SettingsMultiGrooveFolderTile(
                 explorer = explorer,
                 onSelect = {
                     if (it != null) {
-                        val path = "/" + it.parts.subList(1, it.size).joinToString("/")
+                        val path = SimplePath(it.parts.subList(1, it.size)).pathString
                         if (!values.contains(path)) {
                             values.add(path)
                         }
