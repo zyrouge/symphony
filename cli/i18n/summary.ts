@@ -79,7 +79,7 @@ ${Object.entries(summary.individual)
             color: "#3279a8",
         }),
     );
-    printGenerated(mdPath);
+    printGenerated(badgeLanguagesPath);
 
     const keysCount = summary.full.keysCount;
     const badgeStringsPath = path.join(outputDir, `badge-strings.json`);
@@ -92,7 +92,7 @@ ${Object.entries(summary.individual)
             color: "#3265a8",
         }),
     );
-    printGenerated(mdPath);
+    printGenerated(badgeStringsPath);
 };
 
 start();
