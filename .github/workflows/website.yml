@@ -3,6 +3,8 @@ name: Website
 on:
     workflow_dispatch:
 
+permissions: {}
+
 jobs:
     website-deploy:
         runs-on: ubuntu-latest

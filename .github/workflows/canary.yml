@@ -7,6 +7,9 @@ env:
     SIGNING_KEYSTORE_FILE: ./secrets/signing_key.jks
     OUTPUT_DIR: ./dist
 
+permissions:
+    contents: write
+
 jobs:
     canary-build:
         runs-on: ubuntu-latest

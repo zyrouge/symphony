@@ -12,6 +12,10 @@ on:
             - submitted
     workflow_dispatch:
 
+permissions:
+    contents: write
+    pull-requests: write
+
 jobs:
     i18n-summary:
         runs-on: ubuntu-latest
