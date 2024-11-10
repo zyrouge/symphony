@@ -43,7 +43,7 @@ android {
             )
             signingConfig = signingConfigs.findByName("release")
             ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
+                debugSymbolLevel = "FULL"
             }
         }
         create("nightly") {

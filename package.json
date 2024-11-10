@@ -13,10 +13,9 @@
         "git:tag-exists": "tsx ./cli/git/tag-exists.ts",
         "git:tag-exists-yn": "tsx ./cli/git/tag-exists-yn.ts",
         "git:latest-tag": "tsx ./cli/git/latest-tag.ts",
-        "android:pack-symbols": "tsx ./cli/android/pack-symbols.ts",
         "android:move-outputs": "tsx ./cli/android/move-outputs.ts",
         "prebuild": "npm run i18n:build",
-        "postbuild": "npm run android:move-outputs && npm run android:pack-symbols",
+        "postbuild": "npm run android:move-outputs",
         "release": "gh workflow run release"
     },
     "repository": {
@@ -26,13 +25,11 @@
     "author": "Zyrouge",
     "license": "AGPL-3.0",
     "devDependencies": {
-        "@types/archiver": "^6.0.3",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^22.8.1",
         "@zyrouge/phrasey-json": "^1.0.3",
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
         "@zyrouge/phrasey-toml": "^1.0.3",
-        "archiver": "^7.0.1",
         "fs-extra": "^11.2.0",
         "phrasey": "^2.0.26",
         "picocolors": "^1.1.1",
