@@ -17,7 +17,7 @@ android {
         targetSdk = libs.versions.target.sdk.get().toInt()
 
         versionCode = 113
-        versionName = "2024.11.113"
+        versionName = "2024.11.113+1"
         versionName = System.getenv("APP_VERSION_NAME") ?: versionName
 
         vectorDrawables {
