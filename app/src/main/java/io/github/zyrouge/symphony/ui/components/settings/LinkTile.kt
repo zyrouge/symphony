@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
 import android.net.Uri
 import androidx.compose.material3.Card

@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ListItemDefaults

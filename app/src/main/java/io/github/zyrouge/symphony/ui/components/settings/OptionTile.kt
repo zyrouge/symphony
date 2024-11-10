@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

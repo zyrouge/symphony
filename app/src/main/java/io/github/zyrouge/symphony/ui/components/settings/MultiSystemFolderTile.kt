@@ -1,5 +1,8 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -43,19 +46,19 @@ import io.github.zyrouge.symphony.ui.components.SubtleCaptionText
 import io.github.zyrouge.symphony.ui.components.drawScrollBar
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
+import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
 import io.github.zyrouge.symphony.utils.SimplePath
 
 private const val SettingsFolderContentType = "folder"
 
 @Composable
-fun SettingsMultiGrooveFolderTile(
+fun SettingsMultiSystemFolderTile(
     context: ViewContext,
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
-    explorer: SimpleFileSystem.Folder,
-    initialValues: Set<String>,
-    onChange: (Set<String>) -> Unit,
+    initialValues: Set<Uri>,
+    onChange: (Set<Uri>) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -77,7 +80,14 @@ fun SettingsMultiGrooveFolderTile(
 
     if (showDialog) {
         val values = remember { initialValues.toMutableStateList() }
-        var showPicker by remember { mutableStateOf(false) }
+        val pickFolderLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocumentTree()
+        ) { uri ->
+            uri?.let { _ ->
+                ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, uri)
+                values.add(uri)
+            }
+        }
 
         // TODO: workaround for dialog resize bug
         //       https://issuetracker.google.com/issues/221643630
@@ -112,7 +122,7 @@ fun SettingsMultiGrooveFolderTile(
                                     ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(x, modifier = Modifier.weight(1f))
+                                    Text(x.toString(), modifier = Modifier.weight(1f))
                                     IconButton(onClick = { values.removeAt(i) }) {
                                         Icon(Icons.Filled.Delete, null)
                                     }
@@ -124,7 +134,7 @@ fun SettingsMultiGrooveFolderTile(
                 actions = {
                     TextButton(
                         onClick = {
-                            showPicker = true
+                            pickFolderLauncher.launch(null)
                         }
                     ) {
                         Text(context.symphony.t.AddFolder)
@@ -145,22 +155,6 @@ fun SettingsMultiGrooveFolderTile(
                     ) {
                         Text(context.symphony.t.Done)
                     }
-                }
-            )
-        }
-
-        if (showPicker) {
-            SettingsFolderTilePickerDialog(
-                context,
-                explorer = explorer,
-                onSelect = {
-                    if (it != null) {
-                        val path = "/" + it.parts.subList(1, it.size).joinToString("/")
-                        if (!values.contains(path)) {
-                            values.add(path)
-                        }
-                    }
-                    showPicker = false
                 }
             )
         }

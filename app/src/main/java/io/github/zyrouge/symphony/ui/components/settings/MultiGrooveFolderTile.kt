@@ -1,8 +1,5 @@
-package io.github.zyrouge.symphony.ui.view.settings
+package io.github.zyrouge.symphony.ui.components.settings
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -46,19 +43,19 @@ import io.github.zyrouge.symphony.ui.components.SubtleCaptionText
 import io.github.zyrouge.symphony.ui.components.drawScrollBar
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
-import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
 import io.github.zyrouge.symphony.utils.SimplePath
 
 private const val SettingsFolderContentType = "folder"
 
 @Composable
-fun SettingsMultiSystemFolderTile(
+fun SettingsMultiGrooveFolderTile(
     context: ViewContext,
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
-    initialValues: Set<Uri>,
-    onChange: (Set<Uri>) -> Unit,
+    explorer: SimpleFileSystem.Folder,
+    initialValues: Set<String>,
+    onChange: (Set<String>) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -80,14 +77,7 @@ fun SettingsMultiSystemFolderTile(
 
     if (showDialog) {
         val values = remember { initialValues.toMutableStateList() }
-        val pickFolderLauncher = rememberLauncherForActivityResult(
-            ActivityResultContracts.OpenDocumentTree()
-        ) { uri ->
-            uri?.let { _ ->
-                ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, uri)
-                values.add(uri)
-            }
-        }
+        var showPicker by remember { mutableStateOf(false) }
 
         // TODO: workaround for dialog resize bug
         //       https://issuetracker.google.com/issues/221643630
@@ -122,7 +112,7 @@ fun SettingsMultiSystemFolderTile(
                                     ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(x.toString(), modifier = Modifier.weight(1f))
+                                    Text(x, modifier = Modifier.weight(1f))
                                     IconButton(onClick = { values.removeAt(i) }) {
                                         Icon(Icons.Filled.Delete, null)
                                     }
@@ -134,7 +124,7 @@ fun SettingsMultiSystemFolderTile(
                 actions = {
                     TextButton(
                         onClick = {
-                            pickFolderLauncher.launch(null)
+                            showPicker = true
                         }
                     ) {
                         Text(context.symphony.t.AddFolder)
@@ -155,6 +145,22 @@ fun SettingsMultiSystemFolderTile(
                     ) {
                         Text(context.symphony.t.Done)
                     }
+                }
+            )
+        }
+
+        if (showPicker) {
+            SettingsFolderTilePickerDialog(
+                context,
+                explorer = explorer,
+                onSelect = {
+                    if (it != null) {
+                        val path = "/" + it.parts.subList(1, it.size).joinToString("/")
+                        if (!values.contains(path)) {
+                            values.add(path)
+                        }
+                    }
+                    showPicker = false
                 }
             )
         }
