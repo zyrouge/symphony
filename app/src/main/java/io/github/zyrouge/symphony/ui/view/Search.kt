@@ -62,15 +62,14 @@ import io.github.zyrouge.symphony.ui.components.GenericGrooveCard
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.SongCard
-import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
 private data class SearchResult(
     val songIds: List<String>,
@@ -81,15 +80,18 @@ private data class SearchResult(
     val playlistIds: List<String>,
 )
 
+@Serializable
+data class SearchViewRoute(val initialChip: Groove.Kinds?)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
+fun SearchView(context: ViewContext, route: SearchViewRoute) {
     val coroutineScope = rememberCoroutineScope()
     var terms by rememberSaveable { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<SearchResult?>(null) }
 
-    var selectedChip by rememberSaveable { mutableStateOf(initialChip) }
+    var selectedChip by rememberSaveable { mutableStateOf(route.initialChip) }
     fun isChipSelected(kind: Groove.Kinds) = selectedChip == null || selectedChip == kind
 
     var currentTermsRoutine: Job? = null
@@ -244,7 +246,7 @@ fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
                                 Text(it.label(context))
                             },
                             modifier = Modifier.onGloballyPositioned { coordinates ->
-                                if (!initialScroll && initialChip == it) {
+                                if (!initialScroll && route.initialChip == it) {
                                     val windowWidth = with(density) {
                                         configuration.screenWidthDp.dp.toPx()
                                     }
@@ -363,8 +365,8 @@ fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigateTo(
-                                                                Routes.Artist.build(artist.name)
+                                                            context.navController.navigate(
+                                                                ArtistViewRoute(artist.name)
                                                             )
                                                         }
                                                     )
@@ -395,8 +397,8 @@ fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigateTo(
-                                                                Routes.Album.build(album.id)
+                                                            context.navController.navigate(
+                                                                AlbumViewRoute(album.id)
                                                             )
                                                         }
                                                     )
@@ -424,10 +426,8 @@ fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigateTo(
-                                                                Routes.AlbumArtist.build(
-                                                                    albumArtist.name
-                                                                )
+                                                            context.navController.navigate(
+                                                                AlbumArtistViewRoute(albumArtist.name)
                                                             )
                                                         }
                                                     )
@@ -455,8 +455,8 @@ fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
                                                             )
                                                         },
                                                         onClick = {
-                                                            context.navController.navigateTo(
-                                                                Routes.Playlist.build(playlist.id)
+                                                            context.navController.navigate(
+                                                                PlaylistViewRoute(playlist.id)
                                                             )
                                                         }
                                                     )
@@ -480,8 +480,8 @@ fun SearchView(context: ViewContext, initialChip: Groove.Kinds?) {
                                                         },
                                                         options = null,
                                                         onClick = {
-                                                            context.navController.navigateTo(
-                                                                Routes.Genre.build(genre.name)
+                                                            context.navController.navigate(
+                                                                GenreViewRoute(genre.name)
                                                             )
                                                         }
                                                     )

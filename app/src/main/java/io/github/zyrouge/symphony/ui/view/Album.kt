@@ -35,20 +35,24 @@ import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.SongListType
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AlbumViewRoute(val albumId: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumView(context: ViewContext, albumId: String) {
+fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
     val allAlbumIds by context.symphony.groove.album.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val album by remember(allAlbumIds) {
-        derivedStateOf { context.symphony.groove.album.get(albumId) }
+        derivedStateOf { context.symphony.groove.album.get(route.albumId) }
     }
     val songIds by remember(album, allSongIds) {
         derivedStateOf { album?.getSongIds(context.symphony) ?: listOf() }
     }
     val isViable by remember(allAlbumIds) {
-        derivedStateOf { allAlbumIds.contains(albumId) }
+        derivedStateOf { allAlbumIds.contains(route.albumId) }
     }
 
     Scaffold(
@@ -100,7 +104,7 @@ fun AlbumView(context: ViewContext, albumId: String) {
                         },
                         cardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Subtle,
                     )
-                } else UnknownAlbum(context, albumId)
+                } else UnknownAlbum(context, route.albumId)
             }
         },
         bottomBar = {

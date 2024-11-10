@@ -34,6 +34,10 @@ import io.github.zyrouge.symphony.ui.view.nowPlaying.NothingPlaying
 import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingSeekBar
 import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingTraditionalControls
 import io.github.zyrouge.symphony.ui.view.nowPlaying.defaultHorizontalPadding
+import kotlinx.serialization.Serializable
+
+@Serializable
+object LyricsViewRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

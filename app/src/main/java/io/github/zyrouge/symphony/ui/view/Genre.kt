@@ -29,20 +29,24 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class GenreViewRoute(val genreName: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenreView(context: ViewContext, genreName: String) {
+fun GenreView(context: ViewContext, route: GenreViewRoute) {
     val allGenreNames by context.symphony.groove.genre.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val genre by remember(allGenreNames) {
-        derivedStateOf { context.symphony.groove.genre.get(genreName) }
+        derivedStateOf { context.symphony.groove.genre.get(route.genreName) }
     }
     val songIds by remember(genre, allSongIds) {
         derivedStateOf { genre?.getSongIds(context.symphony) ?: listOf() }
     }
     val isViable by remember(allGenreNames) {
-        derivedStateOf { allGenreNames.contains(genreName) }
+        derivedStateOf { allGenreNames.contains(route.genreName) }
     }
 
     Scaffold(
@@ -94,7 +98,7 @@ fun GenreView(context: ViewContext, genreName: String) {
             ) {
                 when {
                     isViable -> SongList(context, songIds = songIds)
-                    else -> UnknownGenre(context, genreName)
+                    else -> UnknownGenre(context, route.genreName)
                 }
             }
         },

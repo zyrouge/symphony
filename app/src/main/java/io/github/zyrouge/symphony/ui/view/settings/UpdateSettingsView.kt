@@ -1,4 +1,4 @@
-package io.github.zyrouge.symphony.ui.view
+package io.github.zyrouge.symphony.ui.view.settings
 
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -18,11 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +30,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,30 +42,23 @@ import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
-import io.github.zyrouge.symphony.ui.components.settings.SettingsSimpleTile
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.settings.AppearanceSettingsViewRoute
-import io.github.zyrouge.symphony.ui.view.settings.GrooveSettingsViewRoute
-import io.github.zyrouge.symphony.ui.view.settings.HomePageSettingsViewRoute
-import io.github.zyrouge.symphony.ui.view.settings.MiniPlayerSettingsViewRoute
-import io.github.zyrouge.symphony.ui.view.settings.NowPlayingSettingsViewRoute
-import io.github.zyrouge.symphony.ui.view.settings.PlayerSettingsViewRoute
-import io.github.zyrouge.symphony.ui.view.settings.UpdateSettingsViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import kotlinx.serialization.Serializable
 
-enum class SettingsViewElements {
-    MediaFolders,
-}
-
 @Serializable
-data class SettingsViewRoute(val initialElement: SettingsViewElements? = null)
+object UpdateSettingsViewRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
+fun UpdateSettingsView(context: ViewContext) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
+
+    val checkForUpdates by context.symphony.settings.checkForUpdates.flow.collectAsState()
+    val showUpdateToast by context.symphony.settings.showUpdateToast.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -156,84 +146,30 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             )
                         }
                     }
-                    SettingsSimpleTile(
-                        icon = {
-                            Icon(Icons.Filled.LibraryMusic, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.Groove)
-                        },
-                        onClick = {
-                            context.navController.navigate(
-                                GrooveSettingsViewRoute(route.initialElement)
-                            )
-                        },
-                    )
-                    SettingsSimpleTile(
-                        icon = {
-                            Icon(Icons.Filled.Radio, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.Player)
-                        },
-                        onClick = {
-                            context.navController.navigate(PlayerSettingsViewRoute)
-                        },
-                    )
-                    SettingsSimpleTile(
-                        icon = {
-                            Icon(Icons.Filled.Palette, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.Appearance)
-                        },
-                        onClick = {
-                            context.navController.navigate(AppearanceSettingsViewRoute)
-                        },
-                    )
-                    SettingsSimpleTile(
-                        icon = {
-                            Icon(Icons.Filled.Home, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.HomePage)
-                        },
-                        onClick = {
-                            context.navController.navigate(HomePageSettingsViewRoute)
-                        },
-                    )
-                    SettingsSimpleTile(
-                        icon = {
-                            Icon(Icons.Filled.MusicNote, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.MiniPlayer)
-                        },
-                        onClick = {
-                            context.navController.navigate(MiniPlayerSettingsViewRoute)
-                        },
-                    )
-                    SettingsSimpleTile(
-                        icon = {
-                            Icon(Icons.Filled.MusicNote, null)
-                        },
-                        title = {
-                            Text(context.symphony.t.NowPlayingPage)
-                        },
-                        onClick = {
-                            context.navController.navigate(NowPlayingSettingsViewRoute)
-                        },
-                    )
-                    SettingsSimpleTile(
+                    SettingsSideHeading(context.symphony.t.Updates)
+                    SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.Update, null)
                         },
                         title = {
-                            Text(context.symphony.t.Updates)
+                            Text(context.symphony.t.CheckForUpdates)
                         },
-                        onClick = {
-                            context.navController.navigate(UpdateSettingsViewRoute)
+                        value = checkForUpdates,
+                        onChange = { value ->
+                            context.symphony.settings.checkForUpdates.setValue(value)
+                        }
+                    )
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.Update, null)
                         },
+                        title = {
+                            Text(context.symphony.t.ShowUpdateToast)
+                        },
+                        value = showUpdateToast,
+                        onChange = { value ->
+                            context.symphony.settings.showUpdateToast.setValue(value)
+                        }
                     )
                 }
             }

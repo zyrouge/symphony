@@ -10,9 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
 import io.github.zyrouge.symphony.services.groove.Song
-import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigateTo
+import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
+import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
+import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
+import io.github.zyrouge.symphony.ui.view.GenreViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.DurationUtils
 import java.text.SimpleDateFormat
@@ -34,7 +36,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 InformationKeyValue(context.symphony.t.Artist) {
                     LongPressCopyableAndTappableText(context, song.artists) {
                         onDismissRequest()
-                        context.navController.navigateTo(Routes.Artist.build(it))
+                        context.navController.navigate(ArtistViewRoute(it))
                     }
                 }
             }
@@ -42,7 +44,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 InformationKeyValue(context.symphony.t.AlbumArtist) {
                     LongPressCopyableAndTappableText(context, song.albumArtists) {
                         onDismissRequest()
-                        context.navController.navigateTo(Routes.AlbumArtist.build(it))
+                        context.navController.navigate(AlbumArtistViewRoute(it))
                     }
                 }
             }
@@ -51,7 +53,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                     // TODO composers page maybe?
                     LongPressCopyableAndTappableText(context, song.composers) {
                         onDismissRequest()
-                        context.navController.navigateTo(Routes.Artist.build(it))
+                        context.navController.navigate(ArtistViewRoute(it))
                     }
                 }
             }
@@ -59,7 +61,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 InformationKeyValue(context.symphony.t.Album) {
                     LongPressCopyableAndTappableText(context, setOf(song.album!!)) {
                         onDismissRequest()
-                        context.navController.navigateTo(Routes.Album.build(albumId))
+                        context.navController.navigate(AlbumViewRoute(albumId))
                     }
                 }
             }
@@ -67,7 +69,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 InformationKeyValue(context.symphony.t.Genre) {
                     LongPressCopyableAndTappableText(context, song.genres) {
                         onDismissRequest()
-                        context.navController.navigateTo(Routes.Genre.build(it))
+                        context.navController.navigate(GenreViewRoute(it))
                     }
                 }
             }

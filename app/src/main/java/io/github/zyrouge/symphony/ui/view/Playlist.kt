@@ -37,22 +37,26 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.mutate
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class PlaylistViewRoute(val playlistId: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlaylistView(context: ViewContext, playlistId: String) {
+fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
     val coroutineScope = rememberCoroutineScope()
     val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
     val updateId by context.symphony.groove.playlist.updateId.collectAsState()
     var updateCounter by remember { mutableIntStateOf(0) }
-    val playlist by remember(playlistId, updateId) {
-        derivedStateOf { context.symphony.groove.playlist.get(playlistId) }
+    val playlist by remember(route.playlistId, updateId) {
+        derivedStateOf { context.symphony.groove.playlist.get(route.playlistId) }
     }
     val songIds by remember(playlist) {
         derivedStateOf { playlist?.getSongIds(context.symphony) ?: emptyList() }
     }
-    val isViable by remember(allPlaylistIds, playlistId) {
-        derivedStateOf { allPlaylistIds.contains(playlistId) }
+    val isViable by remember(allPlaylistIds, route.playlistId) {
+        derivedStateOf { allPlaylistIds.contains(route.playlistId) }
     }
     var showOptionsMenu by remember { mutableStateOf(false) }
     val isFavoritesPlaylist by remember(playlist) {
@@ -158,7 +162,7 @@ fun PlaylistView(context: ViewContext, playlistId: String) {
                         },
                     )
 
-                    else -> UnknownPlaylist(context, playlistId)
+                    else -> UnknownPlaylist(context, route.playlistId)
                 }
             }
         },

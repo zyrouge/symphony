@@ -720,3 +720,9 @@ name = "Date"
 
 [[keys]]
 name = "TotalSamples"
+
+[[keys]]
+name = "HomePage"
+
+[[keys]]
+name = "NowPlayingPage"

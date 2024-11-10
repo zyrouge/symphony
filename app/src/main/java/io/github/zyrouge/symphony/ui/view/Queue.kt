@@ -45,6 +45,10 @@ import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.nowPlaying.NothingPlayingBody
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+@Serializable
+object QueueViewRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

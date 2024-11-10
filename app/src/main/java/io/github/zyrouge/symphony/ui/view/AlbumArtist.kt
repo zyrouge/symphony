@@ -35,15 +35,19 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AlbumArtistViewRoute(val albumArtistName: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumArtistView(context: ViewContext, albumArtistName: String) {
+fun AlbumArtistView(context: ViewContext, route: AlbumArtistViewRoute) {
     val allAlbumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
     val allSongIds by context.symphony.groove.song.all.collectAsState()
     val allAlbumIds = context.symphony.groove.album.all
     val albumArtist by remember(allAlbumArtistNames) {
-        derivedStateOf { context.symphony.groove.albumArtist.get(albumArtistName) }
+        derivedStateOf { context.symphony.groove.albumArtist.get(route.albumArtistName) }
     }
     val songIds by remember(albumArtist, allSongIds) {
         derivedStateOf { albumArtist?.getSongIds(context.symphony) ?: listOf() }
@@ -108,7 +112,7 @@ fun AlbumArtistView(context: ViewContext, albumArtistName: String) {
                             }
                         }
                     )
-                } else UnknownAlbumArtist(context, albumArtistName)
+                } else UnknownAlbumArtist(context, route.albumArtistName)
             }
         },
         bottomBar = {

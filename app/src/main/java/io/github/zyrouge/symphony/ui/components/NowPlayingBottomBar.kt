@@ -64,10 +64,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
-import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigateTo
+import io.github.zyrouge.symphony.ui.view.NowPlayingViewRoute
 import io.github.zyrouge.symphony.utils.runIfOrThis
 import kotlin.math.absoluteValue
 
@@ -145,7 +144,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         .wrapContentHeight()
                         .swipeable(
                             onSwipeUp = {
-                                context.navController.navigateTo(Routes.NowPlaying)
+                                context.navController.navigate(NowPlayingViewRoute)
                             },
                             onSwipeDown = {
                                 context.symphony.radio.stop()
@@ -153,7 +152,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         ),
                     shape = RectangleShape,
                     onClick = {
-                        context.navController.navigateTo(Routes.NowPlaying)
+                        context.navController.navigate(NowPlayingViewRoute)
                     }
                 ) {
                     Row(

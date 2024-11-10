@@ -79,11 +79,9 @@ import io.github.zyrouge.symphony.ui.components.IntroductoryDialog
 import io.github.zyrouge.symphony.ui.components.NowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.components.swipeable
-import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigateTo
 import io.github.zyrouge.symphony.ui.view.home.AlbumArtistsView
 import io.github.zyrouge.symphony.ui.view.home.AlbumsView
 import io.github.zyrouge.symphony.ui.view.home.ArtistsView
@@ -95,6 +93,7 @@ import io.github.zyrouge.symphony.ui.view.home.PlaylistsView
 import io.github.zyrouge.symphony.ui.view.home.SongsView
 import io.github.zyrouge.symphony.ui.view.home.TreeView
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 enum class HomePages(
     val kind: Groove.Kinds? = null,
@@ -166,6 +165,9 @@ enum class HomePageBottomBarLabelVisibility {
     INVISIBLE,
 }
 
+@Serializable
+object HomeViewRoute
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(context: ViewContext) {
@@ -195,7 +197,7 @@ fun HomeView(context: ViewContext) {
                             Icon(Icons.Filled.Search, null)
                         },
                         onClick = {
-                            context.navController.navigateTo(Routes.Search.build(currentTab.kind))
+                            context.navController.navigate(SearchViewRoute(currentTab.kind))
                         }
                     )
                 },
@@ -250,7 +252,7 @@ fun HomeView(context: ViewContext) {
                                     },
                                     onClick = {
                                         showOptionsDropdown = false
-                                        context.navController.navigateTo(Routes.Settings.build())
+                                        context.navController.navigate(SettingsViewRoute())
                                     }
                                 )
                             }

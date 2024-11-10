@@ -13,6 +13,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.nowPlaying.NothingPlaying
 import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingBody
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.Serializable
 
 @Immutable
 data class NowPlayingData(
@@ -53,6 +54,9 @@ enum class NowPlayingLyricsLayout {
     ReplaceArtwork,
     SeparatePage,
 }
+
+@Serializable
+object NowPlayingViewRoute
 
 @Composable
 fun NowPlayingView(context: ViewContext) {

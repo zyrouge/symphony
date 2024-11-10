@@ -47,13 +47,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.radio.RadioLoopMode
-import io.github.zyrouge.symphony.ui.helpers.Routes
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigateTo
+import io.github.zyrouge.symphony.ui.view.LyricsViewRoute
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
 import io.github.zyrouge.symphony.ui.view.NowPlayingDefaults
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingStates
+import io.github.zyrouge.symphony.ui.view.QueueViewRoute
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
 
@@ -88,7 +88,7 @@ fun NowPlayingBodyBottomBar(
         ) {
             TextButton(
                 onClick = {
-                    context.navController.navigateTo(Routes.Queue)
+                    context.navController.navigate(QueueViewRoute)
                 }
             ) {
                 Icon(
@@ -119,7 +119,7 @@ fun NowPlayingBodyBottomBar(
                             }
 
                             NowPlayingLyricsLayout.SeparatePage -> {
-                                context.navController.navigateTo(Routes.Lyrics)
+                                context.navController.navigate(LyricsViewRoute)
                             }
                         }
                     }
