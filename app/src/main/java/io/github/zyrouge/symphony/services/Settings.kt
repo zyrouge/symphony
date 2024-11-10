@@ -273,7 +273,7 @@ class Settings(private val symphony: Symphony) {
     val artworkQuality = EnumEntry(
         "artwork_quality",
         enumEntries<ImagePreserver.Quality>(),
-        ImagePreserver.Quality.Medium,
+        ImagePreserver.Quality.Loseless,
     )
 
     private fun getSharedPreferences() = symphony.applicationContext
