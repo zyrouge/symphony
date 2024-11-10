@@ -35,8 +35,10 @@ const main = async () => {
     console.log(`Moved apk to "${apk[1]}".`);
     await fs.move(aab[0], aab[1]);
     console.log(`Moved aab to "${aab[1]}".`);
-    await fs.move(symbols[0], symbols[1]);
-    console.log(`Moved native-debug-symbols to "${symbols[1]}".`);
+    if (await fs.exists(symbols[0])) {
+        await fs.move(symbols[0], symbols[1]);
+        console.log(`Moved native-debug-symbols to "${symbols[1]}".`);
+    }
 };
 
 main();
