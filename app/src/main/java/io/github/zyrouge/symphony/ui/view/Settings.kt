@@ -58,7 +58,6 @@ import io.github.zyrouge.symphony.ui.view.settings.UpdateSettingsViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import kotlinx.serialization.Serializable
 
-@Serializable
 enum class SettingsViewElements {
     MediaFolders,
 }

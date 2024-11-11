@@ -23,18 +23,27 @@ const main = async () => {
         ),
         path.join(Paths.distDir, `symphony-v${APP_VERSION_NAME}.aab`),
     ] as const;
+    const mapping = [
+        path.join(
+            Paths.appDir,
+            `app/build/outputs/mapping/${APP_BUILD_TYPE}/mapping.txt`,
+        ),
+        path.join(Paths.distDir, "mapping.txt"),
+    ] as const;
     const symbols = [
         path.join(
             Paths.appDir,
             `app/build/outputs/native-debug-symbols/${APP_BUILD_TYPE}/native-debug-symbols.zip`,
         ),
-        path.join(Paths.distDir, `native-debug-symbols.zip`),
+        path.join(Paths.distDir, "native-debug-symbols.zip"),
     ] as const;
     await fs.ensureDir(Paths.distDir);
     await fs.move(apk[0], apk[1]);
     console.log(`Moved apk to "${apk[1]}".`);
     await fs.move(aab[0], aab[1]);
     console.log(`Moved aab to "${aab[1]}".`);
+    await fs.move(mapping[0], mapping[1]);
+    console.log(`Moved mapping to "${mapping[1]}".`);
     if (await fs.exists(symbols[0])) {
         await fs.move(symbols[0], symbols[1]);
         console.log(`Moved native-debug-symbols to "${symbols[1]}".`);

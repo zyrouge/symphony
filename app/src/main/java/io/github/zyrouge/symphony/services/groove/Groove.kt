@@ -14,10 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 
 class Groove(private val symphony: Symphony) : Symphony.Hooks {
-    @Serializable
     enum class Kinds {
         SONG,
         ALBUM,

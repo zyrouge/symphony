@@ -63,12 +63,21 @@ jobs:
               with:
                   name: symphony-v${{ steps.app_version.outputs.version }}-apk
                   path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}.apk
+                  if-no-files-found: error
 
             - name: 🚀 Upload aab
               uses: actions/upload-artifact@v4
               with:
                   name: symphony-v${{ steps.app_version.outputs.version }}-aab
                   path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}.aab
+                  if-no-files-found: error
+
+            - name: 🚀 Upload mapping
+              uses: actions/upload-artifact@v4
+              with:
+                  name: mapping
+                  path: ${{ env.OUTPUT_DIR }}/mapping.txt
+                  if-no-files-found: error
 
             - name: 🚀 Upload native symbols
               uses: actions/upload-artifact@v4
