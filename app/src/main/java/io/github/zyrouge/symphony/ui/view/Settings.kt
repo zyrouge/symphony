@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,8 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
@@ -68,6 +73,7 @@ data class SettingsViewRoute(val initialElement: String? = null) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
+    val configuration = LocalConfiguration.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
@@ -155,6 +161,25 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                                 tint = contentColor,
                                 modifier = Modifier.size(20.dp),
                             )
+                        }
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size((configuration.smallestScreenWidthDp * 0.25).dp)) {
+                            AsyncImage(R.drawable.ic_launcher_foreground, null)
+                        }
+                        Column {
+                            Text(AppMeta.appName, style = MaterialTheme.typography.titleMedium)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(AppMeta.version, style = MaterialTheme.typography.labelMedium)
+                            AppMeta.latestVersion?.takeIf { AppMeta.version != it }?.let {
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Text(
+                                    context.symphony.t.NewVersionAvailableX(it),
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        color = MaterialTheme.colorScheme.primary,
+                                    ),
+                                )
+                            }
                         }
                     }
                     SettingsSimpleTile(
