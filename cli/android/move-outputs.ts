@@ -26,14 +26,14 @@ const main = async () => {
     const mapping = [
         path.join(
             Paths.appDir,
-            `app/build/outputs/mapping/${APP_BUILD_TYPE}/mapping.txt`,
+            `build/outputs/mapping/${APP_BUILD_TYPE}/mapping.txt`,
         ),
         path.join(Paths.distDir, "mapping.txt"),
     ] as const;
     const symbols = [
         path.join(
             Paths.appDir,
-            `app/build/outputs/native-debug-symbols/${APP_BUILD_TYPE}/native-debug-symbols.zip`,
+            `build/outputs/native-debug-symbols/${APP_BUILD_TYPE}/native-debug-symbols.zip`,
         ),
         path.join(Paths.distDir, "native-debug-symbols.zip"),
     ] as const;
