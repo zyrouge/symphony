@@ -69,7 +69,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 private data class SearchResult(
     val songIds: List<String>,
@@ -81,7 +86,25 @@ private data class SearchResult(
 )
 
 @Serializable
-data class SearchViewRoute(val initialChip: Groove.Kinds?)
+data class SearchViewRoute(
+    @Serializable(with = GrooveKindsSerializer::class) val initialChip: Groove.Kinds?,
+) {
+    // NOTE: seems like r8 obfuscates the class, which makes compose navigator to find this class, this is a temporary fix
+    companion object {
+        object GrooveKindsSerializer : KSerializer<Groove.Kinds> {
+            override val descriptor = PrimitiveSerialDescriptor(
+                "Groove.Kinds",
+                PrimitiveKind.STRING,
+            )
+
+            override fun serialize(encoder: Encoder, value: Groove.Kinds) =
+                encoder.encodeString(value.name)
+
+            override fun deserialize(decoder: Decoder) =
+                enumValueOf<Groove.Kinds>(decoder.decodeString())
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

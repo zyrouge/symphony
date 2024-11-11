@@ -58,12 +58,12 @@ import io.github.zyrouge.symphony.ui.view.settings.UpdateSettingsViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import kotlinx.serialization.Serializable
 
-enum class SettingsViewElements {
-    MediaFolders,
-}
-
 @Serializable
-data class SettingsViewRoute(val initialElement: SettingsViewElements? = null)
+data class SettingsViewRoute(val initialElement: String? = null) {
+    companion object {
+        const val ELEMENT_MEDIA_FOLDERS = "media_folders"
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

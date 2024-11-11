@@ -66,14 +66,14 @@ import io.github.zyrouge.symphony.ui.components.settings.SettingsSimpleTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsTextInputTile
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.SettingsViewElements
+import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GrooveSettingsViewRoute(val initialElement: SettingsViewElements?)
+data class GrooveSettingsViewRoute(val initialElement: String? = null)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -177,7 +177,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                         }
                     }
                     SettingsSideHeading(context.symphony.t.Groove)
-                    SpotlightTile(route.initialElement == SettingsViewElements.MediaFolders) {
+                    SpotlightTile(route.initialElement == SettingsViewRoute.ELEMENT_MEDIA_FOLDERS) {
                         SettingsMultiSystemFolderTile(
                             context,
                             icon = {
