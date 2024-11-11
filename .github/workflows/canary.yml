@@ -70,8 +70,9 @@ jobs:
                   name: symphony-v${{ steps.app_version.outputs.version }}-aab
                   path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}.aab
 
-            - name: 🚀 Upload symbols
+            - name: 🚀 Upload native symbols
               uses: actions/upload-artifact@v4
               with:
-                  name: symbols
-                  path: ${{ env.OUTPUT_DIR }}/symbols.zip
+                  name: native-debug-symbols
+                  path: ${{ env.OUTPUT_DIR }}/native-debug-symbols.zip
+                  if-no-files-found: ignore
