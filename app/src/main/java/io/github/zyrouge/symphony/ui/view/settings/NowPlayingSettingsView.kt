@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Forward30
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -169,6 +170,7 @@ fun NowPlayingSettingsView(context: ViewContext) {
                             context.symphony.settings.nowPlayingControlsLayout.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsOptionTile(
                         icon = {
                             Icon(Icons.AutoMirrored.Outlined.Article, null)
@@ -183,6 +185,7 @@ fun NowPlayingSettingsView(context: ViewContext) {
                             context.symphony.settings.nowPlayingLyricsLayout.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.AutoMirrored.Filled.Wysiwyg, null)
@@ -195,6 +198,7 @@ fun NowPlayingSettingsView(context: ViewContext) {
                             context.symphony.settings.nowPlayingAdditionalInfo.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.Forward30, null)

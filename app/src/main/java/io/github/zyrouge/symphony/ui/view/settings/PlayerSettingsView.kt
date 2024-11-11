@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.HeadsetOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -173,6 +174,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             context.symphony.settings.fadePlayback.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSliderTile(
                         context,
                         icon = {
@@ -198,6 +200,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             )
                         },
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.CenterFocusWeak, null)
@@ -210,6 +213,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             context.symphony.settings.requireAudioFocus.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.CenterFocusWeak, null)
@@ -222,6 +226,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             context.symphony.settings.ignoreAudioFocusLoss.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.Headset, null)
@@ -234,6 +239,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             context.symphony.settings.playOnHeadphonesConnect.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.HeadsetOff, null)
@@ -246,6 +252,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             context.symphony.settings.pauseOnHeadphonesDisconnect.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSliderTile(
                         context,
                         icon = {
@@ -271,6 +278,7 @@ fun PlayerSettingsView(context: ViewContext) {
                             )
                         },
                     )
+                    HorizontalDivider()
                     SettingsSliderTile(
                         context,
                         icon = {

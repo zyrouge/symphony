@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -197,6 +198,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             context.symphony.settings.language.setValue(value.takeUnless { it == "" })
                         }
                     )
+                    HorizontalDivider()
                     SettingsOptionTile(
                         icon = {
                             Icon(Icons.Filled.TextFormat, null)
@@ -210,6 +212,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             context.symphony.settings.fontFamily.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsFloatInputTile(
                         context,
                         icon = {
@@ -230,6 +233,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             context.symphony.settings.fontScale.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsFloatInputTile(
                         context,
                         icon = {
@@ -250,6 +254,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             context.symphony.settings.contentScale.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsOptionTile(
                         icon = {
                             Icon(Icons.Filled.Palette, null)
@@ -269,6 +274,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             context.symphony.settings.themeMode.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsSwitchTile(
                         icon = {
                             Icon(Icons.Filled.Face, null)
@@ -281,6 +287,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             context.symphony.settings.useMaterialYou.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsOptionTile(
                         icon = {
                             Icon(Icons.Filled.Colorize, null)

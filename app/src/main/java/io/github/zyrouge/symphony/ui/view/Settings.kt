@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,7 @@ import io.github.zyrouge.symphony.ui.view.settings.UpdateSettingsViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import kotlinx.serialization.Serializable
 
+@Serializable
 enum class SettingsViewElements {
     MediaFolders,
 }
@@ -169,6 +171,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             )
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.Radio, null)
@@ -180,6 +183,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             context.navController.navigate(PlayerSettingsViewRoute)
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.Palette, null)
@@ -191,6 +195,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             context.navController.navigate(AppearanceSettingsViewRoute)
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.Home, null)
@@ -202,6 +207,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             context.navController.navigate(HomePageSettingsViewRoute)
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.MusicNote, null)
@@ -213,6 +219,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             context.navController.navigate(MiniPlayerSettingsViewRoute)
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.MusicNote, null)
@@ -224,6 +231,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             context.navController.navigate(NowPlayingSettingsViewRoute)
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.Update, null)

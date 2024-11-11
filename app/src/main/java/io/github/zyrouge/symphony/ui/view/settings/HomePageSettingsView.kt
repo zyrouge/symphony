@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Recommend
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -172,6 +173,7 @@ fun HomePageSettingsView(context: ViewContext) {
                             context.symphony.settings.homeTabs.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsMultiOptionTile(
                         context,
                         icon = {
@@ -186,6 +188,7 @@ fun HomePageSettingsView(context: ViewContext) {
                             context.symphony.settings.forYouContents.setValue(value)
                         }
                     )
+                    HorizontalDivider()
                     SettingsOptionTile(
                         icon = {
                             Icon(Icons.AutoMirrored.Filled.Label, null)

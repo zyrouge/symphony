@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.SpaceBar
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -192,6 +193,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             }
                         )
                     }
+                    HorizontalDivider()
                     SettingsTextInputTile(
                         context,
                         icon = {
@@ -214,6 +216,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
+                    HorizontalDivider()
                     SettingsMultiGrooveFolderTile(
                         context,
                         icon = {
@@ -229,6 +232,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
+                    HorizontalDivider()
                     SettingsMultiGrooveFolderTile(
                         context,
                         icon = {
@@ -244,6 +248,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         }
                     )
+                    HorizontalDivider()
                     SettingsMultiTextOptionTile(
                         context,
                         icon = {
@@ -258,6 +263,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         },
                     )
+                    HorizontalDivider()
                     SettingsMultiTextOptionTile(
                         context,
                         icon = {
@@ -272,6 +278,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         },
                     )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.Storage, null)
