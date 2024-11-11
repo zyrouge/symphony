@@ -14,22 +14,24 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 sealed class TransitionDurations(val milliseconds: Int) {
-    data object Fast : TransitionDurations(150)
-    data object Normal : TransitionDurations(300)
-    data object Slow : TransitionDurations(500)
+    data object Fast : TransitionDurations(200)
+    data object Normal : TransitionDurations(400)
+    data object Slow : TransitionDurations(600)
 
     fun <T> asTween(delayMillis: Int = 0, easing: Easing = FastOutSlowInEasing) =
         tween<T>(milliseconds, delayMillis, easing)
 }
 
-data class ScaleTransition(val enterScale: Float, val exitScale: Float) {
+class ScaleTransition(val enterScale: Float, val exitScale: Float) {
     fun enterTransition(
-        animationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
-    ) = scaleIn(animationSpec, enterScale) + fadeIn()
+        fadeAnimationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
+        scaleAnimationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
+    ) = fadeIn(fadeAnimationSpec) + scaleIn(scaleAnimationSpec, enterScale)
 
     fun exitTransition(
-        animationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
-    ) = scaleOut(animationSpec, exitScale) + fadeOut()
+        fadeAnimationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
+        scaleAnimationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
+    ) = fadeOut(fadeAnimationSpec) + scaleOut(scaleAnimationSpec, exitScale)
 
     companion object {
         private const val ShrinkScale = 0.95f
@@ -44,17 +46,16 @@ data class ScaleTransition(val enterScale: Float, val exitScale: Float) {
 
 private typealias CalcOffsetFn = (IntSize) -> IntOffset
 
-data class SlideTransition(
-    val enterOffset: CalcOffsetFn,
-    val exitOffset: CalcOffsetFn,
-) {
+class SlideTransition(val enterOffset: CalcOffsetFn, val exitOffset: CalcOffsetFn) {
     fun enterTransition(
-        animationSpec: FiniteAnimationSpec<IntOffset> = defaultAnimationSpec(),
-    ) = slideIn(animationSpec) { enterOffset(it) } + fadeIn()
+        fadeAnimationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
+        slideAnimationSpec: FiniteAnimationSpec<IntOffset> = defaultAnimationSpec(),
+    ) = fadeIn(fadeAnimationSpec) + slideIn(slideAnimationSpec) { enterOffset(it) }
 
     fun exitTransition(
-        animationSpec: FiniteAnimationSpec<IntOffset> = defaultAnimationSpec(),
-    ) = slideOut(animationSpec) { exitOffset(it) } + fadeOut()
+        fadeAnimationSpec: FiniteAnimationSpec<Float> = defaultAnimationSpec(),
+        slideAnimationSpec: FiniteAnimationSpec<IntOffset> = defaultAnimationSpec(),
+    ) = slideOut(slideAnimationSpec) { exitOffset(it) } + fadeOut(fadeAnimationSpec)
 
     companion object {
         private val slideUpOffset: CalcOffsetFn = { IntOffset(0, calculateOffset(-it.height)) }

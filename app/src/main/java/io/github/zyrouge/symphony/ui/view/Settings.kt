@@ -225,7 +225,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             Icon(Icons.Filled.Home, null)
                         },
                         title = {
-                            Text(context.symphony.t.HomePage)
+                            Text(context.symphony.t.Home)
                         },
                         onClick = {
                             context.navController.navigate(HomePageSettingsViewRoute)
@@ -249,7 +249,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             Icon(Icons.Filled.MusicNote, null)
                         },
                         title = {
-                            Text(context.symphony.t.NowPlayingPage)
+                            Text(context.symphony.t.NowPlaying)
                         },
                         onClick = {
                             context.navController.navigate(NowPlayingSettingsViewRoute)

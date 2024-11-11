@@ -722,7 +722,4 @@ name = "Date"
 name = "TotalSamples"
 
 [[keys]]
-name = "HomePage"
-
-[[keys]]
-name = "NowPlayingPage"
+name = "Home"

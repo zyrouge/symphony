@@ -154,7 +154,7 @@ fun HomePageSettingsView(context: ViewContext) {
                             )
                         }
                     }
-                    SettingsSideHeading(context.symphony.t.Interface)
+                    SettingsSideHeading(context.symphony.t.Home)
                     SettingsMultiOptionTile(
                         context,
                         icon = {
