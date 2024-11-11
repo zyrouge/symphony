@@ -191,7 +191,7 @@ fun HomeView(context: ViewContext) {
                             Icon(Icons.Filled.Search, null)
                         },
                         onClick = {
-                            context.navController.navigate(SearchViewRoute(currentTab.kind))
+                            context.navController.navigate(SearchViewRoute(currentTab.kind?.name))
                         }
                     )
                 },

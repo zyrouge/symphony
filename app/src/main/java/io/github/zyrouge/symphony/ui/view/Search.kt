@@ -69,12 +69,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 
 private data class SearchResult(
     val songIds: List<String>,
@@ -86,25 +81,7 @@ private data class SearchResult(
 )
 
 @Serializable
-data class SearchViewRoute(
-    @Serializable(with = GrooveKindsSerializer::class) val initialChip: Groove.Kinds?,
-) {
-    // NOTE: seems like r8 obfuscates the class, which makes compose navigator to find this class, this is a temporary fix
-    companion object {
-        object GrooveKindsSerializer : KSerializer<Groove.Kinds> {
-            override val descriptor = PrimitiveSerialDescriptor(
-                "Groove.Kinds",
-                PrimitiveKind.STRING,
-            )
-
-            override fun serialize(encoder: Encoder, value: Groove.Kinds) =
-                encoder.encodeString(value.name)
-
-            override fun deserialize(decoder: Decoder) =
-                enumValueOf<Groove.Kinds>(decoder.decodeString())
-        }
-    }
-}
+data class SearchViewRoute(val initialChip: String?)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,8 +90,13 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
     var terms by rememberSaveable { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<SearchResult?>(null) }
+    val initialChip = remember {
+        route.initialChip?.let { enumValueOf<Groove.Kinds>(it) }
+    }
+    var selectedChip by rememberSaveable {
+        mutableStateOf(initialChip)
+    }
 
-    var selectedChip by rememberSaveable { mutableStateOf(route.initialChip) }
     fun isChipSelected(kind: Groove.Kinds) = selectedChip == null || selectedChip == kind
 
     var currentTermsRoutine: Job? = null
@@ -269,7 +251,7 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
                                 Text(it.label(context))
                             },
                             modifier = Modifier.onGloballyPositioned { coordinates ->
-                                if (!initialScroll && route.initialChip == it) {
+                                if (!initialScroll && initialChip == it) {
                                     val windowWidth = with(density) {
                                         configuration.screenWidthDp.dp.toPx()
                                     }
