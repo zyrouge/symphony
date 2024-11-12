@@ -13,6 +13,7 @@
         "git:tag-exists": "tsx ./cli/git/tag-exists.ts",
         "git:tag-exists-yn": "tsx ./cli/git/tag-exists-yn.ts",
         "git:latest-tag": "tsx ./cli/git/latest-tag.ts",
+        "git:diff-files-yn": "tsx ./cli/git/diff-files-yn.ts",
         "android:move-outputs": "tsx ./cli/android/move-outputs.ts",
         "prebuild": "npm run i18n:build",
         "postbuild": "npm run android:move-outputs",
