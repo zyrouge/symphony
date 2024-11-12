@@ -1,17 +1,20 @@
 package io.github.zyrouge.symphony.ui.view
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.ScaleTransition
 import io.github.zyrouge.symphony.ui.helpers.SlideTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -50,130 +53,58 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 navController = navController,
                 startDestination = HomeViewRoute,
             ) {
-                composable<HomeViewRoute>(
-                    popEnterTransition = {
-                        when {
-                            initialState.destination.isRoute<NowPlayingViewRoute>() -> FadeTransition.enterTransition()
-                            initialState.destination.isRoute<SearchViewRoute>() -> FadeTransition.enterTransition()
-                            else -> SlideTransition.slideRight.enterTransition()
-                        }
-                    },
-                    popExitTransition = { SlideTransition.slideRight.exitTransition() },
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = {
-                        when {
-                            targetState.destination.isRoute<NowPlayingViewRoute>() -> ScaleTransition.scaleDown.exitTransition()
-                            targetState.destination.isRoute<SearchViewRoute>() -> ScaleTransition.scaleDown.exitTransition()
-                            else -> SlideTransition.slideLeft.exitTransition()
-                        }
-                    },
-                ) {
+                baseComposable<HomeViewRoute> {
                     HomeView(context)
                 }
-                composable<NowPlayingViewRoute>(
-                    enterTransition = { SlideTransition.slideUp.enterTransition() },
-                    exitTransition = { FadeTransition.exitTransition() },
-                    popEnterTransition = { FadeTransition.enterTransition() },
-                    popExitTransition = { SlideTransition.slideDown.exitTransition() },
-                ) {
+                baseComposable<NowPlayingViewRoute> {
                     NowPlayingView(context)
                 }
-                composable<QueueViewRoute>(
-                    enterTransition = { SlideTransition.slideUp.enterTransition() },
-                    exitTransition = { SlideTransition.slideDown.exitTransition() },
-                ) {
+                baseComposable<QueueViewRoute> {
                     QueueView(context)
                 }
-                composable<ArtistViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) { backStackEntry ->
-                    ArtistView(context, backStackEntry.toRoute())
+                baseComposable<ArtistViewRoute> {
+                    ArtistView(context, it.toRoute())
                 }
-                composable<AlbumViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) { backStackEntry ->
-                    AlbumView(context, backStackEntry.toRoute())
+                baseComposable<AlbumViewRoute> {
+                    AlbumView(context, it.toRoute())
                 }
-                composable<SearchViewRoute>(
-                    enterTransition = { SlideTransition.slideDown.enterTransition() },
-                    exitTransition = { SlideTransition.slideUp.exitTransition() },
-                ) { backStackEntry ->
-                    SearchView(context, backStackEntry.toRoute())
+                baseComposable<SearchViewRoute> {
+                    SearchView(context, it.toRoute())
                 }
-                composable<AlbumArtistViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) { backStackEntry ->
-                    AlbumArtistView(context, backStackEntry.toRoute())
+                baseComposable<AlbumArtistViewRoute> {
+                    AlbumArtistView(context, it.toRoute())
                 }
-                composable<GenreViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) { backStackEntry ->
-                    GenreView(context, backStackEntry.toRoute())
+                baseComposable<GenreViewRoute> {
+                    GenreView(context, it.toRoute())
                 }
-                composable<PlaylistViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) { backStackEntry ->
-                    PlaylistView(context, backStackEntry.toRoute())
+                baseComposable<PlaylistViewRoute> {
+                    PlaylistView(context, it.toRoute())
                 }
-                composable<LyricsViewRoute>(
-                    enterTransition = { SlideTransition.slideUp.enterTransition() },
-                    exitTransition = { SlideTransition.slideDown.exitTransition() },
-                ) {
+                baseComposable<LyricsViewRoute> {
                     LyricsView(context)
                 }
-                composable<SettingsViewRoute>(
-                    popEnterTransition = { SlideTransition.slideRight.enterTransition() },
-                    popExitTransition = { SlideTransition.slideRight.exitTransition() },
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideLeft.exitTransition() },
-                ) { backStackEntry ->
-                    SettingsView(context, backStackEntry.toRoute())
+                baseComposable<SettingsViewRoute> {
+                    SettingsView(context, it.toRoute())
                 }
-                composable<AppearanceSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) {
+                baseComposable<AppearanceSettingsViewRoute> {
                     AppearanceSettingsView(context)
                 }
-                composable<GrooveSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) { backStackEntry ->
-                    GrooveSettingsView(context, backStackEntry.toRoute())
+                baseComposable<GrooveSettingsViewRoute> {
+                    GrooveSettingsView(context, it.toRoute())
                 }
-                composable<HomePageSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) {
+                baseComposable<HomePageSettingsViewRoute> {
                     HomePageSettingsView(context)
                 }
-                composable<MiniPlayerSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) {
+                baseComposable<MiniPlayerSettingsViewRoute> {
                     MiniPlayerSettingsView(context)
                 }
-                composable<NowPlayingSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) {
+                baseComposable<NowPlayingSettingsViewRoute> {
                     NowPlayingSettingsView(context)
                 }
-                composable<PlayerSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) {
+                baseComposable<PlayerSettingsViewRoute> {
                     PlayerSettingsView(context)
                 }
-                composable<UpdateSettingsViewRoute>(
-                    enterTransition = { SlideTransition.slideLeft.enterTransition() },
-                    exitTransition = { SlideTransition.slideRight.exitTransition() },
-                ) {
+                baseComposable<UpdateSettingsViewRoute> {
                     UpdateSettingsView(context)
                 }
             }
@@ -181,6 +112,59 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
     }
 }
 
+private inline fun <reified T : Any> NavGraphBuilder.baseComposable(
+    noinline content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit),
+) {
+    composable<T>(
+        popEnterTransition = {
+            when {
+                isInitialRoute<SearchViewRoute>() -> ScaleTransition.scaleUp.enterTransition()
+                isInitialRoute<NowPlayingViewRoute>() -> ScaleTransition.scaleUp.enterTransition()
+                isInitialRoute<QueueViewRoute>() -> ScaleTransition.scaleUp.enterTransition()
+                isInitialRoute<LyricsViewRoute>() -> ScaleTransition.scaleUp.enterTransition()
+                else -> SlideTransition.slideRight.enterTransition()
+            }
+        },
+        popExitTransition = {
+            when {
+                isInitialRoute<SearchViewRoute>() -> SlideTransition.slideUp.exitTransition()
+                isInitialRoute<NowPlayingViewRoute>() -> SlideTransition.slideDown.exitTransition()
+                isInitialRoute<QueueViewRoute>() -> SlideTransition.slideDown.exitTransition()
+                isInitialRoute<LyricsViewRoute>() -> SlideTransition.slideDown.exitTransition()
+                else -> SlideTransition.slideRight.exitTransition()
+            }
+        },
+        enterTransition = {
+            when {
+                isTargetRoute<SearchViewRoute>() -> SlideTransition.slideDown.enterTransition()
+                isTargetRoute<NowPlayingViewRoute>() -> SlideTransition.slideUp.enterTransition()
+                isTargetRoute<QueueViewRoute>() -> SlideTransition.slideUp.enterTransition()
+                isTargetRoute<LyricsViewRoute>() -> SlideTransition.slideUp.enterTransition()
+                else -> SlideTransition.slideLeft.enterTransition()
+            }
+        },
+        exitTransition = {
+            when {
+                isTargetRoute<SearchViewRoute>() -> ScaleTransition.scaleDown.exitTransition()
+                isTargetRoute<NowPlayingViewRoute>() -> ScaleTransition.scaleDown.exitTransition()
+                isTargetRoute<QueueViewRoute>() -> ScaleTransition.scaleDown.exitTransition()
+                isTargetRoute<LyricsViewRoute>() -> ScaleTransition.scaleDown.exitTransition()
+                else -> SlideTransition.slideLeft.exitTransition()
+            }
+        },
+    ) {
+        content(it)
+    }
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 private inline fun <reified T> NavDestination.isRoute() =
     route?.contains(serializer<T>().descriptor.serialName) == true
+
+@OptIn(ExperimentalSerializationApi::class)
+private inline fun <reified T> AnimatedContentTransitionScope<NavBackStackEntry>.isInitialRoute() =
+    initialState.destination.isRoute<T>()
+
+@OptIn(ExperimentalSerializationApi::class)
+private inline fun <reified T> AnimatedContentTransitionScope<NavBackStackEntry>.isTargetRoute() =
+    targetState.destination.isRoute<T>()
