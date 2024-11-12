@@ -70,8 +70,6 @@ fun SymphonyTheme(
     if (!view.isInEditMode) {
         val activity = view.context as Activity
         SideEffect {
-            // TODO: validate this change
-            // activity.window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(activity.window, view)
                 .isAppearanceLightStatusBars = colorSchemeMode == ColorSchemeMode.LIGHT
         }

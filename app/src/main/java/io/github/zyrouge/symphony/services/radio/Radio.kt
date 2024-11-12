@@ -360,7 +360,9 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
     }
 
     private fun restorePreviousQueue() {
-        if (!queue.isEmpty()) return
+        if (!queue.isEmpty()) {
+            return
+        }
         symphony.settings.previousSongQueue.value?.let { previous ->
             var currentSongIndex = previous.currentSongIndex
             var playedDuration = previous.playedDuration
@@ -378,7 +380,9 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
                     if (i < currentSongIndex) currentSongIndex--
                 }
             }
-            if (originalQueue.isEmpty() || hasPlayer) return@let
+            if (originalQueue.isEmpty() || hasPlayer) {
+                return@let
+            }
             if (currentSongIndex >= originalQueue.size) {
                 currentSongIndex = 0
                 playedDuration = 0
@@ -399,13 +403,17 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         ready()
     }
 
-    override fun onSymphonyPause() {
-        saveCurrentQueue()
-    }
-
     override fun onSymphonyDestroy() {
         saveCurrentQueue()
         destroy()
+    }
+
+    override fun onSymphonyActivityPause() {
+        saveCurrentQueue()
+    }
+
+    override fun onSymphonyActivityDestroy() {
+        saveCurrentQueue()
     }
 
     private fun saveCurrentQueue() {

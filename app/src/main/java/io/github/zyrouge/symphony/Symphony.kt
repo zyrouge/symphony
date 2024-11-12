@@ -21,8 +21,10 @@ import kotlinx.coroutines.withContext
 class Symphony(application: Application) : AndroidViewModel(application), Symphony.Hooks {
     interface Hooks {
         fun onSymphonyReady() {}
-        fun onSymphonyPause() {}
         fun onSymphonyDestroy() {}
+        fun onSymphonyActivityReady() {}
+        fun onSymphonyActivityPause() {}
+        fun onSymphonyActivityDestroy() {}
     }
 
     val permission = Permissions(this)
@@ -39,18 +41,29 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     private var isReady = false
     private var hooks = listOf(this, radio, groove)
 
-    fun ready() {
-        if (isReady) return
+    internal fun emitReady() {
+        if (isReady) {
+            return
+        }
         isReady = true
         notifyHooks { onSymphonyReady() }
     }
 
-    fun pause() {
-        notifyHooks { onSymphonyPause() }
+    internal fun emitDestroy() {
+        notifyHooks { onSymphonyDestroy() }
     }
 
-    fun destroy() {
-        notifyHooks { onSymphonyDestroy() }
+    internal fun emitActivityReady() {
+        emitReady()
+        notifyHooks { onSymphonyActivityReady() }
+    }
+
+    internal fun emitActivityPause() {
+        notifyHooks { onSymphonyActivityPause() }
+    }
+
+    internal fun emitActivityDestroy() {
+        notifyHooks { onSymphonyActivityDestroy() }
     }
 
     override fun onSymphonyReady() {
@@ -60,6 +73,11 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
                 t = nTranslation
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        emitDestroy()
     }
 
     private fun notifyHooks(fn: Hooks.() -> Unit) {
