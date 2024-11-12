@@ -80,7 +80,7 @@ class AlbumRepository(private val symphony: Symphony) {
     fun getIdFromSong(song: Song): String? {
         if (song.album == null) return null
         val artists = song.albumArtists.sorted().joinToString("-")
-        return "${song.album}-${artists}-${song.year ?: 0}"
+        return "${song.album}-${artists}"
     }
 
     fun getArtworkUri(albumId: String) = songIdsCache[albumId]?.firstOrNull()
