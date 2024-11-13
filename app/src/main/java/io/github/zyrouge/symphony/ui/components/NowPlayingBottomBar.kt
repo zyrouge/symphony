@@ -260,7 +260,7 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
 @Composable
 private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
     BoxWithConstraints(modifier = Modifier.clipToBounds()) {
-        val cardWidthPx = constraints.maxWidth
+        val cardWidthPx = this@BoxWithConstraints.constraints.maxWidth
         var offsetX by remember { mutableFloatStateOf(0f) }
         val cardOffsetX by animateFloatAsState(
             offsetX / 2,

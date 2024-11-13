@@ -15,7 +15,10 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun AlbumRow(context: ViewContext, albumIds: List<String>) {
     BoxWithConstraints {
-        val maxSize = min(maxHeight, maxWidth).div(2f)
+        val maxSize = min(
+            this@BoxWithConstraints.maxHeight,
+            this@BoxWithConstraints.maxWidth,
+        ).div(2f)
         val width = min(maxSize, 200.dp)
 
         LazyRow {

@@ -119,7 +119,7 @@ fun PlaylistManageSongsDialog(
                     else -> BoxWithConstraints {
                         LazyColumn(
                             modifier = Modifier
-                                .height(maxHeight)
+                                .height(this@BoxWithConstraints.maxHeight)
                                 .padding(bottom = 4.dp)
                         ) {
                             items(songIds) { songId ->

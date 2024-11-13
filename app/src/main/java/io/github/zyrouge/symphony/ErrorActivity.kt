@@ -11,8 +11,8 @@ class ErrorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val errorMessage = intent?.extras?.getString(errorMessageKey) ?: "Unknown"
-        val errorStackTrace = intent?.extras?.getString(errorStackTraceKey) ?: "-"
+        val errorMessage = intent?.extras?.getString(KEY_ERROR_MESSAGE) ?: "Unknown"
+        val errorStackTrace = intent?.extras?.getString(KEY_ERROR_STACK_TRACE) ?: "-"
 
         setContent {
             ErrorComp(errorMessage, errorStackTrace)
@@ -20,14 +20,14 @@ class ErrorActivity : ComponentActivity() {
     }
 
     companion object {
-        const val errorMessageKey = "error_message"
-        const val errorStackTraceKey = "error_stack_trace"
+        const val KEY_ERROR_MESSAGE = "error_message"
+        const val KEY_ERROR_STACK_TRACE = "error_stack_trace"
 
         fun start(context: Context, error: Throwable) {
             val intent = Intent(context, ErrorActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-            intent.putExtra(errorMessageKey, error.toString())
-            intent.putExtra(errorStackTraceKey, error.stackTraceToString())
+            intent.putExtra(KEY_ERROR_MESSAGE, error.toString())
+            intent.putExtra(KEY_ERROR_STACK_TRACE, error.stackTraceToString())
             context.startActivity(intent)
         }
     }

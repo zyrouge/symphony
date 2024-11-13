@@ -332,7 +332,7 @@ private fun NowPlayingSeekBar(
             .height(sliderHeight),
         contentAlignment = Alignment.Center,
     ) {
-        val sliderWidth = maxWidth
+        val sliderWidth = this@BoxWithConstraints.maxWidth
 
         Box(
             modifier = Modifier

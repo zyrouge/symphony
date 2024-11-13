@@ -98,7 +98,7 @@ private fun NowPlayingBodyCoverLyrics(context: ViewContext, orientation: ScreenO
 @Composable
 private fun NowPlayingBodyCoverArtwork(context: ViewContext, song: Song) {
     BoxWithConstraints {
-        val dimension = min(maxHeight, maxWidth)
+        val dimension = min(this@BoxWithConstraints.maxHeight, this@BoxWithConstraints.maxWidth)
 
         AnimatedContent(
             label = "now-playing-body-cover-artwork",

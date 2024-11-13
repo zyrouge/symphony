@@ -26,7 +26,7 @@ object SymphonyBuiltinFonts {
             Font(R.font.inter_regular, FontWeight.Normal),
             Font(R.font.inter_bold, FontWeight.Bold),
         ),
-    );
+    )
 
     val Poppins = SymphonyFont.fromValue(
         fontName = "Poppins",
@@ -34,7 +34,7 @@ object SymphonyBuiltinFonts {
             Font(R.font.roboto_regular, FontWeight.Normal),
             Font(R.font.roboto_bold, FontWeight.Bold)
         ),
-    );
+    )
 
     val DMSans = SymphonyFont.fromValue(
         fontName = "DM Sans",
@@ -42,7 +42,7 @@ object SymphonyBuiltinFonts {
             Font(R.font.dmsans_regular, FontWeight.Normal),
             Font(R.font.dmsans_bold, FontWeight.Bold)
         ),
-    );
+    )
 
     val Roboto = SymphonyFont.fromValue(
         fontName = "Roboto",
@@ -50,7 +50,7 @@ object SymphonyBuiltinFonts {
             Font(R.font.roboto_regular, FontWeight.Normal),
             Font(R.font.roboto_bold, FontWeight.Bold)
         ),
-    );
+    )
 
     val ProductSans = SymphonyFont.fromValue(
         fontName = "Product Sans",
@@ -58,7 +58,7 @@ object SymphonyBuiltinFonts {
             Font(R.font.productsans_regular, FontWeight.Normal),
             Font(R.font.productsans_bold, FontWeight.Bold)
         ),
-    );
+    )
 }
 
 object SymphonyTypography {

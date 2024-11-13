@@ -21,14 +21,6 @@ fun <T> List<T>.randomSubList(length: Int): List<T> {
     return out
 }
 
-fun <T> List<T>.indexOfOrNull(value: T) = indexOfOrNull { it == value }
-fun <T> List<T>.indexOfOrNull(predicate: (T) -> Boolean): Int? {
-    for (i in indices) {
-        if (predicate(get(i))) return i
-    }
-    return null
-}
-
 fun <T> List<T>.mutate(fn: MutableList<T>.() -> Unit): List<T> {
     val out = toMutableList()
     fn.invoke(out)

@@ -51,22 +51,16 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
     private var player: RadioPlayer? = null
     private var focusCounter = 0
 
-    val hasPlayer: Boolean
-        get() = player?.usable ?: false
-    val isPlaying: Boolean
-        get() = player?.isPlaying ?: false
-    val currentPlaybackPosition: RadioPlayer.PlaybackPosition?
-        get() = player?.playbackPosition
-    val currentSpeed: Float
-        get() = player?.speed ?: RadioPlayer.DEFAULT_SPEED
-    val currentPitch: Float
-        get() = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
-    val audioSessionId: Int?
-        get() = player?.audioSessionId
+    val hasPlayer get() = player?.usable == true
+    val isPlaying get() = player?.isPlaying == true
+    val currentPlaybackPosition = player?.playbackPosition
+    val currentSpeed = player?.speed ?: RadioPlayer.DEFAULT_SPEED
+    val currentPitch = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
+    val audioSessionId = player?.audioSessionId
     val onPlaybackPositionUpdate = Eventer<RadioPlayer.PlaybackPosition>()
 
-    var persistedSpeed: Float = RadioPlayer.DEFAULT_SPEED
-    var persistedPitch: Float = RadioPlayer.DEFAULT_PITCH
+    var persistedSpeed = RadioPlayer.DEFAULT_SPEED
+    var persistedPitch = RadioPlayer.DEFAULT_PITCH
     var sleepTimer: SleepTimer? = null
     var pauseOnCurrentSongEnd = false
 

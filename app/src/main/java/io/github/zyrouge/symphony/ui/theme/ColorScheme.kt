@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 
+@Suppress("ConstPropertyName")
 object ThemeColorSchemes {
     private val LightBackgroundColor = ThemeColors.Neutral50
     private val LightSurfaceColor = ThemeColors.Neutral100
@@ -30,25 +31,25 @@ object ThemeColorSchemes {
     private const val LightOnSurfaceVariantLightness = -0.45f
     private const val DarkToBlackBlendRatio = 0.4f
 
-    fun createLightColorScheme(PrimaryColor: Color) = lightColorScheme(
-        primary = PrimaryColor,
+    fun createLightColorScheme(primaryColor: Color) = lightColorScheme(
+        primary = primaryColor,
         onPrimary = LightContrastColor,
-        primaryContainer = PrimaryColor,
+        primaryContainer = primaryColor,
         onPrimaryContainer = LightContrastColor,
-        secondary = PrimaryColor,
+        secondary = primaryColor,
         onSecondary = LightContrastColor,
-        secondaryContainer = PrimaryColor,
+        secondaryContainer = primaryColor,
         onSecondaryContainer = LightContrastColor,
-        tertiary = PrimaryColor,
+        tertiary = primaryColor,
         onTertiary = LightContrastColor,
-        tertiaryContainer = PrimaryColor,
+        tertiaryContainer = primaryColor,
         onTertiaryContainer = LightContrastColor,
-        background = blendColors(LightBackgroundColor, PrimaryColor, BackgroundBlendRatio),
-        onBackground = adjustLightness(PrimaryColor, LightOnBackgroundLightness),
-        surface = blendColors(LightSurfaceColor, PrimaryColor, SurfaceBlendRatio),
-        onSurface = adjustLightness(PrimaryColor, LightOnSurfaceLightness),
-        surfaceVariant = blendColors(LightSurfaceVariantColor, PrimaryColor, SurfaceBlendRatio),
-        onSurfaceVariant = adjustLightness(PrimaryColor, LightOnSurfaceVariantLightness),
+        background = blendColors(LightBackgroundColor, primaryColor, BackgroundBlendRatio),
+        onBackground = adjustLightness(primaryColor, LightOnBackgroundLightness),
+        surface = blendColors(LightSurfaceColor, primaryColor, SurfaceBlendRatio),
+        onSurface = adjustLightness(primaryColor, LightOnSurfaceLightness),
+        surfaceVariant = blendColors(LightSurfaceVariantColor, primaryColor, SurfaceBlendRatio),
+        onSurfaceVariant = adjustLightness(primaryColor, LightOnSurfaceVariantLightness),
     )
 
     fun createDarkColorScheme(PrimaryColor: Color) = darkColorScheme(

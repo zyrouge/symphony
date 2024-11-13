@@ -15,7 +15,7 @@ data class ResponsiveGridData(val columnsCount: Int)
 @Composable
 fun ResponsiveGrid(content: LazyGridScope.(ResponsiveGridData) -> Unit) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val cols = (maxWidth.value / 200).roundToInt()
+        val cols = (this@BoxWithConstraints.maxWidth.value / 200).roundToInt()
         val gridState = rememberLazyGridState()
         val responsiveGridData = ResponsiveGridData(columnsCount = cols)
 

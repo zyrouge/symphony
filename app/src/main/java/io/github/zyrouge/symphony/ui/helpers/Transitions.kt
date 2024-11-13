@@ -34,11 +34,11 @@ class ScaleTransition(val enterScale: Float, val exitScale: Float) {
     ) = fadeOut(fadeAnimationSpec) + scaleOut(scaleAnimationSpec, exitScale)
 
     companion object {
-        private const val ShrinkScale = 0.95f
-        private const val ExpandScale = 1.05f
+        private const val SHRINK_SCALE = 0.95f
+        private const val EXPAND_SCALE = 1.05f
 
-        val scaleUp = ScaleTransition(ShrinkScale, ExpandScale)
-        val scaleDown = ScaleTransition(ExpandScale, ShrinkScale)
+        val scaleUp = ScaleTransition(SHRINK_SCALE, EXPAND_SCALE)
+        val scaleDown = ScaleTransition(EXPAND_SCALE, SHRINK_SCALE)
 
         private fun <T> defaultAnimationSpec() = TransitionDurations.Slow.asTween<T>()
     }
