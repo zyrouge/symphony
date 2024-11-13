@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.view
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
@@ -60,10 +59,6 @@ object NowPlayingViewRoute
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
-    BackHandler {
-        context.navController.popBackStack()
-    }
-
     NowPlayingWithData(context) { data ->
         when {
             data != null -> NowPlayingBody(context, data = data)
