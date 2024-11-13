@@ -741,3 +741,6 @@ name = "Loseless"
 
 [[keys]]
 name = "UseMetaphonyMetadataDecoder"
+
+[[keys]]
+name = "PlayStore"

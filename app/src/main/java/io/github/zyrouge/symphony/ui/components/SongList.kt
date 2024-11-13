@@ -28,6 +28,7 @@ import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
+import io.github.zyrouge.symphony.ui.view.settings.GrooveSettingsViewRoute
 
 enum class SongListType {
     Default,
@@ -96,7 +97,7 @@ fun SongList(
                                 modifier = Modifier
                                     .clickable {
                                         context.navController.navigate(
-                                            SettingsViewRoute(SettingsViewRoute.ELEMENT_MEDIA_FOLDERS)
+                                            GrooveSettingsViewRoute(SettingsViewRoute.ELEMENT_MEDIA_FOLDERS)
                                         )
                                     }
                                     .padding(2.dp),
