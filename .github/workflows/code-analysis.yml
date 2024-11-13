@@ -45,7 +45,7 @@ jobs:
               if: github.event_name == 'pull_request_target'
               run: |
                   git fetch origin "${{ github.base_ref }}" --depth=1
-                  echo "RUN_LINT=$(npm run git:diff-files-yn 'origin/${{ github.base_ref }}' 'app/' 'i18n/' 'gradle/')" >> $GITHUB_ENV
+                  echo "RUN_LINT=$(npm run --silent git:diff-files-yn 'origin/${{ github.base_ref }}' 'app/' 'i18n/' 'gradle/')" >> $GITHUB_ENV
 
             - name: 🚨 Analyze code
               if: env.RUN_LINT == 'no'
