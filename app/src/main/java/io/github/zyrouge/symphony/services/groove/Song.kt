@@ -99,13 +99,15 @@ data class Song(
 
     companion object {
         fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX): Song {
-            try {
-                val song = parseUsingMetaphony(symphony, path, file)
-                if (song != null) {
-                    return song
+            if (symphony.settings.useMetaphony.value) {
+                try {
+                    val song = parseUsingMetaphony(symphony, path, file)
+                    if (song != null) {
+                        return song
+                    }
+                } catch (err: Exception) {
+                    Logger.error("Song", "could not parse using metaphony", err)
                 }
-            } catch (err: Exception) {
-                Logger.error("Song", "could not parse using metaphony", err)
             }
             return parseUsingMediaMetadataRetriever(symphony, path, file)
         }

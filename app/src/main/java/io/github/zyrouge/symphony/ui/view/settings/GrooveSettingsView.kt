@@ -24,6 +24,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FindInPage
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SpaceBar
@@ -61,13 +63,16 @@ import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiGrooveFolderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiSystemFolderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiTextOptionTile
+import io.github.zyrouge.symphony.ui.components.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSimpleTile
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsTextInputTile
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
 import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ImagePreserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -88,6 +93,8 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     val artistTagSeparators by context.symphony.settings.artistTagSeparators.flow.collectAsState()
     val genreTagSeparators by context.symphony.settings.genreTagSeparators.flow.collectAsState()
     val mediaFolders by context.symphony.settings.mediaFolders.flow.collectAsState()
+    val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsState()
+    val useMetaphony by context.symphony.settings.useMetaphony.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -104,7 +111,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = Color.Transparent,
                 ),
                 navigationIcon = {
                     IconButton(
@@ -299,10 +306,45 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             }
                         }
                     )
+                    HorizontalDivider()
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Filled.Image, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ArtworkQuality)
+                        },
+                        value = artworkQuality,
+                        values = ImagePreserver.Quality.entries
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.artworkQuality.setValue(value)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.FindInPage, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.UseMetaphonyMetadataDecoder)
+                        },
+                        value = useMetaphony,
+                        onChange = { value ->
+                            context.symphony.settings.useMetaphony.setValue(value)
+                        }
+                    )
                 }
             }
         }
     )
+}
+
+fun ImagePreserver.Quality.label(context: ViewContext) = when (this) {
+    ImagePreserver.Quality.Low -> context.symphony.t.Low
+    ImagePreserver.Quality.Medium -> context.symphony.t.Medium
+    ImagePreserver.Quality.High -> context.symphony.t.High
+    ImagePreserver.Quality.Loseless -> context.symphony.t.Loseless
 }
 
 private fun refetchMediaLibrary(coroutineScope: CoroutineScope, symphony: Symphony) {
