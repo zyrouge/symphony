@@ -52,7 +52,6 @@ fun AlbumGrid(
                 gridSize = albumGridSize,
                 onGridSizeChange = {
                     albumGridSize = it
-                    //println("Grid size: %f".format(albumGridSize))
                 }
             )
         },
