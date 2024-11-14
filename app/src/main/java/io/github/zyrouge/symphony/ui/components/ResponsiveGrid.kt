@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -41,7 +42,7 @@ fun ResponsiveGrid(tileSize: Float = 200f, content: LazyGridScope.(ResponsiveGri
 }
 
 @Composable
-fun ResponsiveGridSizeAdjust(tileSize: Float, onTileSizeChange: (Float) -> Unit) {
+fun ResponsiveGridSizeAdjust(context: ViewContext, tileSize: Float, onTileSizeChange: (Float) -> Unit) {
     Row(
         modifier = Modifier.padding(
             MenuDefaults.DropdownMenuItemContentPadding.run {
@@ -55,7 +56,7 @@ fun ResponsiveGridSizeAdjust(tileSize: Float, onTileSizeChange: (Float) -> Unit)
         )
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text(text = "Grid size")
+            Text(context.symphony.t.GridSize)
             val width = LocalConfiguration.current.screenWidthDp.toFloat()
             val stops = width / 100f
             androidx.compose.material3.Slider(

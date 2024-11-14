@@ -92,6 +92,7 @@ fun AlbumGrid(
                     sheetState = sheetState
                 ) {
                     ResponsiveGridSizeAdjust(
+                        context,
                         tileSize,
                         onTileSizeChange = {
                             context.symphony.settings.lastUsedAlbumsTileSize.setValue(
