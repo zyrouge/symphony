@@ -57,6 +57,7 @@ fun AlbumGrid(
                 label = {
                     Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
                 },
+                onShowSheet = { showBottomSheet = true },
             )
         },
         content = {
@@ -85,7 +86,6 @@ fun AlbumGrid(
                 }
             }
 
-            Button(onClick = { showBottomSheet = true }) { Text("bottom sheet") }
             if (showBottomSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { showBottomSheet = false },

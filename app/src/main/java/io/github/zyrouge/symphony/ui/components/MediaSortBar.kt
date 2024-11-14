@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -46,6 +47,7 @@ fun <T : Enum<T>> MediaSortBar(
     onSortChange: (T) -> Unit,
     label: @Composable () -> Unit,
     onShufflePlay: (() -> Unit)? = null,
+    onShowSheet: (() -> Unit)? = null,
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
@@ -117,6 +119,17 @@ fun <T : Enum<T>> MediaSortBar(
                             onClick = onClick,
                         )
                     }
+                }
+            }
+            onShowSheet?.let {
+                IconButton(
+                    { onShowSheet() }
+                ) {
+                    Icon(
+                        Icons.Filled.GridView,
+                        null,
+                        modifier = iconModifier,
+                    )
                 }
             }
         }
