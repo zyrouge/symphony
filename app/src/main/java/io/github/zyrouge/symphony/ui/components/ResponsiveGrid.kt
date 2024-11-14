@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 data class ResponsiveGridData(val columnsCount: Int)
@@ -25,7 +26,7 @@ data class ResponsiveGridData(val columnsCount: Int)
 @Composable
 fun ResponsiveGrid(tileSize: Float = 200f, content: LazyGridScope.(ResponsiveGridData) -> Unit) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val cols = (this@BoxWithConstraints.maxWidth.value / tileSize).roundToInt()
+        val cols =  max((this@BoxWithConstraints.maxWidth.value / tileSize).roundToInt(), 1)
         val gridState = rememberLazyGridState()
         val responsiveGridData = ResponsiveGridData(columnsCount = cols)
 
