@@ -6,7 +6,7 @@ const main = async () => {
     if (!pathPrefix.length) throw new Error("Missing argument: pathPrefix");
     const files = await Git.diffNames(branch);
     const affected = files.some((x) => affectsPathPrefix(pathPrefix, x));
-    console.log(!affected ? "yes" : "no");
+    console.log(affected ? "yes" : "no");
 };
 
 main();

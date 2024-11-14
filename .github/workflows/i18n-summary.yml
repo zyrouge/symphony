@@ -48,13 +48,13 @@ jobs:
                   force: true
 
             - name: 🔎 Check pull request changes
-              if: github.event_name == 'pull_request_target'
+              if: github.event_name == 'pull_request_target' && github.event.pull_request.draft == false
               run: |
                   git fetch origin "${{ github.base_ref }}" --depth=1
                   echo "PR_COMMENT=$(npm run --silent git:diff-files-yn 'origin/${{ github.base_ref }}' '.phrasey/' 'i18n/')" >> $GITHUB_ENV
 
             - name: 💬 Comment summary
-              if: github.event_name == 'pull_request_target' && env.PR_COMMENT == 'yes'
+              if: env.PR_COMMENT == 'yes'
               uses: actions/github-script@v7
               with:
                   script: |
