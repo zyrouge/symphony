@@ -10,9 +10,10 @@ on:
             - app/**
             - i18n/**
             - gradle/**
-    pull_request_review:
+    pull_request_target:
         types:
-            - submitted
+            - opened
+            - edited
     workflow_dispatch:
 
 permissions: {}
@@ -41,8 +42,12 @@ jobs:
             - name: 🚧 Do prerequisites
               run: npm ci
 
+            - name: 🚧 Disable lint on draft pull request
+              if: github.event_name == 'pull_request_target' && github.event.pull_request.draft == true
+              run: echo "RUN_LINT=no" >> $GITHUB_ENV
+
             - name: 🔎 Check pull request changes
-              if: github.event_name == 'pull_request_target'
+              if: github.event_name == 'pull_request_target' && github.event.pull_request.draft == false
               run: |
                   git fetch origin "${{ github.base_ref }}" --depth=1
                   echo "RUN_LINT=$(npm run --silent git:diff-files-yn 'origin/${{ github.base_ref }}' 'app/' 'i18n/' 'gradle/')" >> $GITHUB_ENV
