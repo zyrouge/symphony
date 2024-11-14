@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -27,6 +29,7 @@ fun AlbumGrid(
             context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
         }
     }
+    var albumGridSize by remember { mutableStateOf(200f) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -46,6 +49,11 @@ fun AlbumGrid(
                 label = {
                     Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
                 },
+                gridSize = albumGridSize,
+                onGridSizeChange = {
+                    albumGridSize = it
+                    //println("Grid size: %f".format(albumGridSize))
+                }
             )
         },
         content = {
@@ -61,7 +69,7 @@ fun AlbumGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid {
+                else -> ResponsiveGrid(size = albumGridSize) {
                     itemsIndexed(
                         sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
