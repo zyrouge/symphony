@@ -28,12 +28,9 @@ class RadioSession(val symphony: Symphony) {
         val isPlaying: Boolean,
     )
 
-    val artworkCacher = RadioArtworkCacher(symphony)
-    val mediaSession = MediaSessionCompat(
-        symphony.applicationContext,
-        MEDIA_SESSION_ID
-    )
-    val notification = RadioNotification(symphony)
+    internal val mediaSession = MediaSessionCompat(symphony.applicationContext, MEDIA_SESSION_ID)
+    private val artworkCacher = RadioArtworkCacher(symphony)
+    private val notification = RadioNotification(symphony)
 
     private var currentSongId: String? = null
     private var receiver = object : BroadcastReceiver() {
@@ -46,7 +43,6 @@ class RadioSession(val symphony: Symphony) {
 
     fun start() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // As per Tiramisu requirements, we need to add Context attributes.
             symphony.applicationContext.registerReceiver(
                 receiver,
                 IntentFilter().apply {
@@ -55,7 +51,7 @@ class RadioSession(val symphony: Symphony) {
                     addAction(ACTION_NEXT)
                     addAction(ACTION_STOP)
                 },
-                Context.RECEIVER_EXPORTED
+                Context.RECEIVER_EXPORTED,
                 // https://developer.android.com/reference/android/content/Context#RECEIVER_EXPORTED
                 // really, RECEIVER_EXPORTED and RECEIVER_NOT_EXPORTED makes no difference.
                 // the notification appears perfectly, Pano Scrobbler sees it,

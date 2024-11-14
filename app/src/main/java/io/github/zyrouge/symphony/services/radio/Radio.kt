@@ -355,7 +355,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         var autostart: Boolean
         var nextSongIndex: Int
         when (queue.currentLoopMode) {
-            RadioLoopMode.Song -> {
+            RadioQueue.LoopMode.Song -> {
                 nextSongIndex = queue.currentSongIndex
                 autostart = source == SongFinishSource.Finish
                 if (!queue.hasSongAt(nextSongIndex)) {
@@ -372,7 +372,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
                 autostart = true
                 if (!queue.hasSongAt(nextSongIndex)) {
                     nextSongIndex = 0
-                    autostart = queue.currentLoopMode == RadioLoopMode.Queue
+                    autostart = queue.currentLoopMode == RadioQueue.LoopMode.Queue
                 }
             }
         }

@@ -46,7 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.radio.RadioLoopMode
+import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.LyricsViewRoute
 import io.github.zyrouge.symphony.ui.view.NowPlayingData
@@ -141,12 +141,12 @@ fun NowPlayingBodyBottomBar(
             ) {
                 Icon(
                     when (currentLoopMode) {
-                        RadioLoopMode.Song -> Icons.Filled.RepeatOne
+                        RadioQueue.LoopMode.Song -> Icons.Filled.RepeatOne
                         else -> Icons.Filled.Repeat
                     },
                     null,
                     tint = when (currentLoopMode) {
-                        RadioLoopMode.None -> LocalContentColor.current
+                        RadioQueue.LoopMode.None -> LocalContentColor.current
                         else -> MaterialTheme.colorScheme.primary
                     }
                 )

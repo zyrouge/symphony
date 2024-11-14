@@ -3,17 +3,17 @@ package io.github.zyrouge.symphony.services.radio
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.ConcurrentList
 
-enum class RadioLoopMode {
-    None,
-    Queue,
-    Song;
-
-    companion object {
-        val values = enumValues<RadioLoopMode>()
-    }
-}
-
 class RadioQueue(private val symphony: Symphony) {
+    enum class LoopMode {
+        None,
+        Queue,
+        Song;
+
+        companion object {
+            val values = enumValues<LoopMode>()
+        }
+    }
+
     val originalQueue = ConcurrentList<String>()
     val currentQueue = ConcurrentList<String>()
 
@@ -29,7 +29,7 @@ class RadioQueue(private val symphony: Symphony) {
             symphony.radio.onUpdate.dispatch(Radio.Events.QueueOption.ShuffleModeChanged)
         }
 
-    var currentLoopMode = RadioLoopMode.None
+    var currentLoopMode = LoopMode.None
         set(value) {
             field = value
             symphony.radio.onUpdate.dispatch(Radio.Events.QueueOption.LoopModeChanged)
@@ -110,13 +110,13 @@ class RadioQueue(private val symphony: Symphony) {
         }
     }
 
-    fun setLoopMode(loopMode: RadioLoopMode) {
+    fun setLoopMode(loopMode: LoopMode) {
         currentLoopMode = loopMode
     }
 
     fun toggleLoopMode() {
-        val next = (currentLoopMode.ordinal + 1) % RadioLoopMode.values.size
-        setLoopMode(RadioLoopMode.values[next])
+        val next = (currentLoopMode.ordinal + 1) % LoopMode.values.size
+        setLoopMode(LoopMode.values[next])
     }
 
     fun toggleShuffleMode() = setShuffleMode(!currentShuffleMode)
