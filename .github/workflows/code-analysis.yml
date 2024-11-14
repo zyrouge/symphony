@@ -14,16 +14,18 @@ on:
         types:
             - opened
             - edited
+        paths:
+            - app/**
+            - i18n/**
+            - gradle/**
     workflow_dispatch:
 
 permissions: {}
 
-env:
-    RUN_LINT: "yes"
-
 jobs:
     build:
         runs-on: ubuntu-latest
+        if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
 
         steps:
             - uses: actions/checkout@v4
@@ -42,18 +44,7 @@ jobs:
             - name: 🚧 Do prerequisites
               run: npm ci
 
-            - name: 🚧 Disable lint on draft pull request
-              if: github.event_name == 'pull_request_target' && github.event.pull_request.draft == true
-              run: echo "RUN_LINT=no" >> $GITHUB_ENV
-
-            - name: 🔎 Check pull request changes
-              if: github.event_name == 'pull_request_target' && github.event.pull_request.draft == false
-              run: |
-                  git fetch origin "${{ github.base_ref }}" --depth=1
-                  echo "RUN_LINT=$(npm run --silent git:diff-files-yn 'origin/${{ github.base_ref }}' 'app/' 'i18n/' 'gradle/')" >> $GITHUB_ENV
-
             - name: 🚨 Analyze code
-              if: env.RUN_LINT == 'no'
               run: |
                   npm run prebuild
                   chmod +x ./gradlew
