@@ -13,9 +13,9 @@ import kotlin.math.roundToInt
 data class ResponsiveGridData(val columnsCount: Int)
 
 @Composable
-fun ResponsiveGrid(size: Float = 200f, content: LazyGridScope.(ResponsiveGridData) -> Unit) {
+fun ResponsiveGrid(tileSize: Float = 200f, content: LazyGridScope.(ResponsiveGridData) -> Unit) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val cols = (this@BoxWithConstraints.maxWidth.value / size).roundToInt()
+        val cols = (this@BoxWithConstraints.maxWidth.value / tileSize).roundToInt()
         val gridState = rememberLazyGridState()
         val responsiveGridData = ResponsiveGridData(columnsCount = cols)
 

@@ -68,7 +68,7 @@ fun AlbumGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid(size = albumGridSize) {
+                else -> ResponsiveGrid(tileSize = albumGridSize) {
                     itemsIndexed(
                         sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
