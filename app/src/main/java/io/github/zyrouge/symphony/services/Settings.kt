@@ -147,6 +147,7 @@ class Settings(private val symphony: Symphony) {
         AlbumRepository.SortBy.ALBUM_NAME,
     )
     val lastUsedAlbumsSortReverse = BooleanEntry("last_used_albums_sort_reverse", false)
+    val lastUsedAlbumsTileSize = FloatEntry("last_used_albums_tile_size", 200f)
     val lastUsedGenresSortBy = EnumEntry(
         "last_used_genres_sort_by",
         enumEntries<GenreRepository.SortBy>(),
