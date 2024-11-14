@@ -225,6 +225,12 @@ class PlaylistRepository(private val symphony: Symphony) {
         symphony.database.playlists.update(renamed)
     }
 
+    internal fun onScanFinish() {
+        _favorites.update {
+            getFavorites().getSongIds(symphony)
+        }
+    }
+
     companion object {
         private const val FAVORITE_PLAYLIST = "favorites"
     }

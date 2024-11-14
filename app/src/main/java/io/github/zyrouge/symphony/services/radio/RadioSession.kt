@@ -19,16 +19,15 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import kotlinx.coroutines.launch
 
-
-data class RadioSessionUpdateRequest(
-    val song: Song,
-    val artworkUri: Uri,
-    val artworkBitmap: Bitmap,
-    val playbackPosition: RadioPlayer.PlaybackPosition,
-    val isPlaying: Boolean,
-)
-
 class RadioSession(val symphony: Symphony) {
+    data class UpdateRequest(
+        val song: Song,
+        val artworkUri: Uri,
+        val artworkBitmap: Bitmap,
+        val playbackPosition: RadioPlayer.PlaybackPosition,
+        val isPlaying: Boolean,
+    )
+
     val artworkCacher = RadioArtworkCacher(symphony)
     val mediaSession = MediaSessionCompat(
         symphony.applicationContext,
@@ -220,7 +219,7 @@ class RadioSession(val symphony: Symphony) {
         if (currentSongId != song.id) {
             return
         }
-        val req = RadioSessionUpdateRequest(
+        val req = UpdateRequest(
             song = song,
             artworkUri = artworkUri,
             artworkBitmap = artworkBitmap,
@@ -231,7 +230,7 @@ class RadioSession(val symphony: Symphony) {
         notification.update(req)
     }
 
-    private fun updateSession(req: RadioSessionUpdateRequest) {
+    private fun updateSession(req: UpdateRequest) {
         ensureEnabled()
         mediaSession.run {
             setMetadata(

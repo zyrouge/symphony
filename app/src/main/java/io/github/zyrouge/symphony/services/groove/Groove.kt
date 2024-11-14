@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.Permissions
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumArtistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
@@ -16,7 +15,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 class Groove(private val symphony: Symphony) : Symphony.Hooks {
-    enum class Kinds {
+    enum class Kind {
         SONG,
         ALBUM,
         ARTIST,
@@ -36,20 +35,12 @@ class Groove(private val symphony: Symphony) : Symphony.Hooks {
     val genre = GenreRepository(symphony)
     val playlist = PlaylistRepository(symphony)
 
-    init {
-        symphony.permission.onUpdate.subscribe {
-            when (it) {
-                Permissions.Events.MEDIA_PERMISSION_GRANTED -> coroutineScope.launch {
-                    fetch()
-                }
-            }
-        }
-    }
-
     private suspend fun fetch() {
         coroutineScope.launch {
-            exposer.fetch()
-            playlist.fetch()
+            awaitAll(
+                async { exposer.fetch() },
+                async { playlist.fetch() },
+            )
         }.join()
     }
 

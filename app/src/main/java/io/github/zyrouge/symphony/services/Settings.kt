@@ -12,8 +12,8 @@ import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepositor
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
+import io.github.zyrouge.symphony.ui.view.HomePage
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
-import io.github.zyrouge.symphony.ui.view.HomePages
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
@@ -202,7 +202,7 @@ class Settings(private val symphony: Symphony) {
                 putString(key, value?.serialize())
             }
     }
-    val lastHomeTab = EnumEntry("home_last_page", enumEntries<HomePages>(), HomePages.Songs)
+    val lastHomeTab = EnumEntry("home_last_page", enumEntries<HomePage>(), HomePage.Songs)
     val songsFilterPattern = NullableStringEntry("songs_filter_pattern")
     val checkForUpdates = BooleanEntry("check_for_updates", false)
     val fadePlayback = BooleanEntry("fade_playback", false)
@@ -214,13 +214,13 @@ class Settings(private val symphony: Symphony) {
     val fadePlaybackDuration = FloatEntry("fade_playback_duration", 1f)
     val homeTabs = EnumSetEntry(
         "home_tabs",
-        enumEntries<HomePages>(),
+        enumEntries<HomePage>(),
         setOf(
-            HomePages.ForYou,
-            HomePages.Songs,
-            HomePages.Albums,
-            HomePages.Artists,
-            HomePages.Playlists,
+            HomePage.ForYou,
+            HomePage.Songs,
+            HomePage.Albums,
+            HomePage.Artists,
+            HomePage.Playlists,
         ),
     )
     val homePageBottomBarLabelVisibility = EnumEntry(

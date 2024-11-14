@@ -68,7 +68,7 @@ fun AlbumArtistGrid(
                     itemsIndexed(
                         sortedAlbumArtistNames,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> Groove.Kinds.ARTIST }
+                        contentType = { _, _ -> Groove.Kind.ARTIST }
                     ) { _, albumArtistName ->
                         context.symphony.groove.albumArtist.get(albumArtistName)
                             ?.let { albumArtist ->

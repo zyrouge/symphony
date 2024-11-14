@@ -117,7 +117,7 @@ fun SongList(
                         itemsIndexed(
                             sortedSongIds,
                             key = { i, x -> "$i-$x" },
-                            contentType = { _, _ -> Groove.Kinds.SONG }
+                            contentType = { _, _ -> Groove.Kind.SONG }
                         ) { i, songId ->
                             context.symphony.groove.song.get(songId)?.let { song ->
                                 SongCard(

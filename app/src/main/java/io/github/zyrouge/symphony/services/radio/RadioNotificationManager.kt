@@ -41,8 +41,8 @@ class RadioNotificationManager(val symphony: Symphony) {
         )
         RadioNotificationService.events.subscribe {
             when (it) {
-                RadioNotificationService.Events.START -> onServiceStart()
-                RadioNotificationService.Events.STOP -> onServiceStop()
+                RadioNotificationService.Event.START -> onServiceStart()
+                RadioNotificationService.Event.STOP -> onServiceStop()
             }
         }
     }

@@ -65,7 +65,7 @@ fun AlbumGrid(
                     itemsIndexed(
                         sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> Groove.Kinds.ALBUM }
+                        contentType = { _, _ -> Groove.Kind.ALBUM }
                     ) { _, albumId ->
                         context.symphony.groove.album.get(albumId)?.let { album ->
                             AlbumTile(context, album)

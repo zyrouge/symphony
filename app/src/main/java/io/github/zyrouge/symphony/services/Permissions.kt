@@ -6,13 +6,8 @@ import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.Eventer
 
 class Permissions(private val symphony: Symphony) {
-    enum class Events {
-        MEDIA_PERMISSION_GRANTED,
-    }
-
     data class State(
         val required: List<String>,
         val granted: List<String>,
@@ -21,24 +16,17 @@ class Permissions(private val symphony: Symphony) {
         fun hasAll() = denied.isEmpty()
     }
 
-    val onUpdate = Eventer<Events>()
-
     fun handle(activity: MainActivity) {
         val state = getState(activity)
         if (state.hasAll()) {
             return
         }
-        activity.registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            if (permissions.count { it.value } > 0) {
-                onUpdate.dispatch(Events.MEDIA_PERMISSION_GRANTED)
-            }
-        }.launch(state.denied.toTypedArray())
+        val contract = ActivityResultContracts.RequestMultiplePermissions()
+        activity.registerForActivityResult(contract) {}.launch(state.denied.toTypedArray())
     }
 
     private fun getRequiredPermissions(): List<String> {
-        val required = mutableListOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        val required = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             required.add(Manifest.permission.POST_NOTIFICATIONS)
         }

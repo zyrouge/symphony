@@ -75,7 +75,7 @@ fun PlaylistGrid(
                     itemsIndexed(
                         sortedPlaylistIds,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> Groove.Kinds.PLAYLIST }
+                        contentType = { _, _ -> Groove.Kind.PLAYLIST }
                     ) { _, playlistId ->
                         context.symphony.groove.playlist.get(playlistId)?.let { playlist ->
                             PlaylistTile(context, playlist)

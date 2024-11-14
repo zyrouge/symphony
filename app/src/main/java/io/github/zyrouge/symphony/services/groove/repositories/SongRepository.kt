@@ -71,8 +71,6 @@ class SongRepository(private val symphony: Symphony) {
         emitCount()
     }
 
-    internal fun onFinish() {}
-
     fun reset() {
         cache.clear()
         pathCache.clear()

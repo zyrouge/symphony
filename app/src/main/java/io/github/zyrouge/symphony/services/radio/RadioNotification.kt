@@ -20,7 +20,7 @@ class RadioNotification(private val symphony: Symphony) {
         manager.cancel()
     }
 
-    fun update(req: RadioSessionUpdateRequest) {
+    fun update(req: RadioSession.UpdateRequest) {
         val notification = NotificationCompat.Builder(
             symphony.applicationContext,
             CHANNEL_ID

@@ -202,11 +202,7 @@ class MediaExposer(private val symphony: Symphony) {
     }
 
     private fun emitFinish() {
-        symphony.groove.albumArtist.onFinish()
-        symphony.groove.album.onFinish()
-        symphony.groove.artist.onFinish()
-        symphony.groove.genre.onFinish()
-        symphony.groove.song.onFinish()
+        symphony.groove.playlist.onScanFinish()
     }
 
     private class MediaFilter(

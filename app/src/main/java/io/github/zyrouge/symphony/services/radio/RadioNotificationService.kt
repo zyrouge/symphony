@@ -8,7 +8,7 @@ import android.os.IBinder
 import io.github.zyrouge.symphony.utils.Eventer
 
 class RadioNotificationService : Service() {
-    enum class Events {
+    enum class Event {
         START,
         STOP,
     }
@@ -17,7 +17,7 @@ class RadioNotificationService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         instance = this
-        events.dispatch(Events.START)
+        events.dispatch(Event.START)
         return START_NOT_STICKY
     }
 
@@ -27,7 +27,7 @@ class RadioNotificationService : Service() {
     }
 
     companion object {
-        val events = Eventer<Events>()
+        val events = Eventer<Event>()
         var instance: RadioNotificationService? = null
 
         fun destroy(stop: Boolean = true) {
@@ -37,7 +37,7 @@ class RadioNotificationService : Service() {
                     it.stopForeground(STOP_FOREGROUND_REMOVE)
                     it.stopSelf()
                 }
-                events.dispatch(Events.STOP)
+                events.dispatch(Event.STOP)
             }
         }
     }

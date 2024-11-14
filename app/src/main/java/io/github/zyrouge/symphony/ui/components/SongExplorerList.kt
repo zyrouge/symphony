@@ -259,7 +259,7 @@ fun SongExplorerList(
                         itemsIndexed(
                             sortedEntities.files.entries.toList(),
                             key = { i, x -> "$i-${x.key}" },
-                            contentType = { _, _ -> Groove.Kinds.SONG }
+                            contentType = { _, _ -> Groove.Kind.SONG }
                         ) { i, entry ->
                             context.symphony.groove.song.get(entry.key)?.let { song ->
                                 SongCard(context, song) {

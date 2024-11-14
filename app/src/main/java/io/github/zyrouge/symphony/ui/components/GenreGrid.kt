@@ -117,7 +117,7 @@ fun GenreGrid(
                     itemsIndexed(
                         sortedGenreNames,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> Groove.Kinds.GENRE }
+                        contentType = { _, _ -> Groove.Kind.GENRE }
                     ) { i, genreName ->
                         context.symphony.groove.genre.get(genreName)?.let { genre ->
                             Card(

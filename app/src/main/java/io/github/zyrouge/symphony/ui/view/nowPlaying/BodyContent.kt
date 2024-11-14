@@ -171,14 +171,14 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                         context,
                         data = data,
                         style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColors.Primary,
+                            color = NowPlayingControlButtonColor.Primary,
                         ),
                     )
                     NowPlayingSkipPreviousButton(
                         context,
                         data = data,
                         style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColors.Surface,
+                            color = NowPlayingControlButtonColor.Surface,
                         ),
                     )
                     if (enableSeekControls) {
@@ -186,14 +186,14 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                             context,
                             data = data,
                             style = NowPlayingControlButtonStyle(
-                                color = NowPlayingControlButtonColors.Surface,
+                                color = NowPlayingControlButtonColor.Surface,
                             ),
                         )
                         NowPlayingFastForwardButton(
                             context,
                             data = data,
                             style = NowPlayingControlButtonStyle(
-                                color = NowPlayingControlButtonColors.Surface,
+                                color = NowPlayingControlButtonColor.Surface,
                             ),
                         )
                     }
@@ -201,7 +201,7 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
                         context,
                         data = data,
                         style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColors.Surface,
+                            color = NowPlayingControlButtonColor.Surface,
                         ),
                     )
                 }
@@ -230,7 +230,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
             context,
             data = data,
             style = NowPlayingControlButtonStyle(
-                color = NowPlayingControlButtonColors.Transparent,
+                color = NowPlayingControlButtonColor.Transparent,
             ),
         )
         if (data.enableSeekControls) {
@@ -238,7 +238,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
                 context,
                 data = data,
                 style = NowPlayingControlButtonStyle(
-                    color = NowPlayingControlButtonColors.Transparent,
+                    color = NowPlayingControlButtonColor.Transparent,
                 ),
             )
         }
@@ -246,7 +246,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
             context,
             data = data,
             style = NowPlayingControlButtonStyle(
-                color = NowPlayingControlButtonColors.Surface,
+                color = NowPlayingControlButtonColor.Surface,
                 size = NowPlayingControlButtonSize.Large,
             ),
         )
@@ -255,7 +255,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
                 context,
                 data = data,
                 style = NowPlayingControlButtonStyle(
-                    color = NowPlayingControlButtonColors.Transparent,
+                    color = NowPlayingControlButtonColor.Transparent,
                 ),
             )
         }
@@ -263,7 +263,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
             context,
             data = data,
             style = NowPlayingControlButtonStyle(
-                color = NowPlayingControlButtonColors.Transparent,
+                color = NowPlayingControlButtonColor.Transparent,
             ),
         )
     }
@@ -521,7 +521,7 @@ private fun NowPlayingFastForwardButton(
     }
 }
 
-private enum class NowPlayingControlButtonColors {
+private enum class NowPlayingControlButtonColor {
     Primary,
     Surface,
     Transparent,
@@ -533,7 +533,7 @@ private enum class NowPlayingControlButtonSize {
 }
 
 private data class NowPlayingControlButtonStyle(
-    val color: NowPlayingControlButtonColors,
+    val color: NowPlayingControlButtonColor,
     val size: NowPlayingControlButtonSize = NowPlayingControlButtonSize.Default,
 )
 
@@ -544,12 +544,12 @@ private fun NowPlayingControlButton(
     onClick: () -> Unit,
 ) {
     val backgroundColor = when (style.color) {
-        NowPlayingControlButtonColors.Primary -> MaterialTheme.colorScheme.primary
-        NowPlayingControlButtonColors.Surface -> MaterialTheme.colorScheme.surfaceVariant
-        NowPlayingControlButtonColors.Transparent -> Color.Transparent
+        NowPlayingControlButtonColor.Primary -> MaterialTheme.colorScheme.primary
+        NowPlayingControlButtonColor.Surface -> MaterialTheme.colorScheme.surfaceVariant
+        NowPlayingControlButtonColor.Transparent -> Color.Transparent
     }
     val contentColor = when (style.color) {
-        NowPlayingControlButtonColors.Primary -> MaterialTheme.colorScheme.onPrimary
+        NowPlayingControlButtonColor.Primary -> MaterialTheme.colorScheme.onPrimary
         else -> LocalContentColor.current
     }
     val iconSize = when (style.size) {
