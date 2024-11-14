@@ -38,42 +38,16 @@ class RadioObservatory(private val symphony: Symphony) {
     fun start() {
         updateSubscriber = symphony.radio.onUpdate.subscribe { event ->
             when (event) {
-                Radio.Events.StartPlaying,
-                Radio.Events.StopPlaying,
-                Radio.Events.PausePlaying,
-                Radio.Events.ResumePlaying,
-                    -> emitIsPlaying()
-
-                Radio.Events.SongSeeked -> emitPlaybackPosition()
-                Radio.Events.SongQueued,
-                Radio.Events.SongDequeued,
-                Radio.Events.QueueModified,
-                Radio.Events.QueueCleared,
-                    -> emitQueue()
-
-                Radio.Events.QueueIndexChanged -> emitQueueIndex()
-                Radio.Events.LoopModeChanged -> emitLoopMode()
-                Radio.Events.ShuffleModeChanged -> emitShuffleMode()
-                Radio.Events.SongStaged,
-                Radio.Events.QueueEnded,
-                    -> {
-                }
-
-                Radio.Events.SleepTimerSet,
-                Radio.Events.SleepTimerRemoved,
-                    -> emitSleepTimer()
-
-                Radio.Events.SpeedChanged -> {
-                    emitSpeed()
-                    emitPersistedSpeed()
-                }
-
-                Radio.Events.PitchChanged -> {
-                    emitPitch()
-                    emitPersistedPitch()
-                }
-
-                Radio.Events.PauseOnCurrentSongEndChanged -> emitPauseOnCurrentSongEnd()
+                Radio.Events.Player.Seeked -> emitPlaybackPosition()
+                is Radio.Events.Player -> emitIsPlaying()
+                is Radio.Events.Queue.IndexChanged -> emitQueueIndex()
+                is Radio.Events.Queue -> emitQueue()
+                Radio.Events.QueueOption.LoopModeChanged -> emitLoopMode()
+                Radio.Events.QueueOption.ShuffleModeChanged -> emitShuffleMode()
+                Radio.Events.QueueOption.SleepTimerChanged -> emitSleepTimer()
+                Radio.Events.QueueOption.SpeedChanged -> emitSpeed()
+                Radio.Events.QueueOption.PitchChanged -> emitPitch()
+                Radio.Events.QueueOption.PauseOnCurrentSongEndChanged -> emitPauseOnCurrentSongEnd()
             }
         }
         playbackPositionUpdateSubscriber = symphony.radio.onPlaybackPositionUpdate.subscribe {
@@ -110,21 +84,16 @@ class RadioObservatory(private val symphony: Symphony) {
         symphony.radio.sleepTimer
     }
 
-    private fun emitSpeed() = _speed.update {
-        symphony.radio.currentSpeed
+    private fun emitSpeed() {
+        _speed.update { symphony.radio.currentSpeed }
+        _persistedSpeed.update { symphony.radio.persistedSpeed }
     }
 
-    private fun emitPersistedSpeed() = _persistedSpeed.update {
-        symphony.radio.persistedSpeed
+    fun emitPitch() {
+        _pitch.update { symphony.radio.currentPitch }
+        _persistedPitch.update { symphony.radio.persistedPitch }
     }
 
-    private fun emitPitch() = _pitch.update {
-        symphony.radio.currentPitch
-    }
-
-    private fun emitPersistedPitch() = _persistedPitch.update {
-        symphony.radio.persistedPitch
-    }
 
     private fun emitPauseOnCurrentSongEnd() = _pauseOnCurrentSongEnd.update {
         symphony.radio.pauseOnCurrentSongEnd

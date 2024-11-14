@@ -64,7 +64,7 @@ fun ArtistGrid(
                     itemsIndexed(
                         sortedArtistNames,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> Groove.Kinds.ARTIST }
+                        contentType = { _, _ -> Groove.Kind.ARTIST }
                     ) { _, artistName ->
                         context.symphony.groove.artist.get(artistName)?.let { artist ->
                             ArtistTile(context, artist)

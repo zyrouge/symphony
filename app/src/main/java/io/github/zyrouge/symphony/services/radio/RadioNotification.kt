@@ -6,6 +6,7 @@ import androidx.core.app.NotificationCompat
 import io.github.zyrouge.symphony.MainActivity
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.utils.Logger
 
 
 class RadioNotification(private val symphony: Symphony) {
@@ -19,8 +20,8 @@ class RadioNotification(private val symphony: Symphony) {
         manager.cancel()
     }
 
-    fun update(req: RadioSessionUpdateRequest) {
-        NotificationCompat.Builder(
+    fun update(req: RadioSession.UpdateRequest) {
+        val notification = NotificationCompat.Builder(
             symphony.applicationContext,
             CHANNEL_ID
         ).run {
@@ -80,16 +81,18 @@ class RadioNotification(private val symphony: Symphony) {
                     .setMediaSession(symphony.radio.session.mediaSession.sessionToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
-            kotlin.runCatching {
-                manager.notify(build())
-            }
+        }
+        try {
+            manager.notify(notification.build())
+        } catch (err: Exception) {
+            Logger.error("RadioNotification", "unable to update notification", err)
         }
     }
 
     private fun createAction(icon: Int, title: String, action: String): NotificationCompat.Action {
-        return NotificationCompat.Action.Builder(
-            icon, title, createActionIntent(action)
-        ).build()
+        return NotificationCompat.Action
+            .Builder(icon, title, createActionIntent(action))
+            .build()
     }
 
     private fun createActionIntent(action: String): PendingIntent {

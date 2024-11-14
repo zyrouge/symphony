@@ -66,8 +66,6 @@ class AlbumRepository(private val symphony: Symphony) {
         }
     }
 
-    internal fun onFinish() {}
-
     fun reset() {
         cache.clear()
         songIdsCache.clear()

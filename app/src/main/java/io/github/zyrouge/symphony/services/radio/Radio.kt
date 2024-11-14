@@ -7,29 +7,33 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.Date
 import java.util.Timer
-import kotlin.math.max
 
 class Radio(private val symphony: Symphony) : Symphony.Hooks {
-    enum class Events {
-        StartPlaying,
-        StopPlaying,
-        PausePlaying,
-        ResumePlaying,
-        SongSeeked,
-        SongQueued,
-        SongDequeued,
-        QueueIndexChanged,
-        QueueModified,
-        LoopModeChanged,
-        ShuffleModeChanged,
-        SongStaged,
-        QueueCleared,
-        QueueEnded,
-        SleepTimerSet,
-        SleepTimerRemoved,
-        SpeedChanged,
-        PitchChanged,
-        PauseOnCurrentSongEndChanged,
+    sealed class Events {
+        sealed class Player : Events() {
+            object Staged : Player()
+            object Started : Player()
+            object Stopped : Player()
+            object Paused : Player()
+            object Resumed : Player()
+            object Seeked : Player()
+            object Ended : Player()
+        }
+
+        sealed class Queue : Events() {
+            object Modified : Queue()
+            object IndexChanged : Queue()
+            object Cleared : Queue()
+        }
+
+        sealed class QueueOption : Events() {
+            object LoopModeChanged : QueueOption()
+            object ShuffleModeChanged : QueueOption()
+            object SleepTimerChanged : QueueOption()
+            object SpeedChanged : QueueOption()
+            object PitchChanged : QueueOption()
+            object PauseOnCurrentSongEndChanged : QueueOption()
+        }
     }
 
     data class SleepTimer(
@@ -47,9 +51,8 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     private val focus = RadioFocus(symphony)
     private val nativeReceiver = RadioNativeReceiver(symphony)
-
     private var player: RadioPlayer? = null
-    private var focusCounter = 0
+    private var nextPlayer: RadioPlayer? = null
 
     val hasPlayer get() = player?.usable == true
     val isPlaying get() = player?.isPlaying == true
@@ -66,6 +69,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     init {
         nativeReceiver.start()
+        onUpdate.subscribe(this::watchQueueUpdates)
     }
 
     fun ready() {
@@ -96,30 +100,17 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         }
         try {
             queue.currentSongIndex = options.index
-            player = RadioPlayer(symphony, song.uri).apply {
-                setOnPlaybackPositionListener {
-                    onPlaybackPositionUpdate.dispatch(it)
-                }
-                setOnFinishListener {
-                    onSongFinish(SongFinishSource.Finish)
-                }
-                setOnErrorListener { what, extra ->
-                    Logger.warn(
-                        "Radio",
-                        "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $what + $extra"
-                    )
-                    when {
-                        // happens when change playback params fail, we skip it since its non-critical
-                        what == 1 && extra == -22 -> onSongFinish(SongFinishSource.Finish)
-                        else -> {
-                            queue.remove(queue.currentSongIndex)
-                            onSongFinish(SongFinishSource.Exception)
-                        }
+            player = nextPlayer?.takeIf {
+                when {
+                    it.id == song.id -> true
+                    else -> {
+                        it.destroy()
+                        false
                     }
                 }
-            }
-            onUpdate.dispatch(Events.SongStaged)
-            player!!.prepare {
+            } ?: RadioPlayer(symphony, song.id, song.uri)
+            nextPlayer = null
+            player!!.setOnPreparedListener {
                 options.startPosition?.let {
                     if (it > 0L) {
                         seek(it)
@@ -131,12 +122,59 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
                     start()
                 }
             }
+            player!!.setOnPlaybackPositionListener {
+                onPlaybackPositionUpdate.dispatch(it)
+            }
+            player!!.setOnFinishListener {
+                onSongFinish(SongFinishSource.Finish)
+            }
+            player!!.setOnErrorListener { what, extra ->
+                Logger.warn(
+                    "Radio",
+                    "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $what + $extra"
+                )
+                when {
+                    // happens when change playback params fail, we skip it since its non-critical
+                    what == 1 && extra == -22 -> onSongFinish(SongFinishSource.Finish)
+                    else -> {
+                        queue.remove(queue.currentSongIndex)
+                        onSongFinish(SongFinishSource.Exception)
+                    }
+                }
+            }
+            player!!.prepare()
+            prepareNextPlayer()
+            onUpdate.dispatch(Events.Player.Staged)
         } catch (err: Exception) {
             Logger.warn(
                 "Radio",
-                "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $err"
+                "skipping song ${queue.currentSongId} (${queue.currentSongIndex})",
+                err,
             )
             queue.remove(queue.currentSongIndex)
+        }
+    }
+
+    private fun prepareNextPlayer() {
+        if (!symphony.settings.gaplessPlayback.value) {
+            return
+        }
+        val (nextSongIndex) = getNextSong(SongFinishSource.Finish)
+        val song = queue.getSongIdAt(nextSongIndex)?.let { symphony.groove.song.get(it) } ?: return
+        if (song.id == nextPlayer?.id) {
+            return
+        }
+        try {
+            nextPlayer?.destroy()
+            nextPlayer = RadioPlayer(symphony, song.id, song.uri).also {
+                it.prepare()
+            }
+        } catch (err: Exception) {
+            Logger.warn(
+                "Radio",
+                "unable to prepare next player ${song.id} (${nextSongIndex})",
+                err,
+            )
         }
     }
 
@@ -144,35 +182,37 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     private fun start() {
         player?.let {
-            val hasFocus = requestFocus()
-            if (hasFocus || !symphony.settings.requireAudioFocus.value) {
-                if (it.fadePlayback) {
-                    it.setVolumeInstant(RadioPlayer.MIN_VOLUME)
-                }
-                it.setVolume(RadioPlayer.MAX_VOLUME) {}
-                it.start()
-                onUpdate.dispatch(
-                    when {
-                        !it.hasPlayedOnce -> Events.StartPlaying
-                        else -> Events.ResumePlaying
-                    }
-                )
+            val hasFocus = focus.requestFocus()
+            if (symphony.settings.requireAudioFocus.value && !hasFocus) {
+                return
             }
+            if (it.fadePlayback) {
+                it.changeVolumeInstant(RadioPlayer.MIN_VOLUME)
+            }
+            it.changeVolume(RadioPlayer.MAX_VOLUME) {}
+            it.start()
+            onUpdate.dispatch(
+                when {
+                    !it.hasPlayedOnce -> Events.Player.Started
+                    else -> Events.Player.Resumed
+                }
+            )
         }
     }
 
     fun pause() = pause {}
+
     private fun pause(forceFade: Boolean = false, onFinish: () -> Unit) {
         player?.let {
             if (!it.isPlaying) return@let
-            it.setVolume(
+            it.changeVolume(
                 to = RadioPlayer.MIN_VOLUME,
                 forceFade = forceFade,
             ) { _ ->
                 it.pause()
-                abandonFocus()
+                focus.abandonFocus()
                 onFinish()
-                onUpdate.dispatch(Events.PausePlaying)
+                onUpdate.dispatch(Events.Player.Paused)
             }
         }
     }
@@ -180,7 +220,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
     fun pauseInstant() {
         player?.let {
             it.pause()
-            onUpdate.dispatch(Events.PausePlaying)
+            onUpdate.dispatch(Events.Player.Paused)
         }
     }
 
@@ -190,7 +230,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         clearSleepTimer()
         persistedSpeed = RadioPlayer.DEFAULT_SPEED
         persistedPitch = RadioPlayer.DEFAULT_PITCH
-        if (ended) onUpdate.dispatch(Events.QueueEnded)
+        if (ended) onUpdate.dispatch(Events.Player.Ended)
     }
 
     fun jumpTo(index: Int) = play(PlayOptions(index = index))
@@ -202,39 +242,39 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
     fun seek(position: Long) {
         player?.let {
             it.seek(position.toInt())
-            onUpdate.dispatch(Events.SongSeeked)
+            onUpdate.dispatch(Events.Player.Seeked)
         }
     }
 
     fun duck() {
         player?.let {
-            it.setVolume(RadioPlayer.DUCK_VOLUME) {}
+            it.changeVolume(RadioPlayer.DUCK_VOLUME) {}
         }
     }
 
     fun restoreVolume() {
         player?.let {
-            it.setVolume(RadioPlayer.MAX_VOLUME) {}
+            it.changeVolume(RadioPlayer.MAX_VOLUME) {}
         }
     }
 
     fun setSpeed(speed: Float, persist: Boolean) {
         player?.let {
-            it.setSpeed(speed)
+            it.changeSpeed(speed)
             if (persist) {
                 persistedSpeed = speed
             }
-            onUpdate.dispatch(Events.SpeedChanged)
+            onUpdate.dispatch(Events.QueueOption.SpeedChanged)
         }
     }
 
     fun setPitch(pitch: Float, persist: Boolean) {
         player?.let {
-            it.setPitch(pitch)
+            it.changePitch(pitch)
             if (persist) {
                 persistedPitch = pitch
             }
-            onUpdate.dispatch(Events.PitchChanged)
+            onUpdate.dispatch(Events.QueueOption.PitchChanged)
         }
     }
 
@@ -263,28 +303,28 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
             timer = timer,
             quitOnEnd = quitOnEnd,
         )
-        onUpdate.dispatch(Events.SleepTimerSet)
+        onUpdate.dispatch(Events.QueueOption.SleepTimerChanged)
     }
 
     fun clearSleepTimer() {
         sleepTimer?.timer?.cancel()
         sleepTimer = null
-        onUpdate.dispatch(Events.SleepTimerRemoved)
+        onUpdate.dispatch(Events.QueueOption.SleepTimerChanged)
     }
 
     @JvmName("setPauseOnCurrentSongEndTo")
     fun setPauseOnCurrentSongEnd(value: Boolean) {
         pauseOnCurrentSongEnd = value
-        onUpdate.dispatch(Events.PauseOnCurrentSongEndChanged)
+        onUpdate.dispatch(Events.QueueOption.PauseOnCurrentSongEndChanged)
     }
 
     private fun stopCurrentSong() {
         player?.let {
             player = null
             it.setOnPlaybackPositionListener {}
-            it.setVolume(RadioPlayer.MIN_VOLUME) { _ ->
+            it.changeVolume(RadioPlayer.MIN_VOLUME) { _ ->
                 it.stop()
-                onUpdate.dispatch(Events.StopPlaying)
+                onUpdate.dispatch(Events.Player.Stopped)
             }
         }
     }
@@ -299,6 +339,18 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         if (queue.isEmpty()) {
             queue.currentSongIndex = -1
             return
+        }
+        var (nextSongIndex, autostart) = getNextSong(source)
+        if (pauseOnCurrentSongEnd) {
+            autostart = false
+            setPauseOnCurrentSongEnd(false)
+        }
+        play(PlayOptions(nextSongIndex, autostart = autostart))
+    }
+
+    private fun getNextSong(source: SongFinishSource): Pair<Int, Boolean> {
+        if (queue.isEmpty()) {
+            return -1 to false
         }
         var autostart: Boolean
         var nextSongIndex: Int
@@ -324,26 +376,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
                 }
             }
         }
-        if (pauseOnCurrentSongEnd) {
-            autostart = false
-            setPauseOnCurrentSongEnd(false)
-        }
-        play(PlayOptions(nextSongIndex, autostart = autostart))
-    }
-
-    private fun requestFocus(): Boolean {
-        val result = focus.requestFocus()
-        if (result) {
-            focusCounter++
-        }
-        return result
-    }
-
-    private fun abandonFocus() {
-        focusCounter = max(0, focusCounter - 1)
-        if (focusCounter == 0) {
-            focus.abandonFocus()
-        }
+        return nextSongIndex to autostart
     }
 
     private fun attachGrooveListener() {
@@ -393,6 +426,13 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         }
     }
 
+    internal fun watchQueueUpdates(event: Events) {
+        if (event !is Events.Queue) {
+            return
+        }
+        prepareNextPlayer()
+    }
+
     override fun onSymphonyReady() {
         ready()
     }
@@ -411,7 +451,9 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
     }
 
     private fun saveCurrentQueue() {
-        if (queue.isEmpty()) return
+        if (queue.isEmpty()) {
+            return
+        }
         symphony.settings.previousSongQueue.setValue(
             RadioQueue.Serialized.create(
                 queue = queue,

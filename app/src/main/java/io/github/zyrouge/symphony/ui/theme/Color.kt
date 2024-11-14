@@ -2,7 +2,7 @@ package io.github.zyrouge.symphony.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-enum class PrimaryThemeColors {
+enum class PrimaryThemeColor {
     Red,
     Orange,
     Amber,
@@ -47,30 +47,30 @@ object ThemeColors {
     val Neutral800 = Color(0xFF262626)
     val Neutral900 = Color(0xFF171717)
 
-    val DefaultPrimaryColor = PrimaryThemeColors.Purple
+    val DefaultPrimaryColor = PrimaryThemeColor.Purple
     val PrimaryColorsMap = mapOf(
-        PrimaryThemeColors.Red to Red,
-        PrimaryThemeColors.Orange to Orange,
-        PrimaryThemeColors.Amber to Amber,
-        PrimaryThemeColors.Yellow to Yellow,
-        PrimaryThemeColors.Lime to Lime,
-        PrimaryThemeColors.Green to Green,
-        PrimaryThemeColors.Emerald to Emerald,
-        PrimaryThemeColors.Teal to Teal,
-        PrimaryThemeColors.Cyan to Cyan,
-        PrimaryThemeColors.Sky to Sky,
-        PrimaryThemeColors.Blue to Blue,
-        PrimaryThemeColors.Indigo to Indigo,
-        PrimaryThemeColors.Violet to Violet,
-        PrimaryThemeColors.Purple to Purple,
-        PrimaryThemeColors.Fuchsia to Fuchsia,
-        PrimaryThemeColors.Pink to Pink,
-        PrimaryThemeColors.Rose to Rose,
+        PrimaryThemeColor.Red to Red,
+        PrimaryThemeColor.Orange to Orange,
+        PrimaryThemeColor.Amber to Amber,
+        PrimaryThemeColor.Yellow to Yellow,
+        PrimaryThemeColor.Lime to Lime,
+        PrimaryThemeColor.Green to Green,
+        PrimaryThemeColor.Emerald to Emerald,
+        PrimaryThemeColor.Teal to Teal,
+        PrimaryThemeColor.Cyan to Cyan,
+        PrimaryThemeColor.Sky to Sky,
+        PrimaryThemeColor.Blue to Blue,
+        PrimaryThemeColor.Indigo to Indigo,
+        PrimaryThemeColor.Violet to Violet,
+        PrimaryThemeColor.Purple to Purple,
+        PrimaryThemeColor.Fuchsia to Fuchsia,
+        PrimaryThemeColor.Pink to Pink,
+        PrimaryThemeColor.Rose to Rose,
     )
 
     fun resolvePrimaryColorKey(value: String?) =
-        PrimaryThemeColors.entries.find { it.name == value } ?: DefaultPrimaryColor
+        PrimaryThemeColor.entries.find { it.name == value } ?: DefaultPrimaryColor
 
-    fun resolvePrimaryColor(value: PrimaryThemeColors) = PrimaryColorsMap[value]!!
+    fun resolvePrimaryColor(value: PrimaryThemeColor) = PrimaryColorsMap[value]!!
     fun resolvePrimaryColor(value: String?) = resolvePrimaryColor(resolvePrimaryColorKey(value))
 }

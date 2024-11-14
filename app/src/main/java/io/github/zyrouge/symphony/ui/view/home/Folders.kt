@@ -192,7 +192,7 @@ private fun FoldersGrid(
                     itemsIndexed(
                         sortedFolderNames,
                         key = { i, x -> "$i-$x" },
-                        contentType = { _, _ -> Groove.Kinds.ARTIST }
+                        contentType = { _, _ -> Groove.Kind.ARTIST }
                     ) { _, folderName ->
                         folders[folderName]?.let { folder ->
                             FolderTile(

@@ -37,7 +37,7 @@ import io.github.zyrouge.symphony.ui.components.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColors
+import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColor
 import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
@@ -223,7 +223,7 @@ fun AppearanceSettingsView(context: ViewContext) {
                             Text(context.symphony.t.PrimaryColor)
                         },
                         value = ThemeColors.resolvePrimaryColorKey(primaryColor),
-                        values = PrimaryThemeColors.entries.associateWith { it.label(context) },
+                        values = PrimaryThemeColor.entries.associateWith { it.label(context) },
                         enabled = !useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.primaryColor.setValue(value.name)
@@ -235,22 +235,22 @@ fun AppearanceSettingsView(context: ViewContext) {
     )
 }
 
-fun PrimaryThemeColors.label(context: ViewContext) = when (this) {
-    PrimaryThemeColors.Red -> context.symphony.t.Red
-    PrimaryThemeColors.Orange -> context.symphony.t.Orange
-    PrimaryThemeColors.Amber -> context.symphony.t.Amber
-    PrimaryThemeColors.Yellow -> context.symphony.t.Yellow
-    PrimaryThemeColors.Lime -> context.symphony.t.Lime
-    PrimaryThemeColors.Green -> context.symphony.t.Green
-    PrimaryThemeColors.Emerald -> context.symphony.t.Emerald
-    PrimaryThemeColors.Teal -> context.symphony.t.Teal
-    PrimaryThemeColors.Cyan -> context.symphony.t.Cyan
-    PrimaryThemeColors.Sky -> context.symphony.t.Sky
-    PrimaryThemeColors.Blue -> context.symphony.t.Blue
-    PrimaryThemeColors.Indigo -> context.symphony.t.Indigo
-    PrimaryThemeColors.Violet -> context.symphony.t.Violet
-    PrimaryThemeColors.Purple -> context.symphony.t.Purple
-    PrimaryThemeColors.Fuchsia -> context.symphony.t.Fuchsia
-    PrimaryThemeColors.Pink -> context.symphony.t.Pink
-    PrimaryThemeColors.Rose -> context.symphony.t.Rose
+fun PrimaryThemeColor.label(context: ViewContext) = when (this) {
+    PrimaryThemeColor.Red -> context.symphony.t.Red
+    PrimaryThemeColor.Orange -> context.symphony.t.Orange
+    PrimaryThemeColor.Amber -> context.symphony.t.Amber
+    PrimaryThemeColor.Yellow -> context.symphony.t.Yellow
+    PrimaryThemeColor.Lime -> context.symphony.t.Lime
+    PrimaryThemeColor.Green -> context.symphony.t.Green
+    PrimaryThemeColor.Emerald -> context.symphony.t.Emerald
+    PrimaryThemeColor.Teal -> context.symphony.t.Teal
+    PrimaryThemeColor.Cyan -> context.symphony.t.Cyan
+    PrimaryThemeColor.Sky -> context.symphony.t.Sky
+    PrimaryThemeColor.Blue -> context.symphony.t.Blue
+    PrimaryThemeColor.Indigo -> context.symphony.t.Indigo
+    PrimaryThemeColor.Violet -> context.symphony.t.Violet
+    PrimaryThemeColor.Purple -> context.symphony.t.Purple
+    PrimaryThemeColor.Fuchsia -> context.symphony.t.Fuchsia
+    PrimaryThemeColor.Pink -> context.symphony.t.Pink
+    PrimaryThemeColor.Rose -> context.symphony.t.Rose
 }

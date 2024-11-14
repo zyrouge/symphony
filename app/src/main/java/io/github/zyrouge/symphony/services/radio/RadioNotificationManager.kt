@@ -1,12 +1,9 @@
 package io.github.zyrouge.symphony.services.radio
 
-import android.Manifest
 import android.app.Notification
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -44,8 +41,8 @@ class RadioNotificationManager(val symphony: Symphony) {
         )
         RadioNotificationService.events.subscribe {
             when (it) {
-                RadioNotificationService.Events.START -> onServiceStart()
-                RadioNotificationService.Events.STOP -> onServiceStop()
+                RadioNotificationService.Event.START -> onServiceStart()
+                RadioNotificationService.Event.STOP -> onServiceStop()
             }
         }
     }
@@ -61,25 +58,26 @@ class RadioNotificationManager(val symphony: Symphony) {
             lastNotification = notification
             return
         }
-        if (
-            ActivityCompat.checkSelfPermission(
-                symphony.applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        try {
             manager.notify(RadioNotification.NOTIFICATION_ID, notification)
+        } catch (_: SecurityException) {
+            // NOTE: the notification updates even without permission...
         }
     }
 
     private fun destroyNotification() {
-        if (state == State.DESTROYED) return
+        if (state == State.DESTROYED) {
+            return
+        }
         state = State.DESTROYED
         lastNotification = null
         manager.cancel(RadioNotification.CHANNEL_ID, RadioNotification.NOTIFICATION_ID)
     }
 
     private fun createService() {
-        if (hasService || state == State.PREPARING) return
+        if (hasService || state == State.PREPARING) {
+            return
+        }
         val intent = Intent(symphony.applicationContext, RadioNotificationService::class.java)
         symphony.applicationContext.startForegroundService(intent)
         state = State.PREPARING

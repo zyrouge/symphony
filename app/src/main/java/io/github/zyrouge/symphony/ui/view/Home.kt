@@ -94,8 +94,8 @@ import io.github.zyrouge.symphony.ui.view.home.TreeView
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
-enum class HomePages(
-    val kind: Groove.Kinds? = null,
+enum class HomePage(
+    val kind: Groove.Kind? = null,
     val label: (context: ViewContext) -> String,
     val selectedIcon: @Composable () -> ImageVector,
     val unselectedIcon: @Composable () -> ImageVector,
@@ -106,37 +106,37 @@ enum class HomePages(
         unselectedIcon = { Icons.Outlined.Face }
     ),
     Songs(
-        kind = Groove.Kinds.SONG,
+        kind = Groove.Kind.SONG,
         label = { it.symphony.t.Songs },
         selectedIcon = { Icons.Filled.MusicNote },
         unselectedIcon = { Icons.Outlined.MusicNote }
     ),
     Artists(
-        kind = Groove.Kinds.ARTIST,
+        kind = Groove.Kind.ARTIST,
         label = { it.symphony.t.Artists },
         selectedIcon = { Icons.Filled.Group },
         unselectedIcon = { Icons.Outlined.Group }
     ),
     Albums(
-        kind = Groove.Kinds.ALBUM,
+        kind = Groove.Kind.ALBUM,
         label = { it.symphony.t.Albums },
         selectedIcon = { Icons.Filled.Album },
         unselectedIcon = { Icons.Outlined.Album }
     ),
     AlbumArtists(
-        kind = Groove.Kinds.ALBUM_ARTIST,
+        kind = Groove.Kind.ALBUM_ARTIST,
         label = { it.symphony.t.AlbumArtists },
         selectedIcon = { Icons.Filled.SupervisorAccount },
         unselectedIcon = { Icons.Outlined.SupervisorAccount }
     ),
     Genres(
-        kind = Groove.Kinds.GENRE,
+        kind = Groove.Kind.GENRE,
         label = { it.symphony.t.Genres },
         selectedIcon = { Icons.Filled.Tune },
         unselectedIcon = { Icons.Outlined.Tune }
     ),
     Playlists(
-        kind = Groove.Kinds.PLAYLIST,
+        kind = Groove.Kind.PLAYLIST,
         label = { it.symphony.t.Playlists },
         selectedIcon = { Icons.AutoMirrored.Filled.QueueMusic },
         unselectedIcon = { Icons.AutoMirrored.Outlined.QueueMusic }
@@ -271,16 +271,16 @@ fun HomeView(context: ViewContext) {
                 },
             ) { page ->
                 when (page) {
-                    HomePages.ForYou -> ForYouView(context)
-                    HomePages.Songs -> SongsView(context)
-                    HomePages.Albums -> AlbumsView(context)
-                    HomePages.Artists -> ArtistsView(context)
-                    HomePages.AlbumArtists -> AlbumArtistsView(context)
-                    HomePages.Genres -> GenresView(context)
-                    HomePages.Browser -> BrowserView(context)
-                    HomePages.Folders -> FoldersView(context)
-                    HomePages.Playlists -> PlaylistsView(context)
-                    HomePages.Tree -> TreeView(context)
+                    HomePage.ForYou -> ForYouView(context)
+                    HomePage.Songs -> SongsView(context)
+                    HomePage.Albums -> AlbumsView(context)
+                    HomePage.Artists -> ArtistsView(context)
+                    HomePage.AlbumArtists -> AlbumArtistsView(context)
+                    HomePage.Genres -> GenresView(context)
+                    HomePage.Browser -> BrowserView(context)
+                    HomePage.Folders -> FoldersView(context)
+                    HomePage.Playlists -> PlaylistsView(context)
+                    HomePage.Tree -> TreeView(context)
                 }
             }
         },
@@ -349,7 +349,7 @@ fun HomeView(context: ViewContext) {
     if (showTabsSheet) {
         val sheetState = rememberModalBottomSheetState()
         val orderedTabs = remember {
-            setOf<HomePages>(*tabs.toTypedArray(), *HomePages.entries.toTypedArray())
+            setOf<HomePage>(*tabs.toTypedArray(), *HomePage.entries.toTypedArray())
         }
 
         ModalBottomSheet(

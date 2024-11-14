@@ -70,8 +70,6 @@ class AlbumArtistRepository(private val symphony: Symphony) {
         }
     }
 
-    internal fun onFinish() {}
-
     fun reset() {
         cache.clear()
         _all.update {

@@ -131,7 +131,7 @@ fun QueueView(context: ViewContext) {
                         itemsIndexed(
                             queue,
                             key = { i, id -> "$i-$id" },
-                            contentType = { _, _ -> Groove.Kinds.SONG },
+                            contentType = { _, _ -> Groove.Kind.SONG },
                         ) { i, songId ->
                             context.symphony.groove.song.get(songId)?.let { song ->
                                 Box {
