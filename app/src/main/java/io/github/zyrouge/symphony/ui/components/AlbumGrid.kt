@@ -29,7 +29,7 @@ fun AlbumGrid(
             context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
         }
     }
-    var albumGridSize by remember { mutableStateOf(200f) }
+    var tileSize by remember { mutableStateOf(200f) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -49,9 +49,9 @@ fun AlbumGrid(
                 label = {
                     Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
                 },
-                gridSize = albumGridSize,
+                gridSize = tileSize,
                 onGridSizeChange = {
-                    albumGridSize = it
+                    tileSize = it
                 }
             )
         },
@@ -68,7 +68,7 @@ fun AlbumGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid(size = albumGridSize) {
+                else -> ResponsiveGrid(tileSize = tileSize) {
                     itemsIndexed(
                         sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
