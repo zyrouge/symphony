@@ -53,10 +53,10 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     val hasPlayer get() = player?.usable == true
     val isPlaying get() = player?.isPlaying == true
-    val currentPlaybackPosition = player?.playbackPosition
-    val currentSpeed = player?.speed ?: RadioPlayer.DEFAULT_SPEED
-    val currentPitch = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
-    val audioSessionId = player?.audioSessionId
+    val currentPlaybackPosition get() = player?.playbackPosition
+    val currentSpeed get() = player?.speed ?: RadioPlayer.DEFAULT_SPEED
+    val currentPitch get() = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
+    val audioSessionId get() = player?.audioSessionId
     val onPlaybackPositionUpdate = Eventer<RadioPlayer.PlaybackPosition>()
 
     var persistedSpeed = RadioPlayer.DEFAULT_SPEED
