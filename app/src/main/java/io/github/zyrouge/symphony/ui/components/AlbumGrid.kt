@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +34,8 @@ fun AlbumGrid(
             context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
         }
     }
-    var tileSize by remember { mutableFloatStateOf(200f) }
+    val tileSize by context.symphony.settings.lastUsedAlbumsTileSize.flow.collectAsState()
+
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -93,7 +93,11 @@ fun AlbumGrid(
                 ) {
                     ResponsiveGridSizeAdjust(
                         tileSize,
-                        onTileSizeChange = { tileSize = it },
+                        onTileSizeChange = {
+                            context.symphony.settings.lastUsedAlbumsTileSize.setValue(
+                                it
+                            )
+                        },
                     )
                 }
             }
