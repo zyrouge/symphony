@@ -276,6 +276,7 @@ class Settings(private val symphony: Symphony) {
         ImagePreserver.Quality.Medium,
     )
     val useMetaphony = BooleanEntry("use_metaphony", true)
+    val gaplessPlayback = BooleanEntry("gapless_playback", true)
 
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)

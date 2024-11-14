@@ -13,7 +13,7 @@ typealias RadioPlayerOnPlaybackPositionListener = (RadioPlayer.PlaybackPosition)
 typealias RadioPlayerOnFinishListener = () -> Unit
 typealias RadioPlayerOnErrorListener = (Int, Int) -> Unit
 
-class RadioPlayer(val symphony: Symphony, uri: Uri) {
+class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
     data class PlaybackPosition(val played: Long, val total: Long) {
         val ratio: Float
             get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
@@ -23,18 +23,29 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
     }
 
-    var usable = false
-    var hasPlayedOnce = false
-
     private val unsafeMediaPlayer: MediaPlayer
-    private val mediaPlayer: MediaPlayer?
-        get() = if (usable) unsafeMediaPlayer else null
-
+    private val mediaPlayer: MediaPlayer? get() = if (usable) unsafeMediaPlayer else null
     private var onPrepared: RadioPlayerOnPreparedListener? = null
     private var onPlaybackPosition: RadioPlayerOnPlaybackPositionListener? = null
     private var onFinish: RadioPlayerOnFinishListener? = null
     private var onError: RadioPlayerOnErrorListener? = null
+    private var fader: RadioEffects.Fader? = null
     private var playbackPositionUpdater: Timer? = null
+
+    var usable = false
+        private set
+    var hasPlayedOnce = false
+        private set
+    var volume = MAX_VOLUME
+        private set
+    var speed = DEFAULT_SPEED
+        private set
+    var pitch = DEFAULT_PITCH
+        private set
+
+    val fadePlayback get() = symphony.settings.fadePlayback.value
+    val audioSessionId get() = mediaPlayer?.audioSessionId
+    val isPlaying get() = mediaPlayer?.isPlaying == true
 
     val playbackPosition
         get() = mediaPlayer?.let {
@@ -47,16 +58,6 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
                 null
             }
         }
-
-    var volume = MAX_VOLUME
-    var speed = DEFAULT_SPEED
-    var pitch = DEFAULT_PITCH
-    val fadePlayback get() = symphony.settings.fadePlayback.value
-    val audioSessionId get() = mediaPlayer?.audioSessionId
-
-    private val fadePlaybackDuration get() = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()
-    private var fader: RadioEffects.Fader? = null
-    val isPlaying get() = mediaPlayer?.isPlaying == true
 
     init {
         unsafeMediaPlayer = MediaPlayer().also { ump ->
@@ -79,12 +80,17 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
     }
 
-    fun prepare(listener: RadioPlayerOnPreparedListener) {
-        onPrepared = listener
+    fun prepare() {
+        if (usable) {
+            onPrepared?.invoke()
+            return
+        }
         unsafeMediaPlayer.prepareAsync()
     }
 
-    fun stop() {
+    fun stop() = destroy()
+
+    fun destroy() {
         usable = false
         destroyDurationTimer()
         symphony.groove.coroutineScope.launch {
@@ -95,18 +101,25 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
 
     fun start() = mediaPlayer?.let {
         it.start()
+        createDurationTimer()
         if (!hasPlayedOnce) {
             hasPlayedOnce = true
-            setSpeed(speed)
-            setPitch(pitch)
+            changeSpeed(speed)
+            changePitch(pitch)
         }
     }
 
-    fun pause() = mediaPlayer?.pause()
-    fun seek(to: Int) = mediaPlayer?.seekTo(to)
+    fun pause() = mediaPlayer?.let {
+        it.pause()
+        destroyDurationTimer()
+    }
 
-    @JvmName("setVolumeTo")
-    fun setVolume(
+    fun seek(to: Int) = mediaPlayer?.let {
+        it.seekTo(to)
+        emitPlaybackPosition()
+    }
+
+    fun changeVolume(
         to: Float,
         forceFade: Boolean = false,
         onFinish: (Boolean) -> Unit,
@@ -115,10 +128,11 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         when {
             to == volume -> onFinish(true)
             forceFade || fadePlayback -> {
+                val duration = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()
                 fader = RadioEffects.Fader(
-                    RadioEffects.Fader.Options(volume, to, fadePlaybackDuration),
+                    RadioEffects.Fader.Options(volume, to, duration),
                     onUpdate = {
-                        setVolumeInstant(it)
+                        changeVolumeInstant(it)
                     },
                     onFinish = {
                         onFinish(it)
@@ -129,19 +143,18 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
             }
 
             else -> {
-                setVolumeInstant(to)
+                changeVolumeInstant(to)
                 onFinish(true)
             }
         }
     }
 
-    fun setVolumeInstant(to: Float) {
+    fun changeVolumeInstant(to: Float) {
         volume = to
         mediaPlayer?.setVolume(to, to)
     }
 
-    @JvmName("setSpeedTo")
-    fun setSpeed(to: Float) {
+    fun changeSpeed(to: Float) {
         if (!hasPlayedOnce) {
             speed = to
             return
@@ -160,8 +173,7 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
     }
 
-    @JvmName("setPitchTo")
-    fun setPitch(to: Float) {
+    fun changePitch(to: Float) {
         if (!hasPlayedOnce) {
             pitch = to
             return
@@ -180,6 +192,10 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
         }
     }
 
+    fun setOnPreparedListener(listener: RadioPlayerOnPreparedListener?) {
+        onPrepared = listener
+    }
+
     fun setOnPlaybackPositionListener(listener: RadioPlayerOnPlaybackPositionListener?) {
         onPlaybackPosition = listener
     }
@@ -194,9 +210,13 @@ class RadioPlayer(val symphony: Symphony, uri: Uri) {
 
     private fun createDurationTimer() {
         playbackPositionUpdater = kotlin.concurrent.timer(period = 100L) {
-            playbackPosition?.let {
-                onPlaybackPosition?.invoke(it)
-            }
+            emitPlaybackPosition()
+        }
+    }
+
+    private fun emitPlaybackPosition() {
+        playbackPosition?.let {
+            onPlaybackPosition?.invoke(it)
         }
     }
 

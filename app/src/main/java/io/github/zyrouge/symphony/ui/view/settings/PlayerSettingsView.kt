@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.HeadsetOff
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -52,6 +53,7 @@ fun PlayerSettingsView(context: ViewContext) {
     val pauseOnHeadphonesDisconnect by context.symphony.settings.pauseOnHeadphonesDisconnect.flow.collectAsState()
     val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsState()
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
+    val gaplessPlayback by context.symphony.settings.gaplessPlayback.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -230,6 +232,19 @@ fun PlayerSettingsView(context: ViewContext) {
                             context.symphony.settings.seekForwardDuration.setValue(
                                 context.symphony.settings.seekForwardDuration.defaultValue,
                             )
+                        },
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.PlayArrow, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.GaplessPlayback)
+                        },
+                        value = gaplessPlayback,
+                        onChange = { value ->
+                            context.symphony.settings.gaplessPlayback.setValue(value)
                         },
                     )
                 }
