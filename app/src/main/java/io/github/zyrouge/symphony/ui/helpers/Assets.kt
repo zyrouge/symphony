@@ -30,7 +30,7 @@ object Assets {
 
     fun createPlaceholderImageRequest(symphony: Symphony) =
         ImageRequest.Builder(symphony.applicationContext)
-            .data(Assets.getPlaceholderUri(symphony))
+            .data(getPlaceholderUri(symphony))
 
     private fun buildUriOfResource(resources: Resources, resourceId: Int): Uri {
         return Uri.Builder()

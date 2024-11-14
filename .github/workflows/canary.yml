@@ -76,7 +76,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: mapping
-                  path: ${{ env.OUTPUT_DIR }}/mapping.txt
+                  path: ${{ env.OUTPUT_DIR }}/mapping.zip
                   if-no-files-found: error
 
             - name: 🚀 Upload native symbols

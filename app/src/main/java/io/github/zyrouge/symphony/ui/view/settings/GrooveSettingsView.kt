@@ -1,29 +1,22 @@
 package io.github.zyrouge.symphony.ui.view.settings
 
-import android.net.Uri
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.repeatable
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.East
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FindInPage
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SpaceBar
@@ -43,32 +36,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.components.settings.ConsiderContributingTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiGrooveFolderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiSystemFolderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiTextOptionTile
+import io.github.zyrouge.symphony.ui.components.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSimpleTile
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsTextInputTile
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
-import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ImagePreserver
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -81,13 +72,14 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-
     val songsFilterPattern by context.symphony.settings.songsFilterPattern.flow.collectAsState()
     val blacklistFolders by context.symphony.settings.blacklistFolders.flow.collectAsState()
     val whitelistFolders by context.symphony.settings.whitelistFolders.flow.collectAsState()
     val artistTagSeparators by context.symphony.settings.artistTagSeparators.flow.collectAsState()
     val genreTagSeparators by context.symphony.settings.genreTagSeparators.flow.collectAsState()
     val mediaFolders by context.symphony.settings.mediaFolders.flow.collectAsState()
+    val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsState()
+    val useMetaphony by context.symphony.settings.useMetaphony.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -100,11 +92,11 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
             CenterAlignedTopAppBar(
                 title = {
                     TopAppBarMinimalTitle {
-                        Text(context.symphony.t.Settings)
+                        Text("${context.symphony.t.Settings} - ${context.symphony.t.Groove}")
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = Color.Transparent,
                 ),
                 navigationIcon = {
                     IconButton(
@@ -127,55 +119,9 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                     .fillMaxSize()
             ) {
                 Column(modifier = Modifier.verticalScroll(scrollState)) {
-                    val contentColor = MaterialTheme.colorScheme.onPrimary
                     val defaultSongsFilterPattern = ".*"
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                ActivityUtils.startBrowserActivity(
-                                    context.activity,
-                                    Uri.parse(AppMeta.contributingUrl)
-                                )
-                            }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(24.dp, 8.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Filled.Favorite,
-                                null,
-                                tint = contentColor,
-                                modifier = Modifier.size(12.dp),
-                            )
-                            Box(modifier = Modifier.width(4.dp))
-                            Text(
-                                context.symphony.t.ConsiderContributing,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = contentColor,
-                                ),
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(8.dp, 0.dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.East,
-                                null,
-                                tint = contentColor,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-                    }
+                    ConsiderContributingTile(context)
                     SettingsSideHeading(context.symphony.t.Groove)
                     SpotlightTile(route.initialElement == SettingsViewRoute.ELEMENT_MEDIA_FOLDERS) {
                         SettingsMultiSystemFolderTile(
@@ -279,6 +225,34 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                         },
                     )
                     HorizontalDivider()
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Filled.Image, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ArtworkQuality)
+                        },
+                        value = artworkQuality,
+                        values = ImagePreserver.Quality.entries
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.artworkQuality.setValue(value)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.FindInPage, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.UseMetaphonyMetadataDecoder)
+                        },
+                        value = useMetaphony,
+                        onChange = { value ->
+                            context.symphony.settings.useMetaphony.setValue(value)
+                        }
+                    )
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.Storage, null)
@@ -305,6 +279,13 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     )
 }
 
+fun ImagePreserver.Quality.label(context: ViewContext) = when (this) {
+    ImagePreserver.Quality.Low -> context.symphony.t.Low
+    ImagePreserver.Quality.Medium -> context.symphony.t.Medium
+    ImagePreserver.Quality.High -> context.symphony.t.High
+    ImagePreserver.Quality.Loseless -> context.symphony.t.Loseless
+}
+
 private fun refetchMediaLibrary(coroutineScope: CoroutineScope, symphony: Symphony) {
     symphony.radio.stop()
     coroutineScope.launch {
@@ -316,19 +297,21 @@ private fun refetchMediaLibrary(coroutineScope: CoroutineScope, symphony: Sympho
 @Composable
 private fun SpotlightTile(isInSpotlight: Boolean, content: @Composable (() -> Unit)) {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    var animateSpotlightEffect by remember { mutableStateOf(false) }
-    val highlightAlphaAnimated by animateFloatAsState(
-        targetValue = if (animateSpotlightEffect) 0.25f else 0f,
-        label = "spotlight-outline-alpha",
-        animationSpec = repeatable(2, TransitionDurations.Slow.asTween()),
-    )
+    val highlightAlphaAnimated = remember { Animatable(0f) }
     val highlightColor = MaterialTheme.colorScheme.surfaceTint
 
     LaunchedEffect(isInSpotlight) {
         if (isInSpotlight) {
-            animateSpotlightEffect = true
             bringIntoViewRequester.bringIntoView()
-            animateSpotlightEffect = false
+            delay(100)
+            highlightAlphaAnimated.animateTo(
+                targetValue = 0.3f,
+                animationSpec = repeatable(
+                    2,
+                    TransitionDurations.Fast.asTween(easing = LinearEasing)
+                ),
+            )
+            highlightAlphaAnimated.snapTo(0f)
         }
     }
 
@@ -337,7 +320,7 @@ private fun SpotlightTile(isInSpotlight: Boolean, content: @Composable (() -> Un
             .bringIntoViewRequester(bringIntoViewRequester)
             .drawWithContent {
                 drawContent()
-                drawRect(color = highlightColor, alpha = highlightAlphaAnimated)
+                drawRect(color = highlightColor, alpha = highlightAlphaAnimated.value)
             }
     ) {
         content()

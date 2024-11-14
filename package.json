@@ -26,6 +26,7 @@
     "author": "Zyrouge",
     "license": "AGPL-3.0",
     "devDependencies": {
+        "@types/archiver": "^6.0.3",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^22.9.0",
         "@zyrouge/phrasey-json": "^1.0.3",
@@ -38,5 +39,8 @@
         "prettier-plugin-toml": "^2.0.1",
         "tsx": "^4.19.2",
         "typescript": "^5.6.3"
+    },
+    "dependencies": {
+        "archiver": "^7.0.1"
     }
 }

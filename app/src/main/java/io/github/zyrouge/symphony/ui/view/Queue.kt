@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.view
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -61,10 +60,6 @@ fun QueueView(context: ViewContext) {
         initialFirstVisibleItemIndex = queueIndex,
     )
     var showSaveDialog by remember { mutableStateOf(false) }
-
-    BackHandler {
-        context.navController.popBackStack()
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

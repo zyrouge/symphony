@@ -161,7 +161,7 @@ fun ForYouView(context: ViewContext) {
                     songsIsUpdating -> SixGridLoading()
                     recentlyAddedSongs.isEmpty() -> SixGridEmpty(context)
                     else -> BoxWithConstraints {
-                        val tileWidth = maxWidth.times(0.7f)
+                        val tileWidth = this@BoxWithConstraints.maxWidth.times(0.7f)
                         Row(
                             modifier = Modifier.horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),

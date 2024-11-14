@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs-extra";
+import archiver from "archiver";
 import { Paths } from "../helpers/paths";
 
 const APP_BUILD_TYPE = process.env.APP_BUILD_TYPE ?? "release";
@@ -9,45 +10,55 @@ const main = async () => {
     if (typeof APP_VERSION_NAME !== "string") {
         throw new Error("Missing environment variable: APP_VERSION_NAME");
     }
-    const apk = [
+    await fs.ensureDir(Paths.distDir);
+    await move(
         path.join(
             Paths.appDir,
             `build/outputs/apk/${APP_BUILD_TYPE}/app-${APP_BUILD_TYPE}.apk`,
         ),
         path.join(Paths.distDir, `symphony-v${APP_VERSION_NAME}.apk`),
-    ] as const;
-    const aab = [
+    );
+    await move(
         path.join(
             Paths.appDir,
             `build/outputs/bundle/${APP_BUILD_TYPE}/app-${APP_BUILD_TYPE}.aab`,
         ),
         path.join(Paths.distDir, `symphony-v${APP_VERSION_NAME}.aab`),
-    ] as const;
-    const mapping = [
+    );
+    await moveZipped(
         path.join(
             Paths.appDir,
             `build/outputs/mapping/${APP_BUILD_TYPE}/mapping.txt`,
         ),
-        path.join(Paths.distDir, "mapping.txt"),
-    ] as const;
-    const symbols = [
+        path.join(Paths.distDir, "mapping.zip"),
+    );
+    await move(
         path.join(
             Paths.appDir,
             `build/outputs/native-debug-symbols/${APP_BUILD_TYPE}/native-debug-symbols.zip`,
         ),
         path.join(Paths.distDir, "native-debug-symbols.zip"),
-    ] as const;
-    await fs.ensureDir(Paths.distDir);
-    await fs.move(apk[0], apk[1]);
-    console.log(`Moved apk to "${apk[1]}".`);
-    await fs.move(aab[0], aab[1]);
-    console.log(`Moved aab to "${aab[1]}".`);
-    await fs.move(mapping[0], mapping[1]);
-    console.log(`Moved mapping to "${mapping[1]}".`);
-    if (await fs.exists(symbols[0])) {
-        await fs.move(symbols[0], symbols[1]);
-        console.log(`Moved native-debug-symbols to "${symbols[1]}".`);
-    }
+        true,
+    );
 };
 
 main();
+
+async function move(from: string, to: string, skippable: boolean = false) {
+    if (skippable && !(await fs.exists(from))) {
+        return;
+    }
+    await fs.move(from, to);
+    console.log(`Moved "${from}" to "${to}".`);
+}
+
+async function moveZipped(from: string, to: string) {
+    await fs.ensureFile(to);
+    const archive = archiver.create("zip");
+    archive.pipe(fs.createWriteStream(to));
+    archive.file(from, {
+        name: path.basename(from),
+    });
+    await archive.finalize();
+    console.log(`Zipped "${from}" to "${to}".`);
+}

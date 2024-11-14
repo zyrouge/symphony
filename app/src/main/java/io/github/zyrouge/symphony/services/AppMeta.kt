@@ -29,6 +29,7 @@ object AppMeta {
     const val packageName = "io.github.zyrouge.symphony"
     const val izzyOnDroidUrl = "https://apt.izzysoft.de/fdroid/index/apk/$packageName"
     const val fdroidUrl = "https://f-droid.org/en/packages/$packageName"
+    const val playStoreUrl = "https://play.google.com/store/apps/details?id=$packageName"
 
     fun isNightlyBuild() = version.contains("-nightly")
 

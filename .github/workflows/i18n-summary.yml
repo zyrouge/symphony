@@ -51,7 +51,7 @@ jobs:
               if: github.event_name == 'pull_request_target'
               run: |
                   git fetch origin "${{ github.base_ref }}" --depth=1
-                  echo "PR_COMMENT=$(npm run git:diff-files-yn 'origin/${{ github.base_ref }}' '.phrasey/' 'i18n/')" >> $GITHUB_ENV
+                  echo "PR_COMMENT=$(npm run --silent git:diff-files-yn 'origin/${{ github.base_ref }}' '.phrasey/' 'i18n/')" >> $GITHUB_ENV
 
             - name: 💬 Comment summary
               if: github.event_name == 'pull_request_target' && env.PR_COMMENT == 'yes'

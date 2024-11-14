@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.view
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -42,10 +41,6 @@ object LyricsViewRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LyricsView(context: ViewContext) {
-    BackHandler {
-        context.navController.popBackStack()
-    }
-
     NowPlayingWithData(context) { data ->
         Scaffold(
             modifier = Modifier.fillMaxSize(),

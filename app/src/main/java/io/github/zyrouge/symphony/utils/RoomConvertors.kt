@@ -6,7 +6,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 
-@Suppress("unused")
 class RoomConvertors {
     @TypeConverter
     fun serializeUri(value: Uri) = value.toString()

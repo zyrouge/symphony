@@ -61,9 +61,7 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
     var showOptionsMenu by remember { mutableStateOf(false) }
     val isFavoritesPlaylist by remember(playlist) {
         derivedStateOf {
-            playlist?.let {
-                context.symphony.groove.playlist.isFavoritesPlaylist(it)
-            } ?: false
+            playlist?.let { context.symphony.groove.playlist.isFavoritesPlaylist(it) } == true
         }
     }
 

@@ -723,3 +723,24 @@ name = "TotalSamples"
 
 [[keys]]
 name = "Home"
+
+[[keys]]
+name = "ArtworkQuality"
+
+[[keys]]
+name = "Low"
+
+[[keys]]
+name = "Medium"
+
+[[keys]]
+name = "High"
+
+[[keys]]
+name = "Loseless"
+
+[[keys]]
+name = "UseMetaphonyMetadataDecoder"
+
+[[keys]]
+name = "PlayStore"

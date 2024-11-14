@@ -3,29 +3,16 @@ package io.github.zyrouge.symphony.ui.components.settings
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -35,22 +22,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialogDefaults
-import io.github.zyrouge.symphony.ui.components.SubtleCaptionText
 import io.github.zyrouge.symphony.ui.components.drawScrollBar
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.navigateToFolder
 import io.github.zyrouge.symphony.utils.ActivityUtils
-import io.github.zyrouge.symphony.utils.SimpleFileSystem
-import io.github.zyrouge.symphony.utils.SimplePath
-
-private const val SettingsFolderContentType = "folder"
 
 @Composable
 fun SettingsMultiSystemFolderTile(
@@ -159,141 +136,4 @@ fun SettingsMultiSystemFolderTile(
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SettingsFolderTilePickerDialog(
-    context: ViewContext,
-    explorer: SimpleFileSystem.Folder,
-    onSelect: (SimplePath?) -> Unit,
-) {
-    var currentFolder by remember { mutableStateOf(explorer) }
-    val sortedEntities by remember(currentFolder) {
-        derivedStateOf {
-            currentFolder.children.values.mapNotNull { entity ->
-                when (entity) {
-                    is SimpleFileSystem.Folder -> entity
-                    else -> null
-                }
-            }
-        }
-    }
-    val currentPath by remember(currentFolder) {
-        derivedStateOf { currentFolder.fullPath }
-    }
-    val currentPathScrollState = rememberScrollState()
-
-    LaunchedEffect(LocalContext.current) {
-        snapshotFlow { currentPath }.collect {
-            currentPathScrollState.animateScrollTo(Int.MAX_VALUE)
-        }
-    }
-
-    ScaffoldDialog(
-        onDismissRequest = {
-            when {
-                currentFolder.parent != null -> currentFolder.parent?.let { currentFolder = it }
-                else -> onSelect(null)
-            }
-        },
-        title = {
-            Text(context.symphony.t.PickFolder)
-        },
-        topBar = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(currentPathScrollState)
-                    .padding(12.dp, 8.dp),
-            ) {
-                currentPath.parts.mapIndexed { i, basename ->
-                    Text(
-                        basename,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .clickable {
-                                val path = SimplePath(currentPath.parts.subList(1, i + 1))
-                                explorer
-                                    .navigateToFolder(path)
-                                    ?.let { currentFolder = it }
-                            }
-                            .padding(8.dp, 4.dp),
-                    )
-                    if (i != currentPath.size - 1) {
-                        Text(
-                            "/",
-                            modifier = Modifier
-                                .padding(4.dp, 0.dp)
-                                .alpha(0.3f),
-                        )
-                    }
-                }
-            }
-        },
-        contentHeight = ScaffoldDialogDefaults.PreferredMaxHeight,
-        content = {
-            when {
-                sortedEntities.isEmpty() -> Box(
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    SubtleCaptionText(context.symphony.t.NoFoldersFound)
-                }
-
-                else -> {
-                    val lazyListState = rememberLazyListState()
-
-                    LazyColumn(
-                        state = lazyListState,
-                        modifier = Modifier.drawScrollBar(lazyListState),
-                    ) {
-                        items(
-                            sortedEntities,
-                            key = { it.name },
-                            contentType = { SettingsFolderContentType }
-                        ) { folder ->
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                                onClick = {
-                                    currentFolder = folder
-                                }
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(20.dp, 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Folder,
-                                        null,
-                                        modifier = Modifier.size(32.dp),
-                                    )
-                                    Spacer(modifier = Modifier.width(20.dp))
-                                    Column {
-                                        Text(folder.name)
-                                        Text(
-                                            context.symphony.t.XFolders(
-                                                folder.childFoldersCount.toString()
-                                            ),
-                                            style = MaterialTheme.typography.labelSmall,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        actions = {
-            TextButton(onClick = { onSelect(null) }) {
-                Text(context.symphony.t.Cancel)
-            }
-            TextButton(onClick = { onSelect(currentPath) }) {
-                Text(context.symphony.t.Done)
-            }
-        },
-    )
 }

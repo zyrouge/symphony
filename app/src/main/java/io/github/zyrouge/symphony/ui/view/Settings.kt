@@ -1,25 +1,26 @@
 package io.github.zyrouge.symphony.ui.view
 
 import android.net.Uri
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.East
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.MusicNote
@@ -33,24 +34,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.services.AppMeta
-import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
+import io.github.zyrouge.symphony.ui.components.settings.ConsiderContributingTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSimpleTile
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.settings.AppearanceSettingsViewRoute
@@ -74,16 +73,10 @@ data class SettingsViewRoute(val initialElement: String? = null) {
 @Composable
 fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
     val configuration = LocalConfiguration.current
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        snackbarHost = {
-            SnackbarHost(snackbarHostState) {
-                AdaptiveSnackbar(it)
-            }
-        },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -115,54 +108,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                     .fillMaxSize()
             ) {
                 Column(modifier = Modifier.verticalScroll(scrollState)) {
-                    val contentColor = MaterialTheme.colorScheme.onPrimary
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                ActivityUtils.startBrowserActivity(
-                                    context.activity,
-                                    Uri.parse(AppMeta.contributingUrl)
-                                )
-                            }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(24.dp, 8.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Filled.Favorite,
-                                null,
-                                tint = contentColor,
-                                modifier = Modifier.size(12.dp),
-                            )
-                            Box(modifier = Modifier.width(4.dp))
-                            Text(
-                                context.symphony.t.ConsiderContributing,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = contentColor,
-                                ),
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(8.dp, 0.dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.East,
-                                null,
-                                tint = contentColor,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-                    }
+                    ConsiderContributingTile(context)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(modifier = Modifier.size((configuration.smallestScreenWidthDp * 0.25).dp)) {
                             AsyncImage(R.drawable.ic_launcher_foreground, null)
@@ -182,6 +128,51 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                             }
                         }
                     }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    ) {
+                        LinkChip(
+                            context,
+                            icon = Icons.Filled.BugReport,
+                            label = context.symphony.t.ReportAnIssue,
+                            url = AppMeta.githubIssuesUrl,
+                        )
+                        LinkChip(
+                            context,
+                            icon = Icons.Filled.Code,
+                            label = context.symphony.t.Github,
+                            url = AppMeta.githubRepositoryUrl,
+                        )
+                        LinkChip(
+                            context,
+                            label = context.symphony.t.Discord,
+                            url = AppMeta.discordUrl,
+                        )
+                        LinkChip(
+                            context,
+                            label = context.symphony.t.Reddit,
+                            url = AppMeta.redditUrl,
+                        )
+                        LinkChip(
+                            context,
+                            label = context.symphony.t.PlayStore,
+                            url = AppMeta.playStoreUrl,
+                        )
+                        LinkChip(
+                            context,
+                            label = context.symphony.t.FDroid,
+                            url = AppMeta.fdroidUrl,
+                        )
+                        LinkChip(
+                            context,
+                            label = context.symphony.t.IzzyOnDroid,
+                            url = AppMeta.izzyOnDroidUrl,
+                        )
+                    }
+                    HorizontalDivider()
                     SettingsSimpleTile(
                         icon = {
                             Icon(Icons.Filled.LibraryMusic, null)
@@ -271,4 +262,32 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
             }
         }
     )
+}
+
+@Composable
+private fun LinkChip(context: ViewContext, icon: ImageVector? = null, label: String, url: String) {
+    Row(
+        modifier = Modifier
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.outlineVariant,
+                RoundedCornerShape(4.dp),
+            )
+            .clip(RoundedCornerShape(4.dp))
+            .clickable {
+                ActivityUtils.startBrowserActivity(context.activity, Uri.parse(url))
+            }
+            .padding(6.dp, 4.dp),
+    ) {
+        icon?.let {
+            Icon(
+                it,
+                null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+        Text(label, style = MaterialTheme.typography.labelLarge)
+    }
 }

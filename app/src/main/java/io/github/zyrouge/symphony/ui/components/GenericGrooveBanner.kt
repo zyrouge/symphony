@@ -46,8 +46,8 @@ fun GenericGrooveBanner(
                 .fillMaxWidth()
                 .height(
                     when (ScreenOrientation.fromConfiguration(LocalConfiguration.current)) {
-                        ScreenOrientation.PORTRAIT -> maxWidth.times(0.7f)
-                        ScreenOrientation.LANDSCAPE -> maxWidth.times(0.25f)
+                        ScreenOrientation.PORTRAIT -> this@BoxWithConstraints.maxWidth.times(0.7f)
+                        ScreenOrientation.LANDSCAPE -> this@BoxWithConstraints.maxWidth.times(0.25f)
                     }
                 )
         )

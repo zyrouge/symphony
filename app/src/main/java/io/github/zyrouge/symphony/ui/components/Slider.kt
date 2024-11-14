@@ -49,7 +49,7 @@ fun Slider(
                     detectTapGestures(
                         onTap = { offset ->
                             pointerOffsetX = offset.x
-                            val widthPx = maxWidth.toPx()
+                            val widthPx = this@BoxWithConstraints.maxWidth.toPx()
                             val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
                             val nValue =
                                 RangeUtils.calculateValueFromRatio(nRatio, range)
