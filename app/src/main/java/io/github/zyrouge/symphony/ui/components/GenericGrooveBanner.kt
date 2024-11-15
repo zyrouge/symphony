@@ -65,7 +65,7 @@ fun GenericGrooveBanner(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(defaultHorizontalPadding, 32.dp, defaultHorizontalPadding, 12.dp)
+                    .padding(defaultHorizontalPadding, 32.dp, 0.dp, 12.dp)
                     .weight(1f)
             ) {
                 ProvideTextStyle(

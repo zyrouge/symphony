@@ -2,7 +2,10 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -128,9 +131,17 @@ private fun AlbumHero(context: ViewContext, album: Album) {
         content = {
             Column {
                 Text(album.name)
-                if (album.artists.isNotEmpty()) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    if (album.artists.isNotEmpty()) {
+                        Text(
+                            album.artists.joinToString(),
+                            style = MaterialTheme.typography.bodyMedium
+                                .copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
                     Text(
-                        album.artists.joinToString(),
+                        album.duration.toString(),
                         style = MaterialTheme.typography.bodyMedium
                             .copy(fontWeight = FontWeight.Bold)
                     )

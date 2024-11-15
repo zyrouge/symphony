@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 
 class AlbumRepository(private val symphony: Symphony) {
     enum class SortBy {
@@ -51,6 +52,7 @@ class AlbumRepository(private val symphony: Symphony) {
             value?.apply {
                 artists.addAll(song.artists)
                 numberOfTracks++
+                duration += song.duration.milliseconds
             } ?: run {
                 _all.update {
                     it + albumId
@@ -61,6 +63,7 @@ class AlbumRepository(private val symphony: Symphony) {
                     name = song.album!!,
                     artists = song.artists.toMutableSet(),
                     numberOfTracks = 1,
+                    duration = song.duration.milliseconds,
                 )
             }
         }
