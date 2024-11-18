@@ -74,7 +74,7 @@ fun <T : Enum<T>> MediaSortBar(
                 onClick = { onReverseChange(!reverse) }
             ) {
                 Icon(
-                    if (reverse) Icons.Filled.ArrowUpward else Icons.Filled.ArrowDownward,
+                    if (reverse) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
                     null,
                     modifier = iconModifier,
                 )
