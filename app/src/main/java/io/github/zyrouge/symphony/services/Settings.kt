@@ -134,6 +134,7 @@ class Settings(private val symphony: Symphony) {
         ArtistRepository.SortBy.ARTIST_NAME,
     )
     val lastUsedArtistsSortReverse = BooleanEntry("last_used_artists_sort_reverse", false)
+    val lastUsedArtistsTileSize = FloatEntry("last_used_artists_tile_size", 200f)
     val lastUsedAlbumArtistsSortBy = EnumEntry(
         "last_used_album_artists_sort_by",
         enumEntries<AlbumArtistRepository.SortBy>(),
@@ -141,6 +142,7 @@ class Settings(private val symphony: Symphony) {
     )
     val lastUsedAlbumArtistsSortReverse =
         BooleanEntry("last_used_album_artists_sort_reverse", false)
+    val lastUsedAlbumArtistsTileSize = FloatEntry("last_used_album_artists_tile_size", 200f)
     val lastUsedAlbumsSortBy = EnumEntry(
         "last_used_albums_sort_by",
         enumEntries<AlbumRepository.SortBy>(),
@@ -154,6 +156,7 @@ class Settings(private val symphony: Symphony) {
         GenreRepository.SortBy.GENRE,
     )
     val lastUsedGenresSortReverse = BooleanEntry("last_used_genres_sort_reverse", false)
+    val lastUsedGenreTileSize = FloatEntry("last_used_genre_tile_size", 200f)
     val lastUsedBrowserSortBy = EnumEntry(
         "last_used_folder_sort_by",
         enumEntries<SongRepository.SortBy>(),
@@ -167,6 +170,7 @@ class Settings(private val symphony: Symphony) {
         PlaylistRepository.SortBy.TITLE,
     )
     val lastUsedPlaylistsSortReverse = BooleanEntry("last_used_playlists_sort_reverse", false)
+    val lastUsedPlaylistsTileSize = FloatEntry("last_used_playlists_tile_size", 200f)
     val lastUsedPlaylistSongsSortBy = EnumEntry(
         "last_used_playlist_songs_sort_by",
         enumEntries<SongRepository.SortBy>(),
@@ -192,6 +196,7 @@ class Settings(private val symphony: Symphony) {
         StringListUtils.SortBy.NAME,
     )
     val lastUsedFoldersSortReverse = BooleanEntry("last_used_folders_sort_reverse", false)
+    val lastUsedFoldersTileSize = FloatEntry("last_used_folders_tile_size", 200f)
     val lastDisabledTreePaths = StringSetEntry("last_disabled_tree_paths", emptySet())
     val previousSongQueue = object : Entry<RadioQueue.Serialized?>("previous_song_queue") {
         override fun getValueInternal() = getSharedPreferences().getString(key, null)?.let {
