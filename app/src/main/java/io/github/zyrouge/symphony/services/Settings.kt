@@ -195,6 +195,7 @@ class Settings(private val symphony: Symphony) {
         StringListUtils.SortBy.NAME,
     )
     val lastUsedFoldersSortReverse = BooleanEntry("last_used_folders_sort_reverse", false)
+    val lastUsedFoldersTileSize = FloatEntry("last_used_folders_tile_size", 200f)
     val lastDisabledTreePaths = StringSetEntry("last_disabled_tree_paths", emptySet())
     val previousSongQueue = object : Entry<RadioQueue.Serialized?>("previous_song_queue") {
         override fun getValueInternal() = getSharedPreferences().getString(key, null)?.let {
