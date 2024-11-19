@@ -8,6 +8,7 @@ data class Album(
     val id: String,
     val name: String,
     val artists: MutableSet<String>,
+    val year: Int?,
     var numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =

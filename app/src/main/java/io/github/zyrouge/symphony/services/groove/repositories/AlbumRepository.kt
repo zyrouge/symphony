@@ -21,6 +21,7 @@ class AlbumRepository(private val symphony: Symphony) {
         ALBUM_NAME,
         ARTIST_NAME,
         TRACKS_COUNT,
+        YEAR,
     }
 
     private val cache = ConcurrentHashMap<String, Album>()
@@ -60,6 +61,7 @@ class AlbumRepository(private val symphony: Symphony) {
                     id = albumId,
                     name = song.album!!,
                     artists = song.artists.toMutableSet(),
+                    year = song.year,
                     numberOfTracks = 1,
                 )
             }
@@ -100,6 +102,7 @@ class AlbumRepository(private val symphony: Symphony) {
             SortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
             SortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
             SortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
+            SortBy.YEAR -> albumIds.sortedBy { get(it)?.year }
         }
         return if (reverse) sorted.reversed() else sorted
     }
