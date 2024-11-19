@@ -168,6 +168,7 @@ class Settings(private val symphony: Symphony) {
         PlaylistRepository.SortBy.TITLE,
     )
     val lastUsedPlaylistsSortReverse = BooleanEntry("last_used_playlists_sort_reverse", false)
+    val lastUsedPlaylistsTileSize = FloatEntry("last_used_playlists_tile_size", 200f)
     val lastUsedPlaylistSongsSortBy = EnumEntry(
         "last_used_playlist_songs_sort_by",
         enumEntries<SongRepository.SortBy>(),
