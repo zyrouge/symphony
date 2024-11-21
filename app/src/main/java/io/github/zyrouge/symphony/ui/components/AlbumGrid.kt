@@ -3,7 +3,6 @@ package io.github.zyrouge.symphony.ui.components
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -111,4 +110,5 @@ private fun AlbumRepository.SortBy.label(context: ViewContext) = when (this) {
     AlbumRepository.SortBy.ALBUM_NAME -> context.symphony.t.Album
     AlbumRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
     AlbumRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
+    AlbumRepository.SortBy.YEAR -> context.symphony.t.Year
 }
