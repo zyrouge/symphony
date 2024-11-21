@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.max
+import kotlin.math.min
 
 class AlbumRepository(private val symphony: Symphony) {
     enum class SortBy {
@@ -51,6 +53,10 @@ class AlbumRepository(private val symphony: Symphony) {
         cache.compute(albumId) { _, value ->
             value?.apply {
                 artists.addAll(song.artists)
+                song.year?.let {
+                    startYear = startYear?.let { old -> min(old, it) } ?: it
+                    endYear = endYear?.let { old -> max(old, it) } ?: it
+                }
                 numberOfTracks++
             } ?: run {
                 _all.update {
@@ -61,7 +67,8 @@ class AlbumRepository(private val symphony: Symphony) {
                     id = albumId,
                     name = song.album!!,
                     artists = song.artists.toMutableSet(),
-                    year = song.year,
+                    startYear = song.year,
+                    endYear = song.year,
                     numberOfTracks = 1,
                 )
             }
@@ -102,7 +109,7 @@ class AlbumRepository(private val symphony: Symphony) {
             SortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
             SortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
             SortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
-            SortBy.YEAR -> albumIds.sortedBy { get(it)?.year }
+            SortBy.YEAR -> albumIds.sortedBy { get(it)?.startYear }
         }
         return if (reverse) sorted.reversed() else sorted
     }
