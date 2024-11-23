@@ -18,12 +18,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -74,6 +78,10 @@ fun GenreGrid(
             context.symphony.groove.genre.sort(genreNames, sortBy, sortReverse)
         }
     }
+    val tileSize by context.symphony.settings.lastUsedGenreTileSize.flow.collectAsState()
+
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -97,6 +105,7 @@ fun GenreGrid(
                             )
                         )
                     },
+                    onShowSheet = { showBottomSheet = true }
                 )
             }
         },
@@ -113,7 +122,7 @@ fun GenreGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid { gridData ->
+                else -> ResponsiveGrid(tileSize) { gridData ->
                     itemsIndexed(
                         sortedGenreNames,
                         key = { i, x -> "$i-$x" },
@@ -177,6 +186,23 @@ fun GenreGrid(
                             }
                         }
                     }
+                }
+            }
+
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showBottomSheet = false },
+                    sheetState = sheetState
+                ) {
+                    ResponsiveGridSizeAdjust(
+                        context,
+                        tileSize,
+                        onTileSizeChange = {
+                            context.symphony.settings.lastUsedGenreTileSize.setValue(
+                                it
+                            )
+                        },
+                    )
                 }
             }
         }
