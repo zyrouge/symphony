@@ -3,9 +3,7 @@ package io.github.zyrouge.symphony.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -129,9 +128,12 @@ private fun AlbumHero(context: ViewContext, album: Album) {
             )
         },
         content = {
-            Column {
-                Text(album.name)
-                Row(modifier = Modifier.fillMaxWidth()) {
+            Row {
+                Column(
+                    Modifier
+                        .align(Alignment.Bottom)
+                        .weight(1f)) {
+                    Text(album.name)
                     if (album.artists.isNotEmpty()) {
                         Text(
                             album.artists.joinToString(),
@@ -139,7 +141,8 @@ private fun AlbumHero(context: ViewContext, album: Album) {
                                 .copy(fontWeight = FontWeight.Bold)
                         )
                     }
-                    Spacer(Modifier.weight(1f))
+                }
+                Column(Modifier.align(Alignment.Bottom)) {
                     Text(
                         album.duration.toString(),
                         style = MaterialTheme.typography.bodyMedium
