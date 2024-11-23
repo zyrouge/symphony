@@ -2,7 +2,6 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -128,27 +126,20 @@ private fun AlbumHero(context: ViewContext, album: Album) {
             )
         },
         content = {
-            Row {
-                Column(
-                    Modifier
-                        .align(Alignment.Bottom)
-                        .weight(1f)) {
-                    Text(album.name)
-                    if (album.artists.isNotEmpty()) {
-                        Text(
-                            album.artists.joinToString(),
-                            style = MaterialTheme.typography.bodyMedium
-                                .copy(fontWeight = FontWeight.Bold)
-                        )
-                    }
-                }
-                Column(Modifier.align(Alignment.Bottom)) {
+            Column {
+                Text(album.name)
+                if (album.artists.isNotEmpty()) {
                     Text(
-                        album.duration.toString(),
+                        album.artists.joinToString(),
                         style = MaterialTheme.typography.bodyMedium
                             .copy(fontWeight = FontWeight.Bold)
                     )
                 }
+                Text(
+                    album.duration.toString(),
+                    style = MaterialTheme.typography.bodyMedium
+                        .copy(fontWeight = FontWeight.Bold)
+                )
             }
         }
     )
