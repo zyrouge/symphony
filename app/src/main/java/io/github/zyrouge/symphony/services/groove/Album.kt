@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.services.groove
 
 import androidx.compose.runtime.Immutable
 import io.github.zyrouge.symphony.Symphony
+import kotlin.time.Duration
 
 @Immutable
 data class Album(
@@ -11,6 +12,7 @@ data class Album(
     var startYear: Int?,
     var endYear: Int?,
     var numberOfTracks: Int,
+    var duration: Duration,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.album.createArtworkImageRequest(id)

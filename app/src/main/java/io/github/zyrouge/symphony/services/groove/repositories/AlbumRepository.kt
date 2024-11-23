@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.math.max
 import kotlin.math.min
 
@@ -58,6 +59,7 @@ class AlbumRepository(private val symphony: Symphony) {
                     endYear = endYear?.let { old -> max(old, it) } ?: it
                 }
                 numberOfTracks++
+                duration += song.duration.milliseconds
             } ?: run {
                 _all.update {
                     it + albumId
@@ -70,6 +72,7 @@ class AlbumRepository(private val symphony: Symphony) {
                     startYear = song.year,
                     endYear = song.year,
                     numberOfTracks = 1,
+                    duration = song.duration.milliseconds,
                 )
             }
         }

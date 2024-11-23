@@ -135,6 +135,11 @@ private fun AlbumHero(context: ViewContext, album: Album) {
                             .copy(fontWeight = FontWeight.Bold)
                     )
                 }
+                Text(
+                    album.duration.toString(),
+                    style = MaterialTheme.typography.bodyMedium
+                        .copy(fontWeight = FontWeight.Bold)
+                )
             }
         }
     )
