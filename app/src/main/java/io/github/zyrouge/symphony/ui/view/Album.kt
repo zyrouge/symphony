@@ -1,7 +1,9 @@
 package io.github.zyrouge.symphony.ui.view
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
@@ -135,11 +138,19 @@ private fun AlbumHero(context: ViewContext, album: Album) {
                             .copy(fontWeight = FontWeight.Bold)
                     )
                 }
-                Text(
-                    album.duration.toString(),
-                    style = MaterialTheme.typography.bodyMedium
-                        .copy(fontWeight = FontWeight.Bold)
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    album.getDisplayYear()?.let {
+                        Text(
+                            it, style = MaterialTheme.typography.bodyMedium
+                                .copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                    Text(
+                        album.duration.toString(),
+                        style = MaterialTheme.typography.bodyMedium
+                            .copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     )
