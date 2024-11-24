@@ -111,6 +111,7 @@ fun QueueView(context: ViewContext) {
                     IconButton(
                         onClick = {
                             context.symphony.radio.stop()
+                            selectedSongIndices.clear()
                         }
                     ) {
                         Icon(Icons.Filled.ClearAll, null)
