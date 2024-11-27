@@ -274,11 +274,13 @@ data class Song(
         fun parseMultiValue(values: Set<String>, separators: Set<String>): Set<String> {
             val result = mutableSetOf<String>()
             for (x in values) {
-                val trimmed = x.trim()
-                if (trimmed.isEmpty()) {
-                    continue
+                for (y in x.trim().split(*separators.toTypedArray())) {
+                    val trimmed = y.trim()
+                    if (trimmed.isEmpty()) {
+                        continue
+                    }
+                    result.add(trimmed)
                 }
-                result.addAll(trimmed.split(*separators.toTypedArray()))
             }
             return result
         }
