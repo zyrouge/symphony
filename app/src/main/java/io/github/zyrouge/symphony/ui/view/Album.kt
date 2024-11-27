@@ -1,9 +1,13 @@
 package io.github.zyrouge.symphony.ui.view
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Album
@@ -21,9 +25,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
@@ -135,11 +141,20 @@ private fun AlbumHero(context: ViewContext, album: Album) {
                             .copy(fontWeight = FontWeight.Bold)
                     )
                 }
-                Text(
-                    album.duration.toString(),
-                    style = MaterialTheme.typography.bodyMedium
-                        .copy(fontWeight = FontWeight.Bold)
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    album.getDisplayYear()?.let {
+                        Text(
+                            it, style = MaterialTheme.typography.bodyMedium
+                                .copy(fontWeight = FontWeight.Bold)
+                        )
+                        CircleSeparator()
+                    }
+                    Text(
+                        album.duration.toString(),
+                        style = MaterialTheme.typography.bodyMedium
+                            .copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     )
@@ -159,4 +174,16 @@ private fun UnknownAlbum(context: ViewContext, albumId: String) {
             Text(context.symphony.t.UnknownAlbumX(albumId))
         }
     )
+}
+
+@Composable
+private fun CircleSeparator() {
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = .4f)
+    Canvas(modifier = Modifier.requiredSize(4.dp, 20.dp)) {
+        drawCircle(
+            color,
+            center = Offset(x = size.width / 2, y = size.height / 2),
+            radius = size.minDimension * .8f
+        )
+    }
 }
