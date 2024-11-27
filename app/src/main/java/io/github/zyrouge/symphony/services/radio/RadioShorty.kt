@@ -5,7 +5,9 @@ import kotlin.random.Random
 
 class RadioShorty(private val symphony: Symphony) {
     fun playPause() {
-        if (!symphony.radio.hasPlayer) return
+        if (!symphony.radio.hasPlayer) {
+            return
+        }
         when {
             symphony.radio.isPlaying -> symphony.radio.pause()
             else -> symphony.radio.resume()
@@ -13,7 +15,9 @@ class RadioShorty(private val symphony: Symphony) {
     }
 
     fun seekFromCurrent(offsetSecs: Int) {
-        if (!symphony.radio.hasPlayer) return
+        if (!symphony.radio.hasPlayer) {
+            return
+        }
         symphony.radio.currentPlaybackPosition?.run {
             val to = (played + (offsetSecs * 1000)).coerceIn(0..total)
             symphony.radio.seek(to)
@@ -36,7 +40,6 @@ class RadioShorty(private val symphony: Symphony) {
     }
 
     fun skip(): Boolean {
-        if (!symphony.radio.hasPlayer) return false
         return when {
             !symphony.radio.hasPlayer -> false
             symphony.radio.canJumpToNext() -> {
@@ -57,7 +60,9 @@ class RadioShorty(private val symphony: Symphony) {
         shuffle: Boolean = false,
     ) {
         symphony.radio.stop(ended = false)
-        if (songIds.isEmpty()) return
+        if (songIds.isEmpty()) {
+            return
+        }
         symphony.radio.queue.add(
             songIds,
             options = options.run {

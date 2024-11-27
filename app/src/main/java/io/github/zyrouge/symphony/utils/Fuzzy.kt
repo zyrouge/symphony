@@ -7,7 +7,9 @@ class FuzzySearchComparator(val input: String) {
     fun compareString(value: String) = Fuzzy.compare(input, value)
 
     fun compareCollection(values: Collection<String>): Int? {
-        if (values.isEmpty()) return null
+        if (values.isEmpty()) {
+            return null
+        }
         var score = 0
         values.forEach {
             score = max(score, compareString(it))

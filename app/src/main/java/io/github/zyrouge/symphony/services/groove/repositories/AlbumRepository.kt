@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
 
 class AlbumRepository(private val symphony: Symphony) {
     enum class SortBy {
@@ -88,7 +88,9 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     fun getIdFromSong(song: Song): String? {
-        if (song.album == null) return null
+        if (song.album == null) {
+            return null
+        }
         val artists = song.albumArtists.sorted().joinToString("-")
         return "${song.album}-${artists}"
     }

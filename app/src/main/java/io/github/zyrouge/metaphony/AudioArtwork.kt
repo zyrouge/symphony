@@ -1,23 +1,15 @@
 package io.github.zyrouge.metaphony
 
+import java.util.Objects
+
 data class AudioArtwork(
     val format: Format,
     val data: ByteArray,
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as AudioArtwork
-        if (format != other.format) return false
-        if (!data.contentEquals(other.data)) return false
-        return true
-    }
+    override fun equals(other: Any?) =
+        other is AudioArtwork && format != other.format && data.contentEquals(other.data)
 
-    override fun hashCode(): Int {
-        var result = format.hashCode()
-        result = 31 * result + data.contentHashCode()
-        return result
-    }
+    override fun hashCode() = Objects.hash(format, data)
 
     enum class Format(val extension: String, val mimeType: String) {
         Jpeg("jpg", "image/jpg"),

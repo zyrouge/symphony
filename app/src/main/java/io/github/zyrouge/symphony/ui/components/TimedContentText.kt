@@ -91,17 +91,25 @@ fun TimedContentText(
         snapshotFlow { currentPosition }
             .distinctUntilChanged()
             .collect {
-                if (!content.isSynced) return@collect
+                if (!content.isSynced) {
+                    return@collect
+                }
                 val isActiveIndexInvisible = activeIndex > -1 && visibleRange.run {
                     activeIndex < first && activeIndex > second
                 }
-                if (isActiveIndexInvisible) return@collect
+                if (isActiveIndexInvisible) {
+                    return@collect
+                }
                 val nActiveIndex = content.pairs.indexOfLast { x ->
                     x.first <= currentPosition
                 }
-                if (nActiveIndex == -1 || activeIndex == nActiveIndex) return@collect
+                if (nActiveIndex == -1 || activeIndex == nActiveIndex) {
+                    return@collect
+                }
                 activeIndex = nActiveIndex
-                if (scrollState.isScrollInProgress) return@collect
+                if (scrollState.isScrollInProgress) {
+                    return@collect
+                }
                 coroutineScope.launch {
                     val scrollIndex = calculateRelaxedScrollIndex(nActiveIndex, visibleRange)
                     scrollState.animateScrollToItem(scrollIndex)
@@ -141,7 +149,9 @@ fun TimedContentText(
                     .fillMaxWidth()
                     .pointerInput(Unit) {
                         detectTapGestures { _ ->
-                            if (!content.isSynced) return@detectTapGestures
+                            if (!content.isSynced) {
+                                return@detectTapGestures
+                            }
                             onSeek(i)
                             activeIndex = i
                             coroutineScope.launch {

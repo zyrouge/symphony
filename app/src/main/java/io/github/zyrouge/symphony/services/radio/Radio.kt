@@ -204,7 +204,9 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
 
     private fun pause(forceFade: Boolean = false, onFinish: () -> Unit) {
         player?.let {
-            if (!it.isPlaying) return@let
+            if (!it.isPlaying) {
+                return@let
+            }
             it.changeVolume(
                 to = RadioPlayer.MIN_VOLUME,
                 forceFade = forceFade,

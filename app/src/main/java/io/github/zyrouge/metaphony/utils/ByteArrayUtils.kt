@@ -14,9 +14,13 @@ internal fun ByteArray.xDecodeToLong(bitSize: Int = 8) = fold(0L) { value, x ->
 internal fun ByteArray.xSlice(from: Int = 0, to: Int = size) = copyOfRange(from, to)
 
 internal fun ByteArray.xStartsWith(prefix: ByteArray): Boolean {
-    if (size < prefix.size) return false
+    if (size < prefix.size) {
+        return false
+    }
     for ((i, x) in prefix.withIndex()) {
-        if (this[i] != x) return false
+        if (this[i] != x) {
+            return false
+        }
     }
     return true
 }
@@ -29,7 +33,9 @@ internal fun ByteArray.xIndexOf(delimiter: ByteArray, start: Int = 0): Int {
         val matched = delimiter.withIndex().all {
             it.value == this[i + it.index]
         }
-        if (matched) return i
+        if (matched) {
+            return i
+        }
     }
     return -1
 }

@@ -142,7 +142,9 @@ object ID3v2Frames {
     }
 
     private fun readTFrame(data: ByteArray): Set<String> {
-        if (data.isEmpty()) return emptySet()
+        if (data.isEmpty()) {
+            return emptySet()
+        }
         val decoded = decodeText(data.first(), data.xSlice(1))
         val values = decoded.split(SINGLE_ZERO_DELIMITER.decodeToString())
         return values.filter { it.isNotBlank() }.toSet()

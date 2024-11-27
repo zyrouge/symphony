@@ -116,7 +116,9 @@ class RadioSession(val symphony: Symphony) {
 
                 override fun onMediaButtonEvent(intent: Intent?): Boolean {
                     val handled = super.onMediaButtonEvent(intent)
-                    if (handled) return true
+                    if (handled) {
+                        return true
+                    }
                     val keyEvent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         intent?.getParcelableExtra(
                             Intent.EXTRA_KEY_EVENT,
