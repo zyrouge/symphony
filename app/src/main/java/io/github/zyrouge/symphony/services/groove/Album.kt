@@ -23,13 +23,4 @@ data class Album(
         symphony.settings.lastUsedAlbumSongsSortBy.value,
         symphony.settings.lastUsedAlbumSongsSortReverse.value,
     )
-    fun getDisplayYear(): String? {
-        if ((startYear == null) && (endYear == null)) {
-            return null
-        }
-        if (startYear == endYear) {
-            return startYear.toString()
-        }
-        return "%s-%s".format(startYear.toString(), endYear.toString())
-    }
 }

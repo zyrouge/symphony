@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Album
@@ -24,8 +26,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,9 +68,7 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
         topBar = {
             CenterAlignedTopAppBar(
                 navigationIcon = {
-                    IconButton(
-                        onClick = { context.navController.popBackStack() }
-                    ) {
+                    IconButton(onClick = { context.navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 },
@@ -115,7 +115,7 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
         },
         bottomBar = {
             AnimatedNowPlayingBottomBar(context)
-        }
+        },
     )
 }
 
@@ -128,7 +128,7 @@ private fun AlbumHero(context: ViewContext, album: Album) {
                 context,
                 album,
                 expanded = expanded,
-                onDismissRequest = onDismissRequest
+                onDismissRequest = onDismissRequest,
             )
         },
         content = {
@@ -137,38 +137,40 @@ private fun AlbumHero(context: ViewContext, album: Album) {
                 if (album.artists.isNotEmpty()) {
                     Text(
                         album.artists.joinToString(),
-                        style = MaterialTheme.typography.bodyMedium
-                            .copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    album.getDisplayYear()?.let {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    album.startYear?.let { startYear ->
+                        val endYear = album.endYear
+
                         Text(
-                            it, style = MaterialTheme.typography.bodyMedium
-                                .copy(fontWeight = FontWeight.Bold)
+                            when {
+                                endYear == null || startYear == endYear -> startYear.toString()
+                                else -> "$startYear - $endYear"
+                            },
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         CircleSeparator()
                     }
                     Text(
                         album.duration.toString(),
-                        style = MaterialTheme.typography.bodyMedium
-                            .copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
             }
-        }
-    )
+        })
 }
 
 @Composable
 private fun UnknownAlbum(context: ViewContext, albumId: String) {
     IconTextBody(
         icon = { modifier ->
-            Icon(
-                Icons.Filled.Album,
-                null,
-                modifier = modifier
-            )
+            Icon(Icons.Filled.Album, null, modifier = modifier)
         },
         content = {
             Text(context.symphony.t.UnknownAlbumX(albumId))
@@ -178,12 +180,9 @@ private fun UnknownAlbum(context: ViewContext, albumId: String) {
 
 @Composable
 private fun CircleSeparator() {
-    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = .4f)
-    Canvas(modifier = Modifier.requiredSize(4.dp, 20.dp)) {
-        drawCircle(
-            color,
-            center = Offset(x = size.width / 2, y = size.height / 2),
-            radius = size.minDimension * .8f
-        )
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
+
+    Canvas(modifier = Modifier.size(4.dp)) {
+        drawCircle(color)
     }
 }
