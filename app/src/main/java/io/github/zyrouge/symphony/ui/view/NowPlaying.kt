@@ -59,7 +59,7 @@ object NowPlayingViewRoute
 
 @Composable
 fun NowPlayingView(context: ViewContext) {
-    NowPlayingWithData(context) { data ->
+    NowPlayingObserver(context) { data ->
         when {
             data != null -> NowPlayingBody(context, data = data)
             else -> NothingPlaying(context)
@@ -68,7 +68,7 @@ fun NowPlayingView(context: ViewContext) {
 }
 
 @Composable
-fun NowPlayingWithData(
+fun NowPlayingObserver(
     context: ViewContext,
     content: @Composable (NowPlayingData?) -> Unit,
 ) {
@@ -79,6 +79,10 @@ fun NowPlayingWithData(
             queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
         }
     }
+    val isViable by remember(song) {
+        derivedStateOf { song != null }
+    }
+
     val isPlaying by context.symphony.radio.observatory.isPlaying.collectAsState()
     val currentLoopMode by context.symphony.radio.observatory.loopMode.collectAsState()
     val currentShuffleMode by context.symphony.radio.observatory.shuffleMode.collectAsState()
@@ -94,9 +98,6 @@ fun NowPlayingWithData(
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
     val controlsLayout by context.symphony.settings.nowPlayingControlsLayout.flow.collectAsState()
     val lyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.flow.collectAsState()
-    val isViable by remember(song) {
-        derivedStateOf { song != null }
-    }
 
     val data = when {
         isViable -> NowPlayingData(

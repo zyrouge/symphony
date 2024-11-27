@@ -41,7 +41,7 @@ object LyricsViewRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LyricsView(context: ViewContext) {
-    NowPlayingWithData(context) { data ->
+    NowPlayingObserver(context) { data ->
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
