@@ -23,6 +23,14 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
         }
     }
 
+    enum class State {
+        Unprepared,
+        Preparing,
+        Prepared,
+        Finished,
+        Destroyed,
+    }
+
     private val unsafeMediaPlayer: MediaPlayer
     private val mediaPlayer: MediaPlayer? get() = if (usable) unsafeMediaPlayer else null
     private var onPrepared: RadioPlayerOnPreparedListener? = null
@@ -32,7 +40,7 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
     private var fader: RadioEffects.Fader? = null
     private var playbackPositionUpdater: Timer? = null
 
-    var usable = false
+    var state = State.Unprepared
         private set
     var hasPlayedOnce = false
         private set
@@ -43,6 +51,7 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
     var pitch = DEFAULT_PITCH
         private set
 
+    val usable get() = state == State.Prepared
     val fadePlayback get() = symphony.settings.fadePlayback.value
     val audioSessionId get() = mediaPlayer?.audioSessionId
     val isPlaying get() = mediaPlayer?.isPlaying == true
@@ -62,17 +71,17 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
     init {
         unsafeMediaPlayer = MediaPlayer().also { ump ->
             ump.setOnPreparedListener {
-                usable = true
+                state = State.Prepared
                 ump.playbackParams.setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
                 createDurationTimer()
                 onPrepared?.invoke()
             }
             ump.setOnCompletionListener {
-                usable = false
+                state = State.Finished
                 onFinish?.invoke()
             }
             ump.setOnErrorListener { _, what, extra ->
-                usable = false
+                state = State.Destroyed
                 onError?.invoke(what, extra)
                 true
             }
@@ -81,17 +90,21 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
     }
 
     fun prepare() {
-        if (usable) {
-            onPrepared?.invoke()
-            return
+        when (state) {
+            State.Unprepared -> {
+                unsafeMediaPlayer.prepareAsync()
+                state = State.Preparing
+            }
+
+            State.Prepared -> onPrepared?.invoke()
+            else -> {}
         }
-        unsafeMediaPlayer.prepareAsync()
     }
 
     fun stop() = destroy()
 
     fun destroy() {
-        usable = false
+        state = State.Destroyed
         destroyDurationTimer()
         symphony.groove.coroutineScope.launch {
             unsafeMediaPlayer.stop()
