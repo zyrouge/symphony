@@ -123,19 +123,21 @@ class RadioQueue(private val symphony: Symphony) {
 
     fun setShuffleMode(to: Boolean) {
         currentShuffleMode = to
-        val currentSongId = getSongIdAt(currentSongIndex)!!
-        currentSongIndex = if (currentShuffleMode) {
-            val newQueue = originalQueue.toMutableList()
-            newQueue.removeAt(currentSongIndex)
-            newQueue.shuffle()
-            newQueue.add(0, currentSongId)
-            currentQueue.clear()
-            currentQueue.addAll(newQueue)
-            0
-        } else {
-            currentQueue.clear()
-            currentQueue.addAll(originalQueue)
-            currentQueue.indexOfFirst { it == currentSongId }
+        if (currentQueue.isNotEmpty()) {
+            val currentSongId = getSongIdAt(currentSongIndex) ?: getSongIdAt(0)!!
+            currentSongIndex = if (currentShuffleMode) {
+                val newQueue = originalQueue.toMutableList()
+                newQueue.removeAt(currentSongIndex)
+                newQueue.shuffle()
+                newQueue.add(0, currentSongId)
+                currentQueue.clear()
+                currentQueue.addAll(newQueue)
+                0
+            } else {
+                currentQueue.clear()
+                currentQueue.addAll(originalQueue)
+                currentQueue.indexOfFirst { it == currentSongId }
+            }
         }
         symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
