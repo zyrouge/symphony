@@ -17,9 +17,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -38,7 +36,8 @@ import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.components.MediaSortBar
 import io.github.zyrouge.symphony.ui.components.MediaSortBarScaffold
 import io.github.zyrouge.symphony.ui.components.ResponsiveGrid
-import io.github.zyrouge.symphony.ui.components.ResponsiveGridSizeAdjust
+import io.github.zyrouge.symphony.ui.components.ResponsiveGridColumns
+import io.github.zyrouge.symphony.ui.components.ResponsiveGridSizeAdjustBottomSheet
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.SquareGrooveTile
 import io.github.zyrouge.symphony.ui.components.label
@@ -160,10 +159,14 @@ private fun FoldersGrid(
             StringListUtils.sort(folders.keys.toList(), sortBy, sortReverse)
         }
     }
-    val tileSize by context.symphony.settings.lastUsedFoldersTileSize.flow.collectAsState()
-
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val horizontalGridColumns by context.symphony.settings.lastUsedFoldersHorizontalGridColumns.flow.collectAsState()
+    val verticalGridColumns by context.symphony.settings.lastUsedFoldersVerticalGridColumns.flow.collectAsState()
+    val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
+        derivedStateOf {
+            ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
+        }
+    }
+    var showModifyLayoutSheet by remember { mutableStateOf(false) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -182,7 +185,9 @@ private fun FoldersGrid(
                 label = {
                     Text(context.symphony.t.XFolders(folders.size.toString()))
                 },
-                onShowSheet = { showBottomSheet = true }
+                onShowModifyLayout = {
+                    showModifyLayoutSheet = true
+                }
             )
         },
         content = {
@@ -198,7 +203,7 @@ private fun FoldersGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid(tileSize) {
+                else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
                         sortedFolderNames,
                         key = { i, x -> "$i-$x" },
@@ -214,21 +219,22 @@ private fun FoldersGrid(
                 }
             }
 
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showBottomSheet = false },
-                    sheetState = sheetState
-                ) {
-                    ResponsiveGridSizeAdjust(
-                        context,
-                        tileSize,
-                        onTileSizeChange = {
-                            context.symphony.settings.lastUsedFoldersTileSize.setValue(
-                                it
-                            )
-                        },
-                    )
-                }
+            if (showModifyLayoutSheet) {
+                ResponsiveGridSizeAdjustBottomSheet(
+                    context,
+                    columns = gridColumns,
+                    onColumnsChange = {
+                        context.symphony.settings.lastUsedFoldersHorizontalGridColumns.setValue(
+                            it.horizontal
+                        )
+                        context.symphony.settings.lastUsedFoldersVerticalGridColumns.setValue(
+                            it.vertical
+                        )
+                    },
+                    onDismissRequest = {
+                        showModifyLayoutSheet = false
+                    }
+                )
             }
         }
     )

@@ -1,71 +1,97 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSliderDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import kotlin.math.max
-import kotlin.math.roundToInt
 
 data class ResponsiveGridData(val columnsCount: Int)
 
+data class ResponsiveGridColumns(val horizontal: Int, val vertical: Int) {
+    internal fun calculateColumns(height: Int, width: Int): Int {
+        val columns = when {
+            height > width -> vertical
+            else -> horizontal
+        }
+        val columnWidth = width / columns
+        return when {
+            columnWidth < MIN_GRID_WIDTH -> width / MIN_GRID_WIDTH
+            else -> columns
+        }
+    }
+
+    companion object {
+        const val MIN_GRID_WIDTH = 75
+        const val DEFAULT_HORIZONTAL_COLUMNS = 4
+        const val DEFAULT_VERTICAL_COLUMNS = 2
+    }
+}
+
 @Composable
-fun ResponsiveGrid(tileSize: Float = 200f, content: LazyGridScope.(ResponsiveGridData) -> Unit) {
+fun ResponsiveGrid(
+    columns: ResponsiveGridColumns,
+    content: LazyGridScope.(ResponsiveGridData) -> Unit,
+) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val cols =  max((this@BoxWithConstraints.maxWidth.value / tileSize).roundToInt(), 1)
+        val effectiveColumn = columns.calculateColumns(
+            this@BoxWithConstraints.maxHeight.value.toInt(),
+            this@BoxWithConstraints.maxWidth.value.toInt(),
+        )
         val gridState = rememberLazyGridState()
-        val responsiveGridData = ResponsiveGridData(columnsCount = cols)
+        val responsiveGridData = ResponsiveGridData(columnsCount = effectiveColumn)
 
         LazyVerticalGrid(
             state = gridState,
-            columns = GridCells.Fixed(cols),
-            modifier = Modifier.drawScrollBar(gridState, cols)
+            columns = GridCells.Fixed(effectiveColumn),
+            modifier = Modifier.drawScrollBar(gridState, effectiveColumn)
         ) {
             content(responsiveGridData)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResponsiveGridSizeAdjust(context: ViewContext, tileSize: Float, onTileSizeChange: (Float) -> Unit) {
-    Row(
-        modifier = Modifier.padding(
-            MenuDefaults.DropdownMenuItemContentPadding.run {
-                val horizontalPadding =
-                    calculateLeftPadding(LayoutDirection.Ltr)
-                PaddingValues(
-                    start = horizontalPadding.div(2),
-                    end = horizontalPadding.div(2),
-                )
-            },
-        )
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text(context.symphony.t.GridSize)
-            val width = LocalConfiguration.current.screenWidthDp.toFloat()
-            val stops = width / 100f
-            androidx.compose.material3.Slider(
-                modifier = Modifier.fillMaxWidth(),
-                value = stops - (width / tileSize) + 1,
-                onValueChange = { onTileSizeChange(width / (stops - it + 1)) },
-                valueRange = 1f..stops,
-                steps = (stops - 2).roundToInt(),
-            )
-        }
+fun ResponsiveGridSizeAdjustBottomSheet(
+    context: ViewContext,
+    columns: ResponsiveGridColumns,
+    onColumnsChange: (ResponsiveGridColumns) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    val isVertical = LocalConfiguration.current.run { screenHeightDp > screenWidthDp }
+    val maxWidth = LocalConfiguration.current.screenWidthDp
+    val maxColumns = maxWidth / ResponsiveGridColumns.MIN_GRID_WIDTH
+    val effectiveColumns = when {
+        isVertical -> columns.vertical
+        else -> columns.horizontal
     }
+
+    SettingsSliderDialog(
+        context,
+        title = {
+            Text(context.symphony.t.GridColumns)
+        },
+        initialValue = effectiveColumns.toFloat(),
+        range = 1f..maxColumns.toFloat(),
+        label = {
+            Text(it.toInt().toString())
+        },
+        onChange = {
+            val nColumns = when {
+                isVertical -> columns.copy(vertical = it.toInt())
+                else -> columns.copy(horizontal = it.toInt())
+            }
+            onColumnsChange(nColumns)
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

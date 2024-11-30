@@ -5,9 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -33,10 +31,14 @@ fun AlbumGrid(
             context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
         }
     }
-    val tileSize by context.symphony.settings.lastUsedAlbumsTileSize.flow.collectAsState()
-
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val horizontalGridColumns by context.symphony.settings.lastUsedAlbumsHorizontalGridColumns.flow.collectAsState()
+    val verticalGridColumns by context.symphony.settings.lastUsedAlbumsVerticalGridColumns.flow.collectAsState()
+    val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
+        derivedStateOf {
+            ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
+        }
+    }
+    var showModifyLayoutSheet by remember { mutableStateOf(false) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -56,7 +58,9 @@ fun AlbumGrid(
                 label = {
                     Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
                 },
-                onShowSheet = { showBottomSheet = true },
+                onShowModifyLayout = {
+                    showModifyLayoutSheet = true
+                },
             )
         },
         content = {
@@ -72,7 +76,7 @@ fun AlbumGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid(tileSize) {
+                else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
                         sortedAlbumIds,
                         key = { i, x -> "$i-$x" },
@@ -85,21 +89,22 @@ fun AlbumGrid(
                 }
             }
 
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showBottomSheet = false },
-                    sheetState = sheetState
-                ) {
-                    ResponsiveGridSizeAdjust(
-                        context,
-                        tileSize,
-                        onTileSizeChange = {
-                            context.symphony.settings.lastUsedAlbumsTileSize.setValue(
-                                it
-                            )
-                        },
-                    )
-                }
+            if (showModifyLayoutSheet) {
+                ResponsiveGridSizeAdjustBottomSheet(
+                    context,
+                    columns = gridColumns,
+                    onColumnsChange = {
+                        context.symphony.settings.lastUsedAlbumsHorizontalGridColumns.setValue(
+                            it.horizontal
+                        )
+                        context.symphony.settings.lastUsedAlbumsVerticalGridColumns.setValue(
+                            it.vertical
+                        )
+                    },
+                    onDismissRequest = {
+                        showModifyLayoutSheet = false
+                    }
+                )
             }
         }
     )

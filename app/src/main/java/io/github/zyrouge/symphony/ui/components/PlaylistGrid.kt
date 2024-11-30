@@ -6,9 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -35,10 +33,14 @@ fun PlaylistGrid(
             context.symphony.groove.playlist.sort(playlistIds, sortBy, sortReverse)
         }
     }
-    val tileSize by context.symphony.settings.lastUsedPlaylistsTileSize.flow.collectAsState()
-
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val horizontalGridColumns by context.symphony.settings.lastUsedPlaylistsHorizontalGridColumns.flow.collectAsState()
+    val verticalGridColumns by context.symphony.settings.lastUsedPlaylistsVerticalGridColumns.flow.collectAsState()
+    val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
+        derivedStateOf {
+            ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
+        }
+    }
+    var showModifyLayoutSheet by remember { mutableStateOf(false) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -63,7 +65,9 @@ fun PlaylistGrid(
                             )
                         )
                     },
-                    onShowSheet = { showBottomSheet = true },
+                    onShowModifyLayout = {
+                        showModifyLayoutSheet = true
+                    },
                 )
             }
         },
@@ -82,7 +86,7 @@ fun PlaylistGrid(
                     }
                 )
 
-                else -> ResponsiveGrid(tileSize) {
+                else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
                         sortedPlaylistIds,
                         key = { i, x -> "$i-$x" },
@@ -95,21 +99,22 @@ fun PlaylistGrid(
                 }
             }
 
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showBottomSheet = false },
-                    sheetState = sheetState
-                ) {
-                    ResponsiveGridSizeAdjust(
-                        context,
-                        tileSize,
-                        onTileSizeChange = {
-                            context.symphony.settings.lastUsedPlaylistsTileSize.setValue(
-                                it
-                            )
-                        },
-                    )
-                }
+            if (showModifyLayoutSheet) {
+                ResponsiveGridSizeAdjustBottomSheet(
+                    context,
+                    columns = gridColumns,
+                    onColumnsChange = {
+                        context.symphony.settings.lastUsedPlaylistsHorizontalGridColumns.setValue(
+                            it.horizontal
+                        )
+                        context.symphony.settings.lastUsedPlaylistsVerticalGridColumns.setValue(
+                            it.vertical
+                        )
+                    },
+                    onDismissRequest = {
+                        showModifyLayoutSheet = false
+                    }
+                )
             }
         }
     )

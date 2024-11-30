@@ -18,9 +18,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -78,10 +76,14 @@ fun GenreGrid(
             context.symphony.groove.genre.sort(genreNames, sortBy, sortReverse)
         }
     }
-    val tileSize by context.symphony.settings.lastUsedGenreTileSize.flow.collectAsState()
-
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val horizontalGridColumns by context.symphony.settings.lastUsedGenresHorizontalGridColumns.flow.collectAsState()
+    val verticalGridColumns by context.symphony.settings.lastUsedGenresVerticalGridColumns.flow.collectAsState()
+    val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
+        derivedStateOf {
+            ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
+        }
+    }
+    var showModifyLayoutSheet by remember { mutableStateOf(false) }
 
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -105,7 +107,9 @@ fun GenreGrid(
                             )
                         )
                     },
-                    onShowSheet = { showBottomSheet = true }
+                    onShowModifyLayout = {
+                        showModifyLayoutSheet = true
+                    },
                 )
             }
         },
@@ -122,7 +126,7 @@ fun GenreGrid(
                     content = { Text(context.symphony.t.DamnThisIsSoEmpty) }
                 )
 
-                else -> ResponsiveGrid(tileSize) { gridData ->
+                else -> ResponsiveGrid(gridColumns) { gridData ->
                     itemsIndexed(
                         sortedGenreNames,
                         key = { i, x -> "$i-$x" },
@@ -166,7 +170,7 @@ fun GenreGrid(
                                         )
                                     }
                                     Column(
-                                        modifier = Modifier.padding(20.dp),
+                                        modifier = Modifier.padding(8.dp, 16.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.Center,
                                     ) {
@@ -189,21 +193,22 @@ fun GenreGrid(
                 }
             }
 
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showBottomSheet = false },
-                    sheetState = sheetState
-                ) {
-                    ResponsiveGridSizeAdjust(
-                        context,
-                        tileSize,
-                        onTileSizeChange = {
-                            context.symphony.settings.lastUsedGenreTileSize.setValue(
-                                it
-                            )
-                        },
-                    )
-                }
+            if (showModifyLayoutSheet) {
+                ResponsiveGridSizeAdjustBottomSheet(
+                    context,
+                    columns = gridColumns,
+                    onColumnsChange = {
+                        context.symphony.settings.lastUsedGenresHorizontalGridColumns.setValue(
+                            it.horizontal
+                        )
+                        context.symphony.settings.lastUsedGenresVerticalGridColumns.setValue(
+                            it.vertical
+                        )
+                    },
+                    onDismissRequest = {
+                        showModifyLayoutSheet = false
+                    }
+                )
             }
         }
     )

@@ -50,46 +50,71 @@ fun SettingsSliderTile(
     }
 
     if (isOpen) {
-        var value by remember { mutableFloatStateOf(initialValue) }
-
-        ScaffoldDialog(
+        SettingsSliderDialog(
+            context,
+            title = title,
+            label = label,
+            initialValue = initialValue,
+            range = range,
+            onValue = onValue,
+            onChange = onChange,
+            onReset = onReset,
             onDismissRequest = {
                 isOpen = false
             },
-            title = title,
-            content = {
-                Slider(
-                    value = value,
-                    onChange = { nValue ->
-                        value = onValue(nValue)
-                    },
-                    range = range,
-                    label = label,
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .verticalScroll(rememberScrollState())
-                )
-            },
-            actions = {
-                onReset?.let {
-                    TextButton(
-                        onClick = {
-                            it()
-                            isOpen = false
-                        }
-                    ) {
-                        Text(context.symphony.t.Reset)
-                    }
-                }
-                TextButton(
-                    onClick = {
-                        onChange(value)
-                        isOpen = false
-                    }
-                ) {
-                    Text(context.symphony.t.Done)
-                }
-            },
         )
     }
+}
+
+@Composable
+fun SettingsSliderDialog(
+    context: ViewContext,
+    title: @Composable () -> Unit,
+    label: @Composable (Float) -> Unit,
+    initialValue: Float,
+    range: ClosedFloatingPointRange<Float>,
+    onValue: (Float) -> Float = { it },
+    onChange: (Float) -> Unit,
+    onReset: (() -> Unit)? = null,
+    onDismissRequest: () -> Unit,
+) {
+    var value by remember { mutableFloatStateOf(initialValue) }
+
+    ScaffoldDialog(
+        onDismissRequest = onDismissRequest,
+        title = title,
+        content = {
+            Slider(
+                value = value,
+                onChange = { nValue ->
+                    value = onValue(nValue)
+                },
+                range = range,
+                label = label,
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .verticalScroll(rememberScrollState())
+            )
+        },
+        actions = {
+            onReset?.let {
+                TextButton(
+                    onClick = {
+                        it()
+                        onDismissRequest()
+                    }
+                ) {
+                    Text(context.symphony.t.Reset)
+                }
+            }
+            TextButton(
+                onClick = {
+                    onChange(value)
+                    onDismissRequest()
+                }
+            ) {
+                Text(context.symphony.t.Done)
+            }
+        },
+    )
 }

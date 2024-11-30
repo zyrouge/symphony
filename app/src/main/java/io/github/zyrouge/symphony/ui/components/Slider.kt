@@ -23,79 +23,79 @@ import io.github.zyrouge.symphony.utils.RangeUtils
 
 @Composable
 fun Slider(
+    modifier: Modifier,
     value: Float,
-    onChange: (Float) -> Unit,
     range: ClosedFloatingPointRange<Float>,
     label: @Composable (Float) -> Unit,
-    modifier: Modifier,
-) = Column(
-    modifier = modifier
+    onChange: (Float) -> Unit,
 ) {
-    val ratio = RangeUtils.calculateRatioFromValue(value, range)
-    var pointerOffsetX = 0f
-    BoxWithConstraints(modifier = Modifier.padding(20.dp, 0.dp)) {
-        val height = 12.dp
-        val shape = RoundedCornerShape(height.div(2))
+    Column(modifier = modifier) {
+        val ratio = RangeUtils.calculateRatioFromValue(value, range)
+        var pointerOffsetX = 0f
 
-        Box(
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
-                    shape,
-                )
-                .fillMaxWidth()
-                .height(height)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            pointerOffsetX = offset.x
-                            val widthPx = this@BoxWithConstraints.maxWidth.toPx()
-                            val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
-                            val nValue =
-                                RangeUtils.calculateValueFromRatio(nRatio, range)
-                            onChange(nValue)
-                        }
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectHorizontalDragGestures(
-                        onDragStart = { offset ->
-                            pointerOffsetX = offset.x
-                        },
-                        onHorizontalDrag = { pointer, dragAmount ->
-                            pointer.consume()
-                            pointerOffsetX += dragAmount
-                            val widthPx = maxWidth.toPx()
-                            val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
-                            val nValue =
-                                RangeUtils.calculateValueFromRatio(nRatio, range)
-                            onChange(nValue)
-                        },
-                    )
-                }
-        ) {
+        BoxWithConstraints(modifier = Modifier.padding(20.dp, 0.dp)) {
+            val height = 12.dp
+            val shape = RoundedCornerShape(height.div(2))
+
             Box(
                 modifier = Modifier
                     .background(
-                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.surfaceVariant,
                         shape,
                     )
-                    .fillMaxWidth(ratio)
+                    .fillMaxWidth()
                     .height(height)
-            )
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { offset ->
+                                pointerOffsetX = offset.x
+                                val widthPx = this@BoxWithConstraints.maxWidth.toPx()
+                                val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
+                                val nValue = RangeUtils.calculateValueFromRatio(nRatio, range)
+                                onChange(nValue)
+                            }
+                        )
+                    }
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures(
+                            onDragStart = { offset ->
+                                pointerOffsetX = offset.x
+                            },
+                            onHorizontalDrag = { pointer, dragAmount ->
+                                pointer.consume()
+                                pointerOffsetX += dragAmount
+                                val widthPx = maxWidth.toPx()
+                                val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
+                                val nValue =
+                                    RangeUtils.calculateValueFromRatio(nRatio, range)
+                                onChange(nValue)
+                            },
+                        )
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.primary,
+                            shape,
+                        )
+                        .fillMaxWidth(ratio)
+                        .height(height)
+                )
+            }
         }
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    ProvideTextStyle(MaterialTheme.typography.labelMedium) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp, 0.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            label(range.start)
-            label(value)
-            label(range.endInclusive)
+        Spacer(modifier = Modifier.height(8.dp))
+        ProvideTextStyle(MaterialTheme.typography.labelMedium) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp, 0.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                label(range.start)
+                label(value)
+                label(range.endInclusive)
+            }
         }
     }
 }

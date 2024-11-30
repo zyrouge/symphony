@@ -746,7 +746,7 @@ name = "UseMetaphonyMetadataDecoder"
 name = "PlayStore"
 
 [[keys]]
-name = "GridSize"
+name = "GaplessPlayback"
 
 [[keys]]
-name = "GaplessPlayback"
+name = "GridColumns"

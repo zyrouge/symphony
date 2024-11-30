@@ -47,7 +47,7 @@ fun <T : Enum<T>> MediaSortBar(
     onSortChange: (T) -> Unit,
     label: @Composable () -> Unit,
     onShufflePlay: (() -> Unit)? = null,
-    onShowSheet: (() -> Unit)? = null,
+    onShowModifyLayout: (() -> Unit)? = null,
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     val currentTextStyle = MaterialTheme.typography.bodySmall.run {
@@ -74,7 +74,10 @@ fun <T : Enum<T>> MediaSortBar(
                 onClick = { onReverseChange(!reverse) }
             ) {
                 Icon(
-                    if (reverse) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
+                    when {
+                        reverse -> Icons.Filled.ArrowDownward
+                        else -> Icons.Filled.ArrowUpward
+                    },
                     null,
                     modifier = iconModifier,
                 )
@@ -100,8 +103,7 @@ fun <T : Enum<T>> MediaSortBar(
 
                         DropdownMenuItem(
                             contentPadding = MenuDefaults.DropdownMenuItemContentPadding.run {
-                                val horizontalPadding =
-                                    calculateLeftPadding(LayoutDirection.Ltr)
+                                val horizontalPadding = calculateLeftPadding(LayoutDirection.Ltr)
                                 PaddingValues(
                                     start = horizontalPadding.div(2),
                                     end = horizontalPadding.times(4),
@@ -121,15 +123,9 @@ fun <T : Enum<T>> MediaSortBar(
                     }
                 }
             }
-            onShowSheet?.let {
-                IconButton(
-                    { onShowSheet() }
-                ) {
-                    Icon(
-                        Icons.Filled.GridView,
-                        null,
-                        modifier = iconModifier,
-                    )
+            onShowModifyLayout?.let {
+                IconButton(onClick = it) {
+                    Icon(Icons.Filled.GridView, null, modifier = iconModifier)
                 }
             }
         }
