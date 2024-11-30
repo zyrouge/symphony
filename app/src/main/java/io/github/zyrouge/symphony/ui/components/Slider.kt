@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -18,6 +19,7 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.utils.RangeUtils
 
@@ -75,25 +77,35 @@ fun Slider(
             ) {
                 Box(
                     modifier = Modifier
-                        .background(
-                            MaterialTheme.colorScheme.primary,
-                            shape,
-                        )
+                        .background(MaterialTheme.colorScheme.primary, shape)
+                        .animateContentSize()
                         .fillMaxWidth(ratio)
                         .height(height)
                 )
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        ProvideTextStyle(MaterialTheme.typography.labelMedium) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp, 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            val highlightedTextStyle = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+            )
+            val markerTextStyle = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            )
+
+            ProvideTextStyle(markerTextStyle) {
                 label(range.start)
+            }
+            ProvideTextStyle(highlightedTextStyle) {
                 label(value)
+            }
+            ProvideTextStyle(markerTextStyle) {
                 label(range.endInclusive)
             }
         }

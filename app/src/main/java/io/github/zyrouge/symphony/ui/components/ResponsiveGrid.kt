@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSliderDialog
@@ -70,9 +73,13 @@ fun ResponsiveGridSizeAdjustBottomSheet(
     val isVertical = LocalConfiguration.current.run { screenHeightDp > screenWidthDp }
     val maxWidth = LocalConfiguration.current.screenWidthDp
     val maxColumns = maxWidth / ResponsiveGridColumns.MIN_GRID_WIDTH
-    val effectiveColumns = when {
-        isVertical -> columns.vertical
-        else -> columns.horizontal
+    val effectiveColumns by remember(isVertical, columns) {
+        derivedStateOf {
+            when {
+                isVertical -> columns.vertical
+                else -> columns.horizontal
+            }
+        }
     }
 
     SettingsSliderDialog(
@@ -84,6 +91,9 @@ fun ResponsiveGridSizeAdjustBottomSheet(
         range = 1f..maxColumns.toFloat(),
         label = {
             Text(it.toInt().toString())
+        },
+        onValue = {
+            it.toInt().toFloat()
         },
         onChange = {
             val nColumns = when {
