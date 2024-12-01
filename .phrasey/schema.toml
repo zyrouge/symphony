@@ -753,3 +753,6 @@ name = "GridColumns"
 
 [[keys]]
 name = "CaseSensitiveSorting"
+
+[[keys]]
+name = "KeepScreenAwakeOnLyrics"

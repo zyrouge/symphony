@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.Wysiwyg
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Forward30
+import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -47,6 +48,7 @@ fun NowPlayingSettingsView(context: ViewContext) {
     val nowPlayingAdditionalInfo by context.symphony.settings.nowPlayingAdditionalInfo.flow.collectAsState()
     val nowPlayingSeekControls by context.symphony.settings.nowPlayingSeekControls.flow.collectAsState()
     val nowPlayingLyricsLayout by context.symphony.settings.nowPlayingLyricsLayout.flow.collectAsState()
+    val lyricsKeepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -136,6 +138,19 @@ fun NowPlayingSettingsView(context: ViewContext) {
                         value = nowPlayingSeekControls,
                         onChange = { value ->
                             context.symphony.settings.nowPlayingSeekControls.setValue(value)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.Lyrics, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.KeepScreenAwakeOnLyrics)
+                        },
+                        value = lyricsKeepScreenAwake,
+                        onChange = { value ->
+                            context.symphony.settings.lyricsKeepScreenAwake.setValue(value)
                         }
                     )
                 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.ui.components.KeepScreenAwake
 import io.github.zyrouge.symphony.ui.components.LyricsText
 import io.github.zyrouge.symphony.ui.components.TimedContentTextStyle
 import io.github.zyrouge.symphony.ui.components.swipeable
@@ -68,6 +69,12 @@ fun NowPlayingBodyCover(
 
 @Composable
 private fun NowPlayingBodyCoverLyrics(context: ViewContext, orientation: ScreenOrientation) {
+    val keepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsState()
+
+    if (keepScreenAwake) {
+        KeepScreenAwake()
+    }
+    
     Box(
         modifier = Modifier
             .fillMaxSize()

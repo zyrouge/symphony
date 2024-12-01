@@ -20,11 +20,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
+import io.github.zyrouge.symphony.ui.components.KeepScreenAwake
 import io.github.zyrouge.symphony.ui.components.LyricsText
 import io.github.zyrouge.symphony.ui.components.TimedContentTextStyle
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -41,6 +44,12 @@ object LyricsViewRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LyricsView(context: ViewContext) {
+    val keepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsState()
+
+    if (keepScreenAwake) {
+        KeepScreenAwake()
+    }
+
     NowPlayingObserver(context) { data ->
         Scaffold(
             modifier = Modifier.fillMaxSize(),
