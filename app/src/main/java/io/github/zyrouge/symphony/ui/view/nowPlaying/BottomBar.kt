@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.view.nowPlaying
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.launch
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +25,6 @@ import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -159,8 +159,10 @@ fun NowPlayingBodyBottomBar(
                 Icon(
                     Icons.Filled.Shuffle,
                     null,
-                    tint = if (!currentShuffleMode) LocalContentColor.current
-                    else MaterialTheme.colorScheme.primary
+                    tint = when {
+                        currentShuffleMode -> MaterialTheme.colorScheme.primary
+                        else -> LocalContentColor.current
+                    },
                 )
             }
             IconButton(
@@ -224,13 +226,14 @@ fun NowPlayingBodyBottomBar(
 
             ModalBottomSheet(
                 sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.surface,
                 onDismissRequest = {
                     showExtraOptions = false
                 },
             ) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    Card(
-                        onClick = {
+                    ListItem(
+                        modifier = Modifier.clickable {
                             closeBottomSheet()
                             try {
                                 equalizerActivity.launch()
@@ -248,109 +251,94 @@ fun NowPlayingBodyBottomBar(
                                     Toast.LENGTH_SHORT,
                                 ).show()
                             }
-                        }
-                    ) {
-                        ListItem(
-                            leadingContent = {
-                                Icon(Icons.Filled.GraphicEq, null)
-                            },
-                            headlineContent = {
-                                Text(context.symphony.t.Equalizer)
-                            },
-                        )
-                    }
-                    Card(
-                        onClick = {
+                        },
+                        leadingContent = {
+                            Icon(Icons.Filled.GraphicEq, null)
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.Equalizer)
+                        },
+                    )
+                    ListItem(
+                        modifier = Modifier.clickable {
                             closeBottomSheet()
                             context.symphony.radio.setPauseOnCurrentSongEnd(!pauseOnCurrentSongEnd)
-                        }
-                    ) {
-                        ListItem(
-                            leadingContent = {
-                                Icon(
-                                    Icons.Filled.MotionPhotosPaused,
-                                    null,
-                                    tint = when {
-                                        pauseOnCurrentSongEnd -> MaterialTheme.colorScheme.primary
-                                        else -> LocalContentColor.current
-                                    }
-                                )
-                            },
-                            headlineContent = {
-                                Text(context.symphony.t.PauseOnCurrentSongEnd)
-                            },
-                            supportingContent = {
-                                Text(
-                                    if (pauseOnCurrentSongEnd) context.symphony.t.Enabled
-                                    else context.symphony.t.Disabled
-                                )
-                            },
-                        )
-                    }
-                    Card(
-                        onClick = {
+                        },
+                        leadingContent = {
+                            Icon(
+                                Icons.Filled.MotionPhotosPaused,
+                                null,
+                                tint = when {
+                                    pauseOnCurrentSongEnd -> MaterialTheme.colorScheme.primary
+                                    else -> LocalContentColor.current
+                                }
+                            )
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.PauseOnCurrentSongEnd)
+                        },
+                        supportingContent = {
+                            Text(
+                                if (pauseOnCurrentSongEnd) context.symphony.t.Enabled
+                                else context.symphony.t.Disabled
+                            )
+                        },
+                    )
+                    ListItem(
+                        modifier = Modifier.clickable {
                             closeBottomSheet()
                             showSleepTimerDialog = !showSleepTimerDialog
-                        }
-                    ) {
-                        ListItem(
-                            leadingContent = {
-                                Icon(
-                                    Icons.Outlined.Timer,
-                                    null,
-                                    tint = when {
-                                        hasSleepTimer -> MaterialTheme.colorScheme.primary
-                                        else -> LocalContentColor.current
-                                    }
-                                )
-                            },
-                            headlineContent = {
-                                Text(context.symphony.t.SleepTimer)
-                            },
-                            supportingContent = {
-                                Text(
-                                    if (hasSleepTimer) context.symphony.t.Enabled
-                                    else context.symphony.t.Disabled
-                                )
-                            },
-                        )
-                    }
-                    Card(
-                        onClick = {
+                        },
+                        leadingContent = {
+                            Icon(
+                                Icons.Outlined.Timer,
+                                null,
+                                tint = when {
+                                    hasSleepTimer -> MaterialTheme.colorScheme.primary
+                                    else -> LocalContentColor.current
+                                }
+                            )
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.SleepTimer)
+                        },
+                        supportingContent = {
+                            Text(
+                                if (hasSleepTimer) context.symphony.t.Enabled
+                                else context.symphony.t.Disabled
+                            )
+                        },
+                    )
+                    ListItem(
+                        modifier = Modifier.clickable {
                             closeBottomSheet()
                             showSpeedDialog = !showSpeedDialog
-                        }
-                    ) {
-                        ListItem(
-                            leadingContent = {
-                                Icon(Icons.Outlined.Speed, null)
-                            },
-                            headlineContent = {
-                                Text(context.symphony.t.Speed)
-                            },
-                            supportingContent = {
-                                Text("x${data.currentSpeed}")
-                            },
-                        )
-                    }
-                    Card(
-                        onClick = {
+                        },
+                        leadingContent = {
+                            Icon(Icons.Outlined.Speed, null)
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.Speed)
+                        },
+                        supportingContent = {
+                            Text("x${data.currentSpeed}")
+                        },
+                    )
+                    ListItem(
+                        modifier = Modifier.clickable {
                             closeBottomSheet()
                             showPitchDialog = !showPitchDialog
-                        }
-                    ) {
-                        ListItem(
-                            leadingContent = {
-                                Icon(Icons.Outlined.Speed, null)
-                            },
-                            headlineContent = {
-                                Text(context.symphony.t.Pitch)
-                            },
-                            supportingContent = {
-                                Text("x${data.currentPitch}")
-                            },
-                        )
-                    }
+                        },
+                        leadingContent = {
+                            Icon(Icons.Outlined.Speed, null)
+                        },
+                        headlineContent = {
+                            Text(context.symphony.t.Pitch)
+                        },
+                        supportingContent = {
+                            Text("x${data.currentPitch}")
+                        },
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }

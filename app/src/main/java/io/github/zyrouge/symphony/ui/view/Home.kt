@@ -354,6 +354,7 @@ fun HomeView(context: ViewContext) {
 
         ModalBottomSheet(
             sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surface,
             onDismissRequest = {
                 showTabsSheet = false
             },
