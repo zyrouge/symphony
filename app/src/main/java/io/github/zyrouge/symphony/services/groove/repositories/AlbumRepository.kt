@@ -69,7 +69,11 @@ class AlbumRepository(private val symphony: Symphony) {
                 Album(
                     id = albumId,
                     name = song.album!!,
-                    artists = song.artists.toMutableSet(),
+                    artists = mutableSetOf<String>().apply {
+                        // ensure that album artists are first
+                        addAll(song.albumArtists)
+                        addAll(song.artists)
+                    },
                     startYear = song.year,
                     endYear = song.year,
                     numberOfTracks = 1,
