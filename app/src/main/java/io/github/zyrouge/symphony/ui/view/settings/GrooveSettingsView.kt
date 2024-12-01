@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SpaceBar
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -79,6 +80,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     val genreTagSeparators by context.symphony.settings.genreTagSeparators.flow.collectAsState()
     val mediaFolders by context.symphony.settings.mediaFolders.flow.collectAsState()
     val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsState()
+    val caseSensitiveSorting by context.symphony.settings.caseSensitiveSorting.flow.collectAsState()
     val useMetaphony by context.symphony.settings.useMetaphony.flow.collectAsState()
 
     Scaffold(
@@ -237,6 +239,19 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             .associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.artworkQuality.setValue(value)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.TextFields, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.CaseSensitiveSorting)
+                        },
+                        value = caseSensitiveSorting,
+                        onChange = { value ->
+                            context.symphony.settings.caseSensitiveSorting.setValue(value)
                         }
                     )
                     HorizontalDivider()

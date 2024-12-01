@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.services.groove.repositories
 
 import android.net.Uri
 import androidx.core.net.toUri
+import io.github.zyrouge.metaphony.utils.withCase
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Assets
@@ -86,17 +87,24 @@ class SongRepository(private val symphony: Symphony) {
         .search(terms, songIds, maxLength = limit)
 
     fun sort(songIds: List<String>, by: SortBy, reverse: Boolean): List<String> {
+        val sensitive = symphony.settings.caseSensitiveSorting.value
         val sorted = when (by) {
             SortBy.CUSTOM -> songIds
-            SortBy.TITLE -> songIds.sortedBy { get(it)?.title }
-            SortBy.ARTIST -> songIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
-            SortBy.ALBUM -> songIds.sortedBy { get(it)?.album }
+            SortBy.TITLE -> songIds.sortedBy { get(it)?.title?.withCase(sensitive) }
+            SortBy.ARTIST -> songIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty(sensitive) }
+            SortBy.ALBUM -> songIds.sortedBy { get(it)?.album?.withCase(sensitive) }
             SortBy.DURATION -> songIds.sortedBy { get(it)?.duration }
             SortBy.DATE_MODIFIED -> songIds.sortedBy { get(it)?.dateModified }
-            SortBy.COMPOSER -> songIds.sortedBy { get(it)?.composers?.joinToStringIfNotEmpty() }
-            SortBy.ALBUM_ARTIST -> songIds.sortedBy { get(it)?.albumArtists?.joinToStringIfNotEmpty() }
+            SortBy.COMPOSER -> songIds.sortedBy {
+                get(it)?.composers?.joinToStringIfNotEmpty(sensitive)
+            }
+
+            SortBy.ALBUM_ARTIST -> songIds.sortedBy {
+                get(it)?.albumArtists?.joinToStringIfNotEmpty(sensitive)
+            }
+
             SortBy.YEAR -> songIds.sortedBy { get(it)?.year }
-            SortBy.FILENAME -> songIds.sortedBy { get(it)?.filename }
+            SortBy.FILENAME -> songIds.sortedBy { get(it)?.filename?.withCase(sensitive) }
             SortBy.TRACK_NUMBER -> songIds.sortedWith(
                 compareBy({ get(it)?.discNumber }, { get(it)?.trackNumber }),
             )

@@ -25,5 +25,6 @@ internal fun String.xSplitToPairOrNull(delimiter: String): Pair<String, String>?
 
 internal fun String.xIntBeforeSlashOrNull() = xSplitToPairOrNull("/")?.first?.toIntOrNull()
 internal fun String.xIntAfterSlashOrNull() = xSplitToPairOrNull("/")?.second?.toIntOrNull()
-
 internal fun String.xIntBeforeSlashOrIntOrNull() = xIntBeforeSlashOrNull() ?: toIntOrNull()
+
+internal fun String.withCase(sensitive: Boolean) = if (!sensitive) lowercase() else this

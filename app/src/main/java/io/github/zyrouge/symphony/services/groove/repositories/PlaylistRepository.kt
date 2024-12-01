@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.groove.repositories
 
 import android.net.Uri
+import io.github.zyrouge.metaphony.utils.withCase
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.utils.ActivityUtils
@@ -105,6 +106,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         .search(terms, playlistIds, maxLength = limit)
 
     fun sort(playlistIds: List<String>, by: SortBy, reverse: Boolean): List<String> {
+        val sensitive = symphony.settings.caseSensitiveSorting.value
         val sorted = when (by) {
             SortBy.CUSTOM -> {
                 val prefix = listOfNotNull(FAVORITE_PLAYLIST)
@@ -113,7 +115,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 prefix + others
             }
 
-            SortBy.TITLE -> playlistIds.sortedBy { get(it)?.title }
+            SortBy.TITLE -> playlistIds.sortedBy { get(it)?.title?.withCase(sensitive) }
             SortBy.TRACKS_COUNT -> playlistIds.sortedBy { get(it)?.numberOfTracks }
         }
         return if (reverse) sorted.reversed() else sorted

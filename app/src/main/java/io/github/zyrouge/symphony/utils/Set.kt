@@ -1,8 +1,11 @@
 package io.github.zyrouge.symphony.utils
 
+import io.github.zyrouge.metaphony.utils.withCase
 import java.util.concurrent.ConcurrentHashMap
 
 fun Set<String>.joinToStringIfNotEmpty() = if (isNotEmpty()) joinToString() else null
+fun Set<String>.joinToStringIfNotEmpty(sensitive: Boolean) =
+    joinToStringIfNotEmpty()?.withCase(sensitive)
 
 typealias ConcurrentSet<T> = ConcurrentHashMap.KeySetView<T, Boolean>
 

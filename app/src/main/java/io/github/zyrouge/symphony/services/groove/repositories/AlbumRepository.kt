@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.services.groove.repositories
 
+import io.github.zyrouge.metaphony.utils.withCase
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Album
 import io.github.zyrouge.symphony.services.groove.Song
@@ -109,10 +110,14 @@ class AlbumRepository(private val symphony: Symphony) {
         .search(terms, albumIds, maxLength = limit)
 
     fun sort(albumIds: List<String>, by: SortBy, reverse: Boolean): List<String> {
+        val sensitive = symphony.settings.caseSensitiveSorting.value
         val sorted = when (by) {
             SortBy.CUSTOM -> albumIds
-            SortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name }
-            SortBy.ARTIST_NAME -> albumIds.sortedBy { get(it)?.artists?.joinToStringIfNotEmpty() }
+            SortBy.ALBUM_NAME -> albumIds.sortedBy { get(it)?.name?.withCase(sensitive) }
+            SortBy.ARTIST_NAME -> albumIds.sortedBy {
+                get(it)?.artists?.joinToStringIfNotEmpty(sensitive)
+            }
+
             SortBy.TRACKS_COUNT -> albumIds.sortedBy { get(it)?.numberOfTracks }
             SortBy.YEAR -> albumIds.sortedBy { get(it)?.startYear }
         }

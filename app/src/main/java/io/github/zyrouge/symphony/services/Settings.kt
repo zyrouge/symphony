@@ -326,6 +326,7 @@ class Settings(private val symphony: Symphony) {
     )
     val useMetaphony = BooleanEntry("use_metaphony", true)
     val gaplessPlayback = BooleanEntry("gapless_playback", true)
+    val caseSensitiveSorting = BooleanEntry("case_sensitive_sorting", false)
 
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)

@@ -750,3 +750,6 @@ name = "GaplessPlayback"
 
 [[keys]]
 name = "GridColumns"
+
+[[keys]]
+name = "CaseSensitiveSorting"
