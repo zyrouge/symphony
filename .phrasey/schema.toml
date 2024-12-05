@@ -756,3 +756,6 @@ name = "CaseSensitiveSorting"
 
 [[keys]]
 name = "KeepScreenAwakeOnLyrics"
+
+[[keys]]
+name = "MinSongDurationFilter"
