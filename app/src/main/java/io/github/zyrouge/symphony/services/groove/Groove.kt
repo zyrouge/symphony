@@ -58,9 +58,27 @@ class Groove(private val symphony: Symphony) : Symphony.Hooks {
         }.join()
     }
 
-    suspend fun refetch() {
-        reset()
-        fetch()
+    private suspend fun clearCache() {
+        symphony.database.songCache.clear()
+        symphony.database.artworkCache.clear()
+        symphony.database.lyricsCache.clear()
+    }
+
+    data class FetchOptions(
+        val resetInMemoryCache: Boolean = false,
+        val resetPersistentCache: Boolean = false,
+    )
+
+    fun fetch(options: FetchOptions) {
+        coroutineScope.launch {
+            if (options.resetInMemoryCache) {
+                reset()
+            }
+            if (options.resetPersistentCache) {
+                clearCache()
+            }
+            fetch()
+        }
     }
 
     override fun onSymphonyReady() {

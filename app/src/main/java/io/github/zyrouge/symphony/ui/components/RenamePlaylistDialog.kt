@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -21,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import kotlinx.coroutines.launch
 
 @Composable
 fun RenamePlaylistDialog(
@@ -30,7 +28,6 @@ fun RenamePlaylistDialog(
     onRename: () -> Unit = {},
     onDismissRequest: () -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     var input by remember { mutableStateOf(playlist.title) }
     val focusRequester = remember { FocusRequester() }
 
@@ -70,9 +67,7 @@ fun RenamePlaylistDialog(
                 onClick = {
                     onRename()
                     onDismissRequest()
-                    coroutineScope.launch {
-                        context.symphony.groove.playlist.renamePlaylist(playlist, input)
-                    }
+                    context.symphony.groove.playlist.renamePlaylist(playlist, input)
                 }
             ) {
                 Text(context.symphony.t.Done)

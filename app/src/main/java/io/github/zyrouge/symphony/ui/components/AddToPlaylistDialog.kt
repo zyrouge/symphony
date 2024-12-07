@@ -17,14 +17,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.mutate
-import kotlinx.coroutines.launch
 
 @Composable
 fun AddToPlaylistDialog(
@@ -32,7 +30,6 @@ fun AddToPlaylistDialog(
     songIds: List<String>,
     onDismissRequest: () -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     var showNewPlaylistDialog by remember { mutableStateOf(false) }
     val allPlaylistsIds by context.symphony.groove.playlist.all.collectAsState()
     val playlists by remember(allPlaylistsIds) {
@@ -83,13 +80,11 @@ fun AddToPlaylistDialog(
                                 )
                             },
                             onClick = {
-                                coroutineScope.launch {
-                                    context.symphony.groove.playlist.update(
-                                        playlist.id,
-                                        playlistSongIds.mutate { addAll(songIds) },
-                                    )
-                                    onDismissRequest()
-                                }
+                                context.symphony.groove.playlist.update(
+                                    playlist.id,
+                                    playlistSongIds.mutate { addAll(songIds) },
+                                )
+                                onDismissRequest()
                             }
                         )
                     }
@@ -115,9 +110,7 @@ fun AddToPlaylistDialog(
             context = context,
             onDone = { playlist ->
                 showNewPlaylistDialog = false
-                coroutineScope.launch {
-                    context.symphony.groove.playlist.add(playlist)
-                }
+                context.symphony.groove.playlist.add(playlist)
             },
             onDismissRequest = {
                 showNewPlaylistDialog = false

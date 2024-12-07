@@ -91,7 +91,6 @@ import io.github.zyrouge.symphony.ui.view.home.GenresView
 import io.github.zyrouge.symphony.ui.view.home.PlaylistsView
 import io.github.zyrouge.symphony.ui.view.home.SongsView
 import io.github.zyrouge.symphony.ui.view.home.TreeView
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 enum class HomePage(
@@ -229,9 +228,9 @@ fun HomeView(context: ViewContext) {
                                     onClick = {
                                         showOptionsDropdown = false
                                         context.symphony.radio.stop()
-                                        coroutineScope.launch {
-                                            context.symphony.groove.refetch()
-                                        }
+                                        context.symphony.groove.fetch(
+                                            Groove.FetchOptions(resetInMemoryCache = true),
+                                        )
                                     }
                                 )
                                 DropdownMenuItem(

@@ -35,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +50,6 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.view.PlaylistViewRoute
 import io.github.zyrouge.symphony.utils.Logger
-import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistTile(context: ViewContext, playlist: Playlist) {
@@ -139,7 +137,6 @@ fun PlaylistDropdownMenu(
     onDelete: (() -> Unit) = {},
     onDismissRequest: () -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val savePlaylistLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument(MediaExposer.MIMETYPE_M3U)
     ) { uri ->
@@ -314,11 +311,9 @@ fun PlaylistDropdownMenu(
             context,
             selectedSongIds = playlist.getSongIds(context.symphony),
             onDone = {
-                coroutineScope.launch {
-                    context.symphony.groove.playlist.update(playlist.id, it)
-                    onSongsChanged()
-                    showSongsPicker = false
-                }
+                context.symphony.groove.playlist.update(playlist.id, it)
+                onSongsChanged()
+                showSongsPicker = false
             }
         )
     }
@@ -333,12 +328,10 @@ fun PlaylistDropdownMenu(
                 Text(context.symphony.t.AreYouSureThatYouWantToDeleteThisPlaylist)
             },
             onResult = { result ->
-                coroutineScope.launch {
-                    showDeleteDialog = false
-                    if (result) {
-                        onDelete()
-                        context.symphony.groove.playlist.delete(playlist.id)
-                    }
+                showDeleteDialog = false
+                if (result) {
+                    onDelete()
+                    context.symphony.groove.playlist.delete(playlist.id)
                 }
             }
         )

@@ -21,7 +21,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,11 +33,9 @@ import io.github.zyrouge.symphony.ui.components.PlaylistGrid
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.Logger
-import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistsView(context: ViewContext) {
-    val coroutineScope = rememberCoroutineScope()
     val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
     val playlists by context.symphony.groove.playlist.all.collectAsState()
     val playlistsCount by context.symphony.groove.playlist.count.collectAsState()
@@ -50,10 +47,8 @@ fun PlaylistsView(context: ViewContext) {
         uris.forEach { x ->
             try {
                 ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, x)
-                val playlist = Playlist.parse(context.symphony, x)
-                coroutineScope.launch {
-                    context.symphony.groove.playlist.add(playlist)
-                }
+                val playlist = Playlist.parse(context.symphony, null, x)
+                context.symphony.groove.playlist.add(playlist)
             } catch (err: Exception) {
                 Logger.error("PlaylistView", "import failed (activity result)", err)
                 Toast.makeText(
@@ -90,9 +85,7 @@ fun PlaylistsView(context: ViewContext) {
             context,
             onDone = { playlist ->
                 showPlaylistCreator = false
-                coroutineScope.launch {
-                    context.symphony.groove.playlist.add(playlist)
-                }
+                context.symphony.groove.playlist.add(playlist)
             },
             onDismissRequest = {
                 showPlaylistCreator = false

@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +35,6 @@ import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.utils.mutate
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -45,7 +43,6 @@ data class PlaylistViewRoute(val playlistId: String)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
-    val coroutineScope = rememberCoroutineScope()
     val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
     val updateId by context.symphony.groove.playlist.updateId.collectAsState()
     var updateCounter by remember { mutableIntStateOf(0) }
@@ -148,12 +145,10 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                                     },
                                     onClick = {
                                         onDismissRequest()
-                                        coroutineScope.launch {
-                                            context.symphony.groove.playlist.update(
-                                                it.id,
-                                                songIds.mutate { remove(song.id) },
-                                            )
-                                        }
+                                        context.symphony.groove.playlist.update(
+                                            it.id,
+                                            songIds.mutate { remove(song.id) },
+                                        )
                                     }
                                 )
                             }

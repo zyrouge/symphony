@@ -196,7 +196,7 @@ class Settings(private val symphony: Symphony) {
     val lastUsedPlaylistsSortBy = EnumEntry(
         "last_used_playlists_sort_by",
         enumEntries<PlaylistRepository.SortBy>(),
-        PlaylistRepository.SortBy.TITLE,
+        PlaylistRepository.SortBy.CUSTOM,
     )
     val lastUsedPlaylistsSortReverse = BooleanEntry("last_used_playlists_sort_reverse", false)
     val lastUsedPlaylistsHorizontalGridColumns = IntEntry(

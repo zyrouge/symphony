@@ -13,6 +13,9 @@ fun PlaylistInformationDialog(
     InformationDialog(
         context,
         content = {
+            InformationKeyValue(context.symphony.t.Id) {
+                LongPressCopyableText(context, playlist.id)
+            }
             InformationKeyValue(context.symphony.t.Title) {
                 LongPressCopyableText(context, playlist.title)
             }

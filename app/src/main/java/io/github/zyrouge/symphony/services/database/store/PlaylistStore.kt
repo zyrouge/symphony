@@ -15,8 +15,8 @@ interface PlaylistStore {
     @Update
     suspend fun update(vararg playlist: Playlist): Int
 
-    @Query("DELETE FROM playlists WHERE id IN (:playlistIds)")
-    suspend fun delete(playlistIds: Collection<String>): Int
+    @Query("DELETE FROM playlists WHERE id = :playlistId")
+    suspend fun delete(playlistId: String): Int
 
     @Query("SELECT * FROM playlists")
     suspend fun entries(): Map<@MapColumn("id") String, Playlist>

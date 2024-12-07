@@ -60,7 +60,7 @@ data class Playlist(
     companion object {
         private const val PRIMARY_STORAGE = "primary:"
 
-        fun parse(symphony: Symphony, uri: Uri): Playlist {
+        fun parse(symphony: Symphony, playlistId: String?, uri: Uri): Playlist {
             val file = DocumentFileX.fromSingleUri(symphony.applicationContext, uri)!!
             val content = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { String(it.readBytes()) } ?: ""
@@ -68,7 +68,7 @@ data class Playlist(
                 .map { it.trim() }
                 .filter { it.isNotEmpty() && it[0] != '#' }
                 .toList()
-            val id = symphony.groove.playlist.idGenerator.next()
+            val id = playlistId ?: symphony.groove.playlist.idGenerator.next()
             val path = DocumentFileX.getParentPathOfSingleUri(file.uri) ?: file.name
             return Playlist(
                 id = id,

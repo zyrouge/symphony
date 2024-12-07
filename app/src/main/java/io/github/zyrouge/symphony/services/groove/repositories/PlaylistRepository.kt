@@ -62,7 +62,7 @@ class PlaylistRepository(private val symphony: Symphony) {
                 val playlist = when {
                     x.isLocal -> {
                         ActivityUtils.makePersistableReadableUri(context, x.uri!!)
-                        Playlist.parse(symphony, x.uri)
+                        Playlist.parse(symphony, x.id, x.uri)
                     }
 
                     else -> x
@@ -140,22 +140,26 @@ class PlaylistRepository(private val symphony: Symphony) {
         path = null,
     )
 
-    suspend fun add(playlist: Playlist) {
+    fun add(playlist: Playlist) {
         cache[playlist.id] = playlist
         _all.update {
             it + playlist.id
         }
         emitUpdateId()
         emitCount()
-        symphony.database.playlists.insert(playlist)
+        symphony.groove.coroutineScope.launch {
+            symphony.database.playlists.insert(playlist)
+        }
     }
 
-    suspend fun delete(id: String) {
-        cache.remove(id)?.let {
-            it.uri?.let { uri ->
-                runCatching {
-                    ActivityUtils.makePersistableReadableUri(symphony.applicationContext, uri)
-                }
+    fun delete(id: String) {
+        Logger.error(
+            "PlaylistRepository",
+            "cache ${cache.containsKey(id)}"
+        )
+        cache.remove(id)?.uri?.let {
+            runCatching {
+                ActivityUtils.makePersistableReadableUri(symphony.applicationContext, it)
             }
         }
         _all.update {
@@ -163,10 +167,12 @@ class PlaylistRepository(private val symphony: Symphony) {
         }
         emitUpdateId()
         emitCount()
-        symphony.database.playlists.delete(listOf(id))
+        symphony.groove.coroutineScope.launch {
+            symphony.database.playlists.delete(id)
+        }
     }
 
-    suspend fun update(id: String, songIds: List<String>) {
+    fun update(id: String, songIds: List<String>) {
         val playlist = get(id) ?: return
         val updated = Playlist(
             id = id,
@@ -183,7 +189,9 @@ class PlaylistRepository(private val symphony: Symphony) {
                 songIds
             }
         }
-        symphony.database.playlists.update(updated)
+        symphony.groove.coroutineScope.launch {
+            symphony.database.playlists.update(updated)
+        }
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?
@@ -193,9 +201,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         if (songIds.contains(songId)) {
             return
         }
-        symphony.groove.coroutineScope.launch {
-            update(favorites.id, songIds.mutate { add(songId) })
-        }
+        update(favorites.id, songIds.mutate { add(songId) })
     }
 
     fun unfavorite(songId: String) {
@@ -204,9 +210,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         if (!songIds.contains(songId)) {
             return
         }
-        symphony.groove.coroutineScope.launch {
-            update(favorites.id, songIds.mutate { remove(songId) })
-        }
+        update(favorites.id, songIds.mutate { remove(songId) })
     }
 
     fun isFavoritesPlaylist(playlist: Playlist) = playlist.id == FAVORITE_PLAYLIST
@@ -220,11 +224,13 @@ class PlaylistRepository(private val symphony: Symphony) {
         }
     }
 
-    suspend fun renamePlaylist(playlist: Playlist, title: String) {
+    fun renamePlaylist(playlist: Playlist, title: String) {
         val renamed = playlist.withTitle(title)
         cache[playlist.id] = renamed
         emitUpdateId()
-        symphony.database.playlists.update(renamed)
+        symphony.groove.coroutineScope.launch {
+            symphony.database.playlists.update(renamed)
+        }
     }
 
     internal fun onScanFinish() {
