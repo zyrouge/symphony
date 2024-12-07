@@ -18,7 +18,7 @@ class RadioQueue(private val symphony: Symphony) {
     val currentQueue = concurrentListOf<String>()
 
     var currentSongIndex = -1
-        private set(value) {
+        internal set(value) {
             field = value
             symphony.radio.onUpdate.dispatch(Radio.Events.Queue.IndexChanged)
         }
