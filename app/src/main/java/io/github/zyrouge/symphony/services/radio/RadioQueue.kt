@@ -38,7 +38,7 @@ class RadioQueue(private val symphony: Symphony) {
         }
 
     val currentSongId: String?
-        private get() = getSongIdAt(currentSongIndex)
+        get() = getSongIdAt(currentSongIndex)
 
     fun hasSongAt(index: Int) = index > -1 && index < currentQueue.size
     fun getSongIdAt(index: Int) = if (hasSongAt(index)) currentQueue[index] else null
