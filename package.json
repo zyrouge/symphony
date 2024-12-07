@@ -38,7 +38,7 @@
         "prettier": "^3.4.1",
         "prettier-plugin-toml": "^2.0.1",
         "tsx": "^4.19.2",
-        "typescript": "^5.6.3"
+        "typescript": "^5.7.2"
     },
     "dependencies": {
         "archiver": "^7.0.1"
