@@ -253,6 +253,7 @@ class Settings(private val symphony: Symphony) {
     }
     val lastHomeTab = EnumEntry("home_last_page", enumEntries<HomePage>(), HomePage.Songs)
     val songsFilterPattern = NullableStringEntry("songs_filter_pattern")
+    val minSongDuration = IntEntry("min_song_duration", 0)
     val checkForUpdates = BooleanEntry("check_for_updates", false)
     val fadePlayback = BooleanEntry("fade_playback", false)
     val requireAudioFocus = BooleanEntry("require_audio_focus", true)

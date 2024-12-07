@@ -53,6 +53,7 @@ import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiTextOption
 import io.github.zyrouge.symphony.ui.components.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSimpleTile
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSliderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsTextInputTile
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
@@ -63,6 +64,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import kotlin.math.roundToInt
 
 @Serializable
 data class GrooveSettingsViewRoute(val initialElement: String? = null)
@@ -74,6 +76,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val songsFilterPattern by context.symphony.settings.songsFilterPattern.flow.collectAsState()
+    val minSongDuration by context.symphony.settings.minSongDuration.flow.collectAsState()
     val blacklistFolders by context.symphony.settings.blacklistFolders.flow.collectAsState()
     val whitelistFolders by context.symphony.settings.whitelistFolders.flow.collectAsState()
     val artistTagSeparators by context.symphony.settings.artistTagSeparators.flow.collectAsState()
@@ -122,6 +125,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
             ) {
                 Column(modifier = Modifier.verticalScroll(scrollState)) {
                     val defaultSongsFilterPattern = ".*"
+                    val minSongDurationRange = 0f..60f
 
                     ConsiderContributingTile(context)
                     SettingsSideHeading(context.symphony.t.Groove)
@@ -163,6 +167,32 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             )
                             refetchMediaLibrary(coroutineScope, context.symphony)
                         }
+                    )
+                    HorizontalDivider()
+                    SettingsSliderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.FilterAlt, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.MinSongDurationFilter)
+                        },
+                        label = { value ->
+                            Text(context.symphony.t.XSecs(value.toString()))
+                        },
+                        range = minSongDurationRange,
+                        initialValue = minSongDuration.toFloat(),
+                        onValue = { value ->
+                            value.roundToInt().toFloat()
+                        },
+                        onChange = { value ->
+                            context.symphony.settings.minSongDuration.setValue(value.toInt())
+                        },
+                        onReset = {
+                            context.symphony.settings.minSongDuration.setValue(
+                                context.symphony.settings.minSongDuration.defaultValue,
+                            )
+                        },
                     )
                     HorizontalDivider()
                     SettingsMultiGrooveFolderTile(

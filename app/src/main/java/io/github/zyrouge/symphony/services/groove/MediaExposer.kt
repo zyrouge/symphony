@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class MediaExposer(private val symphony: Symphony) {
     internal val uris = ConcurrentHashMap<String, Uri>()
@@ -127,6 +129,9 @@ class MediaExposer(private val symphony: Symphony) {
         val song = when {
             cacheHit -> cached
             else -> Song.parse(symphony, path, file)
+        }
+        if (song.duration.milliseconds < symphony.settings.minSongDuration.value.seconds) {
+            return
         }
         if (!cacheHit) {
             symphony.database.songCache.insert(song)
