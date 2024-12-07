@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.ConcurrentList
+import io.github.zyrouge.symphony.utils.concurrentListOf
 
 class RadioQueue(private val symphony: Symphony) {
     enum class LoopMode {
@@ -14,10 +14,8 @@ class RadioQueue(private val symphony: Symphony) {
         }
     }
 
-    val originalQueue = ConcurrentList<String>()
-        private set
-    val currentQueue = ConcurrentList<String>()
-        private set
+    val originalQueue = concurrentListOf<String>()
+    val currentQueue = concurrentListOf<String>()
 
     var currentSongIndex = -1
         private set(value) {
