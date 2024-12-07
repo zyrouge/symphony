@@ -296,7 +296,7 @@ class Settings(private val symphony: Symphony) {
     val nowPlayingControlsLayout = EnumEntry(
         "now_playing_controls_layout",
         enumEntries<NowPlayingControlsLayout>(),
-        NowPlayingControlsLayout.Default,
+        NowPlayingControlsLayout.CompactLeft,
     )
     val showUpdateToast = BooleanEntry("show_update_toast", true)
     val fontScale = FloatEntry("font_scale", 1f)

@@ -423,7 +423,10 @@ name = "Codec"
 name = "ControlsLayout"
 
 [[keys]]
-name = "Default"
+name = "CompactLeft"
+
+[[keys]]
+name = "CompactRight"
 
 [[keys]]
 name = "Traditional"
