@@ -160,7 +160,8 @@ fun NowPlayingSettingsView(context: ViewContext) {
 }
 
 fun NowPlayingControlsLayout.label(context: ViewContext) = when (this) {
-    NowPlayingControlsLayout.Default -> context.symphony.t.Default
+    NowPlayingControlsLayout.CompactLeft -> context.symphony.t.CompactLeft
+    NowPlayingControlsLayout.CompactRight -> context.symphony.t.CompactRight
     NowPlayingControlsLayout.Traditional -> context.symphony.t.Traditional
 }
 
