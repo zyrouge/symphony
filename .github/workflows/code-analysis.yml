@@ -6,6 +6,7 @@ on:
             - site
             - gh-pages
             - i18n-summary
+            - dependabot/**
         paths:
             - app/**
             - i18n/**
