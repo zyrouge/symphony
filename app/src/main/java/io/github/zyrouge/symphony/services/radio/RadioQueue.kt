@@ -15,28 +15,30 @@ class RadioQueue(private val symphony: Symphony) {
     }
 
     val originalQueue = ConcurrentList<String>()
+        private set
     val currentQueue = ConcurrentList<String>()
+        private set
 
     var currentSongIndex = -1
-        set(value) {
+        private set(value) {
             field = value
             symphony.radio.onUpdate.dispatch(Radio.Events.Queue.IndexChanged)
         }
 
     var currentShuffleMode = false
-        set(value) {
+        private set(value) {
             field = value
             symphony.radio.onUpdate.dispatch(Radio.Events.QueueOption.ShuffleModeChanged)
         }
 
     var currentLoopMode = LoopMode.None
-        set(value) {
+        private set(value) {
             field = value
             symphony.radio.onUpdate.dispatch(Radio.Events.QueueOption.LoopModeChanged)
         }
 
     val currentSongId: String?
-        get() = getSongIdAt(currentSongIndex)
+        private get() = getSongIdAt(currentSongIndex)
 
     fun hasSongAt(index: Int) = index > -1 && index < currentQueue.size
     fun getSongIdAt(index: Int) = if (hasSongAt(index)) currentQueue[index] else null
@@ -136,7 +138,7 @@ class RadioQueue(private val symphony: Symphony) {
             } else {
                 currentQueue.clear()
                 currentQueue.addAll(originalQueue)
-                currentQueue.indexOfFirst { it == currentSongId }
+                originalQueue.indexOfFirst { it == currentSongId }
             }
         }
         symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
