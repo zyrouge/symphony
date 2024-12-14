@@ -237,6 +237,7 @@ class PlaylistRepository(private val symphony: Symphony) {
         _favorites.update {
             getFavorites().getSongIds(symphony)
         }
+        emitUpdateId()
     }
 
     companion object {

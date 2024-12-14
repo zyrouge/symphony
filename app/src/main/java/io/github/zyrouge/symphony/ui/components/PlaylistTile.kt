@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,8 @@ import io.github.zyrouge.symphony.utils.Logger
 
 @Composable
 fun PlaylistTile(context: ViewContext, playlist: Playlist) {
+    val updateId by context.symphony.groove.playlist.updateId.collectAsState()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,7 +69,10 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box {
                     AsyncImage(
-                        playlist.createArtworkImageRequest(context.symphony).build(),
+                        // TODO: remove this hack after moving to reactive objects
+                        remember(updateId, playlist) {
+                            playlist.createArtworkImageRequest(context.symphony).build()
+                        },
                         null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
