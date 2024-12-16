@@ -33,7 +33,7 @@
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
         "@zyrouge/phrasey-toml": "^1.0.3",
         "fs-extra": "^11.2.0",
-        "phrasey": "^2.0.26",
+        "phrasey": "^2.0.27",
         "picocolors": "^1.1.1",
         "prettier": "^3.4.1",
         "prettier-plugin-toml": "^2.0.1",
