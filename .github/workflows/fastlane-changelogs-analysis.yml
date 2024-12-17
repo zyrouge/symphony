@@ -1,4 +1,4 @@
-name: Changelogs Summary
+name: Changelogs Analysis
 
 on:
     push:

@@ -18,7 +18,7 @@ const start = async () => {
                 failed++;
                 const excess = length - CHANGELOGS_CHARACTER_LIMIT;
                 console.log(
-                    `${rpath} (${length} characters) (needs changes, excess by ${excess} characters)`,
+                    `${rpath} has ${length} characters (excess by ${excess} characters)`,
                 );
             }
         }
