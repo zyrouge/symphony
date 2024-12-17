@@ -11,4 +11,3 @@
 - Fix genre page title.
 - Fix locale text direction.
 - Added mini-player swipe up/down gesture.
-- Fix For You page showing empty message.

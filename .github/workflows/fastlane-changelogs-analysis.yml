@@ -1,0 +1,34 @@
+name: Changelogs Summary
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - metadata/**/changelogs
+    pull_request_target:
+        types:
+            - opened
+            - edited
+        paths:
+            - metadata/**/changelogs
+    workflow_dispatch:
+
+jobs:
+    i18n-summary:
+        runs-on: ubuntu-latest
+        if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20.x
+                  cache: npm
+
+            - name: 🚧 Do prerequisites
+              run: npm ci
+
+            - name: 🚨 Analyze changelogs
+              run: npm run changelogs:fastlane-character-limit

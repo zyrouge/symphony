@@ -15,6 +15,7 @@
         "git:latest-tag": "tsx ./cli/git/latest-tag.ts",
         "git:diff-files-yn": "tsx ./cli/git/diff-files-yn.ts",
         "android:move-outputs": "tsx ./cli/android/move-outputs.ts",
+        "changelogs:fastlane-character-limit": "tsx ./cli/changelogs/fastlane-character-limit.ts",
         "prebuild": "npm run i18n:build",
         "postbuild": "npm run android:move-outputs",
         "release": "gh workflow run release"
