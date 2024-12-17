@@ -6,12 +6,6 @@
 * Display album duration in Album view.
 * Display album year in Album view.
 * Added song duration setting.
-* Fixed sort direction icon.
-* Fixed queue clear causing OutOfBoundsException.
 * Fixed playlist addition/deletion issue.
-* Sorting by track number now considers disc number.
-* Fixed an issue where activity configuration changes glitches the interface.
 * Albums now don't consider year to be a factor.
 * Fixed missing buttons in traditional layout.
-* Added Finnish translations.
-* Updated Polish translation.
