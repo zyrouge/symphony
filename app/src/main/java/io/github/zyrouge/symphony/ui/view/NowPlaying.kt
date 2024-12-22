@@ -45,7 +45,8 @@ object NowPlayingDefaults {
 }
 
 enum class NowPlayingControlsLayout {
-    Default,
+    CompactLeft,
+    CompactRight,
     Traditional,
 }
 

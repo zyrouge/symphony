@@ -163,48 +163,16 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
             }
             Spacer(modifier = Modifier.height(defaultHorizontalPadding + 8.dp))
             when (controlsLayout) {
-                NowPlayingControlsLayout.Default -> Row(
-                    modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    NowPlayingPlayPauseButton(
-                        context,
-                        data = data,
-                        style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColor.Primary,
-                        ),
-                    )
-                    NowPlayingSkipPreviousButton(
-                        context,
-                        data = data,
-                        style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColor.Surface,
-                        ),
-                    )
-                    if (enableSeekControls) {
-                        NowPlayingFastRewindButton(
-                            context,
-                            data = data,
-                            style = NowPlayingControlButtonStyle(
-                                color = NowPlayingControlButtonColor.Surface,
-                            ),
-                        )
-                        NowPlayingFastForwardButton(
-                            context,
-                            data = data,
-                            style = NowPlayingControlButtonStyle(
-                                color = NowPlayingControlButtonColor.Surface,
-                            ),
-                        )
-                    }
-                    NowPlayingSkipNextButton(
-                        context,
-                        data = data,
-                        style = NowPlayingControlButtonStyle(
-                            color = NowPlayingControlButtonColor.Surface,
-                        ),
-                    )
-                }
+                NowPlayingControlsLayout.CompactLeft -> NowPlayingCompactControls(
+                    context,
+                    data = data
+                )
+
+                NowPlayingControlsLayout.CompactRight -> NowPlayingCompactControls(
+                    context,
+                    data = data,
+                    modifier = Modifier.align(Alignment.End)
+                )
 
                 NowPlayingControlsLayout.Traditional -> NowPlayingTraditionalControls(
                     context,
@@ -215,6 +183,56 @@ fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
             NowPlayingSeekBar(context)
             Spacer(modifier = Modifier.height(defaultHorizontalPadding))
         }
+    }
+}
+
+@Composable
+fun NowPlayingCompactControls(
+    context: ViewContext,
+    data: NowPlayingData,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.padding(defaultHorizontalPadding, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        NowPlayingPlayPauseButton(
+            context,
+            data = data,
+            style = NowPlayingControlButtonStyle(
+                color = NowPlayingControlButtonColor.Primary,
+            ),
+        )
+        NowPlayingSkipPreviousButton(
+            context,
+            data = data,
+            style = NowPlayingControlButtonStyle(
+                color = NowPlayingControlButtonColor.Surface,
+            ),
+        )
+        if (data.enableSeekControls) {
+            NowPlayingFastRewindButton(
+                context,
+                data = data,
+                style = NowPlayingControlButtonStyle(
+                    color = NowPlayingControlButtonColor.Surface,
+                ),
+            )
+            NowPlayingFastForwardButton(
+                context,
+                data = data,
+                style = NowPlayingControlButtonStyle(
+                    color = NowPlayingControlButtonColor.Surface,
+                ),
+            )
+        }
+        NowPlayingSkipNextButton(
+            context,
+            data = data,
+            style = NowPlayingControlButtonStyle(
+                color = NowPlayingControlButtonColor.Surface,
+            ),
+        )
     }
 }
 
