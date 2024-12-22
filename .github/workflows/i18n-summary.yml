@@ -20,9 +20,6 @@ permissions:
     contents: write
     pull-requests: write
 
-env:
-    RUN_SUMMARY: "yes"
-
 jobs:
     i18n-summary:
         runs-on: ubuntu-latest

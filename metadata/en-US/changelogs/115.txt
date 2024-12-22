@@ -1,0 +1,11 @@
+* Ability to modify Album cover quality.
+* Added support for gapless playback.
+* Ability to modify grid sizes.
+* Added sort by album year.
+* Added ability to disable case-sensitive sorting.
+* Display album duration in Album view.
+* Display album year in Album view.
+* Added song duration setting.
+* Fixed playlist addition/deletion issue.
+* Albums now don't consider year to be a factor.
+* Fixed missing buttons in traditional layout.
