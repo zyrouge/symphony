@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "Symphony"
 
 include(":app")
+include(":metaphony")

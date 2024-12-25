@@ -1,0 +1,3 @@
+[submodule "metaphony/src/main/cpp/taglib"]
+	path = metaphony/src/main/cpp/taglib
+	url = https://github.com/taglib/taglib.git
