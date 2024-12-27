@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "me.zyrouge.symphony.metaphony"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 28
@@ -28,18 +28,27 @@ android {
             )
         }
     }
+
     externalNativeBuild {
         cmake {
             path("src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    testOptions {
+        androidResources {
+            noCompress.addAll(listOf("flac", "ogg", "mp3"))
+        }
     }
 }
 
