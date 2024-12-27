@@ -35,7 +35,7 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -53,7 +53,7 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".canary"
         }
-        getByName("debug") {
+        debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
