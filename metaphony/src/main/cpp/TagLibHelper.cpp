@@ -53,7 +53,6 @@ File *TagLibHelper::detectByExtension(
     String ext;
     if (const int pos = s.rfind("."); pos != -1)
         ext = s.substr(pos + 1).upper();
-    ALOGI("%s", ext.toCString(true));
 
     if (ext.isEmpty())
         return nullptr;
@@ -122,47 +121,46 @@ File *TagLibHelper::detectByExtension(
 File *TagLibHelper::detectByContent(
         IOStream *stream,
         bool readAudioProperties,
-        AudioProperties::ReadStyle audioPropertiesStyle)
-{
+        AudioProperties::ReadStyle audioPropertiesStyle) {
     File *file = nullptr;
 
-    if(MPEG::File::isSupported(stream))
+    if (MPEG::File::isSupported(stream))
         file = new MPEG::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(Ogg::Vorbis::File::isSupported(stream))
+    else if (Ogg::Vorbis::File::isSupported(stream))
         file = new Ogg::Vorbis::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(Ogg::FLAC::File::isSupported(stream))
+    else if (Ogg::FLAC::File::isSupported(stream))
         file = new Ogg::FLAC::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(FLAC::File::isSupported(stream))
+    else if (FLAC::File::isSupported(stream))
         file = new FLAC::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(MPC::File::isSupported(stream))
+    else if (MPC::File::isSupported(stream))
         file = new MPC::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(WavPack::File::isSupported(stream))
+    else if (WavPack::File::isSupported(stream))
         file = new WavPack::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(Ogg::Speex::File::isSupported(stream))
+    else if (Ogg::Speex::File::isSupported(stream))
         file = new Ogg::Speex::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(Ogg::Opus::File::isSupported(stream))
+    else if (Ogg::Opus::File::isSupported(stream))
         file = new Ogg::Opus::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(TrueAudio::File::isSupported(stream))
+    else if (TrueAudio::File::isSupported(stream))
         file = new TrueAudio::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(MP4::File::isSupported(stream))
+    else if (MP4::File::isSupported(stream))
         file = new MP4::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(ASF::File::isSupported(stream))
+    else if (ASF::File::isSupported(stream))
         file = new ASF::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(RIFF::AIFF::File::isSupported(stream))
+    else if (RIFF::AIFF::File::isSupported(stream))
         file = new RIFF::AIFF::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(RIFF::WAV::File::isSupported(stream))
+    else if (RIFF::WAV::File::isSupported(stream))
         file = new RIFF::WAV::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(APE::File::isSupported(stream))
+    else if (APE::File::isSupported(stream))
         file = new APE::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(DSF::File::isSupported(stream))
+    else if (DSF::File::isSupported(stream))
         file = new DSF::File(stream, readAudioProperties, audioPropertiesStyle);
-    else if(DSDIFF::File::isSupported(stream))
+    else if (DSDIFF::File::isSupported(stream))
         file = new DSDIFF::File(stream, readAudioProperties, audioPropertiesStyle);
 
     // isSupported() only does a quick check, so double check the file here.
 
-    if(file) {
-        if(file->isValid())
+    if (file) {
+        if (file->isValid())
             return file;
         delete file;
     }

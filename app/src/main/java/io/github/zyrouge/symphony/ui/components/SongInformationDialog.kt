@@ -106,11 +106,6 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(context.symphony.t.Duration) {
                 LongPressCopyableText(context, DurationUtils.formatMs(song.duration))
             }
-            song.codec?.let {
-                InformationKeyValue(context.symphony.t.Codec) {
-                    LongPressCopyableText(context, it)
-                }
-            }
             song.encoder?.let {
                 InformationKeyValue(context.symphony.t.Encoder) {
                     LongPressCopyableText(context, it)
@@ -125,36 +120,13 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 InformationKeyValue(context.symphony.t.Bitrate) {
                     val text = buildString {
                         append(context.symphony.t.XKbps(it.toString()))
-                        if (song.variableBitrate) {
-                            append(" (${context.symphony.t.Variable})")
-                        }
                     }
                     LongPressCopyableText(context, text)
-                }
-            }
-            song.minBitrateK?.let {
-                InformationKeyValue(context.symphony.t.MinimumBitrate) {
-                    LongPressCopyableText(context, context.symphony.t.XKbps(it.toString()))
-                }
-            }
-            song.maxBitrateK?.let {
-                InformationKeyValue(context.symphony.t.MaximumBitrate) {
-                    LongPressCopyableText(context, context.symphony.t.XKbps(it.toString()))
-                }
-            }
-            song.bitsPerSample?.let {
-                InformationKeyValue(context.symphony.t.BitDepth) {
-                    LongPressCopyableText(context, context.symphony.t.XBit(it.toString()))
                 }
             }
             song.samplingRateK?.let {
                 InformationKeyValue(context.symphony.t.SamplingRate) {
                     LongPressCopyableText(context, context.symphony.t.XKHz(it.toString()))
-                }
-            }
-            song.samples?.let {
-                InformationKeyValue(context.symphony.t.TotalSamples) {
-                    LongPressCopyableText(context, it.toString())
                 }
             }
             InformationKeyValue(context.symphony.t.Filename) {

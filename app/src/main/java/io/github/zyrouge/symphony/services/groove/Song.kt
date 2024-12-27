@@ -8,13 +8,12 @@ import android.os.Build
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import io.github.zyrouge.metaphony.AudioArtwork
-import io.github.zyrouge.metaphony.AudioParser
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
+import me.zyrouge.symphony.metaphony.AudioMetadataParser
 import java.io.FileOutputStream
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -38,13 +37,8 @@ data class Song(
     val year: Int?,
     val duration: Long,
     val bitrate: Long?,
-    val minBitrate: Long?,
-    val maxBitrate: Long?,
-    val bitsPerSample: Int?,
     val samplingRate: Long?,
-    val samples: Long?,
     val channels: Int?,
-    val codec: String?,
     val encoder: String?,
     val dateModified: Long,
     val size: Long,
@@ -52,10 +46,7 @@ data class Song(
     val uri: Uri,
     val path: String,
 ) {
-    val variableBitrate get() = minBitrate != null && minBitrate != maxBitrate
     val bitrateK: Long? get() = bitrate?.let { it / 1000 }
-    val minBitrateK: Long? get() = minBitrate?.let { it / 1000 }
-    val maxBitrateK: Long? get() = maxBitrate?.let { it / 1000 }
     val samplingRateK: Float?
         get() = samplingRate?.let {
             (it.toFloat() / 1000)
@@ -71,21 +62,15 @@ data class Song(
 
     fun toSamplingInfoString(symphony: Symphony): String? {
         val values = mutableListOf<String>()
-        codec?.let {
+        encoder?.let {
             values.add(it)
         }
         channels?.let {
             values.add(symphony.t.XChannels(it.toString()))
         }
-        bitsPerSample?.let {
-            values.add(symphony.t.XBit(it.toString()))
-        }
         bitrateK?.let {
             values.add(buildString {
                 append(symphony.t.XKbps(it.toString()))
-                if (variableBitrate) {
-                    append(" (${symphony.t.VBR})")
-                }
             })
         }
         samplingRateK?.let {
@@ -117,24 +102,28 @@ data class Song(
             path: SimplePath,
             file: DocumentFileX,
         ): Song? {
-            val parser = symphony.applicationContext.contentResolver.openInputStream(file.uri)
-                ?.use { AudioParser.read(it, file.mimeType) }
+            val metadata = symphony.applicationContext.contentResolver
+                .openFileDescriptor(file.uri, "r")
+                ?.use { AudioMetadataParser.parse(file.name, it.detachFd()) }
                 ?: return null
-            val metadata = parser.getMetadata()
-            val stream = parser.getStreamInfo()
             val id = symphony.groove.song.idGenerator.next()
-            val coverFile = metadata.artworks.firstOrNull()?.let {
-                if (it.format == AudioArtwork.Format.Unknown) {
+            val coverFile = metadata.pictures.firstOrNull()?.let {
+                val extension = when (it.mimeType) {
+                    "image/jpg", "image/jpeg" -> "jpg"
+                    "image/png" -> "png"
+                    else -> null
+                }
+                if (extension == null) {
                     return@let null
                 }
                 val quality = symphony.settings.artworkQuality.value
                 if (quality.maxSide == null) {
-                    val name = "$id.${it.format.extension}"
+                    val name = "$id.$extension"
                     symphony.database.artworkCache.get(name).writeBytes(it.data)
                     return@let name
                 }
                 val bitmap = BitmapFactory.decodeByteArray(it.data, 0, it.data.size)
-                val name = "$id.${AudioArtwork.Format.Jpeg.extension}"
+                val name = "$id.jpg"
                 FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
                     ImagePreserver
                         .resize(bitmap, quality)
@@ -152,7 +141,7 @@ data class Song(
                 title = metadata.title ?: path.nameWithoutExtension,
                 album = metadata.album,
                 artists = parseMultiValue(metadata.artists, artistSeparators),
-                composers = parseMultiValue(metadata.composer, artistSeparators),
+                composers = parseMultiValue(metadata.composers, artistSeparators),
                 albumArtists = parseMultiValue(metadata.albumArtists, artistSeparators),
                 genres = parseMultiValue(metadata.genres, genreSeparators),
                 trackNumber = metadata.trackNumber,
@@ -160,17 +149,12 @@ data class Song(
                 discNumber = metadata.discNumber,
                 discTotal = metadata.discTotal,
                 date = metadata.date,
-                year = metadata.year,
-                duration = stream.duration?.let { it * 1000 } ?: 0,
-                bitrate = stream.bitrate,
-                minBitrate = stream.minBitrate,
-                maxBitrate = stream.maxBitrate,
-                bitsPerSample = stream.bitsPerSample,
-                samplingRate = stream.samplingRate,
-                samples = stream.samples,
-                channels = stream.channels,
-                codec = stream.codec,
-                encoder = metadata.encoder,
+                year = metadata.date?.year,
+                duration = metadata.lengthInSeconds?.let { it * 1000L } ?: 0,
+                bitrate = metadata.bitrate?.toLong(),
+                samplingRate = metadata.sampleRate?.toLong(),
+                channels = metadata.channels,
+                encoder = metadata.encoding,
                 dateModified = file.lastModified,
                 size = file.size,
                 coverFile = coverFile,
@@ -190,7 +174,7 @@ data class Song(
             val coverFile = retriever.embeddedPicture?.let {
                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                 val quality = symphony.settings.artworkQuality.value
-                val name = "$id.${AudioArtwork.Format.Jpeg.extension}"
+                val name = "$id.jpg"
                 FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
                     ImagePreserver
                         .resize(bitmap, quality)
@@ -221,18 +205,12 @@ data class Song(
                 ?.toLongOrNull()
             val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
                 ?.toLongOrNull()
-            var bitsPerSample: Int? = null
             var samplingRate: Long? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                bitsPerSample = retriever
-                    .extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITS_PER_SAMPLE)
-                    ?.toIntOrNull()
                 samplingRate = retriever
                     .extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
                     ?.toLongOrNull()
             }
-            val codec = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-                ?.let { getCodecFromMimetype(it) }
             val artistSeparators = symphony.settings.artistTagSeparators.value
             val genreSeparators = symphony.settings.genreTagSeparators.value
             return Song(
@@ -251,13 +229,8 @@ data class Song(
                 year = year,
                 duration = duration ?: 0,
                 bitrate = bitrate,
-                minBitrate = null,
-                maxBitrate = null,
-                bitsPerSample = bitsPerSample,
                 samplingRate = samplingRate,
-                samples = null,
                 channels = null,
-                codec = codec,
                 encoder = null,
                 dateModified = file.lastModified,
                 size = file.size,
@@ -283,19 +256,6 @@ data class Song(
                 }
             }
             return result
-        }
-
-        private val prettyCodecs = mapOf(
-            "opus" to "Opus",
-            "vorbis" to "Vorbis",
-        )
-
-        private fun getCodecFromMimetype(mimetype: String): String? {
-            val codec = mimetype.lowercase().replaceFirst("audio/", "")
-            return when {
-                codec.isBlank() -> null
-                else -> prettyCodecs[codec] ?: codec.uppercase()
-            }
         }
     }
 }

@@ -14,7 +14,7 @@ jmethodID audioMetadataParserPutAudioPropertyMethodId = nullptr;
 
 extern "C" {
 JNIEXPORT jint
-JNI_OnLoad(JavaVM *vm, void *reserved) {
+JNI_OnLoad(JavaVM *vm, void *) {
     JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
@@ -56,17 +56,17 @@ Java_me_zyrouge_symphony_metaphony_AudioMetadataParser_readMetadata(
         jstring filename,
         jint fd) {
     const auto stream = std::make_unique<TagLib::FileStream>(fd, true);
-    const auto file = TagLibHelper::detectParser(
+    const auto rawFile = TagLibHelper::detectParser(
             env->GetStringUTFChars(filename, nullptr),
             stream.get(),
             true,
             TagLib::AudioProperties::ReadStyle::Accurate);
-    if (file == nullptr) {
+    if (!rawFile) {
         return static_cast<jboolean>(false);
     }
+    const std::unique_ptr<TagLib::File> file(rawFile);
     if (file->tag()) {
         const auto tags = file->properties();
-        ALOGI("3");
         if (!tags.isEmpty()) {
             for (const auto &[key, values]: tags) {
                 const auto jKey = env->NewStringUTF(key.toCString(true));

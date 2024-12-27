@@ -39,10 +39,10 @@ class AudioMetadataParser private constructor() {
         return AudioMetadata(
             title = tags["TITLE"]?.firstOrNull(),
             album = tags["ALBUM"]?.firstOrNull(),
-            artists = tags["ARTIST"] ?: emptyList(),
-            albumArtists = tags["ALBUMARTIST"] ?: emptyList(),
-            composers = tags["COMPOSER"] ?: emptyList(),
-            genres = tags["GENRE"] ?: emptyList(),
+            artists = tags["ARTIST"]?.toSet() ?: emptySet(),
+            albumArtists = tags["ALBUMARTIST"]?.toSet() ?: emptySet(),
+            composers = tags["COMPOSER"]?.toSet() ?: emptySet(),
+            genres = tags["GENRE"]?.toSet() ?: emptySet(),
             discNumber = discNumber,
             discTotal = discTotal,
             trackNumber = trackNumber,
@@ -66,7 +66,7 @@ class AudioMetadataParser private constructor() {
         fun parse(filename: String, fd: Int): AudioMetadata? {
             val parser = AudioMetadataParser()
             val success = parser.readMetadata(filename, fd)
-            if (success) {
+            if (!success) {
                 return null
             }
             return parser.toMetadata()
