@@ -51,6 +51,7 @@ jobs:
                   ./gradlew assembleCanary
                   ./gradlew bundleCanary
                   npm run postbuild
+                  find . -name "*.apk"
               env:
                   APP_BUILD_TYPE: canary
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
