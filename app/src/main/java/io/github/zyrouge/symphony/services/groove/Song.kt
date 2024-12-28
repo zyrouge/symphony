@@ -151,7 +151,7 @@ data class Song(
                 date = metadata.date,
                 year = metadata.date?.year,
                 duration = metadata.lengthInSeconds?.let { it * 1000L } ?: 0,
-                bitrate = metadata.bitrate?.toLong(),
+                bitrate = metadata.bitrate?.let { it * 1000L },
                 samplingRate = metadata.sampleRate?.toLong(),
                 channels = metadata.channels,
                 encoder = metadata.encoding,
