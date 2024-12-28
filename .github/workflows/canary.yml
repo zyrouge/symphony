@@ -50,7 +50,6 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew assembleCanary
                   ./gradlew bundleCanary
-                  find . -name "*.apk"
                   npm run postbuild
               env:
                   APP_BUILD_TYPE: canary
@@ -62,8 +61,36 @@ jobs:
             - name: 🚀 Upload apk
               uses: actions/upload-artifact@v4
               with:
-                  name: symphony-v${{ steps.app_version.outputs.version }}-apk
-                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}.apk
+                  name: symphony-v${{ steps.app_version.outputs.version }}-universal-apk
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}-universal.apk
+                  if-no-files-found: error
+
+            - name: 🚀 Upload apk
+              uses: actions/upload-artifact@v4
+              with:
+                  name: symphony-v${{ steps.app_version.outputs.version }}-arm64-v8a-apk
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk
+                  if-no-files-found: error
+
+            - name: 🚀 Upload apk
+              uses: actions/upload-artifact@v4
+              with:
+                  name: symphony-v${{ steps.app_version.outputs.version }}-armeabi-v7a-apk
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk
+                  if-no-files-found: error
+
+            - name: 🚀 Upload apk
+              uses: actions/upload-artifact@v4
+              with:
+                  name: symphony-v${{ steps.app_version.outputs.version }}-x86_64-apk
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}-x86_64.apk
+                  if-no-files-found: error
+
+            - name: 🚀 Upload apk
+              uses: actions/upload-artifact@v4
+              with:
+                  name: symphony-v${{ steps.app_version.outputs.version }}-x86-apk
+                  path: ${{ env.OUTPUT_DIR }}/symphony-v${{ steps.app_version.outputs.version }}-x86.apk
                   if-no-files-found: error
 
             - name: 🚀 Upload aab
