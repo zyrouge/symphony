@@ -50,8 +50,8 @@ jobs:
                   chmod +x ./gradlew
                   ./gradlew assembleCanary
                   ./gradlew bundleCanary
-                  npm run postbuild
                   find . -name "*.apk"
+                  npm run postbuild
               env:
                   APP_BUILD_TYPE: canary
                   APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
