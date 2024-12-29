@@ -6,7 +6,6 @@
         "i18n:build": "phrasey build -p ./.phrasey/config.toml -f toml",
         "i18n:summary": "tsx ./cli/i18n/summary.ts",
         "version:bump": "tsx ./cli/version/bump.ts",
-        "version:bump-build": "tsx ./cli/version/bump-build.ts",
         "version:print": "tsx ./cli/version/print.ts",
         "version:print-nightly": "tsx ./cli/version/print-nightly.ts",
         "version:print-canary": "tsx ./cli/version/print-canary.ts",
@@ -29,19 +28,18 @@
     "devDependencies": {
         "@types/archiver": "^6.0.3",
         "@types/fs-extra": "^11.0.4",
-        "@types/node": "^22.10.1",
+        "@types/node": "^22.10.2",
         "@zyrouge/phrasey-json": "^1.0.3",
         "@zyrouge/phrasey-locales-builder": "^1.1.10",
         "@zyrouge/phrasey-toml": "^1.0.3",
+        "@zyrouge/zemver": "^1.0.0",
+        "archiver": "^7.0.1",
         "fs-extra": "^11.2.0",
-        "phrasey": "^2.0.26",
+        "phrasey": "^2.0.27",
         "picocolors": "^1.1.1",
-        "prettier": "^3.4.1",
+        "prettier": "^3.4.2",
         "prettier-plugin-toml": "^2.0.1",
         "tsx": "^4.19.2",
         "typescript": "^5.7.2"
-    },
-    "dependencies": {
-        "archiver": "^7.0.1"
     }
 }
