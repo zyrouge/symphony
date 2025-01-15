@@ -17,6 +17,7 @@ import me.zyrouge.symphony.metaphony.AudioMetadataParser
 import java.io.FileOutputStream
 import java.math.RoundingMode
 import java.time.LocalDate
+import java.util.regex.Pattern
 
 @Immutable
 @Entity("songs")
@@ -46,6 +47,20 @@ data class Song(
     val uri: Uri,
     val path: String,
 ) {
+    data class ParseOptions(
+        val symphony: Symphony,
+        val artistSeparatorRegex: Regex,
+        val genreSeparatorRegex: Regex,
+    ) {
+        companion object {
+            fun create(symphony: Symphony) = ParseOptions(
+                symphony = symphony,
+                artistSeparatorRegex = makeSeparatorsRegex(symphony.settings.artistTagSeparators.value),
+                genreSeparatorRegex = makeSeparatorsRegex(symphony.settings.genreTagSeparators.value),
+            )
+        }
+    }
+
     val bitrateK: Long? get() = bitrate?.let { it / 1000 }
     val samplingRateK: Float?
         get() = samplingRate?.let {
@@ -83,10 +98,14 @@ data class Song(
     }
 
     companion object {
-        fun parse(symphony: Symphony, path: SimplePath, file: DocumentFileX): Song {
-            if (symphony.settings.useMetaphony.value) {
+        fun parse(
+            path: SimplePath,
+            file: DocumentFileX,
+            options: ParseOptions,
+        ): Song {
+            if (options.symphony.settings.useMetaphony.value) {
                 try {
-                    val song = parseUsingMetaphony(symphony, path, file)
+                    val song = parseUsingMetaphony(path, file, options)
                     if (song != null) {
                         return song
                     }
@@ -94,14 +113,15 @@ data class Song(
                     Logger.error("Song", "could not parse using metaphony", err)
                 }
             }
-            return parseUsingMediaMetadataRetriever(symphony, path, file)
+            return parseUsingMediaMetadataRetriever(path, file, options)
         }
 
         private fun parseUsingMetaphony(
-            symphony: Symphony,
             path: SimplePath,
             file: DocumentFileX,
+            options: ParseOptions,
         ): Song? {
+            val symphony = options.symphony
             val metadata = symphony.applicationContext.contentResolver
                 .openFileDescriptor(file.uri, "r")
                 ?.use { AudioMetadataParser.parse(file.name, it.detachFd()) }
@@ -134,16 +154,14 @@ data class Song(
             metadata.lyrics?.let {
                 symphony.database.lyricsCache.put(id, it)
             }
-            val artistSeparators = symphony.settings.artistTagSeparators.value
-            val genreSeparators = symphony.settings.genreTagSeparators.value
             return Song(
                 id = id,
                 title = metadata.title ?: path.nameWithoutExtension,
                 album = metadata.album,
-                artists = parseMultiValue(metadata.artists, artistSeparators),
-                composers = parseMultiValue(metadata.composers, artistSeparators),
-                albumArtists = parseMultiValue(metadata.albumArtists, artistSeparators),
-                genres = parseMultiValue(metadata.genres, genreSeparators),
+                artists = parseMultiValue(metadata.artists, options.artistSeparatorRegex),
+                composers = parseMultiValue(metadata.composers, options.artistSeparatorRegex),
+                albumArtists = parseMultiValue(metadata.albumArtists, options.artistSeparatorRegex),
+                genres = parseMultiValue(metadata.genres, options.genreSeparatorRegex),
                 trackNumber = metadata.trackNumber,
                 trackTotal = metadata.trackTotal,
                 discNumber = metadata.discNumber,
@@ -164,10 +182,11 @@ data class Song(
         }
 
         fun parseUsingMediaMetadataRetriever(
-            symphony: Symphony,
             path: SimplePath,
             file: DocumentFileX,
+            options: ParseOptions,
         ): Song {
+            val symphony = options.symphony
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(symphony.applicationContext, file.uri)
             val id = symphony.groove.song.idGenerator.next() + ".mr"
@@ -211,16 +230,14 @@ data class Song(
                     .extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
                     ?.toLongOrNull()
             }
-            val artistSeparators = symphony.settings.artistTagSeparators.value
-            val genreSeparators = symphony.settings.genreTagSeparators.value
             return Song(
                 id = id,
                 title = title ?: path.nameWithoutExtension,
                 album = album,
-                artists = parseMultiValue(artists, artistSeparators),
-                composers = parseMultiValue(composers, artistSeparators),
-                albumArtists = parseMultiValue(albumArtists, artistSeparators),
-                genres = parseMultiValue(genres, genreSeparators),
+                artists = parseMultiValue(artists, options.artistSeparatorRegex),
+                composers = parseMultiValue(composers, options.artistSeparatorRegex),
+                albumArtists = parseMultiValue(albumArtists, options.artistSeparatorRegex),
+                genres = parseMultiValue(genres, options.genreSeparatorRegex),
                 trackNumber = trackNumber,
                 trackTotal = trackTotal,
                 discNumber = discNumber,
@@ -240,14 +257,19 @@ data class Song(
             )
         }
 
-        fun parseMultiValue(value: String?, separators: Set<String>) = value?.let {
-            parseMultiValue(setOf(it), separators)
+        private fun makeSeparatorsRegex(separators: Set<String>): Regex {
+            val partial = separators.joinToString("|") { Pattern.quote(it) }
+            return Regex("""(?<!\\)($partial)""")
+        }
+
+        fun parseMultiValue(value: String?, regex: Regex) = value?.let {
+            parseMultiValue(setOf(it), regex)
         } ?: emptySet()
 
-        fun parseMultiValue(values: Set<String>, separators: Set<String>): Set<String> {
+        fun parseMultiValue(values: Set<String>, regex: Regex): Set<String> {
             val result = mutableSetOf<String>()
             for (x in values) {
-                for (y in x.trim().split(*separators.toTypedArray())) {
+                for (y in x.trim().split(regex)) {
                     val trimmed = y.trim()
                     if (trimmed.isEmpty()) {
                         continue

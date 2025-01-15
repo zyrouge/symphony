@@ -38,6 +38,7 @@ class MediaExposer(private val symphony: Symphony) {
         val artworkCacheUnused: ConcurrentSet<String>,
         val lyricsCacheUnused: ConcurrentSet<String>,
         val filter: MediaFilter,
+        val songParseOptions: Song.ParseOptions,
     ) {
         companion object {
             suspend fun create(symphony: Symphony): ScanCycle {
@@ -56,6 +57,7 @@ class MediaExposer(private val symphony: Symphony) {
                     artworkCacheUnused = artworkCacheUnused,
                     lyricsCacheUnused = lyricsCacheUnused,
                     filter = filter,
+                    songParseOptions = Song.ParseOptions.create(symphony),
                 )
             }
         }
@@ -128,7 +130,7 @@ class MediaExposer(private val symphony: Symphony) {
                 && (cached.coverFile?.let { cycle.artworkCacheUnused.contains(it) } != false)
         val song = when {
             cacheHit -> cached
-            else -> Song.parse(symphony, path, file)
+            else -> Song.parse(path, file, cycle.songParseOptions)
         }
         if (song.duration.milliseconds < symphony.settings.minSongDuration.value.seconds) {
             return
