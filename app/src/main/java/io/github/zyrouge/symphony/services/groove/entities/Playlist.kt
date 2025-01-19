@@ -1,8 +1,10 @@
-package io.github.zyrouge.symphony.services.groove
+package io.github.zyrouge.symphony.services.groove.entities
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.helpers.Assets
@@ -12,13 +14,20 @@ import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
 @Immutable
-@Entity("playlists")
+@Entity(
+    Playlist.TABLE,
+    indices = [Index(Playlist.COLUMN_TITLE)],
+)
 data class Playlist(
     @PrimaryKey
+    @ColumnInfo(COLUMN_ID)
     val id: String,
+    @ColumnInfo(COLUMN_TITLE)
     val title: String,
     val songPaths: List<String>,
+    @ColumnInfo(COLUMN_URI)
     val uri: Uri?,
+    @ColumnInfo(COLUMN_PATH)
     val path: String?,
 ) {
     val numberOfTracks: Int get() = songPaths.size
@@ -58,6 +67,12 @@ data class Playlist(
     )
 
     companion object {
+        const val TABLE = "playlists"
+        const val COLUMN_ID = "id"
+        const val COLUMN_TITLE = "title"
+        const val COLUMN_URI = "title"
+        const val COLUMN_PATH = "path"
+
         private const val PRIMARY_STORAGE = "primary:"
 
         fun parse(symphony: Symphony, playlistId: String?, uri: Uri): Playlist {

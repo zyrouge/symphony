@@ -2,22 +2,25 @@ package io.github.zyrouge.symphony.services.database.store
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
-import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaylistStore {
     @Insert
-    suspend fun insert(vararg playlist: Playlist): List<Long>
+    suspend fun insert(vararg entities: Playlist): List<String>
 
     @Update
-    suspend fun update(vararg playlist: Playlist): Int
+    suspend fun update(vararg entities: Playlist): Int
 
-    @Query("DELETE FROM playlists WHERE id = :playlistId")
-    suspend fun delete(playlistId: String): Int
+    @Query("DELETE FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_ID} = :id")
+    suspend fun delete(id: String): Int
 
-    @Query("SELECT * FROM playlists")
-    suspend fun entries(): Map<@MapColumn("id") String, Playlist>
+    @Query("SELECT * FROM ${Playlist.TABLE}")
+    suspend fun values(): List<Playlist>
+
+    @Query("SELECT * FROM ${Playlist.TABLE}")
+    suspend fun valuesAsFlow(): Flow<List<Playlist>>
 }
