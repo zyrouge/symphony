@@ -3,12 +3,13 @@ package io.github.zyrouge.symphony.services.groove.repositories
 import android.net.Uri
 import androidx.core.net.toUri
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.MediaExposer
 import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.groove.SongFile
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.KeyGenerator
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
 import io.github.zyrouge.symphony.utils.SimplePath
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.Path
 
 class SongRepository(private val symphony: Symphony) {
     enum class SortBy {
@@ -34,9 +36,7 @@ class SongRepository(private val symphony: Symphony) {
         TRACK_NUMBER,
     }
 
-    private val cache = ConcurrentHashMap<String, Song>()
     internal val pathCache = ConcurrentHashMap<String, String>()
-    internal val idGenerator = KeyGenerator.TimeIncremental()
     private val searcher = FuzzySearcher<String>(
         options = listOf(
             FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
@@ -61,15 +61,12 @@ class SongRepository(private val symphony: Symphony) {
         System.currentTimeMillis()
     }
 
-    internal fun onSong(song: Song) {
-        cache[song.id] = song
-        pathCache[song.path] = song.id
-        explorer.addChildFile(SimplePath(song.path)).data = song.id
-        emitIds()
-        _all.update {
-            it + song.id
+    internal fun onSongFile(state: MediaExposer.SongFileState, songFile: SongFile) {
+        when (state) {
+            MediaExposer.SongFileState.New -> {
+                Path(songFile.path).fileName
+            }
         }
-        emitCount()
     }
 
     fun reset() {

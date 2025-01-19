@@ -1,13 +1,23 @@
-package io.github.zyrouge.symphony.services.groove
+package io.github.zyrouge.symphony.services.groove.entities
 
 import androidx.compose.runtime.Immutable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
 
 @Immutable
+@Entity(
+    Artist.TABLE,
+    indices = [Index(Artist.COLUMN_NAME)],
+)
 data class Artist(
+    @PrimaryKey
+    @ColumnInfo(COLUMN_ID)
+    val id: String,
+    @ColumnInfo(COLUMN_NAME)
     val name: String,
-    var numberOfAlbums: Int,
-    var numberOfTracks: Int,
 ) {
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.artist.createArtworkImageRequest(name)
@@ -20,4 +30,10 @@ data class Artist(
     )
 
     fun getAlbumIds(symphony: Symphony) = symphony.groove.artist.getAlbumIds(name)
+
+    companion object {
+        const val TABLE = "artists"
+        const val COLUMN_ID = "id"
+        const val COLUMN_NAME = "name"
+    }
 }

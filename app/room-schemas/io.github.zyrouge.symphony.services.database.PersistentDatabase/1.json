@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6091615e6ae35543e127d6744215fad8",
+    "identityHash": "911e8d9ac1e9715396e1465009d548b3",
     "entities": [
       {
         "tableName": "playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `songPaths` TEXT NOT NULL, `uri` TEXT, `path` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `songPaths` TEXT NOT NULL, `title` TEXT, `path` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -28,7 +28,7 @@
           },
           {
             "fieldPath": "uri",
-            "columnName": "uri",
+            "columnName": "title",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -52,7 +52,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6091615e6ae35543e127d6744215fad8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '911e8d9ac1e9715396e1465009d548b3')"
     ]
   }
 }
