@@ -3,10 +3,10 @@ package io.github.zyrouge.symphony.services.database.store
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import io.github.zyrouge.symphony.services.groove.entities.SongLyrics
+import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 
 @Dao
-interface SongLyricsStore {
+interface SongLyricStore {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(vararg entities: SongLyrics)
+    suspend fun upsert(vararg entities: SongLyric)
 }

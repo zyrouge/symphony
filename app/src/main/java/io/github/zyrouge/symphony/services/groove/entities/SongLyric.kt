@@ -8,17 +8,17 @@ import androidx.room.PrimaryKey
 
 @Immutable
 @Entity(
-    SongLyrics.TABLE,
+    SongLyric.TABLE,
     foreignKeys = [
         ForeignKey(
             entity = Song::class,
             parentColumns = arrayOf(Song.COLUMN_ID),
-            childColumns = arrayOf(SongLyrics.COLUMN_SONG_FILE_ID),
+            childColumns = arrayOf(SongLyric.COLUMN_SONG_FILE_ID),
             onDelete = ForeignKey.CASCADE,
         ),
     ],
 )
-data class SongLyrics(
+data class SongLyric(
     @PrimaryKey
     @ColumnInfo(COLUMN_SONG_FILE_ID)
     val songFileId: String,
@@ -26,7 +26,7 @@ data class SongLyrics(
     val lyrics: String,
 ) {
     companion object {
-        const val TABLE = "playlist_songs_mapping"
+        const val TABLE = "song_lyrics"
         const val COLUMN_SONG_FILE_ID = "song_file_id"
         const val COLUMN_LYRICS = "lyrics"
     }

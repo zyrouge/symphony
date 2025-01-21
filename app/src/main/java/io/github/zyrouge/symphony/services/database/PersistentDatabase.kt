@@ -14,12 +14,11 @@ import io.github.zyrouge.symphony.services.database.store.ArtworkIndexStore
 import io.github.zyrouge.symphony.services.database.store.GenreSongMappingStore
 import io.github.zyrouge.symphony.services.database.store.GenreStore
 import io.github.zyrouge.symphony.services.database.store.MediaTreeFolderStore
-import io.github.zyrouge.symphony.services.database.store.MediaTreeLyricsFileStore
+import io.github.zyrouge.symphony.services.database.store.MediaTreeLyricFileStore
 import io.github.zyrouge.symphony.services.database.store.MediaTreeSongFileStore
 import io.github.zyrouge.symphony.services.database.store.PlaylistSongMappingStore
 import io.github.zyrouge.symphony.services.database.store.PlaylistStore
-import io.github.zyrouge.symphony.services.database.store.SongFileStore
-import io.github.zyrouge.symphony.services.database.store.SongLyricsStore
+import io.github.zyrouge.symphony.services.database.store.SongLyricStore
 import io.github.zyrouge.symphony.services.database.store.SongStore
 import io.github.zyrouge.symphony.services.groove.entities.Album
 import io.github.zyrouge.symphony.services.groove.entities.AlbumArtistMapping
@@ -32,8 +31,7 @@ import io.github.zyrouge.symphony.services.groove.entities.GenreSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
-import io.github.zyrouge.symphony.services.groove.entities.SongFile
-import io.github.zyrouge.symphony.services.groove.entities.SongLyrics
+import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 import io.github.zyrouge.symphony.utils.RoomConvertors
 
 @Database(
@@ -48,12 +46,11 @@ import io.github.zyrouge.symphony.utils.RoomConvertors
         GenreSongMapping::class,
         Genre::class,
         MediaTreeFolderStore::class,
-        MediaTreeLyricsFileStore::class,
+        MediaTreeLyricFileStore::class,
         MediaTreeSongFileStore::class,
         PlaylistSongMapping::class,
         Playlist::class,
-        SongFile::class,
-        SongLyrics::class,
+        SongLyric::class,
         Song::class,
     ],
 )
@@ -68,12 +65,11 @@ abstract class PersistentDatabase : RoomDatabase() {
     abstract fun genreSongMapping(): GenreSongMappingStore
     abstract fun genre(): GenreStore
     abstract fun mediaTreeFolders(): MediaTreeFolderStore
+    abstract fun mediaTreeLyricFiles(): MediaTreeLyricFileStore
     abstract fun mediaTreeSongFiles(): MediaTreeSongFileStore
-    abstract fun mediaTreeLyricsFiles(): MediaTreeLyricsFileStore
     abstract fun playlistSongMapping(): PlaylistSongMappingStore
     abstract fun playlists(): PlaylistStore
-    abstract fun songFiles(): SongFileStore
-    abstract fun songLyrics(): SongLyricsStore
+    abstract fun songLyrics(): SongLyricStore
     abstract fun songs(): SongStore
 
     companion object {

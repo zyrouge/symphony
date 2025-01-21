@@ -9,6 +9,7 @@ import androidx.room.Index
 @Immutable
 @Entity(
     AlbumArtistMapping.TABLE,
+    primaryKeys = [AlbumArtistMapping.COLUMN_ALBUM_ID, AlbumArtistMapping.COLUMN_ARTIST_ID],
     foreignKeys = [
         ForeignKey(
             entity = Album::class,

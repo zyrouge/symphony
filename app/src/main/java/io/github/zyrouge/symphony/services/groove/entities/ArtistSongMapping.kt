@@ -9,6 +9,7 @@ import androidx.room.Index
 @Immutable
 @Entity(
     ArtistSongMapping.TABLE,
+    primaryKeys = [ArtistSongMapping.COLUMN_ARTIST_ID, ArtistSongMapping.COLUMN_SONG_ID],
     foreignKeys = [
         ForeignKey(
             entity = AlbumArtistMapping::class,
@@ -23,7 +24,10 @@ import androidx.room.Index
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(ArtistSongMapping.COLUMN_ARTIST_ID)],
+    indices = [
+        Index(ArtistSongMapping.COLUMN_ARTIST_ID),
+        Index(ArtistSongMapping.COLUMN_SONG_ID),
+    ],
 )
 data class ArtistSongMapping(
     @ColumnInfo(COLUMN_ARTIST_ID)

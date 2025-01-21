@@ -2,10 +2,10 @@ package io.github.zyrouge.symphony.services.database.store
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import io.github.zyrouge.symphony.services.groove.entities.Artist
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArtistStore {
@@ -15,9 +15,8 @@ interface ArtistStore {
     @Update
     suspend fun update(vararg entities: Artist): Int
 
-    @Query("SELECT * FROM ${Artist.TABLE}")
-    suspend fun values(): List<Artist>
-
-    @Query("SELECT * FROM ${Artist.TABLE}")
-    suspend fun valuesAsFlow(): Flow<List<Artist>>
+    @Query("SELECT ${Artist.COLUMN_ID}, ${Artist.COLUMN_NAME} FROM ${Artist.TABLE} WHERE ${Artist.COLUMN_NAME} in (:names)")
+    fun entriesByNameNameIdMapped(names: Collection<String>): Map<
+            @MapColumn(Artist.COLUMN_NAME) String,
+            @MapColumn(Artist.COLUMN_ID) String>
 }

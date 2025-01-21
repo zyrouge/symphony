@@ -13,5 +13,5 @@ interface ArtworkIndexStore {
     suspend fun upsert(vararg entities: ArtworkIndex): List<String>
 
     @Query("SELECT * FROM ${ArtworkIndex.TABLE}")
-    suspend fun entriesSongIdMapped(): Map<@MapColumn(ArtworkIndex.COLUMN_SONG_ID) String, ArtworkIndex>
+    fun entriesSongIdMapped(): Map<@MapColumn(ArtworkIndex.COLUMN_SONG_ID) String, ArtworkIndex>
 }

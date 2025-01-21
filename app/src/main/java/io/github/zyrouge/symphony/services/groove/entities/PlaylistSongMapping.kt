@@ -24,6 +24,12 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.SET_NULL,
         ),
         ForeignKey(
+            entity = Song::class,
+            parentColumns = arrayOf(Song.COLUMN_PATH),
+            childColumns = arrayOf(PlaylistSongMapping.COLUMN_SONG_PATH),
+            onDelete = ForeignKey.SET_NULL,
+        ),
+        ForeignKey(
             entity = PlaylistSongMapping::class,
             parentColumns = arrayOf(PlaylistSongMapping.COLUMN_ID),
             childColumns = arrayOf(PlaylistSongMapping.COLUMN_NEXT_ID),
@@ -44,16 +50,19 @@ data class PlaylistSongMapping(
     val playlistId: String,
     @ColumnInfo(COLUMN_SONG_ID)
     val songId: String?,
+    @ColumnInfo(COLUMN_SONG_PATH)
+    val songPath: String?,
     @ColumnInfo(COLUMN_IS_HEAD)
     val isStart: Boolean,
     @ColumnInfo(COLUMN_NEXT_ID)
     val nextId: String?,
 ) {
     companion object {
-        const val TABLE = "playlist_songs"
+        const val TABLE = "playlist_songs_mapping"
         const val COLUMN_ID = "id"
         const val COLUMN_PLAYLIST_ID = "playlist_id"
         const val COLUMN_SONG_ID = "song_id"
+        const val COLUMN_SONG_PATH = "song_path"
         const val COLUMN_IS_HEAD = "is_head"
         const val COLUMN_NEXT_ID = "next_id"
     }

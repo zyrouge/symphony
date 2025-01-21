@@ -17,13 +17,16 @@ import java.time.LocalDate
     Song.TABLE,
     foreignKeys = [
         ForeignKey(
-            entity = SongFile::class,
-            parentColumns = arrayOf(SongFile.COLUMN_ID),
+            entity = MediaTreeSongFile::class,
+            parentColumns = arrayOf(MediaTreeSongFile.COLUMN_ID),
             childColumns = arrayOf(Song.COLUMN_ID),
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(Song.COLUMN_TITLE)],
+    indices = [
+        Index(Song.COLUMN_TITLE),
+        Index(Song.COLUMN_PATH, unique = true),
+    ],
 )
 data class Song(
     @PrimaryKey
@@ -31,8 +34,6 @@ data class Song(
     val id: String,
     @ColumnInfo(COLUMN_TITLE)
     val title: String,
-    @ColumnInfo(COLUMN_ALBUM_ID)
-    val albumId: String?,
     @ColumnInfo(COLUMN_TRACK_NUMBER)
     val trackNumber: Int?,
     @ColumnInfo(COLUMN_TRACK_TOTAL)
@@ -59,8 +60,6 @@ data class Song(
     val dateModified: Long,
     @ColumnInfo(COLUMN_SIZE)
     val size: Long,
-    @ColumnInfo(COLUMN_COVER_FILE)
-    val coverFile: String?,
     @ColumnInfo(COLUMN_URI)
     val uri: Uri,
     @ColumnInfo(COLUMN_PATH)
@@ -106,7 +105,6 @@ data class Song(
         const val TABLE = "songs"
         const val COLUMN_ID = "id"
         const val COLUMN_TITLE = "title"
-        const val COLUMN_ALBUM_ID = "album"
         const val COLUMN_TRACK_NUMBER = "track_number"
         const val COLUMN_TRACK_TOTAL = "track_total"
         const val COLUMN_DISC_NUMBER = "disc_number"
@@ -120,7 +118,6 @@ data class Song(
         const val COLUMN_ENCODER = "encoder"
         const val COLUMN_DATE_MODIFIED = "date_modified"
         const val COLUMN_SIZE = "size"
-        const val COLUMN_COVER_FILE = "cover_file"
         const val COLUMN_URI = "uri"
         const val COLUMN_PATH = "path"
     }

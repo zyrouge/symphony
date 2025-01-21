@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import io.github.zyrouge.symphony.services.groove.entities.Song
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SongStore {
@@ -21,9 +20,9 @@ interface SongStore {
     @Query("DELETE FROM ${Song.TABLE} WHERE ${Song.COLUMN_ID} IN (:ids)")
     suspend fun delete(ids: Collection<String>): Int
 
-    @Query("SELECT * FROM ${Song.TABLE}")
-    suspend fun values(): List<Song>
+    @Query("SELECT * FROM ${Song.TABLE} WHERE ${Song.COLUMN_PATH} = :path LIMIT 1")
+    fun findByPath(path: String): Song?
 
-    @Query("SELECT * FROM ${Song.TABLE}")
-    suspend fun valuesAsFlow(): Flow<List<Song>>
+    @Query("SELECT ${Song.COLUMN_ID} FROM ${Song.TABLE}")
+    fun ids(): List<String>
 }

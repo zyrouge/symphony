@@ -25,7 +25,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     }
 
     private val cache = ConcurrentHashMap<String, Playlist>()
-    internal val idGenerator = KeyGenerator.TimeIncremental()
+    internal val idGenerator = KeyGenerator.TimeCounterRandomMix()
     private val searcher = FuzzySearcher<String>(
         options = listOf(FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }))
     )

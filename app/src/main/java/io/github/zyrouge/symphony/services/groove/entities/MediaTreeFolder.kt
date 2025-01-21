@@ -21,8 +21,8 @@ import androidx.room.PrimaryKey
     ],
     indices = [
         Index(MediaTreeFolder.COLUMN_PARENT_ID),
-        Index(MediaTreeFolder.COLUMN_INTERNAL_NAME, unique = true),
         Index(MediaTreeFolder.COLUMN_NAME),
+        Index(MediaTreeFolder.COLUMN_IS_HEAD),
     ]
 )
 data class MediaTreeFolder(
@@ -31,22 +31,22 @@ data class MediaTreeFolder(
     val id: String,
     @ColumnInfo(COLUMN_PARENT_ID)
     val parentId: String?,
-    @ColumnInfo(COLUMN_INTERNAL_NAME)
-    val internalName: String?,
     @ColumnInfo(COLUMN_NAME)
     val name: String,
-    @ColumnInfo(COLUMN_URI)
-    val uri: Uri?,
+    @ColumnInfo(COLUMN_IS_HEAD)
+    val isHead: Boolean,
     @ColumnInfo(COLUMN_DATE_MODIFIED)
     val dateModified: Long,
+    @ColumnInfo(COLUMN_URI)
+    val uri: Uri?,
 ) {
     companion object {
         const val TABLE = "media_tree_folders"
         const val COLUMN_ID = "id"
         const val COLUMN_PARENT_ID = "parent_id"
-        const val COLUMN_INTERNAL_NAME = "internal_name"
+        const val COLUMN_IS_HEAD = "is_head"
         const val COLUMN_NAME = "name"
-        const val COLUMN_URI = "uri"
         const val COLUMN_DATE_MODIFIED = "date_modified"
+        const val COLUMN_URI = "uri"
     }
 }
