@@ -6,14 +6,13 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import io.github.zyrouge.symphony.Symphony
 
 @Immutable
 @Entity(
-    Artist.TABLE,
-    indices = [Index(Artist.COLUMN_NAME)],
+    Composer.TABLE,
+    indices = [Index(Composer.COLUMN_NAME)],
 )
-data class Artist(
+data class Composer(
     @PrimaryKey
     @ColumnInfo(COLUMN_ID)
     val id: String,
@@ -22,7 +21,7 @@ data class Artist(
 ) {
     data class AlongAttributes(
         @Embedded
-        val artist: Artist,
+        val composer: Composer,
         @Embedded
         val tracksCount: Int,
         @Embedded
@@ -34,20 +33,8 @@ data class Artist(
         }
     }
 
-    fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.artist.createArtworkImageRequest(name)
-
-    fun getSongIds(symphony: Symphony) = symphony.groove.artist.getSongIds(name)
-    fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
-        getSongIds(symphony),
-        symphony.settings.lastUsedSongsSortBy.value,
-        symphony.settings.lastUsedSongsSortReverse.value,
-    )
-
-    fun getAlbumIds(symphony: Symphony) = symphony.groove.artist.getAlbumIds(name)
-
     companion object {
-        const val TABLE = "artists"
+        const val TABLE = "composers"
         const val COLUMN_ID = "id"
         const val COLUMN_NAME = "name"
     }

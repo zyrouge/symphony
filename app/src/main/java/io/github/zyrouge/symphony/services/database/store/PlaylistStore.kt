@@ -18,9 +18,9 @@ interface PlaylistStore {
     @Query("DELETE FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_ID} = :id")
     suspend fun delete(id: String): Int
 
-    @Query("SELECT * FROM ${Playlist.TABLE}")
-    suspend fun values(): List<Playlist>
+    @Query("SELECT * FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_URI} != NULL")
+    fun valuesLocalOnly(): List<Playlist>
 
     @Query("SELECT * FROM ${Playlist.TABLE}")
-    suspend fun valuesAsFlow(): Flow<List<Playlist>>
+    fun valuesAsFlow(): Flow<List<Playlist>>
 }

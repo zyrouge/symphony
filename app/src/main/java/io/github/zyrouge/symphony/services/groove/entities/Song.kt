@@ -3,12 +3,12 @@ package io.github.zyrouge.symphony.services.groove.entities
 import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.SimplePath
 import java.math.RoundingMode
 import java.time.LocalDate
 
@@ -60,11 +60,18 @@ data class Song(
     val dateModified: Long,
     @ColumnInfo(COLUMN_SIZE)
     val size: Long,
+    @ColumnInfo(COLUMN_FILENAME)
+    val filename: String,
     @ColumnInfo(COLUMN_URI)
     val uri: Uri,
     @ColumnInfo(COLUMN_PATH)
     val path: String,
 ) {
+    data class AlongAttribute(
+        @Embedded
+        val song: Song,
+    )
+
     val bitrateK: Long? get() = bitrate?.let { it / 1000 }
     val samplingRateK: Float?
         get() = samplingRate?.let {
@@ -73,8 +80,6 @@ data class Song(
                 .setScale(1, RoundingMode.CEILING)
                 .toFloat()
         }
-
-    val filename get() = SimplePath(path).name
 
     fun createArtworkImageRequest(symphony: Symphony) =
         symphony.groove.song.createArtworkImageRequest(id)
@@ -118,6 +123,7 @@ data class Song(
         const val COLUMN_ENCODER = "encoder"
         const val COLUMN_DATE_MODIFIED = "date_modified"
         const val COLUMN_SIZE = "size"
+        const val COLUMN_FILENAME = "filename"
         const val COLUMN_URI = "uri"
         const val COLUMN_PATH = "path"
     }

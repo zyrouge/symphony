@@ -1,19 +1,9 @@
 package io.github.zyrouge.symphony.services.groove.repositories
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.AlbumArtist
-import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
-import io.github.zyrouge.symphony.utils.ConcurrentSet
-import io.github.zyrouge.symphony.utils.FuzzySearchOption
-import io.github.zyrouge.symphony.utils.FuzzySearcher
-import io.github.zyrouge.symphony.utils.concurrentSetOf
 import io.github.zyrouge.symphony.utils.withCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import java.util.concurrent.ConcurrentHashMap
 
 class AlbumArtistRepository(private val symphony: Symphony) {
     enum class SortBy {
@@ -21,62 +11,6 @@ class AlbumArtistRepository(private val symphony: Symphony) {
         ARTIST_NAME,
         TRACKS_COUNT,
         ALBUMS_COUNT,
-    }
-
-    private val cache = ConcurrentHashMap<String, AlbumArtist>()
-    private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
-    private val albumIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
-    private val searcher = FuzzySearcher<String>(
-        options = listOf(FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }))
-    )
-
-    val isUpdating get() = symphony.groove.exposer.isUpdating
-    private val _all = MutableStateFlow<List<String>>(emptyList())
-    val all = _all.asStateFlow()
-    private val _count = MutableStateFlow(0)
-    val count = _count.asStateFlow()
-
-    private fun emitCount() = _count.update {
-        cache.size
-    }
-
-    internal fun onSong(song: Song) {
-        song.albumArtists.forEach { albumArtist ->
-            songIdsCache.compute(albumArtist) { _, value ->
-                value?.apply { add(song.id) } ?: concurrentSetOf(song.id)
-            }
-            var nNumberOfAlbums = 0
-            symphony.groove.album.getIdFromSong(song)?.let { albumId ->
-                albumIdsCache.compute(albumArtist) { _, value ->
-                    nNumberOfAlbums = (value?.size ?: 0) + 1
-                    value?.apply { add(albumId) } ?: concurrentSetOf(albumId)
-                }
-            }
-            cache.compute(albumArtist) { _, value ->
-                value?.apply {
-                    numberOfAlbums = nNumberOfAlbums
-                    numberOfTracks++
-                } ?: run {
-                    _all.update {
-                        it + albumArtist
-                    }
-                    emitCount()
-                    AlbumArtist(
-                        name = albumArtist,
-                        numberOfAlbums = 1,
-                        numberOfTracks = 1,
-                    )
-                }
-            }
-        }
-    }
-
-    fun reset() {
-        cache.clear()
-        _all.update {
-            emptyList()
-        }
-        emitCount()
     }
 
     fun getArtworkUri(albumArtistName: String) = songIdsCache[albumArtistName]?.firstOrNull()

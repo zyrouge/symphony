@@ -24,13 +24,13 @@ data class Playlist(
     val id: String,
     @ColumnInfo(COLUMN_TITLE)
     val title: String,
-    val songPaths: List<String>,
     @ColumnInfo(COLUMN_URI)
     val uri: Uri?,
     @ColumnInfo(COLUMN_PATH)
     val path: String?,
 ) {
-    val numberOfTracks: Int get() = songPaths.size
+    data class Extended(val playlist: Playlist, val songPaths: List<String>)
+
     val isLocal get() = uri != null
     val isNotLocal get() = uri == null
 
@@ -58,14 +58,6 @@ data class Playlist(
         symphony.settings.lastUsedPlaylistSongsSortReverse.value,
     )
 
-    fun withTitle(title: String) = Playlist(
-        id = id,
-        title = title,
-        songPaths = songPaths,
-        uri = uri,
-        path = path,
-    )
-
     companion object {
         const val TABLE = "playlists"
         const val COLUMN_ID = "id"
@@ -75,7 +67,7 @@ data class Playlist(
 
         private const val PRIMARY_STORAGE = "primary:"
 
-        fun parse(symphony: Symphony, playlistId: String?, uri: Uri): Playlist {
+        fun parse(symphony: Symphony, playlistId: String?, uri: Uri): Extended {
             val file = DocumentFileX.fromSingleUri(symphony.applicationContext, uri)!!
             val content = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { String(it.readBytes()) } ?: ""
@@ -85,13 +77,13 @@ data class Playlist(
                 .toList()
             val id = playlistId ?: symphony.groove.playlist.idGenerator.next()
             val path = DocumentFileX.getParentPathOfSingleUri(file.uri) ?: file.name
-            return Playlist(
+            val playlist = Playlist(
                 id = id,
                 title = Path(path).nameWithoutExtension,
-                songPaths = songPaths,
                 uri = uri,
                 path = path,
             )
+            return Extended(playlist = playlist, songPaths = songPaths)
         }
     }
 }

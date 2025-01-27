@@ -9,11 +9,15 @@ import io.github.zyrouge.symphony.services.groove.entities.AlbumSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.entities.ArtistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.ArtworkIndex
+import io.github.zyrouge.symphony.services.groove.entities.Composer
+import io.github.zyrouge.symphony.services.groove.entities.ComposerSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Genre
 import io.github.zyrouge.symphony.services.groove.entities.GenreSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.MediaTreeFolder
 import io.github.zyrouge.symphony.services.groove.entities.MediaTreeLyricFile
 import io.github.zyrouge.symphony.services.groove.entities.MediaTreeSongFile
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 import io.github.zyrouge.symphony.utils.ActivityUtils
@@ -24,7 +28,6 @@ import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
 import io.github.zyrouge.symphony.utils.concurrentSetOf
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -39,18 +42,25 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class MediaExposer(private val symphony: Symphony) {
-    private val _isUpdating = MutableStateFlow(false)
-    val isUpdating = _isUpdating.asStateFlow()
+    private val _isUpdating = MutableStateFlow<Boolean>(false)
+    val isUpdating get() = _isUpdating.asStateFlow()
 
-    private fun emitUpdate(value: Boolean) = _isUpdating.update { value }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun fetch() {
-        emitUpdate(true)
+        _isUpdating.update { true }
+        coroutineScope {
+            awaitAll(
+                async { scanMediaTree() },
+                async { scanPlaylists() },
+            )
+        }
+        _isUpdating.update { false }
+    }
+
+    suspend fun scanMediaTree() {
         try {
             val context = symphony.applicationContext
             val folderUris = symphony.settings.mediaFolders.value
-            val scanner = Scanner.create(symphony)
+            val scanner = MediaTreeScanner.create(symphony)
             folderUris.map { x ->
                 ActivityUtils.makePersistableReadableUri(context, x)
                 DocumentFileX.fromTreeUri(context, x)?.let {
@@ -64,11 +74,44 @@ class MediaExposer(private val symphony: Symphony) {
         } catch (err: Exception) {
             Logger.error("MediaExposer", "fetch failed", err)
         }
-        emitUpdate(false)
-        emitFinish()
     }
 
-    private data class Scanner(
+    suspend fun scanPlaylists() {
+        try {
+            val playlists = symphony.database.playlists.valuesLocalOnly()
+            val playlistsToBeUpdated = mutableListOf<Playlist>()
+            val playlistIdsToBeDeletedInMapping = mutableListOf<String>()
+            val playlistSongMappingToBeInserted = mutableListOf<PlaylistSongMapping>()
+            for (exPlaylist in playlists) {
+                val playlistId = exPlaylist.id
+                val uri = exPlaylist.uri!!
+                playlistIdsToBeDeletedInMapping.add(playlistId)
+                val extended = Playlist.parse(symphony, playlistId, uri)
+                playlistsToBeUpdated.add(extended.playlist)
+                var nextPlaylistSongMapping: PlaylistSongMapping? = null
+                for (i in (extended.songPaths.size - 1) downTo 0) {
+                    val x = extended.songPaths[i]
+                    val playlistSongMapping = PlaylistSongMapping(
+                        id = symphony.database.playlistSongMappingIdGenerator.next(),
+                        playlistId = playlistId,
+                        songId = null,
+                        songPath = x,
+                        isStart = i == 0,
+                        nextId = nextPlaylistSongMapping?.id,
+                    )
+                    playlistSongMappingToBeInserted.add(playlistSongMapping)
+                    nextPlaylistSongMapping = playlistSongMapping
+                }
+            }
+            symphony.database.playlists.update(*playlistsToBeUpdated.toTypedArray())
+            symphony.database.playlistSongMapping.deletePlaylistIds(playlistIdsToBeDeletedInMapping)
+            symphony.database.playlistSongMapping.insert(*playlistSongMappingToBeInserted.toTypedArray())
+        } catch (err: Exception) {
+            Logger.error("MediaExposer", "playlist fetch failed", err)
+        }
+    }
+
+    private data class MediaTreeScanner(
         val symphony: Symphony,
         val rootFolder: MediaTreeFolder,
         val folderStaleIds: ConcurrentSet<String>,
@@ -183,14 +226,15 @@ class MediaExposer(private val symphony: Symphony) {
                 if (extension == null) {
                     return@let null
                 }
+                val artworkId = symphony.database.artworksIdGenerator.next()
                 val quality = symphony.settings.artworkQuality.value
                 if (quality.maxSide == null && extension != "_") {
-                    val name = "$id.$extension"
+                    val name = "$artworkId.$extension"
                     symphony.database.artworks.get(name).writeBytes(it.data)
                     return@let name
                 }
                 val bitmap = BitmapFactory.decodeByteArray(it.data, 0, it.data.size)
-                val name = "$id.jpg"
+                val name = "$artworkId.jpg"
                 FileOutputStream(symphony.database.artworks.get(name)).use { writer ->
                     ImagePreserver
                         .resize(bitmap, quality)
@@ -233,6 +277,7 @@ class MediaExposer(private val symphony: Symphony) {
                     encoder = file.encoder,
                     dateModified = file.dateModified,
                     size = file.size,
+                    filename = file.name,
                     uri = file.uri,
                     path = file.path,
                 )
@@ -253,6 +298,7 @@ class MediaExposer(private val symphony: Symphony) {
                     encoder = file.encoder,
                     dateModified = file.dateModified,
                     size = file.size,
+                    filename = file.name,
                     uri = file.uri,
                     path = file.path,
                 )
@@ -326,22 +372,36 @@ class MediaExposer(private val symphony: Symphony) {
             symphony.database.artists.insert(*artistsToBeInserted.toTypedArray())
             symphony.database.artistSongMapping.upsert(*artistSongMappingsToBeUpserted.toTypedArray())
             symphony.database.albumArtistMapping.upsert(*albumArtistMappingsToBeUpserted.values.toTypedArray())
+            val exComposerIds =
+                symphony.database.composers.entriesByNameNameIdMapped(file.composers)
+            val composersToBeInserted = mutableListOf<Composer>()
+            val composerSongMappingsToBeUpserted = mutableListOf<ComposerSongMapping>()
+            for (composerName in file.composers) {
+                val exComposerId = exComposerIds[composerName]
+                val composerId = exComposerId ?: symphony.database.composersIdGenerator.next()
+                if (exComposerId == null) {
+                    val composer = Composer(id = composerId, name = composerName)
+                    composersToBeInserted.add(composer)
+                }
+                val composerSongMapping = ComposerSongMapping(composerId = composerId, songId = id)
+                composerSongMappingsToBeUpserted.add(composerSongMapping)
+            }
+            symphony.database.composers.insert(*composersToBeInserted.toTypedArray())
+            symphony.database.composerSongMapping.upsert(*composerSongMappingsToBeUpserted.toTypedArray())
+            val exGenreIds = symphony.database.genres.entriesByNameNameIdMapped(file.genres)
+            val genresToBeInserted = mutableListOf<Genre>()
             val genreSongMappingsToBeUpserted = mutableListOf<GenreSongMapping>()
             for (genreName in file.genres) {
-                val exGenre = symphony.database.genres.findByName(genreName)
-                val genre = when {
-                    exGenre != null -> exGenre
-                    else -> Genre(
-                        id = symphony.database.genresIdGenerator.next(),
-                        name = genreName,
-                    )
+                val exGenreId = exGenreIds[genreName]
+                val genreId = exGenreId ?: symphony.database.genresIdGenerator.next()
+                if (exGenreId == null) {
+                    val genre = Genre(id = genreId, name = genreName)
+                    genresToBeInserted.add(genre)
                 }
-                if (exGenre == null) {
-                    symphony.database.genres.insert(genre)
-                }
-                val genreSongMapping = GenreSongMapping(genreId = genre.id, songId = id)
+                val genreSongMapping = GenreSongMapping(genreId = genreId, songId = id)
                 genreSongMappingsToBeUpserted.add(genreSongMapping)
             }
+            symphony.database.genres.insert(*genresToBeInserted.toTypedArray())
             symphony.database.genreSongMapping.upsert(*genreSongMappingsToBeUpserted.toTypedArray())
         }
 
@@ -385,7 +445,7 @@ class MediaExposer(private val symphony: Symphony) {
         }
 
         companion object {
-            suspend fun create(symphony: Symphony): Scanner {
+            suspend fun create(symphony: Symphony): MediaTreeScanner {
                 val filter = MediaFilter(
                     symphony.settings.songsFilterPattern.value,
                     symphony.settings.blacklistFolders.value.toSortedSet(),
@@ -396,7 +456,7 @@ class MediaExposer(private val symphony: Symphony) {
                 val songFileIds = symphony.database.mediaTreeSongFiles.ids(rootFolder.id)
                 val lyricFileIds = symphony.database.mediaTreeLyricFiles.ids(rootFolder.id)
                 val songIds = symphony.database.songs.ids()
-                return Scanner(
+                return MediaTreeScanner(
                     symphony = symphony,
                     rootFolder = rootFolder,
                     folderStaleIds = concurrentSetOf(folderIds),
@@ -426,10 +486,6 @@ class MediaExposer(private val symphony: Symphony) {
                 return root
             }
         }
-    }
-
-    private fun emitFinish() {
-        symphony.groove.playlist.onScanFinish()
     }
 
     private class MediaFilter(
