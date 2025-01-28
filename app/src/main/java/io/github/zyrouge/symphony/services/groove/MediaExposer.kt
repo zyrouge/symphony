@@ -8,7 +8,6 @@ import io.github.zyrouge.symphony.services.groove.entities.AlbumArtistMapping
 import io.github.zyrouge.symphony.services.groove.entities.AlbumSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.entities.ArtistSongMapping
-import io.github.zyrouge.symphony.services.groove.entities.ArtworkIndex
 import io.github.zyrouge.symphony.services.groove.entities.Composer
 import io.github.zyrouge.symphony.services.groove.entities.ComposerSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Genre
@@ -19,6 +18,7 @@ import io.github.zyrouge.symphony.services.groove.entities.MediaTreeSongFile
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
+import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
 import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.ConcurrentSet
@@ -86,6 +86,7 @@ class MediaExposer(private val symphony: Symphony) {
                 val playlistId = exPlaylist.id
                 val uri = exPlaylist.uri!!
                 playlistIdsToBeDeletedInMapping.add(playlistId)
+                ActivityUtils.makePersistableReadableUri(symphony.applicationContext, uri)
                 val extended = Playlist.parse(symphony, playlistId, uri)
                 playlistsToBeUpdated.add(extended.playlist)
                 var nextPlaylistSongMapping: PlaylistSongMapping? = null
@@ -118,7 +119,7 @@ class MediaExposer(private val symphony: Symphony) {
         val songFileStaleIds: ConcurrentSet<String>,
         val lyricFileStaleIds: ConcurrentSet<String>,
         val songStaleIds: ConcurrentSet<String>,
-        val artworkIndexCache: ConcurrentHashMap<String, ArtworkIndex>,
+        val artworkIndexCache: ConcurrentHashMap<String, SongArtworkIndex>,
         val artworkStaleFiles: ConcurrentSet<String>,
         val filter: MediaFilter,
         val songParseOptions: MediaTreeSongFile.ParseOptions,
@@ -242,7 +243,7 @@ class MediaExposer(private val symphony: Symphony) {
                 }
                 name
             }
-            val artworkIndex = ArtworkIndex(songId = id, file = artworkFile)
+            val artworkIndex = SongArtworkIndex(songId = id, file = artworkFile)
             artworkIndex.file?.let {
                 artworkStaleFiles.remove(it)
             }

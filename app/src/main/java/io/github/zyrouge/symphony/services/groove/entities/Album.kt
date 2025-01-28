@@ -6,7 +6,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import io.github.zyrouge.symphony.Symphony
 
 @Immutable
 @Entity(
@@ -37,16 +36,6 @@ data class Album(
             const val EMBEDDED_ARTISTS_COUNT = "artistsCount"
         }
     }
-
-    fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.album.createArtworkImageRequest(id)
-
-    //    fun getSongIds(symphony: Symphony) = symphony.groove.album.getSongIds(id)
-//    fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
-//        getSongIds(symphony),
-//        symphony.settings.lastUsedAlbumSongsSortBy.value,
-//        symphony.settings.lastUsedAlbumSongsSortReverse.value,
-//    )
 
     companion object {
         const val TABLE = "albums"

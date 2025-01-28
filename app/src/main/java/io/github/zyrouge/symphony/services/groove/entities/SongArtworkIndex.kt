@@ -9,18 +9,18 @@ import androidx.room.PrimaryKey
 
 @Immutable
 @Entity(
-    ArtworkIndex.TABLE,
+    SongArtworkIndex.TABLE,
     foreignKeys = [
         ForeignKey(
             entity = Song::class,
             parentColumns = arrayOf(Song.COLUMN_ID),
-            childColumns = arrayOf(ArtworkIndex.COLUMN_SONG_ID),
+            childColumns = arrayOf(SongArtworkIndex.COLUMN_SONG_ID),
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(ArtworkIndex.COLUMN_FILE)],
+    indices = [Index(SongArtworkIndex.COLUMN_FILE)],
 )
-data class ArtworkIndex(
+data class SongArtworkIndex(
     @PrimaryKey
     @ColumnInfo(COLUMN_SONG_ID)
     val songId: String,
@@ -28,7 +28,7 @@ data class ArtworkIndex(
     val file: String?,
 ) {
     companion object {
-        const val TABLE = "artwork_indices"
+        const val TABLE = "song_artwork_indices"
         const val COLUMN_SONG_ID = "song_id"
         const val COLUMN_FILE = "file"
     }

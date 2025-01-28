@@ -56,21 +56,23 @@ interface SongStore {
 fun SongStore.valuesAsFlow(
     sortBy: SongRepository.SortBy,
     sortReverse: Boolean,
+    additionalClauseBeforeJoins: String = "",
+    additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
 ): Flow<List<Song.AlongAttribute>> {
-    val aliasAlbumArtist = "albumArtist"
-    val embeddedArtistName = "artistName"
-    val embeddedAlbumName = "albumName"
-    val embeddedAlbumArtistName = "albumArtistName"
-    val embeddedComposerName = "composerName"
+    val aliasFirstAlbumArtist = "firstAlbumArtist"
+    val embeddedFirstArtistName = "firstArtistName"
+    val embeddedFirstAlbumName = "firstAlbumName"
+    val embeddedFirstAlbumArtistName = "firstAlbumArtistName"
+    val embeddedFirstComposerName = "firstComposerName"
     val orderBy = when (sortBy) {
         SongRepository.SortBy.CUSTOM -> "${Song.TABLE}.${Song.COLUMN_ID}"
         SongRepository.SortBy.TITLE -> "${Song.TABLE}.${Song.COLUMN_ID}"
-        SongRepository.SortBy.ARTIST -> embeddedArtistName
-        SongRepository.SortBy.ALBUM -> embeddedAlbumName
+        SongRepository.SortBy.ARTIST -> embeddedFirstArtistName
+        SongRepository.SortBy.ALBUM -> embeddedFirstAlbumName
         SongRepository.SortBy.DURATION -> "${Song.TABLE}.${Song.COLUMN_ID}"
         SongRepository.SortBy.DATE_MODIFIED -> "${Song.TABLE}.${Song.COLUMN_ID}"
-        SongRepository.SortBy.COMPOSER -> embeddedComposerName
-        SongRepository.SortBy.ALBUM_ARTIST -> embeddedAlbumArtistName
+        SongRepository.SortBy.COMPOSER -> embeddedFirstComposerName
+        SongRepository.SortBy.ALBUM_ARTIST -> embeddedFirstAlbumArtistName
         SongRepository.SortBy.YEAR -> "${Song.TABLE}.${Song.COLUMN_YEAR}"
         SongRepository.SortBy.FILENAME -> "${Song.TABLE}.${Song.COLUMN_FILENAME}"
         SongRepository.SortBy.TRACK_NUMBER -> "${Song.TABLE}.${Song.COLUMN_TRACK_NUMBER}"
@@ -93,15 +95,17 @@ fun SongStore.valuesAsFlow(
             "FROM ${ComposerSongMapping.TABLE} " +
             "WHERE ${ComposerSongMapping.TABLE}.${ComposerSongMapping.COLUMN_SONG_ID} = ${Song.COLUMN_ID}"
     val query = "SELECT ${Song.TABLE}.*, " +
-            "${Artist.TABLE}.${Artist.COLUMN_NAME} as $embeddedArtistName, " +
-            "${Album.TABLE}.${Album.COLUMN_NAME} as $embeddedAlbumName, " +
-            "$aliasAlbumArtist.${Artist.COLUMN_NAME} as $embeddedAlbumArtistName, " +
-            "${Composer.TABLE}.${Composer.COLUMN_NAME} as $embeddedComposerName " +
+            "${Artist.TABLE}.${Artist.COLUMN_NAME} as $embeddedFirstArtistName, " +
+            "${Album.TABLE}.${Album.COLUMN_NAME} as $embeddedFirstAlbumName, " +
+            "$aliasFirstAlbumArtist.${Artist.COLUMN_NAME} as $embeddedFirstAlbumArtistName, " +
+            "${Composer.TABLE}.${Composer.COLUMN_NAME} as $embeddedFirstComposerName " +
             "FROM ${Song.TABLE} " +
+            additionalClauseBeforeJoins +
             "LEFT JOIN ${Artist.TABLE} ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($artistQuery)" +
             "LEFT JOIN ${Album.TABLE} ON ${Album.TABLE}.${Album.COLUMN_ID} = ($albumQuery)" +
-            "LEFT JOIN ${Artist.TABLE} $aliasAlbumArtist ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($albumArtistQuery)" +
+            "LEFT JOIN ${Artist.TABLE} $aliasFirstAlbumArtist ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($albumArtistQuery)" +
             "LEFT JOIN ${Composer.TABLE} ON ${Composer.TABLE}.${Composer.COLUMN_ID} = ($composerQuery)" +
             "ORDER BY $orderBy $orderDirection"
-    return valuesAsFlowRaw(SimpleSQLiteQuery(query))
+    val args = additionalArgsBeforeJoins
+    return valuesAsFlowRaw(SimpleSQLiteQuery(query, args))
 }

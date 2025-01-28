@@ -5,13 +5,13 @@ import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import io.github.zyrouge.symphony.services.groove.entities.ArtworkIndex
+import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
 
 @Dao
 interface ArtworkIndexStore {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(vararg entities: ArtworkIndex): List<String>
+    suspend fun upsert(vararg entities: SongArtworkIndex): List<String>
 
-    @Query("SELECT * FROM ${ArtworkIndex.TABLE}")
-    fun entriesSongIdMapped(): Map<@MapColumn(ArtworkIndex.COLUMN_SONG_ID) String, ArtworkIndex>
+    @Query("SELECT * FROM ${SongArtworkIndex.TABLE}")
+    fun entriesSongIdMapped(): Map<@MapColumn(SongArtworkIndex.COLUMN_SONG_ID) String, SongArtworkIndex>
 }

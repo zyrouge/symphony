@@ -20,14 +20,12 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumGrid(context: ViewContext, albums: List<Album>) {
-    val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.flow.collectAsState()
-    val sortedAlbumIds by remember(albums, sortBy, sortReverse) {
-        derivedStateOf {
-            context.symphony.groove.album.sort(albums, sortBy, sortReverse)
-        }
-    }
+fun AlbumGrid(
+    context: ViewContext,
+    albums: List<Album>,
+    sortBy: AlbumRepository.SortBy,
+    sortReverse: Boolean,
+) {
     val horizontalGridColumns by context.symphony.settings.lastUsedAlbumsHorizontalGridColumns.flow.collectAsState()
     val verticalGridColumns by context.symphony.settings.lastUsedAlbumsVerticalGridColumns.flow.collectAsState()
     val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
@@ -53,7 +51,7 @@ fun AlbumGrid(context: ViewContext, albums: List<Album>) {
                     context.symphony.settings.lastUsedAlbumsSortBy.setValue(it)
                 },
                 label = {
-                    Text(context.symphony.t.XAlbums((albums.size).toString()))
+                    Text(context.symphony.t.XAlbums(albums.size.toString()))
                 },
                 onShowModifyLayout = {
                     showModifyLayoutSheet = true
@@ -75,7 +73,7 @@ fun AlbumGrid(context: ViewContext, albums: List<Album>) {
 
                 else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
-                        sortedAlbumIds,
+                        albums,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.ALBUM }
                     ) { _, album ->
@@ -110,5 +108,6 @@ private fun AlbumRepository.SortBy.label(context: ViewContext) = when (this) {
     AlbumRepository.SortBy.ALBUM_NAME -> context.symphony.t.Album
     AlbumRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
     AlbumRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
+    AlbumRepository.SortBy.ARTISTS_COUNT -> context.symphony.t.ArtistCount
     AlbumRepository.SortBy.YEAR -> context.symphony.t.Year
 }

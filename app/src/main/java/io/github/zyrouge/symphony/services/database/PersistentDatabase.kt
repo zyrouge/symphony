@@ -28,7 +28,6 @@ import io.github.zyrouge.symphony.services.groove.entities.AlbumComposerMapping
 import io.github.zyrouge.symphony.services.groove.entities.AlbumSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.entities.ArtistSongMapping
-import io.github.zyrouge.symphony.services.groove.entities.ArtworkIndex
 import io.github.zyrouge.symphony.services.groove.entities.Composer
 import io.github.zyrouge.symphony.services.groove.entities.ComposerSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Genre
@@ -39,6 +38,7 @@ import io.github.zyrouge.symphony.services.groove.entities.MediaTreeSongFile
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
+import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
 import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 import io.github.zyrouge.symphony.utils.RoomConvertors
 
@@ -51,7 +51,7 @@ import io.github.zyrouge.symphony.utils.RoomConvertors
         AlbumSongMapping::class,
         Artist::class,
         ArtistSongMapping::class,
-        ArtworkIndex::class,
+        SongArtworkIndex::class,
         Composer::class,
         ComposerSongMapping::class,
         Genre::class,

@@ -2,10 +2,10 @@ package io.github.zyrouge.symphony.services.groove.entities
 
 import androidx.compose.runtime.Immutable
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import io.github.zyrouge.symphony.Symphony
 
 @Immutable
 @Entity(
@@ -19,12 +19,16 @@ data class Genre(
     @ColumnInfo(COLUMN_NAME)
     val name: String,
 ) {
-    fun getSongIds(symphony: Symphony) = symphony.groove.genre.getSongIds(name)
-    fun getSortedSongIds(symphony: Symphony) = symphony.groove.song.sort(
-        getSongIds(symphony),
-        symphony.settings.lastUsedSongsSortBy.value,
-        symphony.settings.lastUsedSongsSortReverse.value,
-    )
+    data class AlongAttributes(
+        @Embedded
+        val genre: Genre,
+        @Embedded
+        val tracksCount: Int,
+    ) {
+        companion object {
+            const val EMBEDDED_TRACKS_COUNT = "tracksCount"
+        }
+    }
 
     companion object {
         const val TABLE = "genres"
