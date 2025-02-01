@@ -209,6 +209,18 @@ fun PlaylistDropdownMenu(
         )
         DropdownMenuItem(
             leadingIcon = {
+                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
+            },
+            text = {
+                Text(context.symphony.t.AddToQueue)
+            },
+            onClick = {
+                onDismissRequest()
+                context.symphony.radio.queue.add(playlist.getSongIds(context.symphony))
+            }
+        )
+        DropdownMenuItem(
+            leadingIcon = {
                 Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
             },
             text = {
