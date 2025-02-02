@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view.nowPlaying
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.launch
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +76,11 @@ fun NowPlayingBodyBottomBar(
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showPitchDialog by remember { mutableStateOf(false) }
     var showExtraOptions by remember { mutableStateOf(false) }
+    var hasLyric by remember { mutableStateOf(false) }
+
+    LaunchedEffect(data) {
+        hasLyric = context.symphony.groove.song.getLyrics(data.song) != null
+    }
 
     data.run {
         Row(
@@ -109,29 +116,31 @@ fun NowPlayingBodyBottomBar(
             states.showLyrics.let { showLyricsState ->
                 val showLyrics by showLyricsState.collectAsState()
 
-                IconButton(
-                    onClick = {
-                        when (lyricsLayout) {
-                            NowPlayingLyricsLayout.ReplaceArtwork -> {
-                                val nShowLyrics = !showLyricsState.value
-                                showLyricsState.value = nShowLyrics
-                                NowPlayingDefaults.showLyrics = nShowLyrics
-                            }
+                if (hasLyric) {
+                    IconButton(
+                        onClick = {
+                            when (lyricsLayout) {
+                                NowPlayingLyricsLayout.ReplaceArtwork -> {
+                                    val nShowLyrics = !showLyricsState.value
+                                    showLyricsState.value = nShowLyrics
+                                    NowPlayingDefaults.showLyrics = nShowLyrics
+                                }
 
-                            NowPlayingLyricsLayout.SeparatePage -> {
-                                context.navController.navigate(LyricsViewRoute)
+                                NowPlayingLyricsLayout.SeparatePage -> {
+                                    context.navController.navigate(LyricsViewRoute)
+                                }
                             }
                         }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.Article,
+                            null,
+                            tint = when {
+                                showLyrics -> MaterialTheme.colorScheme.primary
+                                else -> LocalContentColor.current
+                            }
+                        )
                     }
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.Article,
-                        null,
-                        tint = when {
-                            showLyrics -> MaterialTheme.colorScheme.primary
-                            else -> LocalContentColor.current
-                        }
-                    )
                 }
             }
             IconButton(
