@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -22,17 +23,11 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun PlaylistGrid(
     context: ViewContext,
-    playlistIds: List<String>,
-    playlistsCount: Int? = null,
+    playlists: List<Playlist>,
+    sortBy: PlaylistRepository.SortBy,
+    sortReverse: Boolean,
     leadingContent: @Composable () -> Unit = {},
 ) {
-    val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.flow.collectAsState()
-    val sortedPlaylistIds by remember(playlistIds, sortBy, sortReverse) {
-        derivedStateOf {
-            context.symphony.groove.playlist.sort(playlistIds, sortBy, sortReverse)
-        }
-    }
     val horizontalGridColumns by context.symphony.settings.lastUsedPlaylistsHorizontalGridColumns.flow.collectAsState()
     val verticalGridColumns by context.symphony.settings.lastUsedPlaylistsVerticalGridColumns.flow.collectAsState()
     val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
@@ -59,11 +54,7 @@ fun PlaylistGrid(
                         context.symphony.settings.lastUsedPlaylistsSortBy.setValue(it)
                     },
                     label = {
-                        Text(
-                            context.symphony.t.XPlaylists(
-                                (playlistsCount ?: playlistIds.size).toString()
-                            )
-                        )
+                        Text(context.symphony.t.XPlaylists(playlists.size.toString()))
                     },
                     onShowModifyLayout = {
                         showModifyLayoutSheet = true
@@ -73,7 +64,7 @@ fun PlaylistGrid(
         },
         content = {
             when {
-                playlistIds.isEmpty() -> IconTextBody(
+                playlists.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.AutoMirrored.Filled.QueueMusic,
@@ -88,13 +79,11 @@ fun PlaylistGrid(
 
                 else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
-                        sortedPlaylistIds,
+                        playlists,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.PLAYLIST }
-                    ) { _, playlistId ->
-                        context.symphony.groove.playlist.get(playlistId)?.let { playlist ->
-                            PlaylistTile(context, playlist)
-                        }
+                    ) { _, playlist ->
+                        PlaylistTile(context, playlist)
                     }
                 }
             }

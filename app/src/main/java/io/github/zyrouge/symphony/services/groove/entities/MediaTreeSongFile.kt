@@ -1,52 +1,97 @@
-package io.github.zyrouge.symphony.services.groove
+package io.github.zyrouge.symphony.services.groove.entities
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import androidx.compose.runtime.Immutable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
-import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
 import me.zyrouge.symphony.metaphony.AudioMetadataParser
-import java.io.FileOutputStream
-import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.regex.Pattern
 
 @Immutable
-@Entity("songs")
-data class Song(
+@Entity(
+    MediaTreeSongFile.TABLE,
+    foreignKeys = [
+        ForeignKey(
+            entity = MediaTreeFolder::class,
+            parentColumns = arrayOf(MediaTreeFolder.COLUMN_ID),
+            childColumns = arrayOf(MediaTreeSongFile.COLUMN_PARENT_ID),
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [
+        Index(MediaTreeSongFile.COLUMN_PARENT_ID),
+        Index(MediaTreeSongFile.COLUMN_NAME),
+    ],
+)
+data class MediaTreeSongFile(
     @PrimaryKey
+    @ColumnInfo(COLUMN_ID)
     val id: String,
+    @ColumnInfo(COLUMN_PARENT_ID)
+    val parentId: String,
+    @ColumnInfo(COLUMN_NAME)
+    val name: String,
+    @ColumnInfo(COLUMN_TITLE)
     val title: String,
+    @ColumnInfo(COLUMN_ALBUM)
     val album: String?,
+    @ColumnInfo(COLUMN_ARTISTS)
     val artists: Set<String>,
+    @ColumnInfo(COLUMN_COMPOSERS)
     val composers: Set<String>,
+    @ColumnInfo(COLUMN_ALBUM_ARTISTS)
     val albumArtists: Set<String>,
+    @ColumnInfo(COLUMN_GENRES)
     val genres: Set<String>,
+    @ColumnInfo(COLUMN_TRACK_NUMBER)
     val trackNumber: Int?,
+    @ColumnInfo(COLUMN_TRACK_TOTAL)
     val trackTotal: Int?,
+    @ColumnInfo(COLUMN_DISC_NUMBER)
     val discNumber: Int?,
+    @ColumnInfo(COLUMN_DISC_TOTAL)
     val discTotal: Int?,
+    @ColumnInfo(COLUMN_DATE)
     val date: LocalDate?,
+    @ColumnInfo(COLUMN_YEAR)
     val year: Int?,
+    @ColumnInfo(COLUMN_DURATION)
     val duration: Long,
+    @ColumnInfo(COLUMN_BITRATE)
     val bitrate: Long?,
+    @ColumnInfo(COLUMN_SAMPLING_RATE)
     val samplingRate: Long?,
+    @ColumnInfo(COLUMN_CHANNELS)
     val channels: Int?,
+    @ColumnInfo(COLUMN_ENCODER)
     val encoder: String?,
+    @ColumnInfo(COLUMN_DATE_MODIFIED)
     val dateModified: Long,
+    @ColumnInfo(COLUMN_SIZE)
     val size: Long,
-    val coverFile: String?,
+    @ColumnInfo(COLUMN_URI)
     val uri: Uri,
+    @ColumnInfo(COLUMN_REAL_PATH)
     val path: String,
 ) {
+    data class Extended(
+        val file: MediaTreeSongFile,
+        val artwork: Artwork?,
+        val lyrics: String?,
+    ) {
+        data class Artwork(val mimeType: String, val data: ByteArray)
+    }
+
     data class ParseOptions(
         val symphony: Symphony,
         val artistSeparatorRegex: Regex,
@@ -61,101 +106,72 @@ data class Song(
         }
     }
 
-    val bitrateK: Long? get() = bitrate?.let { it / 1000 }
-    val samplingRateK: Float?
-        get() = samplingRate?.let {
-            (it.toFloat() / 1000)
-                .toBigDecimal()
-                .setScale(1, RoundingMode.CEILING)
-                .toFloat()
-        }
-
-    val filename get() = SimplePath(path).name
-
-    fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.song.createArtworkImageRequest(id)
-
-    fun toSamplingInfoString(symphony: Symphony): String? {
-        val values = mutableListOf<String>()
-        encoder?.let {
-            values.add(it)
-        }
-        channels?.let {
-            values.add(symphony.t.XChannels(it.toString()))
-        }
-        bitrateK?.let {
-            values.add(buildString {
-                append(symphony.t.XKbps(it.toString()))
-            })
-        }
-        samplingRateK?.let {
-            values.add(symphony.t.XKHz(it.toString()))
-        }
-        return when {
-            values.isNotEmpty() -> values.joinToString(", ")
-            else -> null
-        }
-    }
-
     companion object {
+        const val TABLE = "media_tree_song_files"
+        const val COLUMN_ID = "id"
+        const val COLUMN_PARENT_ID = "parent_id"
+        const val COLUMN_NAME = "name"
+        const val COLUMN_TITLE = "title"
+        const val COLUMN_ALBUM = "album"
+        const val COLUMN_ARTISTS = "artists"
+        const val COLUMN_COMPOSERS = "composers"
+        const val COLUMN_ALBUM_ARTISTS = "album_artists"
+        const val COLUMN_GENRES = "genres"
+        const val COLUMN_TRACK_NUMBER = "track_number"
+        const val COLUMN_TRACK_TOTAL = "track_total"
+        const val COLUMN_DISC_NUMBER = "disc_number"
+        const val COLUMN_DISC_TOTAL = "disc_total"
+        const val COLUMN_DATE = "date"
+        const val COLUMN_YEAR = "year"
+        const val COLUMN_DURATION = "duration"
+        const val COLUMN_BITRATE = "bitrate"
+        const val COLUMN_SAMPLING_RATE = "sampling_rate"
+        const val COLUMN_CHANNELS = "channels"
+        const val COLUMN_ENCODER = "encoder"
+        const val COLUMN_DATE_MODIFIED = "date_modified"
+        const val COLUMN_SIZE = "size"
+        const val COLUMN_URI = "uri"
+        const val COLUMN_REAL_PATH = "real_path"
+
         fun parse(
             path: SimplePath,
-            file: DocumentFileX,
+            parent: MediaTreeFolder,
+            xfile: DocumentFileX,
+            id: String,
             options: ParseOptions,
-        ): Song {
+        ): Extended {
             if (options.symphony.settings.useMetaphony.value) {
                 try {
-                    val song = parseUsingMetaphony(path, file, options)
-                    if (song != null) {
-                        return song
+                    val file = parseUsingMetaphony(path, parent, xfile, id, options)
+                    if (file != null) {
+                        return file
                     }
                 } catch (err: Exception) {
-                    Logger.error("Song", "could not parse using metaphony", err)
+                    Logger.error("SongFile", "could not parse using metaphony", err)
                 }
             }
-            return parseUsingMediaMetadataRetriever(path, file, options)
+            return parseUsingMediaMetadataRetriever(path, parent, xfile, id, options)
         }
 
         private fun parseUsingMetaphony(
             path: SimplePath,
-            file: DocumentFileX,
+            parent: MediaTreeFolder,
+            xfile: DocumentFileX,
+            id: String,
             options: ParseOptions,
-        ): Song? {
+        ): Extended? {
             val symphony = options.symphony
             val metadata = symphony.applicationContext.contentResolver
-                .openFileDescriptor(file.uri, "r")
-                ?.use { AudioMetadataParser.parse(file.name, it.detachFd()) }
+                .openFileDescriptor(xfile.uri, "r")
+                ?.use { AudioMetadataParser.parse(xfile.name, it.detachFd()) }
                 ?: return null
-            val id = symphony.groove.song.idGenerator.next()
-            val coverFile = metadata.pictures.firstOrNull()?.let {
-                val extension = when (it.mimeType) {
-                    "image/jpg", "image/jpeg" -> "jpg"
-                    "image/png" -> "png"
-                    else -> null
-                }
-                if (extension == null) {
-                    return@let null
-                }
-                val quality = symphony.settings.artworkQuality.value
-                if (quality.maxSide == null) {
-                    val name = "$id.$extension"
-                    symphony.database.artworkCache.get(name).writeBytes(it.data)
-                    return@let name
-                }
-                val bitmap = BitmapFactory.decodeByteArray(it.data, 0, it.data.size)
-                val name = "$id.jpg"
-                FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                    ImagePreserver
-                        .resize(bitmap, quality)
-                        .compress(Bitmap.CompressFormat.JPEG, 100, writer)
-                }
-                name
+            val artwork = metadata.pictures.firstOrNull()?.let {
+                Extended.Artwork(mimeType = it.mimeType, data = it.data)
             }
-            metadata.lyrics?.let {
-                symphony.database.lyricsCache.put(id, it)
-            }
-            return Song(
+            val file = MediaTreeSongFile(
                 id = id,
+                parentId = parent.id,
+                name = xfile.name,
                 title = metadata.title ?: path.nameWithoutExtension,
                 album = metadata.album,
                 artists = parseMultiValue(metadata.artists, options.artistSeparatorRegex),
@@ -173,33 +189,26 @@ data class Song(
                 samplingRate = metadata.sampleRate?.toLong(),
                 channels = metadata.channels,
                 encoder = metadata.encoding,
-                dateModified = file.lastModified,
-                size = file.size,
-                coverFile = coverFile,
-                uri = file.uri,
+                dateModified = xfile.lastModified,
+                size = xfile.size,
+                uri = xfile.uri,
                 path = path.pathString,
             )
+            return Extended(file = file, artwork = artwork, lyrics = metadata.lyrics)
         }
 
         fun parseUsingMediaMetadataRetriever(
             path: SimplePath,
-            file: DocumentFileX,
+            parent: MediaTreeFolder,
+            xfile: DocumentFileX,
+            id: String,
             options: ParseOptions,
-        ): Song {
+        ): Extended {
             val symphony = options.symphony
             val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(symphony.applicationContext, file.uri)
-            val id = symphony.groove.song.idGenerator.next() + ".mr"
-            val coverFile = retriever.embeddedPicture?.let {
-                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                val quality = symphony.settings.artworkQuality.value
-                val name = "$id.jpg"
-                FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                    ImagePreserver
-                        .resize(bitmap, quality)
-                        .compress(Bitmap.CompressFormat.JPEG, 100, writer)
-                }
-                name
+            retriever.setDataSource(symphony.applicationContext, xfile.uri)
+            val artwork = retriever.embeddedPicture?.let {
+                Extended.Artwork(mimeType = "_", data = it)
             }
             val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
             val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
@@ -230,8 +239,10 @@ data class Song(
                     .extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
                     ?.toLongOrNull()
             }
-            return Song(
+            val file = MediaTreeSongFile(
                 id = id,
+                parentId = parent.id,
+                name = xfile.name,
                 title = title ?: path.nameWithoutExtension,
                 album = album,
                 artists = parseMultiValue(artists, options.artistSeparatorRegex),
@@ -249,12 +260,12 @@ data class Song(
                 samplingRate = samplingRate,
                 channels = null,
                 encoder = null,
-                dateModified = file.lastModified,
-                size = file.size,
-                coverFile = coverFile,
-                uri = file.uri,
+                dateModified = xfile.lastModified,
+                size = xfile.size,
+                uri = xfile.uri,
                 path = path.pathString,
             )
+            return Extended(file = file, artwork = artwork, lyrics = null)
         }
 
         private fun makeSeparatorsRegex(separators: Set<String>): Regex {
@@ -262,11 +273,11 @@ data class Song(
             return Regex("""(?<!\\)($partial)""")
         }
 
-        fun parseMultiValue(value: String?, regex: Regex) = value?.let {
+        private fun parseMultiValue(value: String?, regex: Regex) = value?.let {
             parseMultiValue(setOf(it), regex)
         } ?: emptySet()
 
-        fun parseMultiValue(values: Set<String>, regex: Regex): Set<String> {
+        private fun parseMultiValue(values: Set<String>, regex: Regex): Set<String> {
             val result = mutableSetOf<String>()
             for (x in values) {
                 for (y in x.trim().split(regex)) {

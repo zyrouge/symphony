@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.entities.Album
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -21,16 +22,10 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun AlbumGrid(
     context: ViewContext,
-    albumIds: List<String>,
-    albumsCount: Int? = null,
+    albums: List<Album>,
+    sortBy: AlbumRepository.SortBy,
+    sortReverse: Boolean,
 ) {
-    val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.flow.collectAsState()
-    val sortedAlbumIds by remember(albumIds, sortBy, sortReverse) {
-        derivedStateOf {
-            context.symphony.groove.album.sort(albumIds, sortBy, sortReverse)
-        }
-    }
     val horizontalGridColumns by context.symphony.settings.lastUsedAlbumsHorizontalGridColumns.flow.collectAsState()
     val verticalGridColumns by context.symphony.settings.lastUsedAlbumsVerticalGridColumns.flow.collectAsState()
     val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
@@ -56,7 +51,7 @@ fun AlbumGrid(
                     context.symphony.settings.lastUsedAlbumsSortBy.setValue(it)
                 },
                 label = {
-                    Text(context.symphony.t.XAlbums((albumsCount ?: albumIds.size).toString()))
+                    Text(context.symphony.t.XAlbums(albums.size.toString()))
                 },
                 onShowModifyLayout = {
                     showModifyLayoutSheet = true
@@ -65,7 +60,7 @@ fun AlbumGrid(
         },
         content = {
             when {
-                albumIds.isEmpty() -> IconTextBody(
+                albums.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.Album,
@@ -78,13 +73,11 @@ fun AlbumGrid(
 
                 else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
-                        sortedAlbumIds,
+                        albums,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.ALBUM }
-                    ) { _, albumId ->
-                        context.symphony.groove.album.get(albumId)?.let { album ->
-                            AlbumTile(context, album)
-                        }
+                    ) { _, album ->
+                        AlbumTile(context, album)
                     }
                 }
             }
@@ -115,5 +108,6 @@ private fun AlbumRepository.SortBy.label(context: ViewContext) = when (this) {
     AlbumRepository.SortBy.ALBUM_NAME -> context.symphony.t.Album
     AlbumRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
     AlbumRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
+    AlbumRepository.SortBy.ARTISTS_COUNT -> context.symphony.t.ArtistCount
     AlbumRepository.SortBy.YEAR -> context.symphony.t.Year
 }

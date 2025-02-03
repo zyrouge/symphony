@@ -27,9 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,7 +35,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.Album
+import io.github.zyrouge.symphony.services.groove.entities.Album
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.GenericGrooveBanner
@@ -45,28 +43,37 @@ import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongCardThumbnailLabelStyle
 import io.github.zyrouge.symphony.ui.components.SongList
-import io.github.zyrouge.symphony.ui.components.SongListType
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class AlbumViewRoute(val albumId: String)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
-    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val album by remember(allAlbumIds) {
-        derivedStateOf { context.symphony.groove.album.get(route.albumId) }
-    }
-    val songIds by remember(album, allSongIds) {
-        derivedStateOf { album?.getSongIds(context.symphony) ?: listOf() }
-    }
-    val isViable by remember(allAlbumIds) {
-        derivedStateOf { allAlbumIds.contains(route.albumId) }
-    }
+    val albumFlow = context.symphony.groove.album.findByIdAsFlow(route.albumId)
+    val album by albumFlow.collectAsState(null)
+    val songsSortBy by context.symphony.settings.lastUsedAlbumSongsSortBy.flow.collectAsState()
+    val songsSortReverse by context.symphony.settings.lastUsedAlbumSongsSortReverse.flow.collectAsState()
+    val songs by albumFlow
+        .transformLatest { album ->
+            val value = when {
+                album == null -> emptyFlow()
+                else -> context.symphony.groove.album.findSongsByIdAsFlow(
+                    album.id,
+                    songsSortBy,
+                    songsSortReverse,
+                ).transformLatest { emit(it.map { x -> x.song }) }
+            }
+            emitAll(value)
+        }
+        .collectAsState(emptyList())
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -100,11 +107,12 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                if (isViable) {
-                    SongList(
+                when {
+                    album != null -> SongList(
                         context,
-                        songIds = songIds,
-                        type = SongListType.Album,
+                        songs = songs,
+                        sortBy = songsSortBy,
+                        sortReverse = songsSortReverse,
                         leadingContent = {
                             item {
                                 AlbumHero(context, album!!)
@@ -115,7 +123,9 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
                         },
                         cardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Subtle,
                     )
-                } else UnknownAlbum(context, route.albumId)
+
+                    else -> UnknownAlbum(context, route.albumId)
+                }
             }
         },
         bottomBar = {

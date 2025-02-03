@@ -11,5 +11,5 @@ typealias ConcurrentSet<T> = ConcurrentHashMap.KeySetView<T, Boolean>
 fun <T> concurrentSetOf(vararg elements: T): ConcurrentSet<T> =
     ConcurrentHashMap.newKeySet<T>().apply { addAll(elements) }
 
-fun <T> concurrentSetOf(elements: Collection<T>): ConcurrentSet<T> =
+fun <T> concurrentSetOf(elements: Iterable<T>): ConcurrentSet<T> =
     ConcurrentHashMap.newKeySet<T>().apply { addAll(elements) }

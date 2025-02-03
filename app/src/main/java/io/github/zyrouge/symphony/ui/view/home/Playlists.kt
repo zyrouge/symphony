@@ -25,20 +25,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.MediaExposer
 import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.PlaylistGrid
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.Logger
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.transformLatest
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun PlaylistsView(context: ViewContext) {
-    val isUpdating by context.symphony.groove.playlist.isUpdating.collectAsState()
-    val playlists by context.symphony.groove.playlist.all.collectAsState()
-    val playlistsCount by context.symphony.groove.playlist.count.collectAsState()
+    val isUpdating by context.symphony.groove.exposer.isUpdating.collectAsState()
+    val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.flow.collectAsState()
+    val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.flow.collectAsState()
+    val playlists by context.symphony.groove.playlist.valuesAsFlow(sortBy, sortReverse)
+        .transformLatest { emit(it.map { x -> x.playlist }) }
+        .collectAsState(emptyList())
     var showPlaylistCreator by remember { mutableStateOf(false) }
 
     val openPlaylistLauncher = rememberLauncherForActivityResult(
@@ -63,8 +69,9 @@ fun PlaylistsView(context: ViewContext) {
     LoaderScaffold(context, isLoading = isUpdating) {
         PlaylistGrid(
             context,
-            playlistIds = playlists,
-            playlistsCount = playlistsCount,
+            playlists = playlists,
+            sortBy = sortBy,
+            sortReverse = sortReverse,
             leadingContent = {
                 PlaylistControlBar(
                     context,
@@ -72,7 +79,7 @@ fun PlaylistsView(context: ViewContext) {
                         showPlaylistCreator = true
                     },
                     showPlaylistPicker = {
-                        openPlaylistLauncher.launch(arrayOf(MediaExposer.MIMETYPE_M3U))
+                        openPlaylistLauncher.launch(arrayOf(Playlist.MIMETYPE_M3U))
                     },
                 )
                 Spacer(modifier = Modifier.height(4.dp))

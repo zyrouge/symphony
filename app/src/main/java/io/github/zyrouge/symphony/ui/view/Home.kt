@@ -62,7 +62,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -169,7 +168,6 @@ object HomeViewRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(context: ViewContext) {
-    val coroutineScope = rememberCoroutineScope()
     val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.flow.collectAsState()
     val tabs by context.symphony.settings.homeTabs.flow.collectAsState()
     val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsState()
@@ -228,9 +226,7 @@ fun HomeView(context: ViewContext) {
                                     onClick = {
                                         showOptionsDropdown = false
                                         context.symphony.radio.stop()
-                                        context.symphony.groove.fetch(
-                                            Groove.FetchOptions(resetInMemoryCache = true),
-                                        )
+                                        context.symphony.groove.refetch()
                                     }
                                 )
                                 DropdownMenuItem(

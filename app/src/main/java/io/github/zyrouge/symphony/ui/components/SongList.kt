@@ -15,15 +15,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Groove
-import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -39,25 +35,17 @@ enum class SongListType {
 @Composable
 fun SongList(
     context: ViewContext,
-    songIds: List<String>,
-    songsCount: Int? = null,
+    songs: List<Song>,
+    sortBy: SongRepository.SortBy,
+    sortReverse: Boolean,
     leadingContent: (LazyListScope.() -> Unit)? = null,
     trailingContent: (LazyListScope.() -> Unit)? = null,
     trailingOptionsContent: (@Composable ColumnScope.(Int, Song, () -> Unit) -> Unit)? = null,
     cardThumbnailLabel: (@Composable (Int, Song) -> Unit)? = null,
     cardThumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
-    type: SongListType = SongListType.Default,
     disableHeartIcon: Boolean = false,
     enableAddMediaFoldersHint: Boolean = false,
 ) {
-    val sortBy by type.getLastUsedSortBy(context).flow.collectAsState()
-    val sortReverse by type.getLastUsedSortReverse(context).flow.collectAsState()
-    val sortedSongIds by remember(songIds, sortBy, sortReverse) {
-        derivedStateOf {
-            context.symphony.groove.song.sort(songIds, sortBy, sortReverse)
-        }
-    }
-
     MediaSortBarScaffold(
         mediaSortBar = {
             MediaSortBar(
@@ -73,16 +61,16 @@ fun SongList(
                     type.setLastUsedSortBy(context, it)
                 },
                 label = {
-                    Text(context.symphony.t.XSongs((songsCount ?: songIds.size).toString()))
+                    Text(context.symphony.t.XSongs(songs.size.toString()))
                 },
                 onShufflePlay = {
-                    context.symphony.radio.shorty.playQueue(sortedSongIds, shuffle = true)
+                    context.symphony.radio.shorty.playQueue(songs, shuffle = true)
                 }
             )
         },
         content = {
             when {
-                songIds.isEmpty() -> IconTextBody(
+                songs.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(Icons.Filled.MusicNote, null, modifier = modifier)
                     },
@@ -115,28 +103,26 @@ fun SongList(
                     ) {
                         leadingContent?.invoke(this)
                         itemsIndexed(
-                            sortedSongIds,
+                            songs,
                             key = { i, x -> "$i-$x" },
                             contentType = { _, _ -> Groove.Kind.SONG }
-                        ) { i, songId ->
-                            context.symphony.groove.song.get(songId)?.let { song ->
-                                SongCard(
-                                    context,
-                                    song = song,
-                                    thumbnailLabel = cardThumbnailLabel?.let {
-                                        { it(i, song) }
-                                    },
-                                    thumbnailLabelStyle = cardThumbnailLabelStyle,
-                                    disableHeartIcon = disableHeartIcon,
-                                    trailingOptionsContent = trailingOptionsContent?.let {
-                                        { onDismissRequest -> it(i, song, onDismissRequest) }
-                                    },
-                                ) {
-                                    context.symphony.radio.shorty.playQueue(
-                                        sortedSongIds,
-                                        Radio.PlayOptions(index = i)
-                                    )
-                                }
+                        ) { i, song ->
+                            SongCard(
+                                context,
+                                song = song,
+                                thumbnailLabel = cardThumbnailLabel?.let {
+                                    { it(i, song) }
+                                },
+                                thumbnailLabelStyle = cardThumbnailLabelStyle,
+                                disableHeartIcon = disableHeartIcon,
+                                trailingOptionsContent = trailingOptionsContent?.let {
+                                    { onDismissRequest -> it(i, song, onDismissRequest) }
+                                },
+                            ) {
+                                context.symphony.radio.shorty.playQueue(
+                                    sortedSongIds,
+                                    Radio.PlayOptions(index = i)
+                                )
                             }
                         }
                         trailingContent?.invoke(this)
