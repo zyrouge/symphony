@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.services.database
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.database.store.ArtworkStore
+import io.github.zyrouge.symphony.services.database.store.SongArtworkStore
 import io.github.zyrouge.symphony.utils.KeyGenerator
 
 class Database(symphony: Symphony) {
@@ -24,8 +24,6 @@ class Database(symphony: Symphony) {
     val albumSongMapping get() = persistent.albumSongMapping()
     val artists get() = persistent.artists()
     val artistSongMapping get() = persistent.artistSongMapping()
-    val artworks = ArtworkStore(symphony)
-    val artworkIndices get() = persistent.artworkIndices()
     val composers get() = persistent.composers()
     val composerSongMapping get() = persistent.composerSongMapping()
     val genres get() = persistent.genre()
@@ -35,6 +33,10 @@ class Database(symphony: Symphony) {
     val mediaTreeSongFiles get() = persistent.mediaTreeSongFiles()
     val playlists get() = persistent.playlists()
     val playlistSongMapping get() = persistent.playlistSongMapping()
+    val songArtworks = SongArtworkStore(symphony)
+    val songArtworkIndices get() = persistent.songArtworkIndices()
     val songLyrics get() = persistent.songLyrics()
+    val songQueueSongMapping get() = persistent.songQueueSongMapping()
+    val songQueue get() = persistent.songQueue()
     val songs get() = persistent.songs()
 }

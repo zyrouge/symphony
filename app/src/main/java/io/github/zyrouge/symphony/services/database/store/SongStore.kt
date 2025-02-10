@@ -2,6 +2,7 @@ package io.github.zyrouge.symphony.services.database.store
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Update
@@ -14,6 +15,8 @@ import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.entities.ArtistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Composer
 import io.github.zyrouge.symphony.services.groove.entities.ComposerSongMapping
+import io.github.zyrouge.symphony.services.groove.entities.GenreSongMapping
+import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -40,31 +43,55 @@ interface SongStore {
 
     @RawQuery(
         observedEntities = [
-            Song::class,
-            Artist::class,
-            ArtistSongMapping::class,
-            Album::class,
             AlbumSongMapping::class,
-            AlbumArtistMapping::class,
-            Composer::class,
+            ArtistSongMapping::class,
             ComposerSongMapping::class,
+            GenreSongMapping::class,
+            PlaylistSongMapping::class,
+            Song::class,
         ]
     )
-    fun valuesAsFlowRaw(query: SupportSQLiteQuery): Flow<List<Song.AlongAttribute>>
+    fun entriesAsFlowRaw(query: SupportSQLiteQuery): Flow<Map<@MapColumn(Song.COLUMN_ID) String, Song>>
+
+    @RawQuery(
+        observedEntities = [
+            AlbumSongMapping::class,
+            ArtistSongMapping::class,
+            ComposerSongMapping::class,
+            GenreSongMapping::class,
+            PlaylistSongMapping::class,
+            Song::class,
+        ]
+    )
+    fun entriesAsPlaylistSongMappedFlowRaw(query: SupportSQLiteQuery): Flow<Map<@MapColumn(Song.COLUMN_ID) String, Song.AlongPlaylistMapping>>
+
+    @RawQuery(
+        observedEntities = [
+            AlbumSongMapping::class,
+            ArtistSongMapping::class,
+            ComposerSongMapping::class,
+            GenreSongMapping::class,
+            PlaylistSongMapping::class,
+            Song::class,
+        ]
+    )
+    fun valuesAsFlowRaw(query: SupportSQLiteQuery): Flow<List<Song>>
 }
 
-fun SongStore.valuesAsFlow(
+internal fun SongStore.valuesAsFlowQuery(
     sortBy: SongRepository.SortBy,
     sortReverse: Boolean,
+    additionalClauseAfterSongSelect: String = "",
     additionalClauseBeforeJoins: String = "",
     additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
-): Flow<List<Song.AlongAttribute>> {
+    overrideOrderBy: String? = null,
+): SupportSQLiteQuery {
     val aliasFirstAlbumArtist = "firstAlbumArtist"
     val embeddedFirstArtistName = "firstArtistName"
     val embeddedFirstAlbumName = "firstAlbumName"
     val embeddedFirstAlbumArtistName = "firstAlbumArtistName"
     val embeddedFirstComposerName = "firstComposerName"
-    val orderBy = when (sortBy) {
+    val orderBy = overrideOrderBy ?: when (sortBy) {
         SongRepository.SortBy.CUSTOM -> "${Song.TABLE}.${Song.COLUMN_ID}"
         SongRepository.SortBy.TITLE -> "${Song.TABLE}.${Song.COLUMN_ID}"
         SongRepository.SortBy.ARTIST -> embeddedFirstArtistName
@@ -95,6 +122,7 @@ fun SongStore.valuesAsFlow(
             "FROM ${ComposerSongMapping.TABLE} " +
             "WHERE ${ComposerSongMapping.TABLE}.${ComposerSongMapping.COLUMN_SONG_ID} = ${Song.COLUMN_ID}"
     val query = "SELECT ${Song.TABLE}.*, " +
+            additionalClauseAfterSongSelect +
             "${Artist.TABLE}.${Artist.COLUMN_NAME} as $embeddedFirstArtistName, " +
             "${Album.TABLE}.${Album.COLUMN_NAME} as $embeddedFirstAlbumName, " +
             "$aliasFirstAlbumArtist.${Artist.COLUMN_NAME} as $embeddedFirstAlbumArtistName, " +
@@ -107,5 +135,24 @@ fun SongStore.valuesAsFlow(
             "LEFT JOIN ${Composer.TABLE} ON ${Composer.TABLE}.${Composer.COLUMN_ID} = ($composerQuery)" +
             "ORDER BY $orderBy $orderDirection"
     val args = additionalArgsBeforeJoins
-    return valuesAsFlowRaw(SimpleSQLiteQuery(query, args))
+    return SimpleSQLiteQuery(query, args)
+}
+
+fun SongStore.valuesAsFlow(
+    sortBy: SongRepository.SortBy,
+    sortReverse: Boolean,
+    additionalClauseAfterSongSelect: String = "",
+    additionalClauseBeforeJoins: String = "",
+    additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
+    overrideOrderBy: String? = null,
+): Flow<List<Song>> {
+    val query = valuesAsFlowQuery(
+        sortBy = sortBy,
+        sortReverse = sortReverse,
+        additionalClauseAfterSongSelect = additionalClauseAfterSongSelect,
+        additionalClauseBeforeJoins = additionalClauseBeforeJoins,
+        additionalArgsBeforeJoins = additionalArgsBeforeJoins,
+        overrideOrderBy = overrideOrderBy,
+    )
+    return valuesAsFlowRaw(query)
 }

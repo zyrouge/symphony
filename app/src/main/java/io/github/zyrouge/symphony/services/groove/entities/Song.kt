@@ -67,9 +67,18 @@ data class Song(
     @ColumnInfo(COLUMN_PATH)
     val path: String,
 ) {
-    data class AlongAttribute(
+    data class AlongSongQueueMapping(
         @Embedded
         val song: Song,
+        @Embedded
+        val mapping: SongQueueSongMapping,
+    )
+
+    data class AlongPlaylistMapping(
+        @Embedded
+        val song: Song,
+        @Embedded
+        val mapping: PlaylistSongMapping,
     )
 
     val bitrateK: Long? get() = bitrate?.let { it / 1000 }

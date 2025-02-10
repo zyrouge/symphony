@@ -34,7 +34,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.mapLatest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
@@ -43,7 +43,7 @@ fun PlaylistsView(context: ViewContext) {
     val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.flow.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.flow.collectAsState()
     val playlists by context.symphony.groove.playlist.valuesAsFlow(sortBy, sortReverse)
-        .transformLatest { emit(it.map { x -> x.playlist }) }
+        .mapLatest { it.map { x -> x.playlist } }
         .collectAsState(emptyList())
     var showPlaylistCreator by remember { mutableStateOf(false) }
 

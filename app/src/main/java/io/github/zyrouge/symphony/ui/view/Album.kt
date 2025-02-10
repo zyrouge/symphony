@@ -69,7 +69,7 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
                     album.id,
                     songsSortBy,
                     songsSortReverse,
-                ).transformLatest { emit(it.map { x -> x.song }) }
+                )
             }
             emitAll(value)
         }
@@ -136,7 +136,7 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun AlbumHero(context: ViewContext, album: Album) {
+private fun AlbumHero(context: ViewContext, album: Album.AlongAttributes) {
     GenericGrooveBanner(
         image = album.createArtworkImageRequest(context.symphony).build(),
         options = { expanded, onDismissRequest ->

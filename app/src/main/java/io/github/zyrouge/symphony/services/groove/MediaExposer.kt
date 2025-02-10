@@ -119,8 +119,8 @@ class MediaExposer(private val symphony: Symphony) {
         val songFileStaleIds: ConcurrentSet<String>,
         val lyricFileStaleIds: ConcurrentSet<String>,
         val songStaleIds: ConcurrentSet<String>,
-        val artworkIndexCache: ConcurrentHashMap<String, SongArtworkIndex>,
-        val artworkStaleFiles: ConcurrentSet<String>,
+        val songArtworkIndexCache: ConcurrentHashMap<String, SongArtworkIndex>,
+        val songArtworkStaleFiles: ConcurrentSet<String>,
         val filter: MediaFilter,
         val songParseOptions: MediaTreeSongFile.ParseOptions,
     ) {
@@ -204,13 +204,13 @@ class MediaExposer(private val symphony: Symphony) {
             exFile: MediaTreeSongFile?,
             document: DocumentFileX,
         ) {
-            val exArtworkIndex = artworkIndexCache[exFile?.id]
+            val exArtworkIndex = songArtworkIndexCache[exFile?.id]
             val skipArtworkParsing = exArtworkIndex != null && exArtworkIndex.let {
-                exArtworkIndex.file == null || artworkStaleFiles.contains(exArtworkIndex.file)
+                exArtworkIndex.file == null || songArtworkStaleFiles.contains(exArtworkIndex.file)
             }
             if (skipArtworkParsing && exFile?.dateModified == document.lastModified) {
                 songFileStaleIds.remove(exFile.id)
-                exArtworkIndex.file?.let { artworkStaleFiles.remove(it) }
+                exArtworkIndex.file?.let { songArtworkStaleFiles.remove(it) }
                 return
             }
             val id = exFile?.id ?: symphony.database.mediaTreeSongFilesIdGenerator.next()
@@ -231,12 +231,12 @@ class MediaExposer(private val symphony: Symphony) {
                 val quality = symphony.settings.artworkQuality.value
                 if (quality.maxSide == null && extension != "_") {
                     val name = "$artworkId.$extension"
-                    symphony.database.artworks.get(name).writeBytes(it.data)
+                    symphony.database.songArtworks.get(name).writeBytes(it.data)
                     return@let name
                 }
                 val bitmap = BitmapFactory.decodeByteArray(it.data, 0, it.data.size)
                 val name = "$artworkId.jpg"
-                FileOutputStream(symphony.database.artworks.get(name)).use { writer ->
+                FileOutputStream(symphony.database.songArtworks.get(name)).use { writer ->
                     ImagePreserver
                         .resize(bitmap, quality)
                         .compress(Bitmap.CompressFormat.JPEG, 100, writer)
@@ -245,11 +245,11 @@ class MediaExposer(private val symphony: Symphony) {
             }
             val artworkIndex = SongArtworkIndex(songId = id, file = artworkFile)
             artworkIndex.file?.let {
-                artworkStaleFiles.remove(it)
+                songArtworkStaleFiles.remove(it)
             }
             symphony.database.mediaTreeSongFiles.update(file)
             if (exArtworkIndex?.file != artworkIndex.file) {
-                symphony.database.artworkIndices.upsert(artworkIndex)
+                symphony.database.songArtworkIndices.upsert(artworkIndex)
             }
             extended.lyrics?.let {
                 symphony.database.songLyrics.upsert(SongLyric(id, it))
@@ -436,9 +436,9 @@ class MediaExposer(private val symphony: Symphony) {
             } catch (err: Exception) {
                 Logger.warn("MediaExposer", "trimming song files failed", err)
             }
-            for (x in artworkStaleFiles) {
+            for (x in songArtworkStaleFiles) {
                 try {
-                    symphony.database.artworks.get(x).delete()
+                    symphony.database.songArtworks.get(x).delete()
                 } catch (err: Exception) {
                     Logger.warn("MediaExposer", "deleting artwork failed", err)
                 }
@@ -464,8 +464,8 @@ class MediaExposer(private val symphony: Symphony) {
                     songFileStaleIds = concurrentSetOf(songFileIds),
                     lyricFileStaleIds = concurrentSetOf(lyricFileIds),
                     songStaleIds = concurrentSetOf(songIds),
-                    artworkIndexCache = ConcurrentHashMap(symphony.database.artworkIndices.entriesSongIdMapped()),
-                    artworkStaleFiles = concurrentSetOf(symphony.database.artworks.all()),
+                    songArtworkIndexCache = ConcurrentHashMap(symphony.database.songArtworkIndices.entriesSongIdMapped()),
+                    songArtworkStaleFiles = concurrentSetOf(symphony.database.songArtworks.all()),
                     filter = filter,
                     songParseOptions = MediaTreeSongFile.ParseOptions.create(symphony),
                 )

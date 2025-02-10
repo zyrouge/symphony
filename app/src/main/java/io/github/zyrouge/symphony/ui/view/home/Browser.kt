@@ -10,8 +10,7 @@ import io.github.zyrouge.symphony.utils.SimplePath
 
 @Composable
 fun BrowserView(context: ViewContext) {
-    val isUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val id by context.symphony.groove.song.id.collectAsState()
+    val isUpdating by context.symphony.groove.exposer.isUpdating.collectAsState()
     val explorer = context.symphony.groove.song.explorer
     val lastUsedFolderPath by context.symphony.settings.lastUsedBrowserPath.flow.collectAsState()
 

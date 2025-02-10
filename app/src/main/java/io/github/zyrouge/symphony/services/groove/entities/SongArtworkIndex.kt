@@ -18,7 +18,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(SongArtworkIndex.COLUMN_FILE)],
+    indices = [Index(SongArtworkIndex.COLUMN_SONG_ID)],
 )
 data class SongArtworkIndex(
     @PrimaryKey
@@ -28,7 +28,8 @@ data class SongArtworkIndex(
     val file: String?,
 ) {
     companion object {
-        const val TABLE = "song_artwork_indices"
+        const val TABLE = "song_artwork"
+        const val COLUMN_ID = "id"
         const val COLUMN_SONG_ID = "song_id"
         const val COLUMN_FILE = "file"
     }

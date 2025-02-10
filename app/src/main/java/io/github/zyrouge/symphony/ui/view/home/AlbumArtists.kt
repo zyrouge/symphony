@@ -7,7 +7,7 @@ import io.github.zyrouge.symphony.ui.components.AlbumArtistGrid
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.mapLatest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
@@ -16,7 +16,7 @@ fun AlbumArtistsView(context: ViewContext) {
     val sortBy by context.symphony.settings.lastUsedAlbumArtistsSortBy.flow.collectAsState()
     val sortReverse by context.symphony.settings.lastUsedAlbumArtistsSortReverse.flow.collectAsState()
     val albumArtists by context.symphony.groove.albumArtist.valuesAsFlow(sortBy, sortReverse)
-        .transformLatest { emit(it.map { x -> x.artist }) }
+        .mapLatest { it.map { x -> x.artist } }
         .collectAsState(emptyList())
 
     LoaderScaffold(context, isLoading = isUpdating) {
