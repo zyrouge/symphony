@@ -3,8 +3,9 @@ package io.github.zyrouge.symphony.services.groove.repositories
 import androidx.core.net.toUri
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.store.valuesAsFlow
-import io.github.zyrouge.symphony.ui.helpers.Assets
-import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
+import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.mapLatest
 
 class SongRepository(private val symphony: Symphony) {
     enum class SortBy {
@@ -21,16 +22,14 @@ class SongRepository(private val symphony: Symphony) {
         TRACK_NUMBER,
     }
 
-    fun createArtworkImageRequest(songId: String) = createHandyImageRequest(
-        symphony.applicationContext,
-        image = getArtworkUri(songId),
-        fallback = Assets.getPlaceholderId(symphony),
-    )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getArtworkUriAsFlow(id: String) =
+        symphony.database.songArtworkIndices.findBySongIdAsFlow(id)
+            .mapLatest { index -> index?.let { getArtworkUriFromIndex(it) } }
 
-    fun getArtworkUri(songId: String) =
-        symphony.database.songArtworkIndices.findBySongId(songId)?.file
-            ?.let { symphony.database.songArtworks.get(it).toUri() }
-            ?: Assets.getPlaceholderUri(symphony)
+    fun getArtworkUriFromIndex(index: SongArtworkIndex) = index.file?.let {
+        symphony.database.songArtworks.get(it).toUri()
+    }
 
     fun valuesAsFlow(sortBy: SortBy, sortReverse: Boolean) =
         symphony.database.songs.valuesAsFlow(sortBy, sortReverse)

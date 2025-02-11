@@ -6,6 +6,7 @@ import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SongArtworkIndexStore {
@@ -13,7 +14,7 @@ interface SongArtworkIndexStore {
     suspend fun upsert(vararg entities: SongArtworkIndex): List<String>
 
     @Query("SELECT * FROM ${SongArtworkIndex.TABLE} WHERE ${SongArtworkIndex.COLUMN_SONG_ID} = :songId LIMIT 1")
-    fun findBySongId(songId: String): SongArtworkIndex?
+    fun findBySongIdAsFlow(songId: String): Flow<SongArtworkIndex?>
 
     @Query("SELECT * FROM ${SongArtworkIndex.TABLE} WHERE ${SongArtworkIndex.COLUMN_SONG_ID} != null")
     fun entriesSongIdMapped(): Map<@MapColumn(SongArtworkIndex.COLUMN_SONG_ID) String, SongArtworkIndex>

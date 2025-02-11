@@ -97,7 +97,7 @@ class MediaExposer(private val symphony: Symphony) {
                         playlistId = playlistId,
                         songId = null,
                         songPath = x,
-                        isStart = i == 0,
+                        isHead = i == 0,
                         nextId = nextPlaylistSongMapping?.id,
                     )
                     playlistSongMappingToBeInserted.add(playlistSongMapping)

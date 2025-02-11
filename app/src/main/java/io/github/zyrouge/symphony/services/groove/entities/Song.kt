@@ -90,9 +90,6 @@ data class Song(
                 .toFloat()
         }
 
-    fun createArtworkImageRequest(symphony: Symphony) =
-        symphony.groove.song.createArtworkImageRequest(id)
-
     fun toSamplingInfoString(symphony: Symphony): String? {
         val values = mutableListOf<String>()
         encoder?.let {

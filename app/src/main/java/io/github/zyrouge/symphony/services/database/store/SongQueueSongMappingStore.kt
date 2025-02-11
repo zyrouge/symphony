@@ -30,7 +30,7 @@ fun SongQueueSongMappingStore.entriesAsFlow(queueId: String): Flow<Map<String, S
             "${SongQueueSongMapping.TABLE}.* " +
             "FROM ${SongQueueSongMapping.TABLE} " +
             "WHERE ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ? " +
-            "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${SongQueueSongMapping.COLUMN_SONG_ID} " +
+            "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID} " +
             "ORDER BY ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_IS_HEAD} DESC"
     val args = arrayOf(queueId)
     return entriesAsFlowRaw(SimpleSQLiteQuery(query, args))
@@ -42,7 +42,7 @@ fun SongQueueSongMappingStore.transformEntriesAsValuesFlow(entries: Flow<Map<Str
         val list = mutableListOf<Song>()
         var head = it.firstNotNullOfOrNull {
             when {
-                it.value.mapping.isStart -> it.value
+                it.value.mapping.isHead -> it.value
                 else -> null
             }
         }

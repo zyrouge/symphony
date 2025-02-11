@@ -23,9 +23,11 @@ object Assets {
             .isLight(),
     )
 
-    fun getPlaceholderUri(symphony: Symphony) = buildUriOfResource(
+    fun getPlaceholderUri(symphony: Symphony) = getResourceUri(symphony, getPlaceholderId(symphony))
+
+    fun getResourceUri(symphony: Symphony, resourceId: Int) = buildUriOfResource(
         symphony.applicationContext.resources,
-        getPlaceholderId(symphony),
+        resourceId,
     )
 
     fun createPlaceholderImageRequest(symphony: Symphony) =

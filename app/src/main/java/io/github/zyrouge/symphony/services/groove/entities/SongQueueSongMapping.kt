@@ -45,7 +45,7 @@ data class SongQueueSongMapping(
     @ColumnInfo(COLUMN_SONG_ID)
     val songId: String?,
     @ColumnInfo(COLUMN_IS_HEAD)
-    val isStart: Boolean,
+    val isHead: Boolean,
     @ColumnInfo(COLUMN_NEXT_ID)
     val nextId: String?,
 ) {

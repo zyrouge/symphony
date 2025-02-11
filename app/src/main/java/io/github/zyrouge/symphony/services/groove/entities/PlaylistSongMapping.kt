@@ -53,7 +53,7 @@ data class PlaylistSongMapping(
     @ColumnInfo(COLUMN_SONG_PATH)
     val songPath: String?,
     @ColumnInfo(COLUMN_IS_HEAD)
-    val isStart: Boolean,
+    val isHead: Boolean,
     @ColumnInfo(COLUMN_NEXT_ID)
     val nextId: String?,
 ) {
