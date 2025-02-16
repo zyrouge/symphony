@@ -41,7 +41,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -77,10 +76,10 @@ fun SongTreeList(
             addAll(initialDisabled)
         }
     }
-    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.flow.collectAsState()
-    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.flow.collectAsState()
-    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsState()
-    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsState()
+    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.flow.collectAsStateWithLifecycle()
+    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.flow.collectAsStateWithLifecycle()
+    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsStateWithLifecycle()
+    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsStateWithLifecycle()
     val sortedTree by remember(tree, pathsSortBy, pathsSortReverse, songsSortBy, songsSortReverse) {
         derivedStateOf {
             val pairs = StringListUtils.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
@@ -162,12 +161,12 @@ fun SongTreeListContent(
     togglePath: (String) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    val queue by context.symphony.radio.observatory.queue.collectAsState()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
     val currentPlayingSongId by remember(queue, queueIndex) {
         derivedStateOf { queue.getOrNull(queueIndex) }
     }
-    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsStateWithLifecycle()
 
     LazyColumn(
         state = lazyListState,

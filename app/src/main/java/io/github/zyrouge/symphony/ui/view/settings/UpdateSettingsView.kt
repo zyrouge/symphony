@@ -18,7 +18,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,8 +36,8 @@ object UpdateSettingsViewRoute
 @Composable
 fun UpdateSettingsView(context: ViewContext) {
     val scrollState = rememberScrollState()
-    val checkForUpdates by context.symphony.settings.checkForUpdates.flow.collectAsState()
-    val showUpdateToast by context.symphony.settings.showUpdateToast.flow.collectAsState()
+    val checkForUpdates by context.symphony.settings.checkForUpdates.flow.collectAsStateWithLifecycle()
+    val showUpdateToast by context.symphony.settings.showUpdateToast.flow.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

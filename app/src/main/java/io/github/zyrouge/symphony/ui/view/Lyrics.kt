@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,7 +43,7 @@ object LyricsViewRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LyricsView(context: ViewContext) {
-    val keepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsState()
+    val keepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsStateWithLifecycle()
 
     if (keepScreenAwake) {
         KeepScreenAwake()
@@ -70,10 +69,7 @@ fun LyricsView(context: ViewContext) {
                     },
                     title = {
                         TopAppBarMinimalTitle {
-                            Text(
-                                context.symphony.t.Lyrics +
-                                        (data?.song?.title?.let { " - $it" } ?: "")
-                            )
+                            Text("${context.symphony.t.Lyrics} - ${data?.song?.title ?: context.symphony.t.UnknownSymbol}")
                         }
                     },
                     actions = {

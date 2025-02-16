@@ -21,7 +21,7 @@ data class Composer(
 ) {
     data class AlongAttributes(
         @Embedded
-        val composer: Composer,
+        val entity: Composer,
         @Embedded
         val tracksCount: Int,
         @Embedded

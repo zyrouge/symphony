@@ -17,47 +17,52 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.Artist
+import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.ui.components.AlbumRow
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.GenericGrooveBanner
+import io.github.zyrouge.symphony.ui.components.GenericGrooveBannerQuadImage
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ArtistViewRoute(val artistName: String)
+data class ArtistViewRoute(val artistId: String)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun ArtistView(context: ViewContext, route: ArtistViewRoute) {
-    val allArtistNames by context.symphony.groove.artist.all.collectAsState()
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val allAlbumIds by context.symphony.groove.album.all.collectAsState()
-    val artist by remember(allArtistNames) {
-        derivedStateOf { context.symphony.groove.artist.get(route.artistName) }
+    val artistFlow = context.symphony.groove.artist.findByIdAsFlow(route.artistId)
+    val artist by artistFlow.collectAsStateWithLifecycle(null)
+    val albums by context.symphony.groove.artist.findAlbumsOfIdAsFlow(route.artistId)
+        .collectAsStateWithLifecycle(emptyList())
+    val songsSortBy by context.symphony.settings.lastUsedArtistSongsSortBy.flow.collectAsStateWithLifecycle()
+    val songsSortReverse by context.symphony.settings.lastUsedArtistSongsSortReverse.flow.collectAsStateWithLifecycle()
+    val songsFlow = artistFlow.transformLatest { artist ->
+        val value = when {
+            artist == null -> emptyFlow()
+            else -> context.symphony.groove.artist.findSongsByIdAsFlow(
+                artist.entity.id,
+                songsSortBy,
+                songsSortReverse,
+            )
+        }
+        emitAll(value)
     }
-    val songIds by remember(artist, allSongIds) {
-        derivedStateOf { artist?.getSongIds(context.symphony) ?: listOf() }
-    }
-    val albumIds by remember(artist, allAlbumIds) {
-        derivedStateOf { artist?.getAlbumIds(context.symphony) ?: listOf() }
-    }
-    val isViable by remember(allArtistNames) {
-        derivedStateOf { allArtistNames.contains(route.artistName) }
-    }
+    val songs by songsFlow.collectAsStateWithLifecycle(emptyList())
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -73,7 +78,7 @@ fun ArtistView(context: ViewContext, route: ArtistViewRoute) {
                 title = {
                     TopAppBarMinimalTitle {
                         Text(
-                            context.symphony.t.Artist + (artist?.let { " - ${it.name}" } ?: ""),
+                            "${context.symphony.t.Artist} - ${artist?.entity?.name ?: context.symphony.t.UnknownSymbol}",
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -93,25 +98,29 @@ fun ArtistView(context: ViewContext, route: ArtistViewRoute) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                if (isViable) {
-                    SongList(
+                when {
+                    artist != null -> SongList(
                         context,
-                        songIds = songIds,
+                        songs = songs,
+                        sortBy = songsSortBy,
+                        sortReverse = songsSortReverse,
                         leadingContent = {
                             item {
                                 ArtistHero(context, artist!!)
                             }
-                            if (albumIds.isNotEmpty()) {
+                            if (albums.isNotEmpty()) {
                                 item {
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    AlbumRow(context, albumIds)
+                                    AlbumRow(context, albums)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     HorizontalDivider()
                                 }
                             }
                         }
                     )
-                } else UnknownArtist(context, route.artistName)
+
+                    else -> UnknownArtist(context, route.artistId)
+                }
             }
         },
         bottomBar = {
@@ -121,9 +130,14 @@ fun ArtistView(context: ViewContext, route: ArtistViewRoute) {
 }
 
 @Composable
-private fun ArtistHero(context: ViewContext, artist: Artist) {
+private fun ArtistHero(context: ViewContext, artist: Artist.AlongAttributes) {
+    val artworks by context.symphony.groove.artist.getTop4ArtworkUriAsFlow(artist.entity.id)
+        .collectAsStateWithLifecycle(emptyList())
+
     GenericGrooveBanner(
-        image = artist.createArtworkImageRequest(context.symphony).build(),
+        image = { constraints ->
+            GenericGrooveBannerQuadImage(context, artworks, constraints)
+        },
         options = { expanded, onDismissRequest ->
             ArtistDropdownMenu(
                 context,
@@ -133,13 +147,13 @@ private fun ArtistHero(context: ViewContext, artist: Artist) {
             )
         },
         content = {
-            Text(artist.name)
+            Text(artist.entity.name)
         }
     )
 }
 
 @Composable
-private fun UnknownArtist(context: ViewContext, artistName: String) {
+private fun UnknownArtist(context: ViewContext, artistId: String) {
     IconTextBody(
         icon = { modifier ->
             Icon(
@@ -149,7 +163,7 @@ private fun UnknownArtist(context: ViewContext, artistName: String) {
             )
         },
         content = {
-            Text(context.symphony.t.UnknownArtistX(artistName))
+            Text(context.symphony.t.UnknownArtistX(artistId))
         }
     )
 }

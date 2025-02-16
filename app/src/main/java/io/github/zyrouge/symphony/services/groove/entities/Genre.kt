@@ -21,7 +21,7 @@ data class Genre(
 ) {
     data class AlongAttributes(
         @Embedded
-        val genre: Genre,
+        val entity: Genre,
         @Embedded
         val tracksCount: Int,
     ) {

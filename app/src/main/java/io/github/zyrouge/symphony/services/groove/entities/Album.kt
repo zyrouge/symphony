@@ -25,7 +25,7 @@ data class Album(
 ) {
     data class AlongAttributes(
         @Embedded
-        val album: Album,
+        val entity: Album,
         @Embedded
         val tracksCount: Int,
         @Embedded

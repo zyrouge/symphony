@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.services.groove
 
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.repositories.AlbumArtistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository
@@ -29,7 +28,6 @@ class Groove(private val symphony: Symphony) : Symphony.Hooks {
     val song = SongRepository(symphony)
     val album = AlbumRepository(symphony)
     val artist = ArtistRepository(symphony)
-    val albumArtist = AlbumArtistRepository(symphony)
     val genre = GenreRepository(symphony)
     val playlist = PlaylistRepository(symphony)
 

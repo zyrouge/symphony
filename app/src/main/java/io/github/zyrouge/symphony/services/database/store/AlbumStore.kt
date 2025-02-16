@@ -25,16 +25,30 @@ interface AlbumStore {
     @Query("SELECT * FROM ${Album.TABLE} WHERE ${Album.COLUMN_NAME} = :name LIMIT 1")
     fun findByName(name: String): Album?
 
-    @Query("SELECT * FROM ${Album.TABLE} WHERE ${Album.COLUMN_ID} = :id LIMIT 1")
-    fun findByIdAsFlow(id: String): Flow<Album?>
+    @RawQuery(observedEntities = [Album::class, AlbumArtistMapping::class, AlbumSongMapping::class])
+    fun findByIdAsFlowRaw(query: SupportSQLiteQuery): Flow<Album.AlongAttributes?>
 
     @RawQuery(observedEntities = [Album::class, AlbumArtistMapping::class, AlbumSongMapping::class])
     fun valuesAsFlowRaw(query: SupportSQLiteQuery): Flow<List<Album.AlongAttributes>>
 }
 
+fun AlbumStore.findByIdAsFlow(id: String): Flow<Album.AlongAttributes?> {
+    val query = "SELECT ${Album.TABLE}.*, " +
+            "COUNT(${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_SONG_ID}) as ${Album.AlongAttributes.EMBEDDED_TRACKS_COUNT}, " +
+            "COUNT(${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID}) as ${Album.AlongAttributes.EMBEDDED_ARTISTS_COUNT} " +
+            "FROM ${Album.TABLE} " +
+            "LEFT JOIN ${AlbumSongMapping.TABLE} ON ${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID} " +
+            "LEFT JOIN ${AlbumArtistMapping.TABLE} ON ${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID} " +
+            "WHERE ${Album.COLUMN_ID} = ? " +
+            "LIMIT 1"
+    val args = arrayOf(id)
+    return findByIdAsFlowRaw(SimpleSQLiteQuery(query, args))
+}
+
 fun AlbumStore.valuesAsFlow(
     sortBy: AlbumRepository.SortBy,
     sortReverse: Boolean,
+    artistId: String? = null,
 ): Flow<List<Album.AlongAttributes>> {
     val aliasFirstArtist = "firstArtist"
     val embeddedArtistName = "firstArtistName"
@@ -52,14 +66,17 @@ fun AlbumStore.valuesAsFlow(
             "FROM ${AlbumArtistMapping.TABLE} " +
             "WHERE ${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ${Album.COLUMN_ID} " +
             "ORDER BY ${AlbumArtistMapping.COLUMN_IS_ALBUM_ARTIST} DESC"
+    val albumArtistMappingJoin = "" +
+            (if (artistId != null) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID} = ? " else "") +
+            "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID}"
     val query = "SELECT ${Album.TABLE}.*, " +
             "COUNT(${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_SONG_ID}) as ${Album.AlongAttributes.EMBEDDED_TRACKS_COUNT}, " +
             "COUNT(${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID}) as ${Album.AlongAttributes.EMBEDDED_ARTISTS_COUNT}, " +
             "$aliasFirstArtist.${Artist.COLUMN_NAME} as $embeddedArtistName" +
             "FROM ${Album.TABLE} " +
             "LEFT JOIN ${AlbumSongMapping.TABLE} ON ${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID} " +
-            "LEFT JOIN ${AlbumArtistMapping.TABLE} ON ${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID} " +
-            "LEFT JOIN ${Artist.TABLE} $aliasFirstArtist ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($artistQuery)" +
+            "LEFT JOIN ${AlbumArtistMapping.TABLE} ON $albumArtistMappingJoin " +
+            "LEFT JOIN ${Artist.TABLE} $aliasFirstArtist ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($artistQuery) " +
             "ORDER BY $orderBy $orderDirection"
     return valuesAsFlowRaw(SimpleSQLiteQuery(query))
 }

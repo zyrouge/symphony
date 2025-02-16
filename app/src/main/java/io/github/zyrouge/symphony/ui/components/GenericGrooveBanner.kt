@@ -1,8 +1,10 @@
 package io.github.zyrouge.symphony.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,30 +29,20 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 
 @Composable
 fun GenericGrooveBanner(
-    image: ImageRequest,
+    image: @Composable (BoxWithConstraintsScope) -> Unit,
     options: @Composable (Boolean, () -> Unit) -> Unit,
     content: @Composable () -> Unit,
 ) {
     val defaultHorizontalPadding = 20.dp
     BoxWithConstraints {
-        AsyncImage(
-            image,
-            null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(
-                    when (ScreenOrientation.fromConfiguration(LocalConfiguration.current)) {
-                        ScreenOrientation.PORTRAIT -> this@BoxWithConstraints.maxWidth.times(0.7f)
-                        ScreenOrientation.LANDSCAPE -> this@BoxWithConstraints.maxWidth.times(0.25f)
-                    }
-                )
-        )
+        image(this@BoxWithConstraints)
         Row(
             modifier = Modifier
                 .background(
@@ -93,4 +85,55 @@ fun GenericGrooveBanner(
             }
         }
     }
+}
+
+@Composable
+fun GenericGrooveBannerSingleImage(
+    context: ViewContext,
+    uri: Uri?,
+    constraints: BoxWithConstraintsScope,
+) {
+    AsyncImage(
+        createGrooveImageRequest(context, uri),
+        null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(
+                when (ScreenOrientation.fromConfiguration(LocalConfiguration.current)) {
+                    ScreenOrientation.PORTRAIT -> constraints.maxWidth.times(0.7f)
+                    ScreenOrientation.LANDSCAPE -> constraints.maxWidth.times(0.25f)
+                }
+            )
+    )
+}
+
+@Composable
+fun GenericGrooveBannerQuadImage(
+    context: ViewContext,
+    images: List<Uri?>,
+    constraints: BoxWithConstraintsScope,
+) {
+    // TODO: implement collage
+    AsyncImage(
+        createGrooveImageRequest(context, images.firstOrNull()),
+        null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(
+                when (ScreenOrientation.fromConfiguration(LocalConfiguration.current)) {
+                    ScreenOrientation.PORTRAIT -> constraints.maxWidth.times(0.7f)
+                    ScreenOrientation.LANDSCAPE -> constraints.maxWidth.times(0.25f)
+                }
+            )
+    )
+}
+
+private fun createGrooveImageRequest(context: ViewContext, uri: Uri?) {
+    createHandyImageRequest(
+        context.symphony.applicationContext,
+        uri ?: Assets.getPlaceholderUri(context.symphony),
+        Assets.getPlaceholderId(context.symphony),
+    )
 }

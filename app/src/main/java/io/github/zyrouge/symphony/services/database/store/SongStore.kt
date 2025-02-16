@@ -63,7 +63,10 @@ interface SongStore {
             Song::class,
         ]
     )
-    fun entriesAsPlaylistSongMappedFlowRaw(query: SupportSQLiteQuery): Flow<Map<@MapColumn(Song.COLUMN_ID) String, Song.AlongPlaylistMapping>>
+    fun entriesAsPlaylistSongMappedAsFlowRaw(query: SupportSQLiteQuery): Flow<Map<@MapColumn(Song.COLUMN_ID) String, Song.AlongPlaylistMapping>>
+
+    @RawQuery
+    fun valuesRaw(query: SupportSQLiteQuery): List<Song>
 
     @RawQuery(
         observedEntities = [
@@ -78,7 +81,7 @@ interface SongStore {
     fun valuesAsFlowRaw(query: SupportSQLiteQuery): Flow<List<Song>>
 }
 
-internal fun SongStore.valuesAsFlowQuery(
+internal fun SongStore.valuesQuery(
     sortBy: SongRepository.SortBy,
     sortReverse: Boolean,
     additionalClauseAfterSongSelect: String = "",
@@ -138,6 +141,25 @@ internal fun SongStore.valuesAsFlowQuery(
     return SimpleSQLiteQuery(query, args)
 }
 
+fun SongStore.values(
+    sortBy: SongRepository.SortBy,
+    sortReverse: Boolean,
+    additionalClauseAfterSongSelect: String = "",
+    additionalClauseBeforeJoins: String = "",
+    additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
+    overrideOrderBy: String? = null,
+): List<Song> {
+    val query = valuesQuery(
+        sortBy = sortBy,
+        sortReverse = sortReverse,
+        additionalClauseAfterSongSelect = additionalClauseAfterSongSelect,
+        additionalClauseBeforeJoins = additionalClauseBeforeJoins,
+        additionalArgsBeforeJoins = additionalArgsBeforeJoins,
+        overrideOrderBy = overrideOrderBy,
+    )
+    return valuesRaw(query)
+}
+
 fun SongStore.valuesAsFlow(
     sortBy: SongRepository.SortBy,
     sortReverse: Boolean,
@@ -146,7 +168,7 @@ fun SongStore.valuesAsFlow(
     additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
     overrideOrderBy: String? = null,
 ): Flow<List<Song>> {
-    val query = valuesAsFlowQuery(
+    val query = valuesQuery(
         sortBy = sortBy,
         sortReverse = sortReverse,
         additionalClauseAfterSongSelect = additionalClauseAfterSongSelect,

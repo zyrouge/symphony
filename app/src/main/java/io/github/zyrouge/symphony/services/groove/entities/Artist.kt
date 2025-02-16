@@ -22,7 +22,7 @@ data class Artist(
 ) {
     data class AlongAttributes(
         @Embedded
-        val artist: Artist,
+        val entity: Artist,
         @Embedded
         val tracksCount: Int,
         @Embedded

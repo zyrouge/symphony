@@ -15,8 +15,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,25 +27,34 @@ import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.SongList
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GenreViewRoute(val genreName: String)
+data class GenreViewRoute(val genreId: String)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun GenreView(context: ViewContext, route: GenreViewRoute) {
-    val allGenreNames by context.symphony.groove.genre.all.collectAsState()
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val genre by remember(allGenreNames) {
-        derivedStateOf { context.symphony.groove.genre.get(route.genreName) }
+    val genreFlow = context.symphony.groove.genre.findByIdAsFlow(route.genreId)
+    val genre by genreFlow.collectAsStateWithLifecycle(null)
+    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsStateWithLifecycle()
+    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsStateWithLifecycle()
+    val songsFlow = genreFlow.transformLatest { genre ->
+        val value = when {
+            genre == null -> emptyFlow()
+            else -> context.symphony.groove.genre.findSongsByIdAsFlow(
+                genre.entity.id,
+                songsSortBy,
+                songsSortReverse,
+            )
+        }
+        emitAll(value)
     }
-    val songIds by remember(genre, allSongIds) {
-        derivedStateOf { genre?.getSongIds(context.symphony) ?: listOf() }
-    }
-    val isViable by remember(allGenreNames) {
-        derivedStateOf { allGenreNames.contains(route.genreName) }
-    }
+    val songs by songsFlow.collectAsStateWithLifecycle(emptyList())
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -62,8 +69,7 @@ fun GenreView(context: ViewContext, route: GenreViewRoute) {
                 },
                 title = {
                     TopAppBarMinimalTitle {
-                        Text(context.symphony.t.Genre
-                                + (genre?.let { " - ${it.name}" } ?: ""))
+                        Text("${context.symphony.t.Genre} - ${genre?.entity?.name ?: context.symphony.t.UnknownSymbol}")
                     }
                 },
                 actions = {
@@ -77,7 +83,7 @@ fun GenreView(context: ViewContext, route: GenreViewRoute) {
                         Icon(Icons.Filled.MoreVert, null)
                         GenericSongListDropdown(
                             context,
-                            songIds = songIds,
+                            songIds = songs.map { it.id },
                             expanded = showOptionsMenu,
                             onDismissRequest = {
                                 showOptionsMenu = false
@@ -97,8 +103,14 @@ fun GenreView(context: ViewContext, route: GenreViewRoute) {
                     .fillMaxSize()
             ) {
                 when {
-                    isViable -> SongList(context, songIds = songIds)
-                    else -> UnknownGenre(context, route.genreName)
+                    genre != null -> SongList(
+                        context,
+                        songs = songs,
+                        sortBy = songsSortBy,
+                        sortReverse = songsSortReverse,
+                    )
+
+                    else -> UnknownGenre(context, route.genreId)
                 }
             }
         },
@@ -109,7 +121,7 @@ fun GenreView(context: ViewContext, route: GenreViewRoute) {
 }
 
 @Composable
-private fun UnknownGenre(context: ViewContext, genre: String) {
+private fun UnknownGenre(context: ViewContext, genreId: String) {
     IconTextBody(
         icon = { modifier ->
             Icon(
@@ -119,7 +131,7 @@ private fun UnknownGenre(context: ViewContext, genre: String) {
             )
         },
         content = {
-            Text(context.symphony.t.UnknownGenreX(genre))
+            Text(context.symphony.t.UnknownGenreX(genreId))
         }
     )
 }

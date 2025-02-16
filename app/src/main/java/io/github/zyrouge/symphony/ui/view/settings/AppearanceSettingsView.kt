@@ -24,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,13 +55,13 @@ object AppearanceSettingsViewRoute
 @Composable
 fun AppearanceSettingsView(context: ViewContext) {
     val scrollState = rememberScrollState()
-    val language by context.symphony.settings.language.flow.collectAsState()
-    val fontFamily by context.symphony.settings.fontFamily.flow.collectAsState()
-    val themeMode by context.symphony.settings.themeMode.flow.collectAsState()
-    val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsState()
-    val primaryColor by context.symphony.settings.primaryColor.flow.collectAsState()
-    val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
-    val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
+    val language by context.symphony.settings.language.flow.collectAsStateWithLifecycle()
+    val fontFamily by context.symphony.settings.fontFamily.flow.collectAsStateWithLifecycle()
+    val themeMode by context.symphony.settings.themeMode.flow.collectAsStateWithLifecycle()
+    val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsStateWithLifecycle()
+    val primaryColor by context.symphony.settings.primaryColor.flow.collectAsStateWithLifecycle()
+    val fontScale by context.symphony.settings.fontScale.flow.collectAsStateWithLifecycle()
+    val contentScale by context.symphony.settings.contentScale.flow.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

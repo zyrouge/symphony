@@ -23,11 +23,25 @@ interface PlaylistStore {
     @Query("DELETE FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_ID} = :id")
     suspend fun delete(id: String): Int
 
+    @RawQuery(observedEntities = [Playlist::class, PlaylistSongMapping::class])
+    fun findByIdAsFlowRaw(query: SupportSQLiteQuery): Flow<Playlist.AlongAttributes?>
+
     @Query("SELECT * FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_URI} != NULL")
     fun valuesLocalOnly(): List<Playlist>
 
     @RawQuery(observedEntities = [Playlist::class, PlaylistSongMapping::class])
     fun valuesAsFlowRaw(query: SupportSQLiteQuery): Flow<List<Playlist.AlongAttributes>>
+}
+
+fun PlaylistStore.findByIdAsFlow(id: String): Flow<Playlist.AlongAttributes?> {
+    val query = "SELECT ${Playlist.TABLE}.*, " +
+            "COUNT(${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID}) as ${Playlist.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
+            "FROM ${Playlist.TABLE} " +
+            "LEFT JOIN ${PlaylistSongMapping.TABLE} ON ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ${Playlist.TABLE}.${Playlist.COLUMN_ID} " +
+            "WHERE ${Playlist.TABLE}.${Playlist.COLUMN_ID} = ? " +
+            "LIMIT 1"
+    val args = arrayOf(id)
+    return findByIdAsFlowRaw(SimpleSQLiteQuery(query, args))
 }
 
 fun PlaylistStore.valuesAsFlow(

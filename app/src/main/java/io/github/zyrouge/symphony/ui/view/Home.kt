@@ -58,7 +58,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -168,10 +167,10 @@ object HomeViewRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(context: ViewContext) {
-    val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.flow.collectAsState()
-    val tabs by context.symphony.settings.homeTabs.flow.collectAsState()
-    val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsState()
-    val currentTab by context.symphony.settings.lastHomeTab.flow.collectAsState()
+    val readIntroductoryMessage by context.symphony.settings.readIntroductoryMessage.flow.collectAsStateWithLifecycle()
+    val tabs by context.symphony.settings.homeTabs.flow.collectAsStateWithLifecycle()
+    val labelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsStateWithLifecycle()
+    val currentTab by context.symphony.settings.lastHomeTab.flow.collectAsStateWithLifecycle()
     var showOptionsDropdown by remember { mutableStateOf(false) }
     var showTabsSheet by remember { mutableStateOf(false) }
 

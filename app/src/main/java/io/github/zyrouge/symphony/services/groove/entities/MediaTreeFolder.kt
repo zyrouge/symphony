@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.services.groove.entities
 import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -40,6 +41,17 @@ data class MediaTreeFolder(
     @ColumnInfo(COLUMN_URI)
     val uri: Uri?,
 ) {
+    data class AlongAttributes(
+        @Embedded
+        val folder: MediaTreeFolder,
+        @Embedded
+        val tracksCount: Int,
+    ) {
+        companion object {
+            const val EMBEDDED_TRACKS_COUNT = "tracksCount"
+        }
+    }
+
     companion object {
         const val TABLE = "media_tree_folders"
         const val COLUMN_ID = "id"

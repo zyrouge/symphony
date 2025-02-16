@@ -34,7 +34,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -68,16 +67,16 @@ enum class ForYou(val label: (context: ViewContext) -> String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouView(context: ViewContext) {
-    val albumArtistsIsUpdating by context.symphony.groove.albumArtist.isUpdating.collectAsState()
-    val albumsIsUpdating by context.symphony.groove.album.isUpdating.collectAsState()
-    val artistsIsUpdating by context.symphony.groove.artist.isUpdating.collectAsState()
-    val songsIsUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val albumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
-    val albumIds by context.symphony.groove.album.all.collectAsState()
-    val artistNames by context.symphony.groove.artist.all.collectAsState()
-    val songIds by context.symphony.groove.song.all.collectAsState()
-    val sortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsState()
+    val albumArtistsIsUpdating by context.symphony.groove.albumArtist.isUpdating.collectAsStateWithLifecycle()
+    val albumsIsUpdating by context.symphony.groove.album.isUpdating.collectAsStateWithLifecycle()
+    val artistsIsUpdating by context.symphony.groove.artist.isUpdating.collectAsStateWithLifecycle()
+    val songsIsUpdating by context.symphony.groove.song.isUpdating.collectAsStateWithLifecycle()
+    val albumArtistNames by context.symphony.groove.albumArtist.all.collectAsStateWithLifecycle()
+    val albumIds by context.symphony.groove.album.all.collectAsStateWithLifecycle()
+    val artistNames by context.symphony.groove.artist.all.collectAsStateWithLifecycle()
+    val songIds by context.symphony.groove.song.all.collectAsStateWithLifecycle()
+    val sortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsStateWithLifecycle()
+    val sortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsStateWithLifecycle()
 
     when {
         songIds.isNotEmpty() -> {
@@ -265,7 +264,7 @@ fun ForYouView(context: ViewContext) {
                         }
                     }
                 }
-                val contents by context.symphony.settings.forYouContents.flow.collectAsState()
+                val contents by context.symphony.settings.forYouContents.flow.collectAsStateWithLifecycle()
                 contents.forEach {
                     when (it) {
                         ForYou.Albums -> SuggestedAlbums(

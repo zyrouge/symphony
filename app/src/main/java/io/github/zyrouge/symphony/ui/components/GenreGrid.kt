@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,8 +70,8 @@ fun GenreGrid(
     sortBy: GenreRepository.SortBy,
     sortReverse: Boolean,
 ) {
-    val horizontalGridColumns by context.symphony.settings.lastUsedGenresHorizontalGridColumns.flow.collectAsState()
-    val verticalGridColumns by context.symphony.settings.lastUsedGenresVerticalGridColumns.flow.collectAsState()
+    val horizontalGridColumns by context.symphony.settings.lastUsedGenresHorizontalGridColumns.flow.collectAsStateWithLifecycle()
+    val verticalGridColumns by context.symphony.settings.lastUsedGenresVerticalGridColumns.flow.collectAsStateWithLifecycle()
     val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
         derivedStateOf {
             ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
@@ -171,7 +170,7 @@ private fun GenreTile(
             ),
         colors = GenreTile.cardColors(index),
         onClick = {
-            context.navController.navigate(GenreViewRoute(attributedGenre.genre.name))
+            context.navController.navigate(GenreViewRoute(attributedGenre.entity.name))
         }
     ) {
         Box(
@@ -189,7 +188,7 @@ private fun GenreTile(
                     .absoluteOffset(8.dp, 12.dp)
             ) {
                 Text(
-                    attributedGenre.genre.name,
+                    attributedGenre.entity.name,
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.displaySmall
                         .copy(fontWeight = FontWeight.Bold),
@@ -203,7 +202,7 @@ private fun GenreTile(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    attributedGenre.genre.name,
+                    attributedGenre.entity.name,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge
                         .copy(fontWeight = FontWeight.Bold),

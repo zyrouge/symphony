@@ -44,7 +44,7 @@ data class SongQueue(
 
     data class AlongAttributes(
         @Embedded
-        val queue: SongQueue,
+        val entity: SongQueue,
         @Embedded
         val tracksCount: Int,
     ) {

@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.utils.concurrentListOf
 
 class RadioQueue(private val symphony: Symphony) {
@@ -71,6 +72,18 @@ class RadioQueue(private val symphony: Symphony) {
         index: Int? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
     ) = add(listOf(songId), index, options)
+
+    fun add(
+        songs: List<Song>,
+        index: Int? = null,
+        options: Radio.PlayOptions = Radio.PlayOptions(),
+    ) = add(songs.map { it.id }, index, options)
+
+    fun add(
+        song: Song,
+        index: Int? = null,
+        options: Radio.PlayOptions = Radio.PlayOptions(),
+    ) = add(listOf(song.id), index, options)
 
     private fun afterAdd(options: Radio.PlayOptions) {
         if (!symphony.radio.hasPlayer) {

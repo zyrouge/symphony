@@ -1,7 +1,6 @@
 package io.github.zyrouge.symphony.ui.view.home
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import io.github.zyrouge.symphony.ui.components.AlbumGrid
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
@@ -12,12 +11,12 @@ import kotlinx.coroutines.flow.mapLatest
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun AlbumsView(context: ViewContext) {
-    val isUpdating by context.symphony.groove.exposer.isUpdating.collectAsState()
-    val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.flow.collectAsState()
+    val isUpdating by context.symphony.groove.exposer.isUpdating.collectAsStateWithLifecycle()
+    val sortBy by context.symphony.settings.lastUsedAlbumsSortBy.flow.collectAsStateWithLifecycle()
+    val sortReverse by context.symphony.settings.lastUsedAlbumsSortReverse.flow.collectAsStateWithLifecycle()
     val albums by context.symphony.groove.album.valuesAsFlow(sortBy, sortReverse)
-        .mapLatest { it.map { x -> x.album } }
-        .collectAsState(emptyList())
+        .mapLatest { it.map { x -> x.entity } }
+        .collectAsStateWithLifecycle(emptyList())
 
     LoaderScaffold(context, isLoading = isUpdating) {
         AlbumGrid(

@@ -15,12 +15,17 @@ import kotlin.io.path.nameWithoutExtension
 @Immutable
 @Entity(
     Playlist.TABLE,
-    indices = [Index(Playlist.COLUMN_TITLE)],
+    indices = [
+        Index(Playlist.COLUMN_INTERNAL_ID, unique = true),
+        Index(Playlist.COLUMN_TITLE),
+    ],
 )
 data class Playlist(
     @PrimaryKey
     @ColumnInfo(COLUMN_ID)
     val id: String,
+    @ColumnInfo(COLUMN_INTERNAL_ID)
+    val internalId: Int? = null,
     @ColumnInfo(COLUMN_TITLE)
     val title: String,
     @ColumnInfo(COLUMN_URI)
@@ -28,9 +33,13 @@ data class Playlist(
     @ColumnInfo(COLUMN_PATH)
     val path: String?,
 ) {
+    val isLocal get() = uri != null
+    val isModifiable get() = !isLocal
+    val isInternal get() = internalId != null
+
     data class AlongAttributes(
         @Embedded
-        val playlist: Playlist,
+        val entity: Playlist,
         @Embedded
         val tracksCount: Int,
     ) {
@@ -44,12 +53,10 @@ data class Playlist(
     companion object {
         const val TABLE = "playlists"
         const val COLUMN_ID = "id"
+        const val COLUMN_INTERNAL_ID = "internal_id"
         const val COLUMN_TITLE = "title"
         const val COLUMN_URI = "title"
         const val COLUMN_PATH = "path"
-
-        private const val PRIMARY_STORAGE = "primary:"
-        const val MIMETYPE_M3U = ""
 
         fun parse(symphony: Symphony, id: String, uri: Uri): Parsed {
             val file = DocumentFileX.fromSingleUri(symphony.applicationContext, uri)!!

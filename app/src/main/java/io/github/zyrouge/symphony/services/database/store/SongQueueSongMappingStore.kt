@@ -47,7 +47,7 @@ fun SongQueueSongMappingStore.transformEntriesAsValuesFlow(entries: Flow<Map<Str
             }
         }
         while (head != null) {
-            list.add(head.song)
+            list.add(head.entity)
             head = it[head.mapping.nextId]
         }
         list.toList()

@@ -35,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -75,16 +74,16 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-    val songsFilterPattern by context.symphony.settings.songsFilterPattern.flow.collectAsState()
-    val minSongDuration by context.symphony.settings.minSongDuration.flow.collectAsState()
-    val blacklistFolders by context.symphony.settings.blacklistFolders.flow.collectAsState()
-    val whitelistFolders by context.symphony.settings.whitelistFolders.flow.collectAsState()
-    val artistTagSeparators by context.symphony.settings.artistTagSeparators.flow.collectAsState()
-    val genreTagSeparators by context.symphony.settings.genreTagSeparators.flow.collectAsState()
-    val mediaFolders by context.symphony.settings.mediaFolders.flow.collectAsState()
-    val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsState()
-    val caseSensitiveSorting by context.symphony.settings.caseSensitiveSorting.flow.collectAsState()
-    val useMetaphony by context.symphony.settings.useMetaphony.flow.collectAsState()
+    val songsFilterPattern by context.symphony.settings.songsFilterPattern.flow.collectAsStateWithLifecycle()
+    val minSongDuration by context.symphony.settings.minSongDuration.flow.collectAsStateWithLifecycle()
+    val blacklistFolders by context.symphony.settings.blacklistFolders.flow.collectAsStateWithLifecycle()
+    val whitelistFolders by context.symphony.settings.whitelistFolders.flow.collectAsStateWithLifecycle()
+    val artistTagSeparators by context.symphony.settings.artistTagSeparators.flow.collectAsStateWithLifecycle()
+    val genreTagSeparators by context.symphony.settings.genreTagSeparators.flow.collectAsStateWithLifecycle()
+    val mediaFolders by context.symphony.settings.mediaFolders.flow.collectAsStateWithLifecycle()
+    val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsStateWithLifecycle()
+    val caseSensitiveSorting by context.symphony.settings.caseSensitiveSorting.flow.collectAsStateWithLifecycle()
+    val useMetaphony by context.symphony.settings.useMetaphony.flow.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

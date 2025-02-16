@@ -17,7 +17,6 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,8 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.Playlist
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
+import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
 import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.PlaylistGrid
@@ -39,12 +38,12 @@ import kotlinx.coroutines.flow.mapLatest
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun PlaylistsView(context: ViewContext) {
-    val isUpdating by context.symphony.groove.exposer.isUpdating.collectAsState()
-    val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.flow.collectAsState()
+    val isUpdating by context.symphony.groove.exposer.isUpdating.collectAsStateWithLifecycle()
+    val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.flow.collectAsStateWithLifecycle()
+    val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.flow.collectAsStateWithLifecycle()
     val playlists by context.symphony.groove.playlist.valuesAsFlow(sortBy, sortReverse)
-        .mapLatest { it.map { x -> x.playlist } }
-        .collectAsState(emptyList())
+        .mapLatest { it.map { x -> x.entity } }
+        .collectAsStateWithLifecycle(emptyList())
     var showPlaylistCreator by remember { mutableStateOf(false) }
 
     val openPlaylistLauncher = rememberLauncherForActivityResult(
@@ -53,8 +52,13 @@ fun PlaylistsView(context: ViewContext) {
         uris.forEach { x ->
             try {
                 ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, x)
-                val playlist = Playlist.parse(context.symphony, null, x)
-                context.symphony.groove.playlist.add(playlist)
+                val id = context.symphony.database.playlistsIdGenerator.next()
+                val parsed = Playlist.parse(context.symphony, id, x)
+                val addOptions = PlaylistRepository.AddOptions(
+                    playlist = parsed.playlist,
+                    songPaths = parsed.songPaths,
+                )
+                context.symphony.groove.playlist.add(addOptions)
             } catch (err: Exception) {
                 Logger.error("PlaylistView", "import failed (activity result)", err)
                 Toast.makeText(
@@ -90,9 +94,9 @@ fun PlaylistsView(context: ViewContext) {
     if (showPlaylistCreator) {
         NewPlaylistDialog(
             context,
-            onDone = { playlist ->
+            onDone = { addOptions ->
                 showPlaylistCreator = false
-                context.symphony.groove.playlist.add(playlist)
+                context.symphony.groove.playlist.add(addOptions)
             },
             onDismissRequest = {
                 showPlaylistCreator = false

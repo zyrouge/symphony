@@ -24,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,15 +44,15 @@ object PlayerSettingsViewRoute
 @Composable
 fun PlayerSettingsView(context: ViewContext) {
     val scrollState = rememberScrollState()
-    val fadePlayback by context.symphony.settings.fadePlayback.flow.collectAsState()
-    val fadePlaybackDuration by context.symphony.settings.fadePlaybackDuration.flow.collectAsState()
-    val requireAudioFocus by context.symphony.settings.requireAudioFocus.flow.collectAsState()
-    val ignoreAudioFocusLoss by context.symphony.settings.ignoreAudioFocusLoss.flow.collectAsState()
-    val playOnHeadphonesConnect by context.symphony.settings.playOnHeadphonesConnect.flow.collectAsState()
-    val pauseOnHeadphonesDisconnect by context.symphony.settings.pauseOnHeadphonesDisconnect.flow.collectAsState()
-    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsState()
-    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
-    val gaplessPlayback by context.symphony.settings.gaplessPlayback.flow.collectAsState()
+    val fadePlayback by context.symphony.settings.fadePlayback.flow.collectAsStateWithLifecycle()
+    val fadePlaybackDuration by context.symphony.settings.fadePlaybackDuration.flow.collectAsStateWithLifecycle()
+    val requireAudioFocus by context.symphony.settings.requireAudioFocus.flow.collectAsStateWithLifecycle()
+    val ignoreAudioFocusLoss by context.symphony.settings.ignoreAudioFocusLoss.flow.collectAsStateWithLifecycle()
+    val playOnHeadphonesConnect by context.symphony.settings.playOnHeadphonesConnect.flow.collectAsStateWithLifecycle()
+    val pauseOnHeadphonesDisconnect by context.symphony.settings.pauseOnHeadphonesDisconnect.flow.collectAsStateWithLifecycle()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsStateWithLifecycle()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsStateWithLifecycle()
+    val gaplessPlayback by context.symphony.settings.gaplessPlayback.flow.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

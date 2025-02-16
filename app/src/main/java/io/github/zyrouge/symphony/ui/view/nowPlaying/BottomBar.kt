@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,7 +68,7 @@ fun NowPlayingBodyBottomBar(
         context.symphony.radio.session.createEqualizerActivityContract()
     ) {}
 
-    val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsState()
+    val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsStateWithLifecycle()
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showPitchDialog by remember { mutableStateOf(false) }
@@ -107,7 +106,7 @@ fun NowPlayingBodyBottomBar(
             }
             Spacer(modifier = Modifier.weight(1f))
             states.showLyrics.let { showLyricsState ->
-                val showLyrics by showLyricsState.collectAsState()
+                val showLyrics by showLyricsState.collectAsStateWithLifecycle()
 
                 IconButton(
                     onClick = {

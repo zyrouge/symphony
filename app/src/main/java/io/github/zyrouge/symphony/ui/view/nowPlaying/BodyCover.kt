@@ -15,7 +15,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +44,7 @@ fun NowPlayingBodyCover(
     states: NowPlayingStates,
     orientation: ScreenOrientation,
 ) {
-    val showLyrics by states.showLyrics.collectAsState()
+    val showLyrics by states.showLyrics.collectAsStateWithLifecycle()
 
     Box(modifier = Modifier.padding(defaultHorizontalPadding, 0.dp)) {
         AnimatedContent(
@@ -69,12 +68,12 @@ fun NowPlayingBodyCover(
 
 @Composable
 private fun NowPlayingBodyCoverLyrics(context: ViewContext, orientation: ScreenOrientation) {
-    val keepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsState()
+    val keepScreenAwake by context.symphony.settings.lyricsKeepScreenAwake.flow.collectAsStateWithLifecycle()
 
     if (keepScreenAwake) {
         KeepScreenAwake()
     }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()

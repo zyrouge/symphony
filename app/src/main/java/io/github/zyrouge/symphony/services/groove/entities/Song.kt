@@ -69,7 +69,7 @@ data class Song(
 ) {
     data class AlongSongQueueMapping(
         @Embedded
-        val song: Song,
+        val entity: Song,
         @Embedded
         val mapping: SongQueueSongMapping,
     )

@@ -17,54 +17,49 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.SongList
-import io.github.zyrouge.symphony.ui.components.SongListType
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
-import io.github.zyrouge.symphony.utils.mutate
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class PlaylistViewRoute(val playlistId: String)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
-    val allPlaylistIds by context.symphony.groove.playlist.all.collectAsState()
-    val updateId by context.symphony.groove.playlist.updateId.collectAsState()
-    var updateCounter by remember { mutableIntStateOf(0) }
-    val playlist by remember(route.playlistId, updateId) {
-        derivedStateOf { context.symphony.groove.playlist.get(route.playlistId) }
-    }
-    val songIds by remember(playlist) {
-        derivedStateOf { playlist?.getSongIds(context.symphony) ?: emptyList() }
-    }
-    val isViable by remember(allPlaylistIds, route.playlistId) {
-        derivedStateOf { allPlaylistIds.contains(route.playlistId) }
-    }
-    var showOptionsMenu by remember { mutableStateOf(false) }
-    val isFavoritesPlaylist by remember(playlist) {
-        derivedStateOf {
-            playlist?.let { context.symphony.groove.playlist.isFavoritesPlaylist(it) } == true
+    val playlistFlow = context.symphony.groove.playlist.findByIdAsFlow(route.playlistId)
+    val playlist by playlistFlow.collectAsStateWithLifecycle(null)
+    val songsSortBy by context.symphony.settings.lastUsedPlaylistSongsSortBy.flow.collectAsStateWithLifecycle()
+    val songsSortReverse by context.symphony.settings.lastUsedPlaylistSongsSortReverse.flow.collectAsStateWithLifecycle()
+    val songsFlow = playlistFlow.transformLatest { playlist ->
+        val value = when {
+            playlist == null -> emptyFlow()
+            else -> context.symphony.groove.playlist.findSongsByIdAsFlow(
+                playlist.entity.id,
+                songsSortBy,
+                songsSortReverse,
+            )
         }
+        emitAll(value)
     }
-
-    val incrementUpdateCounter = {
-        updateCounter = if (updateCounter > 25) 0 else updateCounter + 1
-    }
+    val songs by songsFlow.collectAsStateWithLifecycle(emptyList())
+    var showOptionsMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -79,14 +74,11 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                 },
                 title = {
                     TopAppBarMinimalTitle {
-                        Text(
-                            context.symphony.t.Playlist
-                                    + (playlist?.let { " - ${it.title}" } ?: "")
-                        )
+                        Text("${context.symphony.t.Playlist} - ${playlist?.entity?.title ?: context.symphony.t.UnknownSymbol}")
                     }
                 },
                 actions = {
-                    if (isViable) {
+                    if (playlist != null) {
                         IconButton(
                             onClick = {
                                 showOptionsMenu = true
@@ -95,14 +87,9 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                             Icon(Icons.Filled.MoreVert, null)
                             PlaylistDropdownMenu(
                                 context,
-                                playlist!!,
+                                playlist = playlist!!,
+                                songs = songs,
                                 expanded = showOptionsMenu,
-                                onSongsChanged = {
-                                    incrementUpdateCounter()
-                                },
-                                onRename = {
-                                    incrementUpdateCounter()
-                                },
                                 onDelete = {
                                     context.navController.popBackStack()
                                 },
@@ -125,33 +112,36 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                     .fillMaxSize()
             ) {
                 when {
-                    isViable -> SongList(
+                    playlist != null -> SongList(
                         context,
-                        songIds = songIds,
-                        type = SongListType.Playlist,
-                        disableHeartIcon = isFavoritesPlaylist,
+                        songs = songs,
+                        sortBy = songsSortBy,
+                        sortReverse = songsSortReverse,
+                        disableHeartIcon = playlist?.entity?.internalId == PlaylistRepository.PLAYLIST_INTERNAL_ID_FAVORITES,
                         trailingOptionsContent = { _, song, onDismissRequest ->
-                            playlist?.takeIf { it.isNotLocal }?.let {
-                                DropdownMenuItem(
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Filled.DeleteForever,
-                                            null,
-                                            tint = ThemeColors.Red,
-                                        )
-                                    },
-                                    text = {
-                                        Text(context.symphony.t.RemoveFromPlaylist)
-                                    },
-                                    onClick = {
-                                        onDismissRequest()
-                                        context.symphony.groove.playlist.update(
-                                            it.id,
-                                            songIds.mutate { remove(song.id) },
-                                        )
-                                    }
-                                )
-                            }
+                            playlist
+                                ?.takeIf { !it.entity.isModifiable }
+                                ?.let {
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Filled.DeleteForever,
+                                                null,
+                                                tint = ThemeColors.Red,
+                                            )
+                                        },
+                                        text = {
+                                            Text(context.symphony.t.RemoveFromPlaylist)
+                                        },
+                                        onClick = {
+                                            onDismissRequest()
+                                            context.symphony.groove.playlist.removeSongs(
+                                                it.entity.id,
+                                                listOf(song.id),
+                                            )
+                                        }
+                                    )
+                                }
                         },
                     )
 

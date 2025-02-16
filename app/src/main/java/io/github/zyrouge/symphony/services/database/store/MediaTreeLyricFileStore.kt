@@ -9,10 +9,10 @@ import io.github.zyrouge.symphony.services.groove.entities.MediaTreeLyricFile
 
 @Dao
 interface MediaTreeLyricFileStore {
-    @Insert()
+    @Insert
     suspend fun insert(vararg entities: MediaTreeLyricFile): List<String>
 
-    @Update()
+    @Update
     suspend fun update(vararg entities: MediaTreeLyricFile): Int
 
     @Query("SELECT id FROM ${MediaTreeLyricFile.TABLE} WHERE ${MediaTreeLyricFile.COLUMN_PARENT_ID} = :parentId")

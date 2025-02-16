@@ -36,7 +36,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -62,7 +61,7 @@ import io.github.zyrouge.symphony.utils.DurationUtils
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
-    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsStateWithLifecycle()
     val isFavorite by remember(data) {
         derivedStateOf { favoriteSongIds.contains(data.song.id) }
     }
@@ -289,7 +288,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
 
 @Composable
 fun NowPlayingSeekBar(context: ViewContext) {
-    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
+    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsStateWithLifecycle()
 
     Row(
         modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),

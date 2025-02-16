@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.groove.repositories
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.database.store.findByIdAsFlow
 import io.github.zyrouge.symphony.services.database.store.findTop4SongArtworksAsFlow
 import io.github.zyrouge.symphony.services.database.store.valuesAsFlow
 import io.github.zyrouge.symphony.services.database.store.valuesMappedAsFlow
@@ -18,6 +19,12 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     fun findByIdAsFlow(id: String) = symphony.database.albums.findByIdAsFlow(id)
+
+    fun findArtistsOfIdAsFlow(id: String) = symphony.database.artists.valuesAsFlow(
+        ArtistRepository.SortBy.ARTIST_NAME,
+        false,
+        albumId = id,
+    )
 
     fun findSongsByIdAsFlow(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
         symphony.database.albumSongMapping.valuesMappedAsFlow(

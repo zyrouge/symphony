@@ -10,10 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.entities.Album
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
-fun AlbumRow(context: ViewContext, albumIds: List<String>) {
+fun AlbumRow(context: ViewContext, albums: List<Album.AlongAttributes>) {
     BoxWithConstraints {
         val maxSize = min(
             this@BoxWithConstraints.maxHeight,
@@ -23,14 +24,12 @@ fun AlbumRow(context: ViewContext, albumIds: List<String>) {
 
         LazyRow {
             itemsIndexed(
-                albumIds,
+                albums,
                 key = { i, x -> "$i-$x" },
                 contentType = { _, _ -> Groove.Kind.ALBUM }
-            ) { _, albumId ->
-                context.symphony.groove.album.get(albumId)?.let { album ->
-                    Box(modifier = Modifier.width(width)) {
-                        AlbumTile(context, album)
-                    }
+            ) { _, album ->
+                Box(modifier = Modifier.width(width)) {
+                    AlbumTile(context, album)
                 }
             }
         }

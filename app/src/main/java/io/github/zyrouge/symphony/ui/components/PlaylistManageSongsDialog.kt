@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -22,7 +21,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,18 +31,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun PlaylistManageSongsDialog(
     context: ViewContext,
-    selectedSongIds: List<String>,
-    onDone: (List<String>) -> Unit,
+    selectedSongs: List<Song>,
+    onDone: (List<Song>) -> Unit,
 ) {
-    val allSongIds by context.symphony.groove.song.all.collectAsState()
-    val nSelectedSongIds = remember { selectedSongIds.toMutableStateList() }
+    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsStateWithLifecycle()
+    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsStateWithLifecycle()
+    val allSongs by context.symphony.groove.song.valuesAsFlow(songsSortBy, songsSortReverse)
+        .collectAsStateWithLifecycle(emptyList())
+    val nSelectedSongs = remember { selectedSongs.toMutableStateList() }
     var terms by remember { mutableStateOf("") }
-    val songIds by remember(allSongIds, terms, selectedSongIds) {
+    val songIds by remember(allSongs, terms, selectedSongs) {
         derivedStateOf {
             context.symphony.groove.song.search(allSongIds, terms, limit = -1)
                 .map { it.entity }
@@ -54,7 +56,7 @@ fun PlaylistManageSongsDialog(
 
     ScaffoldDialog(
         onDismissRequest = {
-            onDone(nSelectedSongIds.toList())
+            onDone(nSelectedSongs.toList())
         },
         title = {
             Text(context.symphony.t.ManageSongs)
@@ -65,7 +67,7 @@ fun PlaylistManageSongsDialog(
                     .padding(start = 8.dp)
                     .clip(CircleShape)
                     .clickable {
-                        onDone(selectedSongIds)
+                        onDone(nSelectedSongs.toList())
                     },
             ) {
                 Icon(
@@ -81,7 +83,7 @@ fun PlaylistManageSongsDialog(
                     .padding(end = 8.dp)
                     .clip(CircleShape)
                     .clickable {
-                        onDone(nSelectedSongIds.toList())
+                        onDone(nSelectedSongs.toList())
                     },
             ) {
                 Icon(
@@ -112,7 +114,7 @@ fun PlaylistManageSongsDialog(
                     },
                 )
                 when {
-                    songIds.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
+                    allSongs.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
                         SubtleCaptionText(context.symphony.t.DamnThisIsSoEmpty)
                     }
 

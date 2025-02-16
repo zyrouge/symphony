@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,9 +38,9 @@ object MiniPlayerSettingsViewRoute
 @Composable
 fun MiniPlayerSettingsView(context: ViewContext) {
     val scrollState = rememberScrollState()
-    val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsState()
-    val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsState()
-    val miniPlayerTextMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsState()
+    val miniPlayerTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsStateWithLifecycle()
+    val miniPlayerSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsStateWithLifecycle()
+    val miniPlayerTextMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

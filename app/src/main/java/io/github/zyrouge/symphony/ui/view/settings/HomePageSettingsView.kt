@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,9 +42,9 @@ object HomePageSettingsViewRoute
 @Composable
 fun HomePageSettingsView(context: ViewContext) {
     val scrollState = rememberScrollState()
-    val homeTabs by context.symphony.settings.homeTabs.flow.collectAsState()
-    val forYouContents by context.symphony.settings.forYouContents.flow.collectAsState()
-    val homePageBottomBarLabelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsState()
+    val homeTabs by context.symphony.settings.homeTabs.flow.collectAsStateWithLifecycle()
+    val forYouContents by context.symphony.settings.forYouContents.flow.collectAsStateWithLifecycle()
+    val homePageBottomBarLabelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

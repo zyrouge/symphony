@@ -22,14 +22,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
+import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun NewPlaylistDialog(
     context: ViewContext,
     initialSongIds: List<String> = listOf(),
-    onDone: (Playlist) -> Unit,
+    onDone: (PlaylistRepository.AddOptions) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
@@ -81,11 +82,17 @@ fun NewPlaylistDialog(
             TextButton(
                 enabled = input.isNotBlank(),
                 onClick = {
-                    val playlist = context.symphony.groove.playlist.create(
+                    val playlist = Playlist(
+                        id = context.symphony.database.playlistsIdGenerator.next(),
                         title = input,
+                        uri = null,
+                        path = null,
+                    )
+                    val addOptions = PlaylistRepository.AddOptions(
+                        playlist = playlist,
                         songIds = songIds.toList(),
                     )
-                    onDone(playlist)
+                    onDone(addOptions)
                 }
             ) {
                 Text(context.symphony.t.Done)
