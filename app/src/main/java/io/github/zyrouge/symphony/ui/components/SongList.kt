@@ -1,16 +1,20 @@
 package io.github.zyrouge.symphony.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -89,19 +94,30 @@ fun SongList(
                     content = {
                         Text(context.symphony.t.DamnThisIsSoEmpty)
                         if (enableAddMediaFoldersHint) {
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 context.symphony.t.HintAddMediaFolders,
                                 style = MaterialTheme.typography.labelMedium,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .clickable {
-                                        context.navController.navigate(
-                                            GrooveSettingsViewRoute(SettingsViewRoute.ELEMENT_MEDIA_FOLDERS)
-                                        )
-                                    }
-                                    .padding(2.dp),
+                                modifier = Modifier.padding(2.dp),
                             )
+                            FilledTonalButton(
+                                onClick = {
+                                    context.navController.navigate(
+                                        GrooveSettingsViewRoute(SettingsViewRoute.ELEMENT_MEDIA_FOLDERS)
+                                    )
+                                }
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Filled.CreateNewFolder,
+                                        null,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(context.symphony.t.AddFolder)
+                                }
+                            }
                         }
                     }
                 )
