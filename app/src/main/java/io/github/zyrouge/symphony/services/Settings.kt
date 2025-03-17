@@ -123,6 +123,7 @@ class Settings(private val symphony: Symphony) {
     val themeMode = EnumEntry("theme_mode", enumEntries<ThemeMode>(), ThemeMode.SYSTEM)
     val language = NullableStringEntry("language")
     val useMaterialYou = BooleanEntry("material_you", true)
+    val showArtworkOnLockScreen = BooleanEntry("show_artwork_on_lock_screen", true)
     val lastUsedSongsSortBy = EnumEntry(
         "last_used_song_sort_by",
         enumEntries<SongRepository.SortBy>(),

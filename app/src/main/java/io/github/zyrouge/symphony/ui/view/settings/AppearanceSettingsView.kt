@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
+import androidx.compose.material.icons.filled.ScreenLockPortrait
 import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -60,6 +61,7 @@ fun AppearanceSettingsView(context: ViewContext) {
     val fontFamily by context.symphony.settings.fontFamily.flow.collectAsState()
     val themeMode by context.symphony.settings.themeMode.flow.collectAsState()
     val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsState()
+    val showArtworkOnLockScreen by context.symphony.settings.showArtworkOnLockScreen.flow.collectAsState()
     val primaryColor by context.symphony.settings.primaryColor.flow.collectAsState()
     val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
     val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
@@ -227,6 +229,19 @@ fun AppearanceSettingsView(context: ViewContext) {
                         enabled = !useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.primaryColor.setValue(value.name)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.ScreenLockPortrait, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.ShowArtworkOnLockScreen)
+                        },
+                        value = showArtworkOnLockScreen,
+                        onChange = { value ->
+                            context.symphony.settings.showArtworkOnLockScreen.setValue(value)
                         }
                     )
                 }
