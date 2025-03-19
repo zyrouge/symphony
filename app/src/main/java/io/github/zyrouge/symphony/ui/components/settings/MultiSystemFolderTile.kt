@@ -71,7 +71,6 @@ fun SettingsMultiSystemFolderTile(
         key(values.size) {
             ScaffoldDialog(
                 onDismissRequest = {
-                    onChange(values.toSet())
                     showDialog = false
                 },
                 title = title,
