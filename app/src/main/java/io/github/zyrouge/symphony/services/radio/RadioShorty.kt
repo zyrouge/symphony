@@ -58,6 +58,7 @@ class RadioShorty(private val symphony: Symphony) {
         songIds: List<String>,
         options: Radio.PlayOptions = Radio.PlayOptions(),
         shuffle: Boolean = false,
+        owningAlbum: String? = null,
     ) {
         symphony.radio.stop(ended = false)
         if (songIds.isEmpty()) {
@@ -69,6 +70,7 @@ class RadioShorty(private val symphony: Symphony) {
                 copy(index = if (shuffle) Random.nextInt(songIds.size) else options.index)
             }
         )
+        symphony.radio.queue.owningAlbum = owningAlbum
         symphony.radio.queue.setShuffleMode(shuffle)
     }
 
