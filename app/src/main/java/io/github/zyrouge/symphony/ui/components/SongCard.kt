@@ -17,7 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -43,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -78,110 +81,135 @@ fun SongCard(
         derivedStateOf { favoriteSongIds.contains(song.id) }
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        onClick = onClick
+    SwipeActionWithPreview(
+        onSwipe = { when (context.symphony.settings.songCardSwipeAction.value) {
+            SongCardSwipeAction.PlayNext -> context.symphony.radio.queue.add(
+                song.id,
+                context.symphony.radio.queue.currentSongIndex + 1
+            )
+            SongCardSwipeAction.AddToQueue -> context.symphony.radio.queue.add(song.id)
+            SongCardSwipeAction.ViewAlbum -> context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
+                context.navController.navigate(AlbumViewRoute(albumId))
+            }
+            SongCardSwipeAction.Nothing -> {}
+        }  },
+        actionPreview = { progress ->
+            Icon(
+                when (context.symphony.settings.songCardSwipeAction.value) {
+                    SongCardSwipeAction.PlayNext, SongCardSwipeAction.AddToQueue -> Icons.AutoMirrored.Default.QueueMusic
+                    SongCardSwipeAction.ViewAlbum -> Icons.Filled.Album
+                    SongCardSwipeAction.Nothing -> Icons.Filled.Close
+                },
+                context.symphony.t.SongCardSwipeAction,
+                Modifier.alpha(progress)
+            )
+        }
     ) {
-        Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                leading()
-                Box {
-                    AsyncImage(
-                        song.createArtworkImageRequest(context.symphony).build(),
-                        null,
-                        modifier = Modifier
-                            .size(45.dp)
-                            .clip(RoundedCornerShape(10.dp)),
-                    )
-                    thumbnailLabel?.let { it ->
-                        val backgroundColor =
-                            thumbnailLabelStyle.backgroundColor(MaterialTheme.colorScheme)
-                        val contentColor =
-                            thumbnailLabelStyle.contentColor(MaterialTheme.colorScheme)
-
-                        Box(
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            onClick = onClick
+        ) {
+            Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    leading()
+                    Box {
+                        AsyncImage(
+                            song.createArtworkImageRequest(context.symphony).build(),
+                            null,
                             modifier = Modifier
-                                .offset(y = 8.dp)
-                                .align(Alignment.BottomCenter)
-                        ) {
+                                .size(45.dp)
+                                .clip(RoundedCornerShape(10.dp)),
+                        )
+                        thumbnailLabel?.let { it ->
+                            val backgroundColor =
+                                thumbnailLabelStyle.backgroundColor(MaterialTheme.colorScheme)
+                            val contentColor =
+                                thumbnailLabelStyle.contentColor(MaterialTheme.colorScheme)
+
                             Box(
                                 modifier = Modifier
-                                    .background(
-                                        backgroundColor,
-                                        RoundedCornerShape(4.dp)
-                                    )
-                                    .padding(3.dp, 0.dp)
+                                    .offset(y = 8.dp)
+                                    .align(Alignment.BottomCenter)
                             ) {
-                                ProvideTextStyle(
-                                    MaterialTheme.typography.labelSmall.copy(
-                                        color = contentColor
-                                    )
-                                ) { it() }
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            backgroundColor,
+                                            RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(3.dp, 0.dp)
+                                ) {
+                                    ProvideTextStyle(
+                                        MaterialTheme.typography.labelSmall.copy(
+                                            color = contentColor
+                                        )
+                                    ) { it() }
+                                }
                             }
                         }
                     }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        song.title,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = when {
-                                highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
-                                else -> LocalTextStyle.current.color
-                            }
-                        ),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (song.artists.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            song.artists.joinToString(),
-                            style = MaterialTheme.typography.bodySmall,
+                            song.title,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = when {
+                                    highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
+                                    else -> LocalTextStyle.current.color
+                                }
+                            ),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
-                    }
-                }
-                Spacer(modifier = Modifier.width(15.dp))
-
-                Row {
-                    if (!disableHeartIcon && isFavorite) {
-                        IconButton(
-                            modifier = Modifier.offset(4.dp, 0.dp),
-                            onClick = {
-                                context.symphony.groove.playlist.unfavorite(song.id)
-                            }
-                        ) {
-                            Icon(
-                                Icons.Filled.Favorite,
-                                null,
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary,
+                        if (song.artists.isNotEmpty()) {
+                            Text(
+                                song.artists.joinToString(),
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.width(15.dp))
 
-                    var showOptionsMenu by remember { mutableStateOf(false) }
-                    IconButton(
-                        onClick = { showOptionsMenu = !showOptionsMenu }
-                    ) {
-                        Icon(
-                            Icons.Filled.MoreVert,
-                            null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                        SongDropdownMenu(
-                            context,
-                            song,
-                            isFavorite = isFavorite,
-                            trailingContent = trailingOptionsContent,
-                            expanded = showOptionsMenu,
-                            onDismissRequest = {
-                                showOptionsMenu = false
+                    Row {
+                        if (!disableHeartIcon && isFavorite) {
+                            IconButton(
+                                modifier = Modifier.offset(4.dp, 0.dp),
+                                onClick = {
+                                    context.symphony.groove.playlist.unfavorite(song.id)
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.Favorite,
+                                    null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
                             }
-                        )
+                        }
+
+                        var showOptionsMenu by remember { mutableStateOf(false) }
+                        IconButton(
+                            onClick = { showOptionsMenu = !showOptionsMenu }
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                            SongDropdownMenu(
+                                context,
+                                song,
+                                isFavorite = isFavorite,
+                                trailingContent = trailingOptionsContent,
+                                expanded = showOptionsMenu,
+                                onDismissRequest = {
+                                    showOptionsMenu = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -371,6 +399,13 @@ fun SongDropdownMenu(
 enum class SongCardThumbnailLabelStyle {
     Default,
     Subtle,
+}
+
+enum class SongCardSwipeAction {
+    Nothing,
+    PlayNext,
+    AddToQueue,
+    ViewAlbum
 }
 
 private fun SongCardThumbnailLabelStyle.backgroundColor(colorScheme: ColorScheme) = when (this) {
