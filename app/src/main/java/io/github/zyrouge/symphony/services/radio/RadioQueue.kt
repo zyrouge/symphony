@@ -95,9 +95,8 @@ class RadioQueue(private val symphony: Symphony) {
         var currentSongRemoved = false
         val sortedIndices = indices.sortedDescending()
         for (i in sortedIndices) {
-            val index = i - deflection
-            originalQueue.removeAt(index)
-            currentQueue.removeAt(index)
+            originalQueue.removeAt(i)
+            currentQueue.removeAt(i)
             when {
                 i < currentSongIndex -> deflection++
                 i == currentSongIndex -> currentSongRemoved = true
