@@ -111,10 +111,14 @@ fun AddToPlaylistDialog(
             onDone = { playlist ->
                 showNewPlaylistDialog = false
                 context.symphony.groove.playlist.add(playlist)
+                if (playlist.getSongIds(context.symphony).containsAll(songIds)) {
+                    onDismissRequest()
+                }
             },
             onDismissRequest = {
                 showNewPlaylistDialog = false
-            }
+            },
+            initialSongIds = songIds,
         )
     }
 }
