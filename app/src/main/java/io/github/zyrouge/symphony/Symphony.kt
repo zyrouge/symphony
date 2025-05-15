@@ -14,6 +14,7 @@ import io.github.zyrouge.symphony.services.database.Database
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.i18n.Translator
 import io.github.zyrouge.symphony.services.radio.Radio
+import io.github.zyrouge.symphony.services.replayGain.ReplayGain
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +34,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     val groove = Groove(this)
     val radio = Radio(this)
     val translator = Translator(this)
+    val replayGain = ReplayGain(this)
 
     var t by mutableStateOf(translator.getCurrentTranslation())
 

@@ -35,6 +35,11 @@ class RadioQueue(private val symphony: Symphony) {
             symphony.radio.onUpdate.dispatch(Radio.Events.QueueOption.LoopModeChanged)
         }
 
+    /**
+     * When in replay gain automatic mode, songs from this album will be played with Album Gain.
+     */
+    var owningAlbum: String? = null
+
     val currentSongId: String?
         get() = getSongIdAt(currentSongIndex)
 
@@ -42,6 +47,7 @@ class RadioQueue(private val symphony: Symphony) {
     fun getSongIdAt(index: Int) = if (hasSongAt(index)) currentQueue[index] else null
 
     fun reset() {
+        owningAlbum = null
         originalQueue.clear()
         currentQueue.clear()
         currentSongIndex = -1

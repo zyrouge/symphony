@@ -6,6 +6,7 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import androidx.compose.runtime.Immutable
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
@@ -46,7 +47,14 @@ data class Song(
     val coverFile: String?,
     val uri: Uri,
     val path: String,
+    @Embedded
+    val replayGain: ReplayGain,
 ) {
+    data class ReplayGain(
+        val trackGain: Float? = null,
+        val albumGain: Float? = null,
+    )
+
     data class ParseOptions(
         val symphony: Symphony,
         val artistSeparatorRegex: Regex,
@@ -178,6 +186,10 @@ data class Song(
                 coverFile = coverFile,
                 uri = file.uri,
                 path = path.pathString,
+                replayGain = ReplayGain(
+                    metadata.songGain,
+                    metadata.albumGain,
+                )
             )
         }
 
@@ -254,6 +266,7 @@ data class Song(
                 coverFile = coverFile,
                 uri = file.uri,
                 path = path.pathString,
+                replayGain = ReplayGain(),
             )
         }
 
