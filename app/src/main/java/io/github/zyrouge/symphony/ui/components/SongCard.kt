@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -81,8 +82,28 @@ fun SongCard(
     }
 
     SwipeActionWithPreview(
-        onSwipe = { context.symphony.radio.queue.add(song.id) },
-        actionPreview = { progress -> Icon(Icons.AutoMirrored.Default.QueueMusic, context.symphony.t.AddToQueue, Modifier.alpha(progress)) }
+        onSwipe = { when (context.symphony.settings.songCardSwipeAction.value) {
+            SongCardSwipeAction.PlayNext -> context.symphony.radio.queue.add(
+                song.id,
+                context.symphony.radio.queue.currentSongIndex + 1
+            )
+            SongCardSwipeAction.AddToQueue -> context.symphony.radio.queue.add(song.id)
+            SongCardSwipeAction.ViewAlbum -> context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
+                context.navController.navigate(AlbumViewRoute(albumId))
+            }
+            SongCardSwipeAction.Nothing -> {}
+        }  },
+        actionPreview = { progress ->
+            Icon(
+                when (context.symphony.settings.songCardSwipeAction.value) {
+                    SongCardSwipeAction.PlayNext, SongCardSwipeAction.AddToQueue -> Icons.AutoMirrored.Default.QueueMusic
+                    SongCardSwipeAction.ViewAlbum -> Icons.Filled.Album
+                    SongCardSwipeAction.Nothing -> Icons.Filled.Close
+                },
+                context.symphony.t.SongCardSwipeAction,
+                Modifier.alpha(progress)
+            )
+        }
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -378,6 +399,13 @@ fun SongDropdownMenu(
 enum class SongCardThumbnailLabelStyle {
     Default,
     Subtle,
+}
+
+enum class SongCardSwipeAction {
+    Nothing,
+    PlayNext,
+    AddToQueue,
+    ViewAlbum
 }
 
 private fun SongCardThumbnailLabelStyle.backgroundColor(colorScheme: ColorScheme) = when (this) {
