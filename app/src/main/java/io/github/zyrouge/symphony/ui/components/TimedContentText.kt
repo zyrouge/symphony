@@ -132,7 +132,8 @@ fun TimedContentText(
         }
         itemsIndexed(content.pairs) { i, x ->
             val highlight = !content.isSynced || i < activeIndex
-            val active = i == activeIndex
+            val active = i == activeIndex ||
+                    (highlight && content.pairs[activeIndex].first == x.first)
 
             val textStyle by animateTextStyleAsState(
                 targetValue = when {
