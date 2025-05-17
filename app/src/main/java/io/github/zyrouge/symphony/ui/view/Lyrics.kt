@@ -95,18 +95,9 @@ fun LyricsView(context: ViewContext) {
                         Box(modifier = Modifier.weight(1f)) {
                             LyricsText(
                                 context,
-                                style = TimedContentTextStyle(
-                                    highlighted = MaterialTheme.typography.titleMedium.copy(
-                                        color = LocalContentColor.current,
-                                    ),
-                                    active = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary,
-                                    ),
-                                    inactive = MaterialTheme.typography.titleMedium.copy(
-                                        color = LocalContentColor.current.copy(alpha = 0.5f),
-                                    ),
-                                    spacing = 8.dp,
+                                style = TimedContentTextStyle.defaultStyle(
+                                    textStyle = MaterialTheme.typography.titleLarge.copy(color = LocalContentColor.current),
+                                    contentColor = LocalContentColor.current,
                                 ),
                                 padding = PaddingValues(
                                     horizontal = defaultHorizontalPadding,
