@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.FindInPage
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.RuleFolder
+import androidx.compose.material.icons.filled.SavedSearch
 import androidx.compose.material.icons.filled.SpaceBar
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.TextFields
@@ -61,6 +62,7 @@ import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
 import io.github.zyrouge.symphony.utils.ImagePreserver
+import io.github.zyrouge.symphony.utils.SearchProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -85,6 +87,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     val artworkQuality by context.symphony.settings.artworkQuality.flow.collectAsState()
     val caseSensitiveSorting by context.symphony.settings.caseSensitiveSorting.flow.collectAsState()
     val useMetaphony by context.symphony.settings.useMetaphony.flow.collectAsState()
+    val searchProvider by context.symphony.settings.searchProvider.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -315,6 +318,22 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             }
                         }
                     )
+                    HorizontalDivider()
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Filled.SavedSearch, null)
+                        },
+                        title = {
+                            Text("Search Provider") //TODO: add i18n
+                        },
+                        value = searchProvider,
+                        values = SearchProvider.entries
+                            .associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.searchProvider.setValue(value)
+                        }
+                    )
+
                 }
             }
         }
@@ -326,6 +345,12 @@ fun ImagePreserver.Quality.label(context: ViewContext) = when (this) {
     ImagePreserver.Quality.Medium -> context.symphony.t.Medium
     ImagePreserver.Quality.High -> context.symphony.t.High
     ImagePreserver.Quality.Loseless -> context.symphony.t.Loseless
+}
+
+//TODO: Replace with i18n
+fun SearchProvider.label(context: ViewContext) = when (this) {
+    SearchProvider.Fuzzy -> "Fuzzy"
+    SearchProvider.Normal -> "Normal"
 }
 
 private fun refreshMediaLibrary(symphony: Symphony, clearCache: Boolean = false) {
