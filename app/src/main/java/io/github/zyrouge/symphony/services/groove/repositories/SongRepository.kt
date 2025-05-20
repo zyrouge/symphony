@@ -10,6 +10,8 @@ import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.KeyGenerator
 import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.utils.SearchProvider
+import io.github.zyrouge.symphony.utils.Searcher
 import io.github.zyrouge.symphony.utils.SimpleFileSystem
 import io.github.zyrouge.symphony.utils.SimplePath
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
@@ -37,14 +39,25 @@ class SongRepository(private val symphony: Symphony) {
     private val cache = ConcurrentHashMap<String, Song>()
     internal val pathCache = ConcurrentHashMap<String, String>()
     internal val idGenerator = KeyGenerator.TimeIncremental()
-    private val searcher = FuzzySearcher<String>(
-        options = listOf(
-            FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
-            FuzzySearchOption({ v -> get(v)?.filename?.let { compareString(it) } }, 2),
-            FuzzySearchOption({ v -> get(v)?.artists?.let { compareCollection(it) } }),
-            FuzzySearchOption({ v -> get(v)?.album?.let { compareString(it) } })
+    private val searcher = when (symphony.settings.searchProvider.value) {
+        SearchProvider.Fuzzy -> FuzzySearcher<String>(
+            options = listOf(
+                FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }, 3),
+                FuzzySearchOption({ v -> get(v)?.filename?.let { compareString(it) } }, 2),
+                FuzzySearchOption({ v -> get(v)?.artists?.let { compareCollection(it) } }),
+                FuzzySearchOption({ v -> get(v)?.album?.let { compareString(it) } })
+            )
         )
-    )
+
+        SearchProvider.Normal -> Searcher<String>(
+            listOf(
+                { v -> get(v)?.title ?: "" },
+                { v -> get(v)?.filename ?: "" },
+                { v -> get(v)?.artists?.joinToString { it } ?: "" },
+                { v -> get(v)?.album ?: "" }
+            )
+        )
+    }
 
     val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())

@@ -23,17 +23,17 @@ data class FuzzySearchOption<T>(
     val weight: Int = 1,
 )
 
-data class FuzzyResultEntity<T>(
+data class SearchResultEntity<T>(
     val score: Int,
     val entity: T,
 )
 
-class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
-    fun search(
+class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) : ISearchProvider<T> {
+    override fun search(
         terms: String,
         entities: List<T>,
-        maxLength: Int = -1,
-    ): List<FuzzyResultEntity<T>> {
+        maxLength: Int,
+    ): List<SearchResultEntity<T>> {
         val results = entities
             .map { compare(terms, it) }
             .sortedByDescending { it.score }
@@ -43,7 +43,7 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
         }
     }
 
-    private fun compare(terms: String, entity: T): FuzzyResultEntity<T> {
+    private fun compare(terms: String, entity: T): SearchResultEntity<T> {
         var score = 0
         val comparator = FuzzySearchComparator(terms)
         options.forEach { option ->
@@ -51,7 +51,7 @@ class FuzzySearcher<T>(val options: List<FuzzySearchOption<T>>) {
                 score = max(score, it * option.weight)
             }
         }
-        return FuzzyResultEntity(score, entity)
+        return SearchResultEntity(score, entity)
     }
 }
 

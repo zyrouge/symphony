@@ -8,6 +8,8 @@ import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
+import io.github.zyrouge.symphony.utils.SearchProvider
+import io.github.zyrouge.symphony.utils.Searcher
 import io.github.zyrouge.symphony.utils.concurrentSetOf
 import io.github.zyrouge.symphony.utils.joinToStringIfNotEmpty
 import io.github.zyrouge.symphony.utils.withCase
@@ -30,12 +32,22 @@ class AlbumRepository(private val symphony: Symphony) {
 
     private val cache = ConcurrentHashMap<String, Album>()
     private val songIdsCache = ConcurrentHashMap<String, ConcurrentSet<String>>()
-    private val searcher = FuzzySearcher<String>(
-        options = listOf(
-            FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }, 3),
-            FuzzySearchOption({ v -> get(v)?.artists?.let { compareCollection(it) } })
+    private val searcher = when (symphony.settings.searchProvider.value) {
+        SearchProvider.Fuzzy -> FuzzySearcher<String>(
+            options = listOf(
+                FuzzySearchOption({ v -> get(v)?.name?.let { compareString(it) } }, 3),
+                FuzzySearchOption({ v -> get(v)?.artists?.let { compareCollection(it) } })
+            )
         )
-    )
+
+        SearchProvider.Normal -> Searcher<String>(
+            listOf(
+                { v -> get(v)?.name ?: "" },
+                { v -> get(v)?.artists?.joinToString { it } ?: "" }
+            )
+        )
+    }
+
 
     val isUpdating get() = symphony.groove.exposer.isUpdating
     private val _all = MutableStateFlow<List<String>>(emptyList())
