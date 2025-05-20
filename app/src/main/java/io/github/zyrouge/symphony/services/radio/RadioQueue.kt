@@ -123,6 +123,7 @@ class RadioQueue(private val symphony: Symphony) {
 
     fun setShuffleMode(to: Boolean) {
         currentShuffleMode = to
+        symphony.settings.lastUsedShuffleMode.setValue(to)
         if (currentQueue.isNotEmpty()) {
             val currentSongId = getSongIdAt(currentSongIndex) ?: getSongIdAt(0)!!
             currentSongIndex = if (currentShuffleMode) {
