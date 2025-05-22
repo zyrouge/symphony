@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.ui.components
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -66,6 +67,7 @@ fun SongCard(
     thumbnailLabel: (@Composable () -> Unit)? = null,
     thumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
+    cardModifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
@@ -81,9 +83,11 @@ fun SongCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        //TODO: this onClick gets overwritten by the cardModifier,
+        // if you put the cardModifier here, the dragAndDropSource click doesn't fire
         onClick = onClick
     ) {
-        Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
+        Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp).then(cardModifier)) { //TODO: move the cardModifier somewhere appropriate
             Row(verticalAlignment = Alignment.CenterVertically) {
                 leading()
                 Box {
@@ -123,7 +127,7 @@ fun SongCard(
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1f).clickable { onClick.invoke()}) { //TODO: remove this onClick after moving the cardModifier above
                     Text(
                         song.title,
                         style = MaterialTheme.typography.bodyMedium.copy(
