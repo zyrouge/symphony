@@ -110,6 +110,17 @@ class RadioQueue(private val symphony: Symphony) {
         }
     }
 
+    fun removeAll(id: String) {
+        //TODO: check if logic makes sense
+        val currentSongRemoved = currentSongId == id
+        currentQueue.removeAll { it == id }
+        originalQueue.removeAll { it == id }
+        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
+        if (currentSongRemoved) {
+            symphony.radio.play(Radio.PlayOptions(index = currentSongIndex))
+        }
+    }
+
     fun setLoopMode(loopMode: LoopMode) {
         currentLoopMode = loopMode
     }

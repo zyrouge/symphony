@@ -83,6 +83,37 @@ class AlbumRepository(private val symphony: Symphony) {
         }
     }
 
+    internal fun delete(song: Song) {
+        val albumId = getIdFromSong(song) ?: return
+        var single = false
+        if (songIdsCache.contains(albumId)) {
+            when (songIdsCache.size) {
+                1 -> {
+                    single = true
+                    songIdsCache.remove(albumId)
+                }
+
+                else -> songIdsCache[albumId]?.remove(song.id)
+            }
+        }
+        if (cache.contains(albumId)) {
+            if (single) {
+                cache.remove(albumId)
+                _all.update {
+                    it + albumId
+                }
+                emitCount()
+            } else {
+                cache[albumId]?.apply {
+                    //TODO: remove artists if needed
+                    //TODO: change album year if needed
+                    numberOfTracks--
+                    duration -= song.duration.milliseconds
+                }
+            }
+        }
+    }
+
     fun reset() {
         cache.clear()
         songIdsCache.clear()

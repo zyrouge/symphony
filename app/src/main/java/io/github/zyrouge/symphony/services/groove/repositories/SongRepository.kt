@@ -72,6 +72,21 @@ class SongRepository(private val symphony: Symphony) {
         emitCount()
     }
 
+    fun delete(song: Song) {
+        if (cache.contains(song.id)) {
+            cache.remove(song.id)
+        }
+        if (pathCache.contains(song.path)) {
+            pathCache.remove(song.path)
+        }
+        explorer.removeChildFile(SimplePath(song.path))
+        emitIds()
+        _all.update {
+            it - song.id
+        }
+        emitCount()
+    }
+
     fun reset() {
         cache.clear()
         pathCache.clear()
