@@ -18,11 +18,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MotionPhotosPaused
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,7 +89,8 @@ fun NowPlayingBodyBottomBar(
             TextButton(
                 onClick = {
                     context.navController.navigate(QueueViewRoute)
-                }
+                },
+                Modifier.weight(4f)
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.Sort,
@@ -105,7 +106,7 @@ fun NowPlayingBodyBottomBar(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(2.dp))
             states.showLyrics.let { showLyricsState ->
                 val showLyrics by showLyricsState.collectAsState()
 
@@ -122,7 +123,8 @@ fun NowPlayingBodyBottomBar(
                                 context.navController.navigate(LyricsViewRoute)
                             }
                         }
-                    }
+                    },
+                    Modifier.weight(1f)
                 ) {
                     Icon(
                         Icons.AutoMirrored.Outlined.Article,
@@ -137,7 +139,8 @@ fun NowPlayingBodyBottomBar(
             IconButton(
                 onClick = {
                     context.symphony.radio.queue.toggleLoopMode()
-                }
+                },
+                Modifier.weight(1f)
             ) {
                 Icon(
                     when (currentLoopMode) {
@@ -154,7 +157,8 @@ fun NowPlayingBodyBottomBar(
             IconButton(
                 onClick = {
                     context.symphony.radio.queue.toggleShuffleMode()
-                }
+                },
+                Modifier.weight(1f)
             ) {
                 Icon(
                     Icons.Filled.Shuffle,
@@ -168,9 +172,10 @@ fun NowPlayingBodyBottomBar(
             IconButton(
                 onClick = {
                     showExtraOptions = !showExtraOptions
-                }
+                },
+                Modifier.weight(1f)
             ) {
-                Icon(Icons.Outlined.MoreHoriz, null)
+                Icon(Icons.Filled.MoreHoriz, null)
             }
         }
 
