@@ -69,7 +69,7 @@ class RadioShorty(private val symphony: Symphony) {
                 copy(index = if (shuffle) Random.nextInt(songIds.size) else options.index)
             }
         )
-        symphony.radio.queue.setShuffleMode(shuffle)
+        symphony.radio.queue.setShuffleMode(shuffle || symphony.settings.lastUsedShuffleMode.value)
     }
 
     fun playQueue(

@@ -329,6 +329,7 @@ class Settings(private val symphony: Symphony) {
     val gaplessPlayback = BooleanEntry("gapless_playback", true)
     val caseSensitiveSorting = BooleanEntry("case_sensitive_sorting", false)
     val lyricsKeepScreenAwake = BooleanEntry("lyrics_keep_screen_awake", true)
+    val lastUsedShuffleMode = BooleanEntry("last_used_shuffle_mode", false)
 
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)
