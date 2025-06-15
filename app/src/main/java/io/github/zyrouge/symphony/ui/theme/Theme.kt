@@ -10,7 +10,6 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -40,12 +39,12 @@ fun SymphonyTheme(
     context: ViewContext,
     content: @Composable () -> Unit,
 ) {
-    val themeMode by context.symphony.settings.themeMode.flow.collectAsState()
-    val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsState()
-    val primaryColorName by context.symphony.settings.primaryColor.flow.collectAsState()
-    val fontName by context.symphony.settings.fontFamily.flow.collectAsState()
-    val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
-    val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
+    val themeMode by context.symphony.settings.themeMode.flow.collectAsStateWithLifecycle()
+    val useMaterialYou by context.symphony.settings.useMaterialYou.flow.collectAsStateWithLifecycle()
+    val primaryColorName by context.symphony.settings.primaryColor.flow.collectAsStateWithLifecycle()
+    val fontName by context.symphony.settings.fontFamily.flow.collectAsStateWithLifecycle()
+    val fontScale by context.symphony.settings.fontScale.flow.collectAsStateWithLifecycle()
+    val contentScale by context.symphony.settings.contentScale.flow.collectAsStateWithLifecycle()
 
     val colorSchemeMode = themeMode.toColorSchemeMode(isSystemInDarkTheme())
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && useMaterialYou) {

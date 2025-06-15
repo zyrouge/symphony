@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import kotlin.random.Random
 
 class RadioShorty(private val symphony: Symphony) {
@@ -24,33 +25,29 @@ class RadioShorty(private val symphony: Symphony) {
         }
     }
 
-    fun previous(): Boolean {
-        return when {
-            !symphony.radio.hasPlayer -> false
-            symphony.radio.currentPlaybackPosition!!.played <= 3000 && symphony.radio.canJumpToPrevious() -> {
-                symphony.radio.jumpToPrevious()
-                true
-            }
+    fun previous() = when {
+        !symphony.radio.hasPlayer -> false
+        symphony.radio.currentPlaybackPosition!!.played <= 3000 && symphony.radio.canJumpToPrevious() -> {
+            symphony.radio.jumpToPrevious()
+            true
+        }
 
-            else -> {
-                symphony.radio.seek(0)
-                false
-            }
+        else -> {
+            symphony.radio.seek(0)
+            false
         }
     }
 
-    fun skip(): Boolean {
-        return when {
-            !symphony.radio.hasPlayer -> false
-            symphony.radio.canJumpToNext() -> {
-                symphony.radio.jumpToNext()
-                true
-            }
+    fun skip() = when {
+        !symphony.radio.hasPlayer -> false
+        symphony.radio.canJumpToNext() -> {
+            symphony.radio.jumpToNext()
+            true
+        }
 
-            else -> {
-                symphony.radio.play(Radio.PlayOptions(index = 0, autostart = false))
-                false
-            }
+        else -> {
+            symphony.radio.play(Radio.PlayOptions(index = 0, autostart = false))
+            false
         }
     }
 
@@ -77,4 +74,16 @@ class RadioShorty(private val symphony: Symphony) {
         options: Radio.PlayOptions = Radio.PlayOptions(),
         shuffle: Boolean = false,
     ) = playQueue(listOf(songId), options = options, shuffle = shuffle)
+
+    fun playQueue(
+        songs: List<Song>,
+        options: Radio.PlayOptions = Radio.PlayOptions(),
+        shuffle: Boolean = false,
+    ) = playQueue(songs.map { it.id }, options = options, shuffle = shuffle)
+
+    fun playQueue(
+        song: Song,
+        options: Radio.PlayOptions = Radio.PlayOptions(),
+        shuffle: Boolean = false,
+    ) = playQueue(listOf(song.id), options = options, shuffle = shuffle)
 }

@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ActivityHelper
 
 @Composable
 fun LongPressCopyableText(context: ViewContext, text: String) {
@@ -14,7 +14,7 @@ fun LongPressCopyableText(context: ViewContext, text: String) {
         text,
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(onLongPress = {
-                ActivityUtils.copyToClipboardAndNotify(context.symphony, text)
+                ActivityHelper.copyToClipboardAndNotify(context.symphony, text)
             })
         }
     )

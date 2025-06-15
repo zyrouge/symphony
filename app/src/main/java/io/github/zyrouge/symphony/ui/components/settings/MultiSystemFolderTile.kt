@@ -27,7 +27,7 @@ import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialogDefaults
 import io.github.zyrouge.symphony.ui.components.drawScrollBar
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ActivityHelper
 
 @Composable
 fun SettingsMultiSystemFolderTile(
@@ -61,7 +61,7 @@ fun SettingsMultiSystemFolderTile(
             ActivityResultContracts.OpenDocumentTree()
         ) { uri ->
             uri?.let { _ ->
-                ActivityUtils.makePersistableReadableUri(context.symphony.applicationContext, uri)
+                ActivityHelper.makePersistableReadableUri(context.symphony.applicationContext, uri)
                 values.add(uri)
             }
         }

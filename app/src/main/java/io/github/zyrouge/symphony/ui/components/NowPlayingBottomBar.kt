@@ -40,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -67,7 +66,7 @@ import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingViewRoute
-import io.github.zyrouge.symphony.utils.runIfOrThis
+import io.github.zyrouge.symphony.utils.builtin.runIfOrThis
 import kotlin.math.absoluteValue
 
 @Composable
@@ -97,19 +96,19 @@ private fun <T> nowPlayingBottomBarEnterAnimationSpec() = TransitionDurations.No
 
 @Composable
 fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
-    val queue by context.symphony.radio.observatory.queue.collectAsState()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
     val currentPlayingSong by remember(queue, queueIndex) {
         derivedStateOf {
             queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
         }
     }
-    val isPlaying by context.symphony.radio.observatory.isPlaying.collectAsState()
-    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
-    val showTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsState()
-    val showSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsState()
-    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsState()
-    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
+    val isPlaying by context.symphony.radio.observatory.isPlaying.collectAsStateWithLifecycle()
+    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsStateWithLifecycle()
+    val showTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsStateWithLifecycle()
+    val showSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsStateWithLifecycle()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsStateWithLifecycle()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsStateWithLifecycle()
 
     AnimatedContent(
         modifier = Modifier.fillMaxWidth(),
@@ -320,7 +319,7 @@ private fun NowPlayingBottomBarContentText(
     text: String,
     style: TextStyle,
 ) {
-    val textMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsState()
+    val textMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsStateWithLifecycle()
     var showOverlay by remember { mutableStateOf(false) }
 
     Box {

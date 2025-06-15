@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +34,8 @@ fun IntroductoryDialog(
     context: ViewContext,
     onDismissRequest: () -> Unit,
 ) {
-    val checkForUpdates by context.symphony.settings.checkForUpdates.flow.collectAsState()
-    val showUpdateToast by context.symphony.settings.showUpdateToast.flow.collectAsState()
+    val checkForUpdates by context.symphony.settings.checkForUpdates.flow.collectAsStateWithLifecycle()
+    val showUpdateToast by context.symphony.settings.showUpdateToast.flow.collectAsStateWithLifecycle()
 
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,

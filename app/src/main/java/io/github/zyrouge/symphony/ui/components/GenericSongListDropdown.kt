@@ -36,7 +36,7 @@ fun GenericSongListDropdown(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(songIds, shuffle = true)
+                context.symphony.radio.shorty.playQueue(songs, shuffle = true)
             }
         )
         DropdownMenuItem(
@@ -49,7 +49,7 @@ fun GenericSongListDropdown(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    songIds,
+                    songs,
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }

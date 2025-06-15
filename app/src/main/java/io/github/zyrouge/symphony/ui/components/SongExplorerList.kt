@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,8 +73,8 @@ fun SongExplorerList(
             initialPath?.let { explorer.navigateToFolder(it) } ?: explorer
         )
     }
-    val sortBy by context.symphony.settings.lastUsedBrowserSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedBrowserSortReverse.flow.collectAsState()
+    val sortBy by context.symphony.settings.lastUsedBrowserSortBy.flow.collectAsStateWithLifecycle()
+    val sortReverse by context.symphony.settings.lastUsedBrowserSortReverse.flow.collectAsStateWithLifecycle()
     val sortedEntities by remember(key, currentFolder) {
         derivedStateOf {
             val categorized = currentFolder.categorizedChildren()

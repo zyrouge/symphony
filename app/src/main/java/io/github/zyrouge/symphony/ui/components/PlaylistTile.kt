@@ -32,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.MediaExposer
-import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.view.PlaylistViewRoute
@@ -54,7 +54,8 @@ import io.github.zyrouge.symphony.utils.Logger
 
 @Composable
 fun PlaylistTile(context: ViewContext, playlist: Playlist) {
-    val updateId by context.symphony.groove.playlist.updateId.collectAsState()
+    val artworks by context.symphony.groove.playlist.getTop4ArtworkUriAsFlow(playlist.id)
+        .collectAsStateWithLifecycle(emptyList())
 
     Card(
         modifier = Modifier
@@ -70,9 +71,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                 Box {
                     AsyncImage(
                         // TODO: remove this hack after moving to reactive objects
-                        remember(updateId, playlist) {
-                            playlist.createArtworkImageRequest(context.symphony).build()
-                        },
+                        artworks.first(),
                         null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -86,6 +85,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                             .padding(top = 4.dp)
                     ) {
                         var showOptionsMenu by remember { mutableStateOf(false) }
+
                         IconButton(
                             onClick = { showOptionsMenu = !showOptionsMenu }
                         ) {
@@ -136,11 +136,10 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
 @Composable
 fun PlaylistDropdownMenu(
     context: ViewContext,
-    playlist: Playlist,
+    playlist: Playlist.AlongAttributes,
+    songs: List<Song>,
     expanded: Boolean,
-    onSongsChanged: (() -> Unit) = {},
-    onRename: (() -> Unit) = {},
-    onDelete: (() -> Unit) = {},
+    onDelete: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     val savePlaylistLauncher = rememberLauncherForActivityResult(
@@ -186,10 +185,7 @@ fun PlaylistDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(
-                    playlist.getSortedSongIds(context.symphony),
-                    shuffle = true,
-                )
+                context.symphony.radio.shorty.playQueue(songs, shuffle = true)
             }
         )
         DropdownMenuItem(
@@ -202,7 +198,7 @@ fun PlaylistDropdownMenu(
             onClick = {
                 onDismissRequest()
                 context.symphony.radio.queue.add(
-                    playlist.getSortedSongIds(context.symphony),
+                    songs,
                     context.symphony.radio.queue.currentSongIndex + 1
                 )
             }
@@ -231,7 +227,7 @@ fun PlaylistDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        if (playlist.isNotLocal) {
+        if (!playlist.entity.isModifiable) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
@@ -257,7 +253,7 @@ fun PlaylistDropdownMenu(
                 showInfoDialog = true
             }
         )
-        if (playlist.isNotLocal) {
+        if (playlist.entity.isModifiable) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Save, null)
@@ -268,7 +264,7 @@ fun PlaylistDropdownMenu(
                 onClick = {
                     onDismissRequest()
                     try {
-                        savePlaylistLauncher.launch("${playlist.title}.m3u")
+                        savePlaylistLauncher.launch("${playlist.entity.title}.m3u")
                     } catch (err: Exception) {
                         Logger.error("PlaylistTile", "export failed", err)
                         Toast.makeText(
@@ -294,7 +290,7 @@ fun PlaylistDropdownMenu(
                 }
             )
         }
-        if (!context.symphony.groove.playlist.isBuiltInPlaylist(playlist)) {
+        if (!playlist.entity.isInternal) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(
@@ -330,7 +326,6 @@ fun PlaylistDropdownMenu(
             selectedSongIds = playlist.getSongIds(context.symphony),
             onDone = {
                 context.symphony.groove.playlist.update(playlist.id, it)
-                onSongsChanged()
                 showSongsPicker = false
             }
         )

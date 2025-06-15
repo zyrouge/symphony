@@ -41,7 +41,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -59,7 +58,7 @@ import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.SimplePath
-import io.github.zyrouge.symphony.utils.StringListUtils
+import io.github.zyrouge.symphony.utils.StringSorter
 
 @Composable
 fun SongTreeList(
@@ -77,13 +76,13 @@ fun SongTreeList(
             addAll(initialDisabled)
         }
     }
-    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.flow.collectAsState()
-    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.flow.collectAsState()
-    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsState()
-    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsState()
+    val pathsSortBy by context.symphony.settings.lastUsedTreePathSortBy.flow.collectAsStateWithLifecycle()
+    val pathsSortReverse by context.symphony.settings.lastUsedTreePathSortReverse.flow.collectAsStateWithLifecycle()
+    val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsStateWithLifecycle()
+    val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsStateWithLifecycle()
     val sortedTree by remember(tree, pathsSortBy, pathsSortReverse, songsSortBy, songsSortReverse) {
         derivedStateOf {
-            val pairs = StringListUtils.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
+            val pairs = StringSorter.sort(tree.keys.toList(), pathsSortBy, pathsSortReverse)
                 .map {
                     it to context.symphony.groove.song.sort(
                         tree[it]!!,
@@ -162,12 +161,12 @@ fun SongTreeListContent(
     togglePath: (String) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    val queue by context.symphony.radio.observatory.queue.collectAsState()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
     val currentPlayingSongId by remember(queue, queueIndex) {
         derivedStateOf { queue.getOrNull(queueIndex) }
     }
-    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsState()
+    val favoriteIds by context.symphony.groove.playlist.favorites.collectAsStateWithLifecycle()
 
     LazyColumn(
         state = lazyListState,
@@ -355,11 +354,11 @@ fun SongTreeListSongCardIconButton(
 private fun SongTreeListMediaSortBar(
     context: ViewContext,
     songsCount: Int,
-    pathsSortBy: StringListUtils.SortBy,
+    pathsSortBy: StringSorter.SortBy,
     pathsSortReverse: Boolean,
     songsSortBy: SongRepository.SortBy,
     songsSortReverse: Boolean,
-    setPathsSortBy: (StringListUtils.SortBy) -> Unit,
+    setPathsSortBy: (StringSorter.SortBy) -> Unit,
     setPathsSortReverse: (Boolean) -> Unit,
     setSongsSortBy: (SongRepository.SortBy) -> Unit,
     setSongsSortReverse: (Boolean) -> Unit,
@@ -427,7 +426,7 @@ private fun SongTreeListMediaSortBar(
                             style = currentTextStyle,
                             modifier = Modifier.padding(16.dp, 8.dp),
                         )
-                        StringListUtils.SortBy.entries.forEach { sortBy ->
+                        StringSorter.SortBy.entries.forEach { sortBy ->
                             SongTreeListMediaSortBarDropdownMenuItem(
                                 selected = pathsSortBy == sortBy,
                                 reversed = pathsSortReverse,
@@ -514,9 +513,9 @@ private fun SongTreeListMediaSortBarDropdownMenuItem(
     )
 }
 
-fun StringListUtils.SortBy.label(context: ViewContext) = when (this) {
-    StringListUtils.SortBy.CUSTOM -> context.symphony.t.Custom
-    StringListUtils.SortBy.NAME -> context.symphony.t.Name
+fun StringSorter.SortBy.label(context: ViewContext) = when (this) {
+    StringSorter.SortBy.CUSTOM -> context.symphony.t.Custom
+    StringSorter.SortBy.NAME -> context.symphony.t.Name
 }
 
 private fun createLinearTree(

@@ -23,42 +23,37 @@ sealed class SimpleFileSystem(val parent: Folder?, val name: String) {
     class Folder(
         parent: Folder? = null,
         name: String = "root",
-        var children: ConcurrentHashMap<String, SimpleFileSystem> = ConcurrentHashMap(),
+        private var childFolders: ConcurrentHashMap<String, Folder> = ConcurrentHashMap(),
+        private var childFiles: ConcurrentHashMap<String, File> = ConcurrentHashMap(),
     ) : SimpleFileSystem(parent, name) {
-        val isEmpty get() = children.isEmpty()
-        val childFoldersCount get() = children.values.count { it is Folder }
+        val isEmpty get() = childFolders.isEmpty() && childFiles.isEmpty()
 
-        fun addChildFolder(name: String): Folder {
-            if (children.containsKey(name)) {
-                throw Exception("Child '$name' already exists")
-            }
-            val child = Folder(this, name)
-            children[name] = child
-            return child
+        fun ensureChildFolder(name: String) = childFolders.computeIfAbsent(name) {
+            Folder(this, it)
         }
 
         fun addChildFile(name: String): File {
-            if (children.containsKey(name)) {
+            if (childFiles.containsKey(name)) {
                 throw Exception("Child '$name' already exists")
             }
             val child = File(this, name)
-            children[name] = child
+            childFiles[name] = child
             return child
         }
 
-        fun addChildFile(path: SimplePath): File {
-            val parts = path.parts.toMutableList()
-            var parent = this
-            while (parts.size > 1) {
-                val x = parts.removeAt(0)
-                val found = parent.children[x]
-                parent = when (found) {
-                    is Folder -> found
-                    null -> parent.addChildFolder(x)
-                    else -> throw Exception("Child '$x' is not a folder")
-                }
-            }
-            return parent.addChildFile(parts[0])
-        }
+//        fun addChildFile(path: SimplePath): File {
+//            val parts = path.parts.toMutableList()
+//            var parent = this
+//            while (parts.size > 1) {
+//                val x = parts.removeAt(0)
+//                val found = parent.children[x]
+//                parent = when (found) {
+//                    is Folder -> found
+//                    null -> parent.addChildFolder(x)
+//                    else -> throw Exception("Child '$x' is not a folder")
+//                }
+//            }
+//            return parent.addChildFile(parts[0])
+//        }
     }
 }

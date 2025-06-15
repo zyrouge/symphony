@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -45,8 +44,8 @@ fun LyricsText(
         )
     }
     var playbackPositionTimer: Timer? = remember { null }
-    val queue by context.symphony.radio.observatory.queue.collectAsState()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
+    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
+    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
     val song by remember(queue, queueIndex) {
         derivedStateOf {
             queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }

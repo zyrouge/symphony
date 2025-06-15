@@ -7,13 +7,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
@@ -21,18 +21,12 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 @Composable
 fun ArtistGrid(
     context: ViewContext,
-    artistName: List<String>,
-    artistsCount: Int? = null,
+    artists: List<Artist>,
+    sortBy: ArtistRepository.SortBy,
+    sortReverse: Boolean,
 ) {
-    val sortBy by context.symphony.settings.lastUsedArtistsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedArtistsSortReverse.flow.collectAsState()
-    val sortedArtistNames by remember(artistName, sortBy, sortReverse) {
-        derivedStateOf {
-            context.symphony.groove.artist.sort(artistName, sortBy, sortReverse)
-        }
-    }
-    val horizontalGridColumns by context.symphony.settings.lastUsedArtistsHorizontalGridColumns.flow.collectAsState()
-    val verticalGridColumns by context.symphony.settings.lastUsedArtistsVerticalGridColumns.flow.collectAsState()
+    val horizontalGridColumns by context.symphony.settings.lastUsedArtistsHorizontalGridColumns.flow.collectAsStateWithLifecycle()
+    val verticalGridColumns by context.symphony.settings.lastUsedArtistsVerticalGridColumns.flow.collectAsStateWithLifecycle()
     val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
         derivedStateOf {
             ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
@@ -55,7 +49,7 @@ fun ArtistGrid(
                     context.symphony.settings.lastUsedArtistsSortBy.setValue(it)
                 },
                 label = {
-                    Text(context.symphony.t.XArtists((artistsCount ?: artistName.size).toString()))
+                    Text(context.symphony.t.XArtists(artists.size.toString()))
                 },
                 onShowModifyLayout = {
                     showModifyLayoutSheet = true
@@ -64,7 +58,7 @@ fun ArtistGrid(
         },
         content = {
             when {
-                artistName.isEmpty() -> IconTextBody(
+                artists.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.Person,
@@ -77,13 +71,11 @@ fun ArtistGrid(
 
                 else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
-                        sortedArtistNames,
+                        artists,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.ARTIST }
-                    ) { _, artistName ->
-                        context.symphony.groove.artist.get(artistName)?.let { artist ->
-                            ArtistTile(context, artist)
-                        }
+                    ) { _, artist ->
+                        ArtistTile(context, artist)
                     }
                 }
             }

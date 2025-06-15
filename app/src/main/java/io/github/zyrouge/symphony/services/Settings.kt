@@ -4,10 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.edit
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.repositories.AlbumArtistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository
+import io.github.zyrouge.symphony.services.groove.repositories.MediaTreeRepository
 import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.RadioQueue
@@ -19,7 +19,7 @@ import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.utils.ImagePreserver
-import io.github.zyrouge.symphony.utils.StringListUtils
+import io.github.zyrouge.symphony.utils.StringSorter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -145,8 +145,8 @@ class Settings(private val symphony: Symphony) {
     )
     val lastUsedAlbumArtistsSortBy = EnumEntry(
         "last_used_album_artists_sort_by",
-        enumEntries<AlbumArtistRepository.SortBy>(),
-        AlbumArtistRepository.SortBy.ARTIST_NAME,
+        enumEntries<ArtistRepository.SortBy>(),
+        ArtistRepository.SortBy.ARTIST_NAME,
     )
     val lastUsedAlbumArtistsSortReverse =
         BooleanEntry("last_used_album_artists_sort_reverse", false)
@@ -199,6 +199,12 @@ class Settings(private val symphony: Symphony) {
         PlaylistRepository.SortBy.CUSTOM,
     )
     val lastUsedPlaylistsSortReverse = BooleanEntry("last_used_playlists_sort_reverse", false)
+    val lastUsedFoldersSortBy = EnumEntry(
+        "last_used_folders_sort_by",
+        enumEntries<MediaTreeRepository.SortBy>(),
+        MediaTreeRepository.SortBy.TITLE,
+    )
+    val lastUsedFoldersSortReverse = BooleanEntry("last_used_folders_sort_reverse", false)
     val lastUsedPlaylistsHorizontalGridColumns = IntEntry(
         "last_used_playlists_horizontal_grid_columns",
         ResponsiveGridColumns.DEFAULT_HORIZONTAL_COLUMNS,
@@ -220,18 +226,18 @@ class Settings(private val symphony: Symphony) {
         SongRepository.SortBy.TRACK_NUMBER,
     )
     val lastUsedAlbumSongsSortReverse = BooleanEntry("last_used_album_songs_sort_reverse", false)
+    val lastUsedArtistSongsSortBy = EnumEntry(
+        "last_used_artist_songs_sort_by",
+        enumEntries<SongRepository.SortBy>(),
+        SongRepository.SortBy.YEAR,
+    )
+    val lastUsedArtistSongsSortReverse = BooleanEntry("last_used_artist_songs_sort_reverse", false)
     val lastUsedTreePathSortBy = EnumEntry(
         "last_used_tree_path_sort_by",
-        enumEntries<StringListUtils.SortBy>(),
-        StringListUtils.SortBy.NAME,
+        enumEntries<StringSorter.SortBy>(),
+        StringSorter.SortBy.NAME,
     )
     val lastUsedTreePathSortReverse = BooleanEntry("last_used_tree_path_sort_reverse", false)
-    val lastUsedFoldersSortBy = EnumEntry(
-        "last_used_folders_sort_by",
-        enumEntries<StringListUtils.SortBy>(),
-        StringListUtils.SortBy.NAME,
-    )
-    val lastUsedFoldersSortReverse = BooleanEntry("last_used_folders_sort_reverse", false)
     val lastUsedFoldersHorizontalGridColumns = IntEntry(
         "last_used_folders_horizontal_grid_columns",
         ResponsiveGridColumns.DEFAULT_HORIZONTAL_COLUMNS,

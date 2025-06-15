@@ -5,14 +5,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +20,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.mutate
+import io.github.zyrouge.symphony.utils.builtin.mutate
 
 @Composable
 fun AddToPlaylistDialog(
@@ -31,7 +29,8 @@ fun AddToPlaylistDialog(
     onDismissRequest: () -> Unit,
 ) {
     var showNewPlaylistDialog by remember { mutableStateOf(false) }
-    val allPlaylistsIds by context.symphony.groove.playlist.all.collectAsState()
+    val allPlaylistsIds by context.symphony.groove.playlist.valuesAsFlow()
+        .collectAsStateWithLifecycle()
     val playlists by remember(allPlaylistsIds) {
         derivedStateOf {
             allPlaylistsIds
