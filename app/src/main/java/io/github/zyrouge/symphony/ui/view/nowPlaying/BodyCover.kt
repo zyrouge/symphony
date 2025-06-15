@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import coil.compose.AsyncImage
@@ -95,7 +96,7 @@ private fun NowPlayingBodyCoverLyrics(context: ViewContext, orientation: ScreenO
                 vertical = 8.dp,
             ),
             style = TimedContentTextStyle.defaultStyle(
-                textStyle = LocalTextStyle.current,
+                textStyle = MaterialTheme.typography.titleLarge.copy(color = LocalContentColor.current),
                 contentColor = LocalContentColor.current,
             ),
         )
