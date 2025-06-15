@@ -241,10 +241,12 @@ class RadioSession(val symphony: Symphony) {
                         )
                     }
                     putString(MediaMetadataCompat.METADATA_KEY_ALBUM, req.song.album)
-                    req.artworkBitmap.let {
-                        putBitmap(MediaMetadataCompat.METADATA_KEY_ART, it)
-                        putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, it)
-                        putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, it)
+                    if (symphony.settings.showArtworkOnLockScreen.value) {
+                        req.artworkBitmap.let {
+                            putBitmap(MediaMetadataCompat.METADATA_KEY_ART, it)
+                            putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, it)
+                            putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, it)
+                        }
                     }
                     putLong(
                         MediaMetadataCompat.METADATA_KEY_DURATION,

@@ -762,3 +762,6 @@ name = "KeepScreenAwakeOnLyrics"
 
 [[keys]]
 name = "MinSongDurationFilter"
+
+[[keys]]
+name = "ShowArtworkOnLockScreen"
