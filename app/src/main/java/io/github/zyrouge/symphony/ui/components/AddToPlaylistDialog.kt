@@ -20,7 +20,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.mutate
+import io.github.zyrouge.symphony.utils.builtin.mutate
 
 @Composable
 fun AddToPlaylistDialog(

@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.utils
 
+import io.github.zyrouge.symphony.utils.builtin.subListNonStrict
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import kotlin.math.max
 

@@ -15,8 +15,8 @@ import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.GenreViewRoute
-import io.github.zyrouge.symphony.utils.ActivityUtils
-import io.github.zyrouge.symphony.utils.DurationUtils
+import io.github.zyrouge.symphony.utils.ActivityHelper
+import io.github.zyrouge.symphony.utils.DurationHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.round
@@ -104,7 +104,7 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
                 }
             }
             InformationKeyValue(context.symphony.t.Duration) {
-                LongPressCopyableText(context, DurationUtils.formatMs(song.duration))
+                LongPressCopyableText(context, DurationHelper.formatMs(song.duration))
             }
             song.encoder?.let {
                 InformationKeyValue(context.symphony.t.Encoder) {
@@ -168,7 +168,7 @@ private fun LongPressCopyableAndTappableText(
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = { _ ->
-                            ActivityUtils.copyToClipboardAndNotify(context.symphony, it)
+                            ActivityHelper.copyToClipboardAndNotify(context.symphony, it)
                         },
                         onTap = { _ ->
                             onTap(it)

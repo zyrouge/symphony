@@ -20,13 +20,13 @@ import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
 import io.github.zyrouge.symphony.services.groove.entities.SongLyric
-import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ActivityHelper
 import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
-import io.github.zyrouge.symphony.utils.concurrentSetOf
+import io.github.zyrouge.symphony.utils.builtin.concurrentSetOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -62,7 +62,7 @@ class MediaExposer(private val symphony: Symphony) {
             val folderUris = symphony.settings.mediaFolders.value
             val scanner = MediaTreeScanner.create(symphony)
             folderUris.map { x ->
-                ActivityUtils.makePersistableReadableUri(context, x)
+                ActivityHelper.makePersistableReadableUri(context, x)
                 DocumentFileX.fromTreeUri(context, x)?.let {
                     val path = SimplePath(DocumentFileX.getParentPathOfTreeUri(x) ?: it.name)
                     with(Dispatchers.IO) {
@@ -86,7 +86,7 @@ class MediaExposer(private val symphony: Symphony) {
                 val playlistId = exPlaylist.id
                 val uri = exPlaylist.uri!!
                 playlistIdsToBeDeletedInMapping.add(playlistId)
-                ActivityUtils.makePersistableReadableUri(symphony.applicationContext, uri)
+                ActivityHelper.makePersistableReadableUri(symphony.applicationContext, uri)
                 val extended = Playlist.parse(symphony, playlistId, uri)
                 playlistsToBeUpdated.add(extended.playlist)
                 var nextPlaylistSongMapping: PlaylistSongMapping? = null

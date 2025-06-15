@@ -17,6 +17,8 @@ class Database(symphony: Symphony) {
     val mediaTreeLyricFilesIdGenerator = KeyGenerator.TimeCounterRandomMix()
     val playlistsIdGenerator = KeyGenerator.TimeCounterRandomMix()
     val playlistSongMappingIdGenerator = KeyGenerator.TimeCounterRandomMix()
+    val songQueueSongMappingIdGenerator = KeyGenerator.TimeCounterRandomMix()
+    val songQueueIdGenerator = KeyGenerator.TimeCounterRandomMix()
 
     val albums get() = persistent.albums()
     val albumArtistMapping get() = persistent.albumArtistMapping()

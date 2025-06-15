@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.utils.RangeUtils
+import io.github.zyrouge.symphony.utils.RangeCalculator
 
 @Composable
 fun Slider(
@@ -32,7 +32,7 @@ fun Slider(
     onChange: (Float) -> Unit,
 ) {
     Column(modifier = modifier) {
-        val ratio = RangeUtils.calculateRatioFromValue(value, range)
+        val ratio = RangeCalculator.calculateRatioFromValue(value, range)
         var pointerOffsetX = 0f
 
         BoxWithConstraints(modifier = Modifier.padding(20.dp, 0.dp)) {
@@ -53,7 +53,7 @@ fun Slider(
                                 pointerOffsetX = offset.x
                                 val widthPx = this@BoxWithConstraints.maxWidth.toPx()
                                 val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
-                                val nValue = RangeUtils.calculateValueFromRatio(nRatio, range)
+                                val nValue = RangeCalculator.calculateValueFromRatio(nRatio, range)
                                 onChange(nValue)
                             }
                         )
@@ -69,7 +69,7 @@ fun Slider(
                                 val widthPx = maxWidth.toPx()
                                 val nRatio = (pointerOffsetX / widthPx).coerceIn(0f..1f)
                                 val nValue =
-                                    RangeUtils.calculateValueFromRatio(nRatio, range)
+                                    RangeCalculator.calculateValueFromRatio(nRatio, range)
                                 onChange(nValue)
                             },
                         )

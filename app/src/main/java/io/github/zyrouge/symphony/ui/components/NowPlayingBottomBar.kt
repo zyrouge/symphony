@@ -66,7 +66,7 @@ import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.NowPlayingViewRoute
-import io.github.zyrouge.symphony.utils.runIfOrThis
+import io.github.zyrouge.symphony.utils.builtin.runIfOrThis
 import kotlin.math.absoluteValue
 
 @Composable

@@ -54,9 +54,9 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
-import io.github.zyrouge.symphony.utils.randomSubList
-import io.github.zyrouge.symphony.utils.runIfOrDefault
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.utils.builtin.randomSubList
+import io.github.zyrouge.symphony.utils.builtin.runIfOrDefault
+import io.github.zyrouge.symphony.utils.builtin.subListNonStrict
 
 enum class ForYou(val label: (context: ViewContext) -> String) {
     Albums(label = { it.symphony.t.SuggestedAlbums }),

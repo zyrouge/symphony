@@ -23,18 +23,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.ActivityUtils
+import io.github.zyrouge.symphony.utils.ActivityHelper
 
 @Composable
 fun ConsiderContributingTile(context: ViewContext) {
     val contentColor = MaterialTheme.colorScheme.onPrimary
-    
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary)
             .clickable {
-                ActivityUtils.startBrowserActivity(
+                ActivityHelper.startBrowserActivity(
                     context.activity,
                     Uri.parse(AppMeta.contributingUrl)
                 )

@@ -1,7 +1,7 @@
 package io.github.zyrouge.symphony.services
 
 import io.github.zyrouge.symphony.BuildConfig
-import io.github.zyrouge.symphony.utils.HttpClient
+import io.github.zyrouge.symphony.utils.DefaultHttpClient
 import io.github.zyrouge.symphony.utils.Logger
 import okhttp3.CacheControl
 import okhttp3.Request
@@ -46,7 +46,7 @@ object AppMeta {
                 .url(latestReleaseUrl)
                 .cacheControl(CacheControl.FORCE_NETWORK)
                 .build()
-            val res = HttpClient.newCall(req).execute()
+            val res = DefaultHttpClient.newCall(req).execute()
             val content = res.body?.string() ?: ""
             val json = JSONObject(content)
             val tagName = json.getString("tag_name")
@@ -68,7 +68,7 @@ object AppMeta {
                 .url(latestReleaseUrl)
                 .cacheControl(CacheControl.FORCE_NETWORK)
                 .build()
-            val res = HttpClient.newCall(req).execute()
+            val res = DefaultHttpClient.newCall(req).execute()
             val content = res.body?.string() ?: ""
             val json = JSONArray(content)
             for (i in 0 until json.length()) {

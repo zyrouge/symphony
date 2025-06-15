@@ -3,27 +3,59 @@ package io.github.zyrouge.symphony.services.database.store
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.MapColumn
-import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.sqlite.db.SimpleSQLiteQuery
 import io.github.zyrouge.symphony.services.groove.entities.MediaTreeSongFile
+import io.github.zyrouge.symphony.utils.builtin.sqlqph
 
 @Dao
-interface MediaTreeSongFileStore {
+abstract class MediaTreeSongFileStore {
     @Insert
-    suspend fun insert(vararg entities: MediaTreeSongFile): List<String>
+    abstract suspend fun insert(vararg entities: MediaTreeSongFile): List<String>
 
     @Update
-    suspend fun update(vararg entities: MediaTreeSongFile): Int
+    abstract suspend fun update(vararg entities: MediaTreeSongFile): Int
 
-    @Query("DELETE FROM ${MediaTreeSongFile.TABLE} WHERE ${MediaTreeSongFile.COLUMN_ID} IN (:ids)")
-    suspend fun delete(ids: Collection<String>): Int
+    @RawQuery
+    protected abstract suspend fun delete(query: SimpleSQLiteQuery): Int
 
-    @Query("SELECT id FROM ${MediaTreeSongFile.TABLE} WHERE ${MediaTreeSongFile.COLUMN_PARENT_ID} = :parentId")
-    fun ids(parentId: String): List<String>
+    suspend fun delete(vararg ids: String): Int {
+        val query = "DELETE FROM ${MediaTreeSongFile.TABLE} " +
+                "WHERE ${MediaTreeSongFile.COLUMN_ID} IN (${sqlqph(ids.size)})"
+        return delete(SimpleSQLiteQuery(query, ids))
+    }
 
-    @Query("SELECT * FROM ${MediaTreeSongFile.TABLE} WHERE $${MediaTreeSongFile.COLUMN_PARENT_ID} = :parentId AND ${MediaTreeSongFile.COLUMN_NAME} = :name LIMIT 1")
-    fun findByName(parentId: String, name: String): MediaTreeSongFile?
+    @RawQuery
+    protected abstract fun ids(query: SimpleSQLiteQuery): List<String>
 
-    @Query("SELECT * FROM ${MediaTreeSongFile.TABLE} WHERE ${MediaTreeSongFile.COLUMN_PARENT_ID} = :parentId")
-    fun entriesNameMapped(parentId: String?): Map<@MapColumn(MediaTreeSongFile.COLUMN_NAME) String, MediaTreeSongFile>
+    fun ids(parentId: String): List<String> {
+        val query =
+            "SELECT id FROM ${MediaTreeSongFile.TABLE} WHERE ${MediaTreeSongFile.COLUMN_PARENT_ID} = :parentId"
+        val args = arrayOf(parentId)
+        return ids(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun findByName(query: SimpleSQLiteQuery): MediaTreeSongFile?
+
+    fun findByName(parentId: String, name: String): MediaTreeSongFile? {
+        val query = "SELECT * FROM ${MediaTreeSongFile.TABLE} " +
+                "WHERE ${MediaTreeSongFile.COLUMN_PARENT_ID} = ? " +
+                "AND ${MediaTreeSongFile.COLUMN_NAME} = ? " +
+                "LIMIT 1"
+        val args = arrayOf(parentId, name)
+        return findByName(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun entriesNameMapped(query: SimpleSQLiteQuery): Map<
+            @MapColumn(MediaTreeSongFile.COLUMN_NAME) String, MediaTreeSongFile>
+
+    fun entriesNameMapped(parentId: String?): Map<@MapColumn(MediaTreeSongFile.COLUMN_NAME) String, MediaTreeSongFile> {
+        val query = "SELECT * FROM ${MediaTreeSongFile.TABLE} " +
+                "WHERE ${MediaTreeSongFile.COLUMN_PARENT_ID} = ?"
+        val args = arrayOf(parentId)
+        return entriesNameMapped(SimpleSQLiteQuery(query, args))
+    }
 }

@@ -19,7 +19,7 @@ import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
 import io.github.zyrouge.symphony.utils.ImagePreserver
-import io.github.zyrouge.symphony.utils.StringListUtils
+import io.github.zyrouge.symphony.utils.StringSorter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -234,8 +234,8 @@ class Settings(private val symphony: Symphony) {
     val lastUsedArtistSongsSortReverse = BooleanEntry("last_used_artist_songs_sort_reverse", false)
     val lastUsedTreePathSortBy = EnumEntry(
         "last_used_tree_path_sort_by",
-        enumEntries<StringListUtils.SortBy>(),
-        StringListUtils.SortBy.NAME,
+        enumEntries<StringSorter.SortBy>(),
+        StringSorter.SortBy.NAME,
     )
     val lastUsedTreePathSortReverse = BooleanEntry("last_used_tree_path_sort_reverse", false)
     val lastUsedFoldersHorizontalGridColumns = IntEntry(

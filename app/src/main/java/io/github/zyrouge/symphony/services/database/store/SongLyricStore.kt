@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 
 @Dao
-interface SongLyricStore {
+abstract class SongLyricStore {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(vararg entities: SongLyric)
+    abstract suspend fun upsert(vararg entities: SongLyric)
 }

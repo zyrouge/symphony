@@ -4,18 +4,34 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.sqlite.db.SimpleSQLiteQuery
 import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface SongArtworkIndexStore {
+abstract class SongArtworkIndexStore {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(vararg entities: SongArtworkIndex): List<String>
+    abstract suspend fun upsert(vararg entities: SongArtworkIndex): List<String>
 
-    @Query("SELECT * FROM ${SongArtworkIndex.TABLE} WHERE ${SongArtworkIndex.COLUMN_SONG_ID} = :songId LIMIT 1")
-    fun findBySongIdAsFlow(songId: String): Flow<SongArtworkIndex?>
+    @RawQuery
+    protected abstract fun findBySongIdAsFlow(query: SimpleSQLiteQuery): Flow<SongArtworkIndex?>
 
-    @Query("SELECT * FROM ${SongArtworkIndex.TABLE} WHERE ${SongArtworkIndex.COLUMN_SONG_ID} != null")
-    fun entriesSongIdMapped(): Map<@MapColumn(SongArtworkIndex.COLUMN_SONG_ID) String, SongArtworkIndex>
+    fun findBySongIdAsFlow(songId: String): Flow<SongArtworkIndex?> {
+        val query = "SELECT * FROM ${SongArtworkIndex.TABLE} " +
+                "WHERE ${SongArtworkIndex.COLUMN_SONG_ID} = ? " +
+                "LIMIT 1"
+        val args = arrayOf(songId)
+        return findBySongIdAsFlow(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun entriesSongIdMapped(query: SimpleSQLiteQuery): Map<
+            @MapColumn(SongArtworkIndex.COLUMN_SONG_ID) String, SongArtworkIndex>
+
+    fun entriesSongIdMapped(): Map<@MapColumn(SongArtworkIndex.COLUMN_SONG_ID) String, SongArtworkIndex> {
+        val query = "SELECT * FROM ${SongArtworkIndex.TABLE} " +
+                "WHERE ${SongArtworkIndex.COLUMN_SONG_ID} != null"
+        return entriesSongIdMapped(SimpleSQLiteQuery(query))
+    }
 }
