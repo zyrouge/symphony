@@ -140,8 +140,10 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             },
                             initialValues = mediaFolders,
                             onChange = { values ->
-                                context.symphony.settings.mediaFolders.setValue(values)
-                                refreshMediaLibrary(context.symphony)
+                                if (values != context.symphony.settings.mediaFolders.value) {
+                                    context.symphony.settings.mediaFolders.setValue(values)
+                                    refreshMediaLibrary(context.symphony)
+                                }
                             }
                         )
                     }
