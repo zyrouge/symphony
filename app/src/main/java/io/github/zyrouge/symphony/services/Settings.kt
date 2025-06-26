@@ -12,6 +12,7 @@ import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepositor
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.components.ResponsiveGridColumns
+import io.github.zyrouge.symphony.ui.components.SongCardSwipeAction
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePage
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
@@ -329,6 +330,11 @@ class Settings(private val symphony: Symphony) {
     val gaplessPlayback = BooleanEntry("gapless_playback", true)
     val caseSensitiveSorting = BooleanEntry("case_sensitive_sorting", false)
     val lyricsKeepScreenAwake = BooleanEntry("lyrics_keep_screen_awake", true)
+    val songCardSwipeAction = EnumEntry(
+        "song_card_swipe_action",
+        enumEntries<SongCardSwipeAction>(),
+        SongCardSwipeAction.AddToQueue
+    )
 
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)
