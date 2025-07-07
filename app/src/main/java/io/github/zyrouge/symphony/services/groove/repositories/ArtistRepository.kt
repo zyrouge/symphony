@@ -71,6 +71,40 @@ class ArtistRepository(private val symphony: Symphony) {
         }
     }
 
+    fun delete(song: Song) {
+        song.artists.forEach { artistId ->
+            var single = false
+            if (songIdsCache.contains(artistId)) {
+                when (songIdsCache.size) {
+                    1 -> {
+                        single = true
+                        songIdsCache.remove(artistId)
+                    }
+
+                    else -> songIdsCache[artistId]?.remove(song.id)
+                }
+            }
+
+            //TODO: remove album from artist if it has no more songs
+            val nNumberOfAlbums = albumIdsCache[artistId]?.size ?: 0
+
+            if (cache.contains(artistId)) {
+                if (single) {
+                    cache.remove(artistId)
+                    _all.update {
+                        it - artistId
+                    }
+                    emitCount()
+                } else {
+                    cache[artistId]?.apply {
+                        numberOfAlbums = nNumberOfAlbums
+                        numberOfTracks--
+                    }
+                }
+            }
+        }
+    }
+
     fun reset() {
         cache.clear()
         _all.update {

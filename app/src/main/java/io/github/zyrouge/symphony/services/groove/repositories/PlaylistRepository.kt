@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.services.groove.repositories
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.Song
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
@@ -192,6 +193,41 @@ class PlaylistRepository(private val symphony: Symphony) {
         symphony.groove.coroutineScope.launch {
             symphony.database.playlists.update(updated)
         }
+    }
+
+    suspend fun deleteSong(song: Song) {
+        emitUpdate(true)
+
+        if (_favorites.value.contains(song.id)) {
+            _favorites.update {
+                it - song.id
+            }
+            emitUpdateId()
+            emitCount()
+        }
+
+        symphony.database.playlists.entries().values.map { x ->
+            val playlist = when {
+                x.isLocal -> {
+                    ActivityUtils.makePersistableReadableUri(symphony.applicationContext, x.uri!!)
+                    Playlist.parse(symphony, x.id, x.uri)
+                }
+
+                else -> x
+            }
+            if (playlist.songPaths.contains(song.path)) {
+                playlist.songPaths - song.path
+                if (playlist.songPaths.isEmpty()) {
+                    cache.remove(playlist.id)
+                    _all.update {
+                        it - playlist.id
+                    }
+                }
+                emitUpdateId()
+                emitCount()
+            }
+        }
+        emitUpdate(false)
     }
 
     // NOTE: maybe we shouldn't use groove's coroutine scope?

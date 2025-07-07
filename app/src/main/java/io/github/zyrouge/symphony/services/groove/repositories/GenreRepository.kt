@@ -58,6 +58,35 @@ class GenreRepository(private val symphony: Symphony) {
         }
     }
 
+    fun delete(song: Song) {
+        song.genres.forEach { genreId ->
+            var single = false
+            if (songIdsCache.contains(genreId)) {
+                when (songIdsCache[genreId]?.size) {
+                    1 -> {
+                        single = true
+                        songIdsCache.remove(genreId)
+                    }
+
+                    else -> songIdsCache[genreId]?.remove(song.id)
+                }
+            }
+            if (cache.contains(genreId)) {
+                if (single) {
+                    cache.remove(genreId)
+                    _all.update {
+                        it - genreId
+                    }
+                    emitCount()
+                } else {
+                    cache[genreId]?.apply {
+                        numberOfTracks--
+                    }
+                }
+            }
+        }
+    }
+
     fun reset() {
         cache.clear()
         songIdsCache.clear()

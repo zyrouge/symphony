@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -200,6 +201,7 @@ fun SongDropdownMenu(
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     DropdownMenu(
         expanded = expanded,
@@ -344,6 +346,18 @@ fun SongDropdownMenu(
                 showInfoDialog = true
             }
         )
+        DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Filled.DeleteForever, null)
+            },
+            text = {
+                Text("Delete Song", color = Color.Red) //TODO: i18n
+            },
+            onClick = {
+                onDismissRequest()
+                showDeleteDialog = true
+            }
+        )
         trailingContent?.invoke(this, onDismissRequest)
     }
 
@@ -363,6 +377,16 @@ fun SongDropdownMenu(
             songIds = listOf(song.id),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        DeleteSongDialog(
+            context,
+            song = song,
+            onDismissRequest = {
+                showDeleteDialog = false
             }
         )
     }
