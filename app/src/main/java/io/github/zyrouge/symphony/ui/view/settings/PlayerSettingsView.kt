@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AudioFile
 import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
@@ -34,6 +35,7 @@ import io.github.zyrouge.symphony.ui.components.settings.ConsiderContributingTil
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSliderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
+import io.github.zyrouge.symphony.ui.components.settings.ToggleSubsectionTile
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import kotlinx.serialization.Serializable
 import kotlin.math.roundToInt
@@ -54,6 +56,8 @@ fun PlayerSettingsView(context: ViewContext) {
     val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsState()
     val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
     val gaplessPlayback by context.symphony.settings.gaplessPlayback.flow.collectAsState()
+
+    val replayGainEnabled by context.symphony.settings.replayGainEnabled.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -245,6 +249,22 @@ fun PlayerSettingsView(context: ViewContext) {
                         value = gaplessPlayback,
                         onChange = { value ->
                             context.symphony.settings.gaplessPlayback.setValue(value)
+                        },
+                    )
+                    HorizontalDivider()
+                    ToggleSubsectionTile(
+                        icon = {
+                            Icon(Icons.Default.AudioFile, null)
+                        },
+                        title = {
+                            Text("ReplayGain")
+                        },
+                        value = replayGainEnabled,
+                        onChange = { value ->
+                            context.symphony.settings.replayGainEnabled.setValue(value)
+                        },
+                        onClick = {
+                            context.navController.navigate(ReplayGainSettingsRoute)
                         },
                     )
                 }

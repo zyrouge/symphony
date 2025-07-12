@@ -29,6 +29,7 @@ fun SettingsSliderTile(
     label: @Composable (Float) -> Unit,
     initialValue: Float,
     range: ClosedFloatingPointRange<Float>,
+    enabled: Boolean = true,
     onValue: (Float) -> Float = { it },
     onChange: (Float) -> Unit,
     onReset: (() -> Unit)? = null,
@@ -36,13 +37,14 @@ fun SettingsSliderTile(
     var isOpen by remember { mutableStateOf(false) }
 
     Card(
+        enabled = enabled,
         colors = SettingsTileDefaults.cardColors(),
         onClick = {
             isOpen = !isOpen
         }
     ) {
         ListItem(
-            colors = SettingsTileDefaults.listItemColors(),
+            colors = SettingsTileDefaults.listItemColors(enabled = enabled),
             leadingContent = { icon() },
             headlineContent = { title() },
             supportingContent = { label(initialValue) },

@@ -51,6 +51,8 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
     var pitch = DEFAULT_PITCH
         private set
 
+    var replayGainReference: Any? = null
+
     val usable get() = state == State.Prepared
     val fadePlayback get() = symphony.settings.fadePlayback.value
     val audioSessionId get() = mediaPlayer?.audioSessionId
@@ -74,6 +76,9 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
                 state = State.Prepared
                 ump.playbackParams.setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
                 createDurationTimer()
+
+                replayGainReference = symphony.replayGain.applyReplayGain(id, ump.audioSessionId)
+
                 onPrepared?.invoke()
             }
             ump.setOnCompletionListener {

@@ -52,7 +52,7 @@ fun AlbumTile(context: ViewContext, album: Album) {
             }
         },
         onPlay = {
-            context.symphony.radio.shorty.playQueue(album.getSortedSongIds(context.symphony))
+            context.symphony.radio.shorty.playQueue(album.getSortedSongIds(context.symphony), owningAlbum = album.id)
         },
         onClick = {
             context.navController.navigate(AlbumViewRoute(album.id))
@@ -85,6 +85,7 @@ fun AlbumDropdownMenu(
                 context.symphony.radio.shorty.playQueue(
                     album.getSortedSongIds(context.symphony),
                     shuffle = true,
+                    owningAlbum = album.id,
                 )
             }
         )

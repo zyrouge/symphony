@@ -104,7 +104,7 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
                     SongList(
                         context,
                         songIds = songIds,
-                        type = SongListType.Album,
+                        type = SongListType.Album(route.albumId),
                         leadingContent = {
                             item {
                                 AlbumHero(context, album!!)

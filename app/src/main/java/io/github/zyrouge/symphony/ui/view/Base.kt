@@ -31,6 +31,8 @@ import io.github.zyrouge.symphony.ui.view.settings.NowPlayingSettingsView
 import io.github.zyrouge.symphony.ui.view.settings.NowPlayingSettingsViewRoute
 import io.github.zyrouge.symphony.ui.view.settings.PlayerSettingsView
 import io.github.zyrouge.symphony.ui.view.settings.PlayerSettingsViewRoute
+import io.github.zyrouge.symphony.ui.view.settings.ReplayGainSettingsRoute
+import io.github.zyrouge.symphony.ui.view.settings.ReplayGainSettingsView
 import io.github.zyrouge.symphony.ui.view.settings.UpdateSettingsView
 import io.github.zyrouge.symphony.ui.view.settings.UpdateSettingsViewRoute
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -103,6 +105,9 @@ fun BaseView(symphony: Symphony, activity: MainActivity) {
                 }
                 baseComposable<PlayerSettingsViewRoute> {
                     PlayerSettingsView(context)
+                }
+                baseComposable<ReplayGainSettingsRoute> {
+                    ReplayGainSettingsView(context)
                 }
                 baseComposable<UpdateSettingsViewRoute> {
                     UpdateSettingsView(context)

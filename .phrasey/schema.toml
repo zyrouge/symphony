@@ -762,3 +762,40 @@ name = "KeepScreenAwakeOnLyrics"
 
 [[keys]]
 name = "MinSongDurationFilter"
+
+#[[keys]]
+#name = "ReplayGain"
+
+#[[keys]]
+#name = "UseReplayGain"
+
+#[[keys]]
+#name = "ReplayGainDesc"
+
+#[[keys]]
+#name = "ReplayGainMode"
+
+#[[keys]]
+#name = "ReplayGainModeAutomatic"
+
+#[[keys]]
+#name = "ReplayGainModeAutomaticDesc"
+
+#[[keys]]
+#name = "ReplayGainModeAlbum"
+
+#[[keys]]
+#name = "ReplayGainModeAlbumDesc"
+
+#[[keys]]
+#name = "ReplayGainModeTrack"
+
+#[[keys]]
+#name = "ReplayGainModeTrackDesc"
+
+#[[keys]]
+#name = "XDb"
+#parameters = ["x"]
+
+#[[keys]]
+#name = "ReplayGainPreAmp"

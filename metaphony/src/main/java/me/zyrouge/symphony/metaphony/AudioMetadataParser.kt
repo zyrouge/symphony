@@ -33,6 +33,8 @@ class AudioMetadataParser private constructor() {
 
     external fun readMetadata(filename: String, fd: Int): Boolean
 
+    private fun String.parseReplayGain(): Float? = lowercase().removeSuffix("db").trim().toFloatOrNull()
+
     fun toMetadata(): AudioMetadata {
         val (discNumber, discTotal) = parseSlashedNumber(tags["DISCNUMBER"]?.firstOrNull() ?: "")
         val (trackNumber, trackTotal) = parseSlashedNumber(tags["TRACKNUMBER"]?.firstOrNull() ?: "")
@@ -55,6 +57,8 @@ class AudioMetadataParser private constructor() {
             sampleRate = audioProperties["SAMPLE_RATE"],
             channels = audioProperties["CHANNELS"],
             pictures = pictures,
+            songGain = tags["REPLAYGAIN_TRACK_GAIN"]?.firstOrNull()?.parseReplayGain(),
+            albumGain = tags["REPLAYGAIN_ALBUM_GAIN"]?.firstOrNull()?.parseReplayGain(),
         )
     }
 

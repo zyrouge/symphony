@@ -14,8 +14,8 @@ import io.github.zyrouge.symphony.utils.RoomConvertors
 
 @Database(
     entities = [Song::class],
-    version = 2,
-    autoMigrations = [AutoMigration(1, 2, CacheDatabase.Migration1To2::class)]
+    version = 3,
+    autoMigrations = [AutoMigration(1, 2, CacheDatabase.Migration1To2::class), AutoMigration(2, 3)]
 )
 @TypeConverters(RoomConvertors::class)
 abstract class CacheDatabase : RoomDatabase() {

@@ -11,6 +11,7 @@ import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository
 import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.RadioQueue
+import io.github.zyrouge.symphony.services.replayGain.ReplayGainNormalizationMode
 import io.github.zyrouge.symphony.ui.components.ResponsiveGridColumns
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePage
@@ -329,6 +330,10 @@ class Settings(private val symphony: Symphony) {
     val gaplessPlayback = BooleanEntry("gapless_playback", true)
     val caseSensitiveSorting = BooleanEntry("case_sensitive_sorting", false)
     val lyricsKeepScreenAwake = BooleanEntry("lyrics_keep_screen_awake", true)
+
+    val replayGainEnabled = BooleanEntry("replay_gain_enabled", true)
+    val replayGainPreAmp = FloatEntry("replay_gain_pre_amp", 0.0F)
+    val replayGainNormalizationMode = EnumEntry("replay_gain_normalization_mode", enumEntries<ReplayGainNormalizationMode>(), ReplayGainNormalizationMode.AUTOMATIC)
 
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)
