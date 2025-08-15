@@ -49,7 +49,7 @@ abstract class SongQueueSongMappingStore {
     @RawQuery
     protected abstract fun findByNextIdRaw(query: SupportSQLiteQuery): Song.AlongSongQueueMapping?
 
-    fun findByNextId(queueId: String, nextId: String): Song.AlongSongQueueMapping? {
+    fun findByNextId(queueId: String, nextId: String?): Song.AlongSongQueueMapping? {
         val query = "SELECT ${Song.TABLE}.*, " +
                 "${SongQueueSongMapping.TABLE}.* " +
                 "FROM ${SongQueueSongMapping.TABLE} " +
@@ -72,9 +72,43 @@ abstract class SongQueueSongMappingStore {
         return findHeadRaw(SimpleSQLiteQuery(query, args))
     }
 
+    protected abstract fun entriesByIdsRaw(query: SupportSQLiteQuery): Map<
+            @MapColumn(SongQueueSongMapping.COLUMN_ID) String, Song.AlongSongQueueMapping>
+
+    fun entriesByIds(queueId: String, songMappingIds: List<String>): Map<
+            String, Song.AlongSongQueueMapping> {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${SongQueueSongMapping.TABLE}.* " +
+                "FROM ${SongQueueSongMapping.TABLE} " +
+                "WHERE ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ? " +
+                "AND ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_ID} " +
+                "IN (${sqlqph(songMappingIds.size)}) " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID} " +
+                "ORDER BY ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_IS_HEAD} DESC"
+        val args = arrayOf(queueId, *songMappingIds.toTypedArray())
+        return entriesByIdsRaw(SimpleSQLiteQuery(query, args))
+    }
+
+    protected abstract fun entriesByNextIdsRaw(query: SupportSQLiteQuery): Map<
+            @MapColumn(SongQueueSongMapping.COLUMN_NEXT_ID) String, Song.AlongSongQueueMapping>
+
+    fun entriesByNextIds(queueId: String, songMappingIds: List<String>): Map<
+            String, Song.AlongSongQueueMapping> {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${SongQueueSongMapping.TABLE}.* " +
+                "FROM ${SongQueueSongMapping.TABLE} " +
+                "WHERE ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ? " +
+                "AND ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_NEXT_ID} " +
+                "IN (${sqlqph(songMappingIds.size)}) " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID} " +
+                "ORDER BY ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_IS_HEAD} DESC"
+        val args = arrayOf(queueId, *songMappingIds.toTypedArray())
+        return entriesByNextIdsRaw(SimpleSQLiteQuery(query, args))
+    }
+
     @RawQuery(observedEntities = [Song::class, SongQueueSongMapping::class])
     protected abstract fun entriesAsFlowRaw(query: SupportSQLiteQuery): Flow<
-            Map<@MapColumn(SongQueueSongMapping.COLUMN_SONG_ID) String, Song.AlongSongQueueMapping>>
+            Map<@MapColumn(SongQueueSongMapping.COLUMN_ID) String, Song.AlongSongQueueMapping>>
 
     fun entriesAsFlow(queueId: String): Flow<Map<String, Song.AlongSongQueueMapping>> {
         val query = "SELECT ${Song.TABLE}.*, " +

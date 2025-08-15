@@ -1,11 +1,54 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.services.database.store.SongQueueSongMappingStore
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongQueue
 import io.github.zyrouge.symphony.services.groove.entities.SongQueueSongMapping
+import io.github.zyrouge.symphony.utils.complex_linked_list.ComplexLinkedListOperator
 
 class RadioQueue(private val symphony: Symphony) {
+    private class SongQueueSongMappingOperatorEntityFunctions :
+        ComplexLinkedListOperator.EntityFunctions<String, SongQueueSongMapping> {
+        override fun getEntityId(entity: SongQueueSongMapping) = entity.id
+        override fun getEntityNextId(entity: SongQueueSongMapping) = entity.nextId
+        override fun getEntityIsHead(entity: SongQueueSongMapping) = entity.isHead
+
+        override fun updateEntityNextId(entity: SongQueueSongMapping, nNextId: String?) =
+            entity.copy(nextId = nNextId)
+
+        override fun updateEntityIsHead(entity: SongQueueSongMapping, nIsHead: Boolean) =
+            entity.copy(isHead = nIsHead)
+    }
+
+    private class SongQueueSongMappingOperatorPersistenceFunctions(
+        private val store: SongQueueSongMappingStore,
+        private val queueId: String,
+    ) :
+        ComplexLinkedListOperator.PersistenceFunctions<String, SongQueueSongMapping> {
+        override fun getEntitiesByIds(ids: List<String>) = store.entriesByIds(queueId, ids)
+            .mapValues { it.value.mapping }
+
+        override fun getEntitiesByNextIds(nextIds: List<String>) =
+            store.entriesByNextIds(queueId, nextIds)
+                .mapValues { it.value.mapping }
+
+        override fun getHeadEntity() = store.findHead(queueId)?.mapping
+        override fun getTailEntity() = store.findByNextId(queueId, null)?.mapping
+
+        override suspend fun insertEntities(entities: List<SongQueueSongMapping>) {
+            store.insert(*entities.toTypedArray())
+        }
+
+        override suspend fun updateEntities(entities: List<SongQueueSongMapping>) {
+            store.update(*entities.toTypedArray())
+        }
+
+        override suspend fun deleteEntities(ids: List<String>) {
+            store.delete(queueId, ids)
+        }
+    }
+
 //    val queueFlow = symphony.database.songQueue.findFirstAsFlow()
 //    val queue = AtomicReference<SongQueue.AlongAttributes?>(null)
 
@@ -54,50 +97,37 @@ class RadioQueue(private val symphony: Symphony) {
             )
             symphony.database.songQueue.insert(queue)
         }
-        var previousSong = previousSongMappingId?.let {
-            symphony.database.songQueueSongMapping.findById(queueId, it)
-        }
-        var nextMappingId = previousSong?.mapping?.nextId
-        var ogNextMappingId = previousSong?.mapping?.ogNextId
-        val added = mutableListOf<SongQueueSongMapping>()
-        var i = 0
-        val songIdsCount = songIds.size
-        for (x in songIds.reversed()) {
-            val isHead = origQueue == null && i == songIdsCount - 1
-            val mapping = SongQueueSongMapping(
+        val operator = createSongQueueSongMappingOperator(queueId)
+        operator.add(previousSongMappingId, songIds) { x, isHead, nextId ->
+            SongQueueSongMapping(
                 id = symphony.database.songQueueSongMappingIdGenerator.next(),
                 queueId = queueId,
                 songId = x,
                 isHead = isHead,
-                nextId = nextMappingId,
-                ogNextId = ogNextMappingId,
+                nextId = nextId,
+                ogNextId = nextId,
             )
-            added.add(mapping)
-            nextMappingId = mapping.id
-            ogNextMappingId = mapping.id
-            i++
         }
-        symphony.database.songQueueSongMapping.insert(*added.toTypedArray())
         afterAdd(options)
     }
 
     suspend fun add(
         songId: String,
-        previousSongId: String? = null,
+        previousSongMappingId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
-    ) = add(listOf(songId), previousSongId, options)
+    ) = add(listOf(songId), previousSongMappingId, options)
 
     suspend fun add(
         songs: List<Song>,
-        previousSongId: String? = null,
+        previousSongMappingId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
-    ) = add(songs.map { it.id }, previousSongId, options)
+    ) = add(songs.map { it.id }, previousSongMappingId, options)
 
     suspend fun add(
         song: Song,
-        previousSongId: String? = null,
+        previousSongMappingId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
-    ) = add(listOf(song.id), previousSongId, options)
+    ) = add(listOf(song.id), previousSongMappingId, options)
 
     private fun afterAdd(options: Radio.PlayOptions) {
         if (!symphony.radio.hasPlayer) {
@@ -106,36 +136,18 @@ class RadioQueue(private val symphony: Symphony) {
         symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
 
-    fun remove(id: String) {
-        originalQueue.removeAt(index)
-        currentQueue.removeAt(index)
-        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
-        if (currentSongIndex == index) {
-            symphony.radio.play(Radio.PlayOptions(index = currentSongIndex))
-        } else if (index < currentSongIndex) {
-            currentSongIndex--
+    suspend fun remove(songMappingIds: List<String>): Boolean {
+        val queue = symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
+        if (queue == null) {
+            return false
         }
+        val queueId = queue.entity.id
+        val operator = createSongQueueSongMappingOperator(queueId)
+        val result = operator.remove(songMappingIds)
+        return result.deletedKeys.isNotEmpty()
     }
 
-    fun remove(indices: List<Int>) {
-        var deflection = 0
-        var currentSongRemoved = false
-        val sortedIndices = indices.sortedDescending()
-        for (i in sortedIndices) {
-            val index = i - deflection
-            originalQueue.removeAt(index)
-            currentQueue.removeAt(index)
-            when {
-                i < currentSongIndex -> deflection++
-                i == currentSongIndex -> currentSongRemoved = true
-            }
-        }
-        currentSongIndex -= deflection
-        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
-        if (currentSongRemoved) {
-            symphony.radio.play(Radio.PlayOptions(index = currentSongIndex))
-        }
-    }
+    suspend fun remove(songMappingId: String) = remove(listOf(songMappingId))
 
     fun setLoopMode(loopMode: LoopMode) {
         currentLoopMode = loopMode
@@ -168,6 +180,14 @@ class RadioQueue(private val symphony: Symphony) {
         }
         symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
+
+    private fun createSongQueueSongMappingOperator(queueId: String) = ComplexLinkedListOperator(
+        SongQueueSongMappingOperatorEntityFunctions(),
+        SongQueueSongMappingOperatorPersistenceFunctions(
+            symphony.database.songQueueSongMapping,
+            queueId
+        )
+    )
 
     companion object {
         const val SONG_QUEUE_INTERNAL_ID_DEFAULT = 1
