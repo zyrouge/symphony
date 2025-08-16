@@ -11,7 +11,7 @@ fuzzywuzzy = "1.4.0"
 junit-jupiter = "5.11.3"
 kotlinx-serialization-json = "1.7.3"
 lifecycle-runtime = "2.8.7"
-media = "1.7.0"
+media3 = "1.8.0"
 okhttp3 = "4.12.0"
 room = "2.6.1"
 
@@ -20,14 +20,9 @@ kotlin-gradle-plugin = "2.1.0"
 kotlin-serialization-plugin = "2.1.0"
 ksp-plugin = "2.1.0-1.0.29"
 
-compile-sdk = "35"
+compile-sdk = "36"
 min-sdk = "28"
 target-sdk = "34"
-junit = "4.13.2"
-junit-version = "1.2.1"
-espresso-core = "3.6.1"
-appcompat = "1.7.0"
-material = "1.12.0"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
@@ -45,16 +40,12 @@ fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzz
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
-media = { group = "androidx.media", name = "media", version.ref = "media" }
+media3 = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit-version" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-app = { id = "com.android.application", version.ref = "android-gradle-plugin" }
