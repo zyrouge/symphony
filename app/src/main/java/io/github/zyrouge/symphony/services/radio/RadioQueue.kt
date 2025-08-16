@@ -5,11 +5,11 @@ import io.github.zyrouge.symphony.services.database.store.SongQueueSongMappingSt
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongQueue
 import io.github.zyrouge.symphony.services.groove.entities.SongQueueSongMapping
-import io.github.zyrouge.symphony.utils.complex_linked_list.ComplexLinkedListOperator
+import io.github.zyrouge.symphony.utils.lazy_linked_list.LazyLinkedListOperatorHelper
 
 class RadioQueue(private val symphony: Symphony) {
     private class SongQueueSongMappingOperatorEntityFunctions :
-        ComplexLinkedListOperator.EntityFunctions<String, SongQueueSongMapping> {
+        LazyLinkedListOperatorHelper.EntityFunctions<String, SongQueueSongMapping> {
         override fun getEntityId(entity: SongQueueSongMapping) = entity.id
         override fun getEntityNextId(entity: SongQueueSongMapping) = entity.nextId
         override fun getEntityIsHead(entity: SongQueueSongMapping) = entity.isHead
@@ -25,7 +25,7 @@ class RadioQueue(private val symphony: Symphony) {
         private val store: SongQueueSongMappingStore,
         private val queueId: String,
     ) :
-        ComplexLinkedListOperator.PersistenceFunctions<String, SongQueueSongMapping> {
+        LazyLinkedListOperatorHelper.PersistenceFunctions<String, SongQueueSongMapping> {
         override fun getEntitiesByIds(ids: List<String>) = store.entriesByIds(queueId, ids)
             .mapValues { it.value.mapping }
 
@@ -77,7 +77,7 @@ class RadioQueue(private val symphony: Symphony) {
 
     suspend fun add(
         songIds: List<String>,
-        previousSongMappingId: String? = null,
+        insertAfterId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
     ) {
         val origQueue = symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
@@ -98,7 +98,7 @@ class RadioQueue(private val symphony: Symphony) {
             symphony.database.songQueue.insert(queue)
         }
         val operator = createSongQueueSongMappingOperator(queueId)
-        operator.add(previousSongMappingId, songIds) { x, isHead, nextId ->
+        operator.append(insertAfterId, songIds) { x, isHead, nextId ->
             SongQueueSongMapping(
                 id = symphony.database.songQueueSongMappingIdGenerator.next(),
                 queueId = queueId,
@@ -113,27 +113,27 @@ class RadioQueue(private val symphony: Symphony) {
 
     suspend fun add(
         songId: String,
-        previousSongMappingId: String? = null,
+        insertAfterId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
-    ) = add(listOf(songId), previousSongMappingId, options)
+    ) = add(listOf(songId), insertAfterId, options)
 
     suspend fun add(
         songs: List<Song>,
-        previousSongMappingId: String? = null,
+        insertAfterId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
-    ) = add(songs.map { it.id }, previousSongMappingId, options)
+    ) = add(songs.map { it.id }, insertAfterId, options)
 
     suspend fun add(
         song: Song,
-        previousSongMappingId: String? = null,
+        insertAfterId: String? = null,
         options: Radio.PlayOptions = Radio.PlayOptions(),
-    ) = add(listOf(song.id), previousSongMappingId, options)
+    ) = add(listOf(song.id), insertAfterId, options)
 
     private fun afterAdd(options: Radio.PlayOptions) {
-        if (!symphony.radio.hasPlayer) {
-            symphony.radio.play(options)
-        }
-        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
+//        if (!symphony.radio.hasPlayer) {
+//            symphony.radio.play(options)
+//        }
+//        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
 
     suspend fun remove(songMappingIds: List<String>): Boolean {
@@ -149,39 +149,64 @@ class RadioQueue(private val symphony: Symphony) {
 
     suspend fun remove(songMappingId: String) = remove(listOf(songMappingId))
 
-    fun setLoopMode(loopMode: LoopMode) {
-        currentLoopMode = loopMode
+    private suspend fun setLoopMode(queue: SongQueue, loopMode: SongQueue.LoopMode) {
+        val nQueue = queue.copy(loopMode = loopMode)
+        symphony.database.songQueue.update(nQueue)
     }
 
-    fun toggleLoopMode() {
-        val next = (currentLoopMode.ordinal + 1) % LoopMode.values.size
-        setLoopMode(LoopMode.values[next])
+    suspend fun setLoopMode(loopMode: SongQueue.LoopMode): Boolean {
+        val queue = symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
+        if (queue == null) {
+            return false
+        }
+        setLoopMode(queue.entity, loopMode)
+        return true
     }
 
-    fun toggleShuffleMode() = setShuffleMode(!currentShuffleMode)
+    suspend fun toggleLoopMode(): Boolean {
+        val queue = symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
+        if (queue == null) {
+            return false
+        }
+        val currentLoopMode = queue.entity.loopMode
+        val nextLoopModeOrdinal = (currentLoopMode.ordinal + 1) % SongQueue.LoopMode.values.size
+        val nextLoopMode = SongQueue.LoopMode.values[nextLoopModeOrdinal]
+        setLoopMode(queue.entity, nextLoopMode)
+        return true
+    }
+
+    fun toggleShuffleMode(): Boolean {
+//        val queue = symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
+//        if (queue == null) {
+//            return false
+//        }
+//        val nQueue = queue.entity.copy(shuffled = !queue.entity.shuffled)
+//        symphony.database.songQueue.update(nQueue)
+        return true
+    }
 
     fun setShuffleMode(to: Boolean) {
-        currentShuffleMode = to
-        if (currentQueue.isNotEmpty()) {
-            val currentSongId = getSongIdAt(currentSongIndex) ?: getSongIdAt(0)!!
-            currentSongIndex = if (currentShuffleMode) {
-                val newQueue = originalQueue.toMutableList()
-                newQueue.removeAt(currentSongIndex)
-                newQueue.shuffle()
-                newQueue.add(0, currentSongId)
-                currentQueue.clear()
-                currentQueue.addAll(newQueue)
-                0
-            } else {
-                currentQueue.clear()
-                currentQueue.addAll(originalQueue)
-                originalQueue.indexOfFirst { it == currentSongId }
-            }
-        }
-        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
+//        currentShuffleMode = to
+//        if (currentQueue.isNotEmpty()) {
+//            val currentSongId = getSongIdAt(currentSongIndex) ?: getSongIdAt(0)!!
+//            currentSongIndex = if (currentShuffleMode) {
+//                val newQueue = originalQueue.toMutableList()
+//                newQueue.removeAt(currentSongIndex)
+//                newQueue.shuffle()
+//                newQueue.add(0, currentSongId)
+//                currentQueue.clear()
+//                currentQueue.addAll(newQueue)
+//                0
+//            } else {
+//                currentQueue.clear()
+//                currentQueue.addAll(originalQueue)
+//                originalQueue.indexOfFirst { it == currentSongId }
+//            }
+//        }
+//        symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
 
-    private fun createSongQueueSongMappingOperator(queueId: String) = ComplexLinkedListOperator(
+    private fun createSongQueueSongMappingOperator(queueId: String) = LazyLinkedListOperatorHelper(
         SongQueueSongMappingOperatorEntityFunctions(),
         SongQueueSongMappingOperatorPersistenceFunctions(
             symphony.database.songQueueSongMapping,

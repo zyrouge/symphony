@@ -1,16 +1,13 @@
-package io.github.zyrouge.symphony.utils.complex_linked_list
+package io.github.zyrouge.symphony.utils.lazy_linked_list
 
-class ComplexLinkedListRemoveOperator<K, V>(
-    val helper: ComplexLinkedListOperator<K, V>,
+class LazyLinkedListRemoveOperator<K, V>(
+    val helper: LazyLinkedListOperatorHelper<K, V>,
     val keys: List<K>,
 ) {
-    data class Result<K>(
-        val headChanged: Boolean,
-        val modifiedKeys: List<K>,
-        val deletedKeys: List<K>,
-    )
-
-    suspend fun operate(): Result<K> {
+    suspend fun operate(): LazyLinkedListOperatorHelper.Result<K> {
+        if (keys.isEmpty()) {
+            return LazyLinkedListOperatorHelper.Result()
+        }
         val entities = helper.persistenceFunctions.getEntitiesByIds(keys).toMutableMap()
         val idToPreviousId = mutableMapOf<K, K>()
         for (x in entities.values) {
@@ -26,7 +23,7 @@ class ComplexLinkedListRemoveOperator<K, V>(
         }
         val modified = mutableSetOf<K>()
         val deleted = mutableSetOf<K>()
-        var headChanged = false
+        var headModified = false
         for (id in keys) {
             val entity = entities[id] ?: continue
             val isHead = helper.entityFunctions.getEntityIsHead(entity)
@@ -39,7 +36,7 @@ class ComplexLinkedListRemoveOperator<K, V>(
                 modified.add(nextId)
                 modified.remove(id)
                 deleted.add(id)
-                headChanged = true
+                headModified = true
                 continue
             }
             val previousId = idToPreviousId[id] ?: continue
@@ -59,8 +56,8 @@ class ComplexLinkedListRemoveOperator<K, V>(
         if (deleted.isNotEmpty()) {
             helper.persistenceFunctions.deleteEntities(deleted.toList())
         }
-        return Result(
-            headChanged = headChanged,
+        return LazyLinkedListOperatorHelper.Result(
+            headModified = headModified,
             modifiedKeys = modified.toList(),
             deletedKeys = deleted.toList(),
         )

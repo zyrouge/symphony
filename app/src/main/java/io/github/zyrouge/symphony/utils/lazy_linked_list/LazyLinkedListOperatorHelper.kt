@@ -1,6 +1,6 @@
-package io.github.zyrouge.symphony.utils.complex_linked_list
+package io.github.zyrouge.symphony.utils.lazy_linked_list
 
-class ComplexLinkedListOperator<K, V>(
+class LazyLinkedListOperatorHelper<K, V>(
     val entityFunctions: EntityFunctions<K, V>,
     val persistenceFunctions: PersistenceFunctions<K, V>,
 ) {
@@ -24,11 +24,23 @@ class ComplexLinkedListOperator<K, V>(
         suspend fun deleteEntities(ids: List<K>)
     }
 
-    suspend fun <X> add(
-        insertAtId: K?,
-        values: List<X>,
-        createFn: ComplexLinkedListAdditionOperatorCreateFn<K, V, X>,
-    ) = ComplexLinkedListAdditionOperator(this, insertAtId, values, createFn).operate()
+    data class Result<K>(
+        val headModified: Boolean = false,
+        val addedKeys: List<K> = emptyList(),
+        val modifiedKeys: List<K> = emptyList(),
+        val deletedKeys: List<K> = emptyList(),
+    )
 
-    suspend fun remove(keys: List<K>) = ComplexLinkedListRemoveOperator(this, keys).operate()
+    suspend fun <X> prependHead(
+        values: List<X>,
+        createFn: LazyLinkedListPrependHeadOperatorCreateFn<K, V, X>,
+    ) = LazyLinkedListPrependHeadOperator(this, values, createFn).operate()
+
+    suspend fun <X> append(
+        insertAfterId: K?,
+        values: List<X>,
+        createFn: LazyLinkedListInsertAppendOperatorCreateFn<K, V, X>,
+    ) = LazyLinkedListInsertAppendOperator(this, insertAfterId, values, createFn).operate()
+
+    suspend fun remove(keys: List<K>) = LazyLinkedListRemoveOperator(this, keys).operate()
 }
