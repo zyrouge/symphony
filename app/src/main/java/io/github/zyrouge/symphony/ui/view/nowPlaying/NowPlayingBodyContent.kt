@@ -50,6 +50,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -288,7 +289,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
 
 @Composable
 fun NowPlayingSeekBar(context: ViewContext) {
-    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsStateWithLifecycle()
+    val playbackPosition by context.symphony.radio.player.playbackPosition.collectAsStateWithLifecycle()
 
     Row(
         modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),

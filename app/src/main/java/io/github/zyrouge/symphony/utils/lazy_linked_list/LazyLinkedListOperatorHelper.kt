@@ -34,7 +34,7 @@ class LazyLinkedListOperatorHelper<K, V>(
     suspend fun <X> prependHead(
         values: List<X>,
         createFn: LazyLinkedListPrependHeadOperatorCreateFn<K, V, X>,
-    ) = LazyLinkedListPrependHeadOperator(this, values, createFn).operate()
+    ) = LazyLinkedListPrependMoveOperator(this, values, createFn).operate()
 
     suspend fun <X> append(
         insertAfterId: K?,

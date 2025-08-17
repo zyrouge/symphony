@@ -33,6 +33,13 @@ abstract class SongQueueSongMappingStore {
         return delete(SimpleSQLiteQuery(query, args))
     }
 
+    suspend fun deleteAll(queueId: String): Int {
+        val query = "DELETE FROM ${SongQueueSongMapping.TABLE} " +
+                "WHERE ${SongQueueSongMapping.COLUMN_QUEUE_ID} = ? "
+        val args = arrayOf(queueId)
+        return delete(SimpleSQLiteQuery(query, args))
+    }
+
     @RawQuery
     protected abstract fun findById(query: SupportSQLiteQuery): Song.AlongSongQueueMapping?
 
