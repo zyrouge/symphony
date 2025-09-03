@@ -12,6 +12,7 @@ import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepositor
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.components.ResponsiveGridColumns
+import io.github.zyrouge.symphony.ui.components.SongContextMenuActions
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePage
 import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
@@ -282,6 +283,11 @@ class Settings(private val symphony: Symphony) {
         "for_you_contents",
         enumEntries<ForYou>(),
         setOf(ForYou.Albums, ForYou.Artists),
+    )
+    val songContextMenuActions = EnumSetEntry(
+        "song_context_menu_actions",
+        enumEntries<SongContextMenuActions>(),
+        SongContextMenuActions.entries.toSet(),
     )
     val blacklistFolders = StringSetEntry("blacklist_folders", emptySet())
     val whitelistFolders = StringSetEntry("whitelist_folders", emptySet())

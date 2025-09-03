@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.components
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -53,7 +52,6 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
-import io.github.zyrouge.symphony.utils.Logger
 
 @Composable
 fun SongCard(
@@ -189,6 +187,17 @@ fun SongCard(
     }
 }
 
+class SongDropdownMenuData(
+    val context: ViewContext,
+    val song: Song,
+    val isFavorite: Boolean,
+    val expanded: Boolean,
+    val onDismissRequest: () -> Unit,
+) {
+    var showInfoDialog by mutableStateOf(false)
+    var showAddToPlaylistDialog by mutableStateOf(false)
+}
+
 @Composable
 fun SongDropdownMenu(
     context: ViewContext,
@@ -198,171 +207,44 @@ fun SongDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
 ) {
-    var showInfoDialog by remember { mutableStateOf(false) }
-    var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+    val data by remember {
+        mutableStateOf(
+            SongDropdownMenuData(
+                context,
+                song,
+                isFavorite,
+                expanded,
+                onDismissRequest
+            )
+        )
+    }
 
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
     ) {
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Filled.Favorite, null)
-            },
-            text = {
-                Text(
-                    if (isFavorite) context.symphony.t.Unfavorite
-                    else context.symphony.t.Favorite
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                context.symphony.groove.playlist.run {
-                    when {
-                        isFavorite -> unfavorite(song.id)
-                        else -> favorite(song.id)
-                    }
-                }
-            }
-        )
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
-            },
-            text = {
-                Text(context.symphony.t.PlayNext)
-            },
-            onClick = {
-                onDismissRequest()
-                context.symphony.radio.queue.add(
-                    song.id,
-                    context.symphony.radio.queue.currentSongIndex + 1
-                )
-            }
-        )
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
-            },
-            text = {
-                Text(context.symphony.t.AddToQueue)
-            },
-            onClick = {
-                onDismissRequest()
-                context.symphony.radio.queue.add(song.id)
-            }
-        )
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
-            },
-            text = {
-                Text(context.symphony.t.AddToPlaylist)
-            },
-            onClick = {
-                onDismissRequest()
-                showAddToPlaylistDialog = true
-            }
-        )
-        song.artists.forEach { artistName ->
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Filled.Person, null)
-                },
-                text = {
-                    Text("${context.symphony.t.ViewArtist}: $artistName")
-                },
-                onClick = {
-                    onDismissRequest()
-                    context.navController.navigate(ArtistViewRoute(artistName))
-                }
-            )
+        context.symphony.settings.songContextMenuActions.value.map {
+            it.entry.invoke(data)
         }
-        song.albumArtists.forEach { albumArtist ->
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Filled.Person, null)
-                },
-                text = {
-                    Text("${context.symphony.t.ViewAlbumArtist}: $albumArtist")
-                },
-                onClick = {
-                    onDismissRequest()
-                    context.navController.navigate(AlbumArtistViewRoute(albumArtist))
-                }
-            )
-        }
-        context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Filled.Album, null)
-                },
-                text = {
-                    Text(context.symphony.t.ViewAlbum)
-                },
-                onClick = {
-                    onDismissRequest()
-                    context.navController.navigate(AlbumViewRoute(albumId))
-                }
-            )
-        }
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Filled.Share, null)
-            },
-            text = {
-                Text(context.symphony.t.ShareSong)
-            },
-            onClick = {
-                onDismissRequest()
-                try {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        putExtra(Intent.EXTRA_STREAM, song.uri)
-                        type = context.activity.contentResolver.getType(song.uri)
-                    }
-                    context.activity.startActivity(intent)
-                } catch (err: Exception) {
-                    Logger.error("SongCard", "share failed", err)
-                    Toast.makeText(
-                        context.activity,
-                        context.symphony.t.ShareFailedX(err.localizedMessage ?: err.toString()),
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                }
-            }
-        )
-        DropdownMenuItem(
-            leadingIcon = {
-                Icon(Icons.Filled.Info, null)
-            },
-            text = {
-                Text(context.symphony.t.Details)
-            },
-            onClick = {
-                onDismissRequest()
-                showInfoDialog = true
-            }
-        )
         trailingContent?.invoke(this, onDismissRequest)
     }
 
-    if (showInfoDialog) {
+    if (data.showInfoDialog) {
         SongInformationDialog(
             context,
             song = song,
             onDismissRequest = {
-                showInfoDialog = false
+                data.showInfoDialog = false
             }
         )
     }
 
-    if (showAddToPlaylistDialog) {
+    if (data.showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
             songIds = listOf(song.id),
             onDismissRequest = {
-                showAddToPlaylistDialog = false
+                data.showAddToPlaylistDialog = false
             }
         )
     }
@@ -381,4 +263,205 @@ private fun SongCardThumbnailLabelStyle.backgroundColor(colorScheme: ColorScheme
 private fun SongCardThumbnailLabelStyle.contentColor(colorScheme: ColorScheme) = when (this) {
     SongCardThumbnailLabelStyle.Default -> colorScheme.primary
     SongCardThumbnailLabelStyle.Subtle -> colorScheme.onSurfaceVariant
+}
+
+enum class SongContextMenuActions(
+    var label: (context: ViewContext) -> String,
+    var entry: @Composable (data: SongDropdownMenuData) -> Unit,
+) {
+    FAVORITE(
+        label = { it.symphony.t.Favorite },
+        entry = {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Filled.Favorite, null)
+                },
+                text = {
+                    Text(
+                        if (it.isFavorite) it.context.symphony.t.Unfavorite
+                        else it.context.symphony.t.Favorite
+                    )
+                },
+                onClick = {
+                    it.onDismissRequest()
+                    it.context.symphony.groove.playlist.run {
+                        when {
+                            it.isFavorite -> unfavorite(it.song.id)
+                            else -> favorite(it.song.id)
+                        }
+                    }
+                }
+            )
+        }
+    ),
+    PLAY_NEXT(
+        label = { it.symphony.t.PlayNext },
+        entry = {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
+                },
+                text = {
+                    Text(it.context.symphony.t.PlayNext)
+                },
+                onClick = {
+                    it.onDismissRequest()
+                    it.context.symphony.radio.queue.add(
+                        it.song.id,
+                        it.context.symphony.radio.queue.currentSongIndex + 1
+                    )
+                }
+            )
+        }
+    ),
+    ADD_TO_QUEUE(
+        label = { it.symphony.t.AddToQueue },
+        entry = {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null)
+                },
+                text = {
+                    Text(it.context.symphony.t.AddToQueue)
+                },
+                onClick = {
+                    it.onDismissRequest()
+                    it.context.symphony.radio.queue.add(it.song.id)
+                }
+            )
+        }
+    ),
+    ADD_TO_PLAYLIST(
+        label = { it.symphony.t.AddToPlaylist },
+        entry = {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
+                },
+                text = {
+                    Text(it.context.symphony.t.AddToPlaylist)
+                },
+                onClick = {
+                    it.onDismissRequest()
+                    it.showAddToPlaylistDialog = true
+                }
+            )
+        }
+    ),
+    VIEW_ARTIST(
+        label = { it.symphony.t.ViewArtist },
+        entry = {
+            it.song.artists.forEach { artistName ->
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(Icons.Filled.Person, null)
+                    },
+                    text = {
+                        Text("${it.context.symphony.t.ViewArtist}: $artistName")
+                    },
+                    onClick = {
+                        it.onDismissRequest()
+                        it.context.navController.navigate(ArtistViewRoute(artistName))
+                    }
+                )
+            }
+        }
+    ),
+    VIEW_ALBUM_ARTIST(
+        label = { it.symphony.t.ViewAlbumArtist },
+        entry = {
+            it.song.albumArtists.forEach { albumArtist ->
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(Icons.Filled.Person, null)
+                    },
+                    text = {
+                        Text("${it.context.symphony.t.ViewAlbumArtist}: $albumArtist")
+                    },
+                    onClick = {
+                        it.onDismissRequest()
+                        it.context.navController.navigate(
+                            AlbumArtistViewRoute(albumArtist)
+                        )
+                    }
+                )
+            }
+        }
+    ),
+    VIEW_ALBUM(
+        label = { it.symphony.t.ViewAlbum },
+        entry = {
+            it.context.symphony.groove.album.getIdFromSong(it.song)?.let { albumId ->
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(Icons.Filled.Album, null)
+                    },
+                    text = {
+                        Text(it.context.symphony.t.ViewAlbum)
+                    },
+                    onClick = {
+                        it.onDismissRequest()
+                        it.context.navController.navigate(
+                            AlbumViewRoute(albumId)
+                        )
+                    }
+                )
+            }
+        }
+    ),
+    SHARE_SONG(
+        label = { it.symphony.t.ShareSong },
+        entry = {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Filled.Share, null)
+                },
+                text = {
+                    Text(it.context.symphony.t.ShareSong)
+                },
+                onClick = {
+                    it.onDismissRequest()
+                    try {
+                        val intent =
+                            android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                putExtra(android.content.Intent.EXTRA_STREAM, it.song.uri)
+                                type = it.context.activity.contentResolver.getType(it.song.uri)
+                            }
+                        it.context.activity.startActivity(intent)
+                    } catch (err: Exception) {
+                        io.github.zyrouge.symphony.utils.Logger.error(
+                            "SongCard",
+                            "share failed",
+                            err
+                        )
+                        Toast.makeText(
+                            it.context.activity,
+                            it.context.symphony.t.ShareFailedX(
+                                err.localizedMessage ?: err.toString()
+                            ),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
+                }
+            )
+        }
+    ),
+    DETAILS(
+        label = { it.symphony.t.Details },
+        entry = {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Filled.Info, null)
+                },
+                text = {
+                    Text(it.context.symphony.t.Details)
+                },
+                onClick = {
+                    it.onDismissRequest()
+                    it.showInfoDialog = true
+                }
+            )
+        }
+    )
 }

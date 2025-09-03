@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Recommend
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -25,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
+import io.github.zyrouge.symphony.ui.components.SongContextMenuActions
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.components.settings.ConsiderContributingTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsMultiOptionTile
@@ -46,6 +48,7 @@ fun HomePageSettingsView(context: ViewContext) {
     val homeTabs by context.symphony.settings.homeTabs.flow.collectAsState()
     val forYouContents by context.symphony.settings.forYouContents.flow.collectAsState()
     val homePageBottomBarLabelVisibility by context.symphony.settings.homePageBottomBarLabelVisibility.flow.collectAsState()
+    val songContextMenuContents by context.symphony.settings.songContextMenuActions.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -130,6 +133,21 @@ fun HomePageSettingsView(context: ViewContext) {
                             context.symphony.settings.homePageBottomBarLabelVisibility.setValue(
                                 value,
                             )
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsMultiOptionTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.Checklist, null)
+                        },
+                        title = {
+                            Text("Song Context Menu") //TODO: i18n
+                        },
+                        value = songContextMenuContents,
+                        values = SongContextMenuActions.entries.associateWith { it.label(context) },
+                        onChange = { value ->
+                            context.symphony.settings.songContextMenuActions.setValue(value)
                         }
                     )
                 }
