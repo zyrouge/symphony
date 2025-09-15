@@ -13,6 +13,12 @@ import androidx.room.PrimaryKey
     SongQueue.TABLE,
     foreignKeys = [
         ForeignKey(
+            entity = SongQueue::class,
+            parentColumns = arrayOf(SongQueue.COLUMN_ID),
+            childColumns = arrayOf(SongQueue.COLUMN_ORIGINAL_ID),
+            onDelete = ForeignKey.SET_NULL,
+        ),
+        ForeignKey(
             entity = SongQueueSongMapping::class,
             parentColumns = arrayOf(SongQueueSongMapping.COLUMN_ID),
             childColumns = arrayOf(SongQueue.COLUMN_PLAYING_ID),
@@ -25,12 +31,16 @@ data class SongQueue(
     @PrimaryKey
     @ColumnInfo(COLUMN_ID)
     val id: String,
+    @ColumnInfo(COLUMN_ORIGINAL_ID)
+    val originalId: String? = null,
     @ColumnInfo(COLUMN_INTERNAL_ID)
     val internalId: Int? = null,
     @ColumnInfo(COLUMN_PLAYING_ID)
     val playingId: String?,
+    @ColumnInfo(COLUMN_PLAYING_IS_PLAYING)
+    val isPlaying: Boolean,
     @ColumnInfo(COLUMN_PLAYING_TIMESTAMP)
-    val playingTimestamp: Long?,
+    val playingTimestamp: Long,
     @ColumnInfo(COLUMN_PLAYING_SPEED_INT)
     val playingSpeedInt: Int,
     @ColumnInfo(COLUMN_PLAYING_PITCH_INT)
@@ -45,6 +55,8 @@ data class SongQueue(
     val pitchInt: Int,
     @ColumnInfo(COLUMN_PAUSE_ON_SONG_END)
     val pauseOnSongEnd: Boolean,
+    @ColumnInfo(COLUMN_SLEEP_TIMER_ENDS_AT)
+    val sleepTimerEndsAt: Long?,
 ) {
     enum class LoopMode {
         None,
@@ -73,8 +85,10 @@ data class SongQueue(
     companion object {
         const val TABLE = "song_queue"
         const val COLUMN_ID = "id"
+        const val COLUMN_ORIGINAL_ID = "original_id"
         const val COLUMN_INTERNAL_ID = "internal_id"
         const val COLUMN_PLAYING_ID = "playing_id"
+        const val COLUMN_PLAYING_IS_PLAYING = "is_playing"
         const val COLUMN_PLAYING_SPEED_INT = "playing_speed_int"
         const val COLUMN_PLAYING_PITCH_INT = "playing_pitch_int"
         const val COLUMN_PLAYING_TIMESTAMP = "playing_timestamp"
@@ -83,6 +97,7 @@ data class SongQueue(
         const val COLUMN_SPEED_INT = "speed_int"
         const val COLUMN_PITCH_INT = "pitch_int"
         const val COLUMN_PAUSE_ON_SONG_END = "pause_on_song_end"
+        const val COLUMN_SLEEP_TIMER_ENDS_AT = "sleep_timer_ends_at"
 
         const val SPEED_MULTIPLIER = 100
         const val PITCH_MULTIPLIER = 100

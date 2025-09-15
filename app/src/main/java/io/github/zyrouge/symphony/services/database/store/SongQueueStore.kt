@@ -27,35 +27,34 @@ abstract class SongQueueStore {
     }
 
     @RawQuery
+    protected abstract fun findById(query: SimpleSQLiteQuery): SongQueue.AlongAttributes?
+
+    fun findById(id: String): SongQueue.AlongAttributes? {
+        val query = "SELECT * FROM ${SongQueue.TABLE} WHERE ${SongQueue.COLUMN_ID} = ?"
+        val args = arrayOf(id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
     protected abstract fun findByInternalId(query: SimpleSQLiteQuery): SongQueue.AlongAttributes?
 
     fun findByInternalId(internalId: Int): SongQueue.AlongAttributes? {
-        val query = "SELECT * FROM ${SongQueue.TABLE} " +
-                "WHERE ${SongQueue.COLUMN_INTERNAL_ID} = ?"
+        val query = "SELECT ${SongQueue.TABLE}.*, " +
+                "COUNT(${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID}) as ${SongQueue.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
+                "FROM ${SongQueue.TABLE} " +
+                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID}"
         val args = arrayOf(internalId)
         return findByInternalId(SimpleSQLiteQuery(query, args))
     }
 
     @RawQuery(observedEntities = [SongQueue::class, SongQueueSongMapping::class])
-    protected abstract fun findFirstAsFlow(query: SupportSQLiteQuery): Flow<SongQueue.AlongAttributes?>
+    protected abstract fun findByInternalIdAsFlow(query: SupportSQLiteQuery): Flow<SongQueue.AlongAttributes?>
 
-    fun findFirstAsFlow(): Flow<SongQueue.AlongAttributes?> {
+    fun findByInternalIdAsFlow(): Flow<SongQueue.AlongAttributes?> {
         val query = "SELECT ${SongQueue.TABLE}.*, " +
                 "COUNT(${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID}) as ${SongQueue.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
                 "FROM ${SongQueue.TABLE} " +
-                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID} " +
-                "LIMIT 1"
-        return findFirstAsFlow(SimpleSQLiteQuery(query))
+                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID}"
+        return findByInternalIdAsFlow(SimpleSQLiteQuery(query))
     }
-
-//    @RawQuery(observedEntities = [SongQueue::class, SongQueueSongMapping::class])
-//    fun valuesAsFlowRaw(query: SupportSQLiteQuery): Flow<List<SongQueue.AlongAttributes>>
-
-//fun SongQueueStore.valuesAsFlow(): Flow<List<SongQueue.AlongAttributes>> {
-//    val query = "SELECT ${SongQueue.TABLE}.*, " +
-//            "COUNT(${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID}) as ${SongQueue.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
-//            "FROM ${SongQueue.TABLE} " +
-//            "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID}"
-//    return valuesAsFlowRaw(SimpleSQLiteQuery(query))
-//}
 }

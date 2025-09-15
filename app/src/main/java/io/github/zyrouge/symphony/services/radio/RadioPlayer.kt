@@ -14,15 +14,23 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import io.github.zyrouge.symphony.Symphony
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Timer
 
 @OptIn(UnstableApi::class)
 class RadioPlayer(val symphony: Symphony) {
+    data class PlayableMedia(val id: String, val uri: Uri) {
+        fun toMediaItem() = MediaItem.Builder().setMediaId(id).setUri(uri).build()
+
+        companion object {
+            fun fromMediaItem(mediaItem: MediaItem): PlayableMedia {
+                val uri = mediaItem.localConfiguration?.uri
+                    ?: throw Exception("Missing media item uri")
+                return PlayableMedia(mediaItem.mediaId, uri)
+            }
+        }
+    }
+
     data class PlaybackPosition(val played: Long, val total: Long) {
         val ratio: Float
             get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
@@ -77,18 +85,6 @@ class RadioPlayer(val symphony: Symphony) {
 
 //    val fadePlayback get() = symphony.settings.fadePlayback.value
 
-    private val _isPlaying = MutableStateFlow(false)
-    val isPlaying = _isPlaying.asStateFlow()
-    private var playbackPositionUpdater: Timer? = null
-    private val _playbackPosition = MutableStateFlow(PlaybackPosition.zero)
-    val playbackPosition = _playbackPosition.asStateFlow()
-    private val _volume = MutableStateFlow(MAX_VOLUME)
-    val volume = _volume.asStateFlow()
-    private val _speed = MutableStateFlow(DEFAULT_SPEED)
-    val speed = _speed.asStateFlow()
-    private val _pitch = MutableStateFlow(DEFAULT_PITCH)
-    val pitch = _pitch.asStateFlow()
-
     init {
         symphony.groove.coroutineScope.launch {
             prepare()
@@ -102,14 +98,28 @@ class RadioPlayer(val symphony: Symphony) {
 
     suspend fun hasMedia() = withMediaPlayer { it.currentMediaItem != null }
 
-    suspend fun hasNextMedia() = withMediaPlayer { it.getMediaItemAt(it.currentMediaItemIndex + 1) }
-
-    suspend fun setMedia(uri: Uri) = withMediaPlayer {
-        it.setMediaItems(listOf(MediaItem.fromUri(uri)))
+    suspend fun hasNextMedia() = withMediaPlayer {
+        it.currentMediaItemIndex + 1 < it.mediaItemCount
     }
 
-    suspend fun setNextMedia(uri: Uri) = withMediaPlayer {
-        it.replaceMediaItem(1, MediaItem.fromUri(uri))
+    suspend fun getMedia() = withMediaPlayer {
+        it.currentMediaItem?.let { mediaItem -> PlayableMedia.fromMediaItem(mediaItem) }
+    }
+
+    suspend fun getNextMedia() = withMediaPlayer {
+        val nextIndex = it.currentMediaItemIndex + 1
+        when {
+            nextIndex < it.mediaItemCount -> PlayableMedia.fromMediaItem(it.getMediaItemAt(nextIndex))
+            else -> null
+        }
+    }
+
+    suspend fun setMedia(media: PlayableMedia) = withMediaPlayer {
+        it.setMediaItems(listOf(media.toMediaItem()))
+    }
+
+    suspend fun setNextMedia(media: PlayableMedia) = withMediaPlayer {
+        it.replaceMediaItem(1, media.toMediaItem())
         it.play()
     }
 
@@ -142,25 +152,6 @@ class RadioPlayer(val symphony: Symphony) {
         it.playbackParameters = it.playbackParameters.withPitch(to)
     }
 
-    private fun createDurationTimer() {
-        playbackPositionUpdater = kotlin.concurrent.timer(period = 500L) {
-            emitPlaybackPosition()
-        }
-    }
-
-    private fun emitPlaybackPosition() {
-        symphony.groove.coroutineScope.launch(Dispatchers.Main) {
-            _playbackPosition.update {
-                PlaybackPosition(mediaPlayerUnsafe.currentPosition, mediaPlayerUnsafe.duration)
-            }
-        }
-    }
-
-    private fun destroyDurationTimer() {
-        playbackPositionUpdater?.cancel()
-        playbackPositionUpdater = null
-    }
-
     private suspend fun <T> withMediaPlayer(fn: (ExoPlayer) -> T): T {
         return withContext(Dispatchers.Main) {
             fn(mediaPlayerUnsafe)
@@ -174,20 +165,17 @@ class RadioPlayer(val symphony: Symphony) {
     }
 
     fun onMediaPlayerIsPlayingChanged(isPlaying: Boolean) {
-        when {
-            isPlaying -> createDurationTimer()
-            else -> destroyDurationTimer()
-        }
-        _isPlaying.update { isPlaying }
+        symphony.radio.onPlayerIsPlayingChanged(isPlaying)
     }
 
     fun onMediaPlayerVolumeChanged(volume: Float) {
-        _volume.update { volume }
     }
 
     fun onMediaPlayerPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-        _speed.update { playbackParameters.speed }
-        _pitch.update { playbackParameters.pitch }
+        symphony.radio.onPlayerPlaybackParametersChanged(
+            speed = playbackParameters.speed,
+            pitch = playbackParameters.pitch,
+        )
     }
 
     fun onMediaPlayerPlaybackStateChanged(playbackState: Int) {
@@ -201,14 +189,13 @@ class RadioPlayer(val symphony: Symphony) {
     }
 
     private fun onMediaPlayerMediaEnded() {
-        emitPlaybackPosition()
         withMediaPlayerNoSuspend {
-            // keep playing item at 0
             if (it.mediaItemCount == 0) {
                 return@withMediaPlayerNoSuspend
             }
             it.removeMediaItem(0)
         }
+        symphony.radio.onPlayerSongEnded(Radio.SongEndedReason.Finish)
     }
 
     companion object {
