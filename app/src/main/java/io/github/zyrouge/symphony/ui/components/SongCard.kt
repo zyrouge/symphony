@@ -69,6 +69,7 @@ fun SongCard(
     thumbnailLabel: (@Composable () -> Unit)? = null,
     thumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
+    lean: Boolean = false,
     onClick: () -> Unit,
 ) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
@@ -80,6 +81,14 @@ fun SongCard(
     val isFavorite by remember(favoriteSongIds, song) {
         derivedStateOf { favoriteSongIds.contains(song.id) }
     }
+
+    val mediumFont =
+        if (lean) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium
+    val smallFont =
+        if (lean) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodySmall
+    val iconLarge = if (lean) 32.dp else 45.dp
+    val iconMedium = if (lean) 16.dp else 24.dp
+    val paddingVert = if (lean) 0.dp else 12.dp
 
     SwipeActionWithPreview(
         onSwipe = { when (context.symphony.settings.songCardSwipeAction.value) {
@@ -101,7 +110,9 @@ fun SongCard(
                     SongCardSwipeAction.Nothing -> Icons.Filled.Close
                 },
                 context.symphony.t.SongCardSwipeAction,
-                Modifier.alpha(progress)
+                Modifier
+                    .alpha(progress)
+                    .size(iconMedium)
             )
         }
     ) {
@@ -110,7 +121,14 @@ fun SongCard(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             onClick = onClick
         ) {
-            Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
+            Box(
+                modifier = Modifier.padding(
+                    12.dp,
+                    paddingVert,
+                    4.dp,
+                    paddingVert
+                )
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     leading()
                     Box {
@@ -118,8 +136,8 @@ fun SongCard(
                             song.createArtworkImageRequest(context.symphony).build(),
                             null,
                             modifier = Modifier
-                                .size(45.dp)
-                                .clip(RoundedCornerShape(10.dp)),
+                                .size(iconLarge)
+                                .clip(RoundedCornerShape(if (lean) 5.dp else 10.dp)),
                         )
                         thumbnailLabel?.let { it ->
                             val backgroundColor =
@@ -153,7 +171,7 @@ fun SongCard(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             song.title,
-                            style = MaterialTheme.typography.bodyMedium.copy(
+                            style = mediumFont.copy(
                                 color = when {
                                     highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
                                     else -> LocalTextStyle.current.color
@@ -165,7 +183,7 @@ fun SongCard(
                         if (song.artists.isNotEmpty()) {
                             Text(
                                 song.artists.joinToString(),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = smallFont,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -184,7 +202,7 @@ fun SongCard(
                                 Icon(
                                     Icons.Filled.Favorite,
                                     null,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.size(iconMedium),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
@@ -197,7 +215,7 @@ fun SongCard(
                             Icon(
                                 Icons.Filled.MoreVert,
                                 null,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(iconMedium),
                             )
                             SongDropdownMenu(
                                 context,
