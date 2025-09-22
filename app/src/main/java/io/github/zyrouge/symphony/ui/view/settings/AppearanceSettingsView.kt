@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
+import androidx.compose.material.icons.filled.SwipeLeft
 import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.zyrouge.symphony.services.i18n.CommonTranslation
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
+import io.github.zyrouge.symphony.ui.components.SongCardSwipeAction
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.components.settings.ConsiderContributingTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsFloatInputTile
@@ -63,6 +65,7 @@ fun AppearanceSettingsView(context: ViewContext) {
     val primaryColor by context.symphony.settings.primaryColor.flow.collectAsState()
     val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
     val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
+    val songCardSwipeAction by context.symphony.settings.songCardSwipeAction.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -227,6 +230,25 @@ fun AppearanceSettingsView(context: ViewContext) {
                         enabled = !useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.primaryColor.setValue(value.name)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsOptionTile(
+                        icon = {
+                            Icon(Icons.Filled.SwipeLeft, null)
+                        },
+                        title = {
+                            Text(context.symphony.t.SongCardSwipeAction)
+                        },
+                        value = songCardSwipeAction,
+                        values = mapOf(
+                            SongCardSwipeAction.Nothing to context.symphony.t.Nothing,
+                            SongCardSwipeAction.PlayNext to context.symphony.t.PlayNext,
+                            SongCardSwipeAction.AddToQueue to context.symphony.t.AddToQueue,
+                            SongCardSwipeAction.ViewAlbum to context.symphony.t.ViewAlbum,
+                        ),
+                        onChange = { value ->
+                            context.symphony.settings.songCardSwipeAction.setValue(value)
                         }
                     )
                 }

@@ -762,3 +762,9 @@ name = "KeepScreenAwakeOnLyrics"
 
 [[keys]]
 name = "MinSongDurationFilter"
+
+[[keys]]
+name = "SongCardSwipeAction"
+
+[[keys]]
+name = "Nothing"
