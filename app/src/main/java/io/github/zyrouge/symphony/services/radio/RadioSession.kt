@@ -176,7 +176,7 @@ class RadioSession(val symphony: Symphony) {
             input: Unit,
         ) = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
             putExtra(AudioEffect.EXTRA_PACKAGE_NAME, symphony.applicationContext.packageName)
-            putExtra(AudioEffect.EXTRA_AUDIO_SESSION, symphony.radio.player.mediaSessionId)
+            putExtra(AudioEffect.EXTRA_AUDIO_SESSION, symphony.radio.mediaSessionId)
             putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
         }
 

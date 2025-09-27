@@ -22,7 +22,6 @@ data class Genre(
     data class AlongAttributes(
         @Embedded
         val entity: Genre,
-        @Embedded
         val tracksCount: Int,
     ) {
         companion object {

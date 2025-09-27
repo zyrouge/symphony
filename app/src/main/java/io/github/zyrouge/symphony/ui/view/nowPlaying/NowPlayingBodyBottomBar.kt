@@ -1,7 +1,11 @@
 package io.github.zyrouge.symphony.ui.view.nowPlaying
 
+import android.content.Context
+import android.content.Intent
+import android.media.audiofx.AudioEffect
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -45,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.LyricsViewRoute
@@ -63,12 +68,34 @@ fun NowPlayingBodyBottomBar(
     data: NowPlayingData,
     states: NowPlayingStates,
 ) {
+    val viewContext = context
     val coroutineScope = rememberCoroutineScope()
-    val equalizerActivity = rememberLauncherForActivityResult(
-        context.symphony.radio.session.createEqualizerActivityContract()
-    ) {}
+    val equalizerContract = remember {
+        object : ActivityResultContract<Unit, Unit>() {
+            override fun createIntent(
+                context: Context,
+                input: Unit,
+            ) = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
+                putExtra(
+                    AudioEffect.EXTRA_PACKAGE_NAME,
+                    viewContext.symphony.applicationContext.packageName
+                )
+                putExtra(
+                    AudioEffect.EXTRA_AUDIO_SESSION,
+                    viewContext.symphony.radio.mediaSessionId
+                )
+                putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+            }
 
-    val sleepTimer by context.symphony.radio.observatory.sleepTimer.collectAsStateWithLifecycle()
+            override fun parseResult(
+                resultCode: Int,
+                intent: Intent?,
+            ) {
+            }
+        }
+    }
+    val equalizerActivity = rememberLauncherForActivityResult(equalizerContract) {}
+    val sleepTimer by context.symphony.radio.sleepTimer.collectAsStateWithLifecycle()
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showPitchDialog by remember { mutableStateOf(false) }
@@ -135,7 +162,7 @@ fun NowPlayingBodyBottomBar(
             }
             IconButton(
                 onClick = {
-                    context.symphony.radio.queue.toggleLoopMode()
+                    context.symphony.radio.toggleLoopMode()
                 }
             ) {
                 Icon(

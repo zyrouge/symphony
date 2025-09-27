@@ -10,7 +10,6 @@ import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository
 import io.github.zyrouge.symphony.services.groove.repositories.MediaTreeRepository
 import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
-import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.components.ResponsiveGridColumns
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import io.github.zyrouge.symphony.ui.view.HomePage
@@ -247,16 +246,6 @@ class Settings(private val symphony: Symphony) {
         ResponsiveGridColumns.DEFAULT_VERTICAL_COLUMNS,
     )
     val lastDisabledTreePaths = StringSetEntry("last_disabled_tree_paths", emptySet())
-    val previousSongQueue = object : Entry<RadioQueue.Serialized?>("previous_song_queue") {
-        override fun getValueInternal() = getSharedPreferences().getString(key, null)?.let {
-            RadioQueue.Serialized.parse(it)
-        }
-
-        override fun setValueInternal(value: RadioQueue.Serialized?) =
-            getSharedPreferences().edit {
-                putString(key, value?.serialize())
-            }
-    }
     val lastHomeTab = EnumEntry("home_last_page", enumEntries<HomePage>(), HomePage.Songs)
     val songsFilterPattern = NullableStringEntry("songs_filter_pattern")
     val minSongDuration = IntEntry("min_song_duration", 0)

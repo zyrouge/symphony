@@ -8,6 +8,12 @@ import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongQueue
 import io.github.zyrouge.symphony.services.groove.entities.SongQueueSongMapping
 import io.github.zyrouge.symphony.utils.lazy_linked_list.LazyLinkedListOperator
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
 
 class RadioQueue(private val symphony: Symphony) {
     private class SongQueueSongMappingOperatorEntityFunctions :
@@ -64,30 +70,8 @@ class RadioQueue(private val symphony: Symphony) {
     private interface SongQueueSongMappingOperatorDataChangeFunctions :
         LazyLinkedListOperator.DataChangeFunctions<String, SongQueueSongMapping>
 
-//    val queueFlow = symphony.database.songQueue.findFirstAsFlow()
-//    val songQueue = AtomicReference<SongQueue.AlongAttributes?>(null)
-
-//    @OptIn(ExperimentalCoroutinesApi::class)
-//    val queueSongsFlow = queueFlow.transformLatest {
-//        if (it == null) {
-//            emit(emptyList())
-//            return@transformLatest
-//        }
-//        emitAll(symphony.database.songQueueSongMapping.valuesAsFlow(it.entity.id))
-//    }
-//    val queueSongs = AtomicReference<List<Song>>(emptyList())
-
     init {
-//        symphony.groove.coroutineScope.launch {
-//            queueFlow.collect {
-//                queue.set(it)
-//            }
-//        }
-//        symphony.groove.coroutineScope.launch {
-//            queueSongsFlow.collect {
-//                queueSongs.set(it)
-//            }
-//        }
+        observeSongQueueChanges()
     }
 
     sealed class AddPosition {
@@ -298,7 +282,7 @@ class RadioQueue(private val symphony: Symphony) {
         return true
     }
 
-    fun getCurrentSongQueue() =
+    internal fun getCurrentSongQueue() =
         symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
 
     private suspend fun createOrGetCurrentSongQueue(): SongQueue {
@@ -336,6 +320,51 @@ class RadioQueue(private val symphony: Symphony) {
         ),
         dataChangeFunctions,
     )
+
+    private fun observeSongQueueChanges() {
+        symphony.groove.coroutineScope.launch {
+            observeSongQueueChangesNeedsSuspend()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun observeSongQueueChangesNeedsSuspend() {
+        val songQueueFlow =
+            symphony.database.songQueue.findByInternalIdAsFlow(SONG_QUEUE_INTERNAL_ID_DEFAULT)
+                .distinctUntilChanged()
+        val currentSongFlow = songQueueFlow
+            .distinctUntilChangedBy { it?.entity?.playingId }
+            .flatMapLatest {
+                val queueId = it?.entity?.id
+                val playingId = it?.entity?.playingId
+                // ugly code since keeps throwing elvis incorrect warning
+                if (queueId != null && playingId != null) {
+                    symphony.database.songQueueSongMapping.findByIdAsFlow(queueId, playingId)
+                } else {
+                    emptyFlow()
+                }
+            }
+        val nextSongFlow = currentSongFlow
+            .distinctUntilChangedBy { it?.mapping?.nextId }
+            .flatMapLatest {
+                val queueId = it?.mapping?.queueId
+                val nextSongMappingId = it?.mapping?.nextId
+                if (queueId != null && nextSongMappingId != null) {
+                    symphony.database.songQueueSongMapping.findByIdAsFlow(
+                        queueId,
+                        nextSongMappingId
+                    )
+                } else {
+                    emptyFlow()
+                }
+            }
+        currentSongFlow.collect {
+            symphony.radio.onQueueCurrentPlayingSongChanged(it)
+        }
+        nextSongFlow.collect {
+            symphony.radio.onQueueNextPlayingSongChanged(it)
+        }
+    }
 
     companion object {
         const val SONG_QUEUE_INTERNAL_ID_DEFAULT = 1

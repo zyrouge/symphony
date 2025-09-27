@@ -53,6 +53,19 @@ abstract class SongQueueSongMappingStore {
         return findById(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery(observedEntities = [SongQueueSongMapping::class, Song::class])
+    protected abstract fun findByIdAsFlow(query: SupportSQLiteQuery): Flow<Song.AlongSongQueueMapping?>
+
+    fun findByIdAsFlow(queueId: String, id: String): Flow<Song.AlongSongQueueMapping?> {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${SongQueueSongMapping.TABLE}.* " +
+                "FROM ${SongQueueSongMapping.TABLE} " +
+                "WHERE ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ? AND ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_ID} = ? " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID} "
+        val args = arrayOf(queueId, id)
+        return findByIdAsFlow(SimpleSQLiteQuery(query, args))
+    }
+
     @RawQuery
     protected abstract fun findByNextId(query: SupportSQLiteQuery): Song.AlongSongQueueMapping?
 
@@ -92,6 +105,7 @@ abstract class SongQueueSongMappingStore {
         return findHead(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
     protected abstract fun entries(query: SupportSQLiteQuery): Map<
             @MapColumn(SongQueueSongMapping.COLUMN_ID) String, Song.AlongSongQueueMapping>
 
@@ -107,6 +121,7 @@ abstract class SongQueueSongMappingStore {
         return entries(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
     protected abstract fun entriesByIds(query: SupportSQLiteQuery): Map<
             @MapColumn(SongQueueSongMapping.COLUMN_ID) String, Song.AlongSongQueueMapping>
 
@@ -124,6 +139,7 @@ abstract class SongQueueSongMappingStore {
         return entriesByIds(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
     protected abstract fun entriesByNextIds(query: SupportSQLiteQuery): Map<
             @MapColumn(SongQueueSongMapping.COLUMN_NEXT_ID) String, Song.AlongSongQueueMapping>
 
@@ -141,6 +157,7 @@ abstract class SongQueueSongMappingStore {
         return entriesByNextIds(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
     protected abstract fun entriesBySongIds(query: SupportSQLiteQuery): Map<
             @MapColumn(SongQueueSongMapping.COLUMN_NEXT_ID) String, Song.AlongSongQueueMapping>
 

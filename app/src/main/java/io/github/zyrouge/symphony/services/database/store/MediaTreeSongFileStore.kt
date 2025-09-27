@@ -12,7 +12,7 @@ import io.github.zyrouge.symphony.utils.builtin.sqlqph
 @Dao
 abstract class MediaTreeSongFileStore {
     @Insert
-    abstract suspend fun insert(vararg entities: MediaTreeSongFile): List<String>
+    abstract suspend fun insert(vararg entities: MediaTreeSongFile)
 
     @Update
     abstract suspend fun update(vararg entities: MediaTreeSongFile): Int

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class ArtistStore {
     @Insert
-    abstract suspend fun insert(vararg entities: Artist): List<String>
+    abstract suspend fun insert(vararg entities: Artist)
 
     @Update
     abstract suspend fun update(vararg entities: Artist): Int
@@ -45,6 +45,7 @@ abstract class ArtistStore {
     fun valuesAsFlow(
         sortBy: ArtistRepository.SortBy,
         sortReverse: Boolean,
+        songId: String? = null,
         albumId: String? = null,
         onlyAlbumArtists: Boolean = false,
     ): Flow<List<Artist.AlongAttributes>> {
@@ -55,21 +56,23 @@ abstract class ArtistStore {
             ArtistRepository.SortBy.ALBUMS_COUNT -> Artist.AlongAttributes.EMBEDDED_ALBUMS_COUNT
         }
         val orderDirection = if (sortReverse) "DESC" else "ASC"
+        val songMappingJoin = "" +
+                (if (songId != null) "${ArtistSongMapping.TABLE}.${ArtistSongMapping.COLUMN_SONG_ID} = ? AND " else "") +
+                "${ArtistSongMapping.TABLE}.${ArtistSongMapping.TABLE}.${ArtistSongMapping.COLUMN_ARTIST_ID} = ${Artist.TABLE}.${Artist.COLUMN_ID}"
         val albumArtistMappingJoin = "" +
-                (if (albumId != null) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ? " else "") +
-                (if (onlyAlbumArtists) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_IS_ALBUM_ARTIST} = 1 " else "") +
+                (if (albumId != null) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ? AND " else "") +
+                (if (onlyAlbumArtists) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_IS_ALBUM_ARTIST} = 1 AND " else "") +
                 "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID} = ${Artist.TABLE}.${Artist.COLUMN_ID}"
         val query = "SELECT ${Artist.TABLE}.*, " +
                 "COUNT(${ArtistSongMapping.TABLE}.${ArtistSongMapping.COLUMN_SONG_ID}) as ${Artist.AlongAttributes.EMBEDDED_TRACKS_COUNT}, " +
                 "COUNT(${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID}) as ${Artist.AlongAttributes.EMBEDDED_ALBUMS_COUNT} " +
                 "FROM ${Artist.TABLE} " +
-                "LEFT JOIN ${ArtistSongMapping.TABLE} ON ${ArtistSongMapping.TABLE}.${ArtistSongMapping.TABLE}.${ArtistSongMapping.COLUMN_ARTIST_ID} = ${Artist.TABLE}.${Artist.COLUMN_ID} " +
+                "LEFT JOIN ${ArtistSongMapping.TABLE} ON $songMappingJoin " +
                 "LEFT JOIN ${AlbumArtistMapping.TABLE} ON $albumArtistMappingJoin " +
                 "ORDER BY $orderBy $orderDirection"
         val args = mutableListOf<Any>()
-        if (albumId != null) {
-            args.add(albumId)
-        }
+        songId?.let { args.add(it) }
+        albumId?.let { args.add(it) }
         return valuesAsFlow(SimpleSQLiteQuery(query, args.toTypedArray()))
     }
 

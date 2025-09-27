@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.database.store.AlbumArtistMappingStore
+import io.github.zyrouge.symphony.services.database.store.AlbumComposerMappingStore
 import io.github.zyrouge.symphony.services.database.store.AlbumSongMappingStore
 import io.github.zyrouge.symphony.services.database.store.AlbumStore
 import io.github.zyrouge.symphony.services.database.store.ArtistSongMappingStore
@@ -74,7 +75,7 @@ import io.github.zyrouge.symphony.utils.RoomConvertors
 @TypeConverters(RoomConvertors::class)
 abstract class PersistentDatabase : RoomDatabase() {
     abstract fun albumArtistMapping(): AlbumArtistMappingStore
-    abstract fun albumComposerMapping(): AlbumComposerMapping
+    abstract fun albumComposerMapping(): AlbumComposerMappingStore
     abstract fun albumSongMapping(): AlbumSongMappingStore
     abstract fun albums(): AlbumStore
     abstract fun artistSongMapping(): ArtistSongMappingStore

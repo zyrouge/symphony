@@ -18,7 +18,7 @@ import androidx.room.Index
             onDelete = ForeignKey.CASCADE,
         ),
         ForeignKey(
-            entity = Artist::class,
+            entity = Composer::class,
             parentColumns = arrayOf(Composer.COLUMN_ID),
             childColumns = arrayOf(AlbumComposerMapping.COLUMN_COMPOSER_ID),
             onDelete = ForeignKey.CASCADE,

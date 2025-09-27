@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.zyrouge.symphony.services.groove.MediaExposer
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.components.LoaderScaffold
@@ -84,7 +85,7 @@ fun HomePlaylistsView(context: ViewContext) {
                         showPlaylistCreator = true
                     },
                     showPlaylistPicker = {
-                        openPlaylistLauncher.launch(arrayOf(Playlist.MIMETYPE_M3U))
+                        openPlaylistLauncher.launch(arrayOf(MediaExposer.MIMETYPE_M3U))
                     },
                 )
                 Spacer(modifier = Modifier.height(4.dp))

@@ -2,56 +2,8 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4818829a3e04d8013dca6a8e3a0317fd",
+    "identityHash": "5b83f644787184073d02f74ae9db9488",
     "entities": [
-      {
-        "tableName": "albums",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `start_year` INTEGER, `end_year` INTEGER, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startYear",
-            "columnName": "start_year",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "endYear",
-            "columnName": "end_year",
-            "affinity": "INTEGER",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_albums_name",
-            "unique": false,
-            "columnNames": [
-              "name"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_albums_name` ON `${TABLE_NAME}` (`name`)"
-          }
-        ],
-        "foreignKeys": []
-      },
       {
         "tableName": "album_artists_mapping",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`album_id` TEXT NOT NULL, `artist_id` TEXT NOT NULL, `is_album_artist` INTEGER NOT NULL, PRIMARY KEY(`album_id`, `artist_id`), FOREIGN KEY(`artist_id`) REFERENCES `albums`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`artist_id`) REFERENCES `artists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
@@ -137,6 +89,75 @@
         ]
       },
       {
+        "tableName": "album_composer_mapping",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`album_id` TEXT NOT NULL, `composer_id` TEXT NOT NULL, PRIMARY KEY(`album_id`, `composer_id`), FOREIGN KEY(`album_id`) REFERENCES `albums`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`composer_id`) REFERENCES `composers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "albumId",
+            "columnName": "album_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "composerId",
+            "columnName": "composer_id",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "album_id",
+            "composer_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_album_composer_mapping_album_id",
+            "unique": false,
+            "columnNames": [
+              "album_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_album_composer_mapping_album_id` ON `${TABLE_NAME}` (`album_id`)"
+          },
+          {
+            "name": "index_album_composer_mapping_composer_id",
+            "unique": false,
+            "columnNames": [
+              "composer_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_album_composer_mapping_composer_id` ON `${TABLE_NAME}` (`composer_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "albums",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "album_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "composers",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "composer_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "album_songs_mapping",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`album_id` TEXT NOT NULL, `song_id` TEXT NOT NULL, PRIMARY KEY(`album_id`, `song_id`), FOREIGN KEY(`album_id`) REFERENCES `albums`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -206,8 +227,8 @@
         ]
       },
       {
-        "tableName": "artists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "tableName": "albums",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `start_year` INTEGER, `end_year` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -220,6 +241,18 @@
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "startYear",
+            "columnName": "start_year",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endYear",
+            "columnName": "end_year",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -230,20 +263,20 @@
         },
         "indices": [
           {
-            "name": "index_artists_name",
+            "name": "index_albums_name",
             "unique": false,
             "columnNames": [
               "name"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_artists_name` ON `${TABLE_NAME}` (`name`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_albums_name` ON `${TABLE_NAME}` (`name`)"
           }
         ],
         "foreignKeys": []
       },
       {
         "tableName": "artist_songs_mapping",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`artist_id` TEXT NOT NULL, `song_id` TEXT NOT NULL, PRIMARY KEY(`artist_id`, `song_id`), FOREIGN KEY(`artist_id`) REFERENCES `album_artists_mapping`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`artist_id` TEXT NOT NULL, `song_id` TEXT NOT NULL, PRIMARY KEY(`artist_id`, `song_id`), FOREIGN KEY(`artist_id`) REFERENCES `artists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "artistId",
@@ -287,7 +320,7 @@
         ],
         "foreignKeys": [
           {
-            "table": "album_artists_mapping",
+            "table": "artists",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -311,40 +344,202 @@
         ]
       },
       {
-        "tableName": "artwork_indices",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_id` TEXT NOT NULL, `file` TEXT, PRIMARY KEY(`song_id`), FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "tableName": "artists",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
-            "fieldPath": "songId",
-            "columnName": "song_id",
+            "fieldPath": "id",
+            "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "file",
-            "columnName": "file",
+            "fieldPath": "name",
+            "columnName": "name",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_artists_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_artists_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "composer_songs_mapping",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`composer_id` TEXT NOT NULL, `song_id` TEXT NOT NULL, PRIMARY KEY(`composer_id`, `song_id`), FOREIGN KEY(`composer_id`) REFERENCES `composers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "composerId",
+            "columnName": "composer_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "songId",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "composer_id",
             "song_id"
           ]
         },
         "indices": [
           {
-            "name": "index_artwork_indices_file",
+            "name": "index_composer_songs_mapping_composer_id",
             "unique": false,
             "columnNames": [
-              "file"
+              "composer_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_artwork_indices_file` ON `${TABLE_NAME}` (`file`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_composer_songs_mapping_composer_id` ON `${TABLE_NAME}` (`composer_id`)"
+          },
+          {
+            "name": "index_composer_songs_mapping_song_id",
+            "unique": false,
+            "columnNames": [
+              "song_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_composer_songs_mapping_song_id` ON `${TABLE_NAME}` (`song_id`)"
           }
         ],
         "foreignKeys": [
+          {
+            "table": "composers",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "composer_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "songs",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "song_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "composers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_composers_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_composers_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "genre_songs_mapping",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`genre_id` TEXT NOT NULL, `song_id` TEXT NOT NULL, PRIMARY KEY(`genre_id`, `song_id`), FOREIGN KEY(`genre_id`) REFERENCES `genres`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "genreId",
+            "columnName": "genre_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "songId",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "genre_id",
+            "song_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_genre_songs_mapping_genre_id",
+            "unique": false,
+            "columnNames": [
+              "genre_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_genre_songs_mapping_genre_id` ON `${TABLE_NAME}` (`genre_id`)"
+          },
+          {
+            "name": "index_genre_songs_mapping_song_id",
+            "unique": false,
+            "columnNames": [
+              "song_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_genre_songs_mapping_song_id` ON `${TABLE_NAME}` (`song_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "genres",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "genre_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
           {
             "table": "songs",
             "onDelete": "CASCADE",
@@ -393,75 +588,6 @@
           }
         ],
         "foreignKeys": []
-      },
-      {
-        "tableName": "genre_songs_mapping",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`genre_id` TEXT NOT NULL, `song_id` TEXT NOT NULL, PRIMARY KEY(`genre_id`, `song_id`), FOREIGN KEY(`genre_id`) REFERENCES `album_artists_mapping`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "genreId",
-            "columnName": "genre_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "songId",
-            "columnName": "song_id",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "genre_id",
-            "song_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_genre_songs_mapping_genre_id",
-            "unique": false,
-            "columnNames": [
-              "genre_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_genre_songs_mapping_genre_id` ON `${TABLE_NAME}` (`genre_id`)"
-          },
-          {
-            "name": "index_genre_songs_mapping_song_id",
-            "unique": false,
-            "columnNames": [
-              "song_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_genre_songs_mapping_song_id` ON `${TABLE_NAME}` (`song_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "album_artists_mapping",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "genre_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "songs",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "song_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
       },
       {
         "tableName": "media_tree_folders",
@@ -829,60 +955,12 @@
         ]
       },
       {
-        "tableName": "playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `title` TEXT, `path` TEXT, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "title",
-            "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "uri",
-            "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "path",
-            "columnName": "path",
-            "affinity": "TEXT",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_playlists_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_title` ON `${TABLE_NAME}` (`title`)"
-          }
-        ],
-        "foreignKeys": []
-      },
-      {
         "tableName": "playlist_songs_mapping",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `playlist_id` TEXT NOT NULL, `song_id` TEXT, `song_path` TEXT, `is_head` INTEGER NOT NULL, `next_id` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`song_path`) REFERENCES `songs`(`path`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`next_id`) REFERENCES `playlist_songs_mapping`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mapping_id` TEXT NOT NULL, `playlist_id` TEXT NOT NULL, `song_id` TEXT, `song_path` TEXT, `is_head` INTEGER NOT NULL, `next_id` TEXT, PRIMARY KEY(`mapping_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`song_path`) REFERENCES `songs`(`path`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`next_id`) REFERENCES `playlist_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "mapping_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -905,7 +983,7 @@
             "notNull": false
           },
           {
-            "fieldPath": "isStart",
+            "fieldPath": "isHead",
             "columnName": "is_head",
             "affinity": "INTEGER",
             "notNull": true
@@ -920,7 +998,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "mapping_id"
           ]
         },
         "indices": [
@@ -932,6 +1010,24 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_songs_mapping_playlist_id` ON `${TABLE_NAME}` (`playlist_id`)"
+          },
+          {
+            "name": "index_playlist_songs_mapping_song_id",
+            "unique": false,
+            "columnNames": [
+              "song_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_songs_mapping_song_id` ON `${TABLE_NAME}` (`song_id`)"
+          },
+          {
+            "name": "index_playlist_songs_mapping_song_path",
+            "unique": false,
+            "columnNames": [
+              "song_path"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_songs_mapping_song_path` ON `${TABLE_NAME}` (`song_path`)"
           },
           {
             "name": "index_playlist_songs_mapping_is_head",
@@ -994,14 +1090,427 @@
               "next_id"
             ],
             "referencedColumns": [
+              "mapping_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "playlists",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `internal_id` INTEGER, `title` TEXT NOT NULL, `uri` TEXT, `path` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "internalId",
+            "columnName": "internal_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_playlists_internal_id",
+            "unique": true,
+            "columnNames": [
+              "internal_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_playlists_internal_id` ON `${TABLE_NAME}` (`internal_id`)"
+          },
+          {
+            "name": "index_playlists_title",
+            "unique": false,
+            "columnNames": [
+              "title"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_title` ON `${TABLE_NAME}` (`title`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "song_artwork",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_id` TEXT NOT NULL, `file` TEXT, PRIMARY KEY(`song_id`), FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "songId",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "file",
+            "columnName": "file",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "song_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_song_artwork_song_id",
+            "unique": false,
+            "columnNames": [
+              "song_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_artwork_song_id` ON `${TABLE_NAME}` (`song_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "songs",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "song_id"
+            ],
+            "referencedColumns": [
               "id"
             ]
           }
         ]
       },
       {
+        "tableName": "song_lyrics",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_file_id` TEXT NOT NULL, `lyrics` TEXT NOT NULL, PRIMARY KEY(`song_file_id`), FOREIGN KEY(`song_file_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "songFileId",
+            "columnName": "song_file_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lyrics",
+            "columnName": "lyrics",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "song_file_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "songs",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "song_file_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "song_queue_songs_mapping",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mapping_id` TEXT NOT NULL, `queue_id` TEXT NOT NULL, `song_id` TEXT, `is_head` INTEGER NOT NULL, `next_id` TEXT, PRIMARY KEY(`mapping_id`), FOREIGN KEY(`queue_id`) REFERENCES `song_queue`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`next_id`) REFERENCES `song_queue_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "mapping_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "queueId",
+            "columnName": "queue_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "songId",
+            "columnName": "song_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isHead",
+            "columnName": "is_head",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nextId",
+            "columnName": "next_id",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "mapping_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_song_queue_songs_mapping_queue_id",
+            "unique": false,
+            "columnNames": [
+              "queue_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_queue_songs_mapping_queue_id` ON `${TABLE_NAME}` (`queue_id`)"
+          },
+          {
+            "name": "index_song_queue_songs_mapping_song_id",
+            "unique": false,
+            "columnNames": [
+              "song_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_queue_songs_mapping_song_id` ON `${TABLE_NAME}` (`song_id`)"
+          },
+          {
+            "name": "index_song_queue_songs_mapping_is_head",
+            "unique": false,
+            "columnNames": [
+              "is_head"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_queue_songs_mapping_is_head` ON `${TABLE_NAME}` (`is_head`)"
+          },
+          {
+            "name": "index_song_queue_songs_mapping_next_id",
+            "unique": false,
+            "columnNames": [
+              "next_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_queue_songs_mapping_next_id` ON `${TABLE_NAME}` (`next_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "song_queue",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "queue_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "songs",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "song_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "song_queue_songs_mapping",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "next_id"
+            ],
+            "referencedColumns": [
+              "mapping_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "song_queue",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `original_id` TEXT, `internal_id` INTEGER, `playing_id` TEXT, `is_playing` INTEGER NOT NULL, `playing_timestamp` INTEGER NOT NULL, `playing_speed_int` INTEGER NOT NULL, `playing_pitch_int` INTEGER NOT NULL, `shuffled` INTEGER NOT NULL, `loop_mode` TEXT NOT NULL, `speed_int` INTEGER NOT NULL, `pitch_int` INTEGER NOT NULL, `pause_on_song_end` INTEGER NOT NULL, `sleep_timer_ends_at` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`original_id`) REFERENCES `song_queue`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`playing_id`) REFERENCES `song_queue_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalId",
+            "columnName": "original_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "internalId",
+            "columnName": "internal_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playingId",
+            "columnName": "playing_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isPlaying",
+            "columnName": "is_playing",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playingTimestamp",
+            "columnName": "playing_timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playingSpeedInt",
+            "columnName": "playing_speed_int",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playingPitchInt",
+            "columnName": "playing_pitch_int",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shuffled",
+            "columnName": "shuffled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "loopMode",
+            "columnName": "loop_mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "speedInt",
+            "columnName": "speed_int",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pitchInt",
+            "columnName": "pitch_int",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pauseOnSongEnd",
+            "columnName": "pause_on_song_end",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sleepTimerEndsAt",
+            "columnName": "sleep_timer_ends_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_song_queue_original_id",
+            "unique": false,
+            "columnNames": [
+              "original_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_queue_original_id` ON `${TABLE_NAME}` (`original_id`)"
+          },
+          {
+            "name": "index_song_queue_internal_id",
+            "unique": true,
+            "columnNames": [
+              "internal_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_song_queue_internal_id` ON `${TABLE_NAME}` (`internal_id`)"
+          },
+          {
+            "name": "index_song_queue_playing_id",
+            "unique": false,
+            "columnNames": [
+              "playing_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_song_queue_playing_id` ON `${TABLE_NAME}` (`playing_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "song_queue",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "original_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "song_queue_songs_mapping",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "playing_id"
+            ],
+            "referencedColumns": [
+              "mapping_id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "songs",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `track_number` INTEGER, `track_total` INTEGER, `disc_number` INTEGER, `disc_total` INTEGER, `date` TEXT, `year` INTEGER, `duration` INTEGER NOT NULL, `bitrate` INTEGER, `sampling_rate` INTEGER, `channels` INTEGER, `encoder` TEXT, `date_modified` INTEGER NOT NULL, `size` INTEGER NOT NULL, `uri` TEXT NOT NULL, `path` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`id`) REFERENCES `media_tree_song_files`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `track_number` INTEGER, `track_total` INTEGER, `disc_number` INTEGER, `disc_total` INTEGER, `date` TEXT, `year` INTEGER, `duration` INTEGER NOT NULL, `bitrate` INTEGER, `sampling_rate` INTEGER, `channels` INTEGER, `encoder` TEXT, `date_modified` INTEGER NOT NULL, `size` INTEGER NOT NULL, `filename` TEXT NOT NULL, `uri` TEXT NOT NULL, `path` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`id`) REFERENCES `media_tree_song_files`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1094,6 +1603,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "filename",
+            "columnName": "filename",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "uri",
             "columnName": "uri",
             "affinity": "TEXT",
@@ -1145,50 +1660,12 @@
             ]
           }
         ]
-      },
-      {
-        "tableName": "song_lyrics",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_file_id` TEXT NOT NULL, `lyrics` TEXT NOT NULL, PRIMARY KEY(`song_file_id`), FOREIGN KEY(`song_file_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "songFileId",
-            "columnName": "song_file_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lyrics",
-            "columnName": "lyrics",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "song_file_id"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": [
-          {
-            "table": "songs",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "song_file_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4818829a3e04d8013dca6a8e3a0317fd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b83f644787184073d02f74ae9db9488')"
     ]
   }
 }

@@ -6,12 +6,13 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
-import io.github.zyrouge.symphony.services.groove.Song
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.GenreViewRoute
@@ -23,6 +24,17 @@ import kotlin.math.round
 
 @Composable
 fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: () -> Unit) {
+    val artists by context.symphony.groove.song.findArtistsOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
+    val albumArtists by context.symphony.groove.song.findAlbumArtistsOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
+    val composers by context.symphony.groove.song.findComposersOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
+    val albums by context.symphony.groove.song.findAlbumsOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
+    val genres by context.symphony.groove.song.findGenresOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
+
     InformationDialog(
         context,
         content = {
@@ -32,42 +44,47 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
             InformationKeyValue(context.symphony.t.TrackName) {
                 LongPressCopyableText(context, song.title)
             }
-            if (song.artists.isNotEmpty()) {
+            if (artists.isNotEmpty()) {
+                val artistNamesMap = artists.associate { it.entity.id to it.entity.name }
                 InformationKeyValue(context.symphony.t.Artist) {
-                    LongPressCopyableAndTappableText(context, song.artists) {
+                    LongPressCopyableAndTappableText(context, artistNamesMap) {
                         onDismissRequest()
                         context.navController.navigate(ArtistViewRoute(it))
                     }
                 }
             }
-            if (song.albumArtists.isNotEmpty()) {
+            if (albumArtists.isNotEmpty()) {
+                val albumArtistNamesMap = albumArtists.associate { it.entity.id to it.entity.name }
                 InformationKeyValue(context.symphony.t.AlbumArtist) {
-                    LongPressCopyableAndTappableText(context, song.albumArtists) {
+                    LongPressCopyableAndTappableText(context, albumArtistNamesMap) {
                         onDismissRequest()
-                        context.navController.navigate(AlbumArtistViewRoute(it))
+                        context.navController.navigate(ArtistViewRoute(it))
                     }
                 }
             }
-            if (song.composers.isNotEmpty()) {
+            if (composers.isNotEmpty()) {
+                val composerNamesMap = albumArtists.associate { it.entity.id to it.entity.name }
                 InformationKeyValue(context.symphony.t.Composer) {
                     // TODO composers page maybe?
-                    LongPressCopyableAndTappableText(context, song.composers) {
+                    LongPressCopyableAndTappableText(context, composerNamesMap) {
                         onDismissRequest()
-                        context.navController.navigate(ArtistViewRoute(it))
+//                        context.navController.navigate(ArtistViewRoute(it))
                     }
                 }
             }
-            context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
-                InformationKeyValue(context.symphony.t.Album) {
-                    LongPressCopyableAndTappableText(context, setOf(song.album!!)) {
+            if (albums.isNotEmpty()) {
+                val albumNamesMap = albums.associate { it.entity.id to it.entity.name }
+                InformationKeyValue(context.symphony.t.Composer) {
+                    LongPressCopyableAndTappableText(context, albumNamesMap) {
                         onDismissRequest()
-                        context.navController.navigate(AlbumViewRoute(albumId))
+                        context.navController.navigate(AlbumViewRoute(it))
                     }
                 }
             }
-            if (song.genres.isNotEmpty()) {
+            if (genres.isNotEmpty()) {
+                val genreNamesMap = albums.associate { it.entity.id to it.entity.name }
                 InformationKeyValue(context.symphony.t.Genre) {
-                    LongPressCopyableAndTappableText(context, song.genres) {
+                    LongPressCopyableAndTappableText(context, genreNamesMap) {
                         onDismissRequest()
                         context.navController.navigate(GenreViewRoute(it))
                     }
@@ -151,27 +168,25 @@ fun SongInformationDialog(context: ViewContext, song: Song, onDismissRequest: ()
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun LongPressCopyableAndTappableText(
+private fun <T> LongPressCopyableAndTappableText(
     context: ViewContext,
-    values: Set<String>,
-    onTap: (String) -> Unit,
+    values: Map<T, String>,
+    onTap: (T) -> Unit,
 ) {
-    val textStyle = LocalTextStyle.current.copy(
-        textDecoration = TextDecoration.Underline,
-    )
+    val textStyle = LocalTextStyle.current.copy(textDecoration = TextDecoration.Underline)
 
     FlowRow {
-        values.forEachIndexed { i, it ->
+        values.entries.forEachIndexed { i, x ->
             Text(
-                it,
+                x.value,
                 style = textStyle,
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = { _ ->
-                            ActivityHelper.copyToClipboardAndNotify(context.symphony, it)
+                            ActivityHelper.copyToClipboardAndNotify(context.symphony, x.value)
                         },
                         onTap = { _ ->
-                            onTap(it)
+                            onTap(x.key)
                         },
                     )
                 },

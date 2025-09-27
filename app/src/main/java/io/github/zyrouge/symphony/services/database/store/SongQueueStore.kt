@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class SongQueueStore {
     @Insert
-    abstract suspend fun insert(vararg entities: SongQueue): List<String>
+    abstract suspend fun insert(vararg entities: SongQueue)
 
     @Update
     abstract suspend fun update(vararg entities: SongQueue): Int
@@ -30,7 +30,10 @@ abstract class SongQueueStore {
     protected abstract fun findById(query: SimpleSQLiteQuery): SongQueue.AlongAttributes?
 
     fun findById(id: String): SongQueue.AlongAttributes? {
-        val query = "SELECT * FROM ${SongQueue.TABLE} WHERE ${SongQueue.COLUMN_ID} = ?"
+        val query = "SELECT * FROM ${SongQueue.TABLE} " +
+                "FROM ${SongQueue.TABLE} " +
+                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID} " +
+                "WHERE ${SongQueue.COLUMN_ID} = ?"
         val args = arrayOf(id)
         return findById(SimpleSQLiteQuery(query, args))
     }
@@ -42,7 +45,8 @@ abstract class SongQueueStore {
         val query = "SELECT ${SongQueue.TABLE}.*, " +
                 "COUNT(${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID}) as ${SongQueue.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
                 "FROM ${SongQueue.TABLE} " +
-                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID}"
+                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID} " +
+                "WHERE ${SongQueue.TABLE}.${SongQueue.COLUMN_INTERNAL_ID} = ?"
         val args = arrayOf(internalId)
         return findByInternalId(SimpleSQLiteQuery(query, args))
     }
@@ -50,11 +54,13 @@ abstract class SongQueueStore {
     @RawQuery(observedEntities = [SongQueue::class, SongQueueSongMapping::class])
     protected abstract fun findByInternalIdAsFlow(query: SupportSQLiteQuery): Flow<SongQueue.AlongAttributes?>
 
-    fun findByInternalIdAsFlow(): Flow<SongQueue.AlongAttributes?> {
+    fun findByInternalIdAsFlow(internalId: Int): Flow<SongQueue.AlongAttributes?> {
         val query = "SELECT ${SongQueue.TABLE}.*, " +
                 "COUNT(${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_SONG_ID}) as ${SongQueue.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
                 "FROM ${SongQueue.TABLE} " +
-                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID}"
-        return findByInternalIdAsFlow(SimpleSQLiteQuery(query))
+                "LEFT JOIN ${SongQueueSongMapping.TABLE} ON ${SongQueueSongMapping.TABLE}.${SongQueueSongMapping.COLUMN_QUEUE_ID} = ${SongQueue.TABLE}.${SongQueue.COLUMN_ID} " +
+                "WHERE ${SongQueue.TABLE}.${SongQueue.COLUMN_INTERNAL_ID} = ?"
+        val args = arrayOf(internalId)
+        return findByInternalIdAsFlow(SimpleSQLiteQuery(query, args))
     }
 }

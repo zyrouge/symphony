@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class GenreStore {
     @Insert
-    abstract suspend fun insert(vararg entities: Genre): List<String>
+    abstract suspend fun insert(vararg entities: Genre)
 
     @RawQuery(observedEntities = [Genre::class, GenreSongMapping::class])
     protected abstract fun findByIdAsFlow(query: SupportSQLiteQuery): Flow<Genre.AlongAttributes?>
@@ -38,6 +38,7 @@ abstract class GenreStore {
     fun valuesAsFlow(
         sortBy: GenreRepository.SortBy,
         sortReverse: Boolean,
+        songId: String? = null,
     ): Flow<List<Genre.AlongAttributes>> {
         val orderBy = when (sortBy) {
             GenreRepository.SortBy.CUSTOM -> "${Genre.TABLE}.${Genre.COLUMN_ID}"
@@ -45,13 +46,17 @@ abstract class GenreStore {
             GenreRepository.SortBy.TRACKS_COUNT -> Genre.AlongAttributes.EMBEDDED_TRACKS_COUNT
         }
         val orderDirection = if (sortReverse) "DESC" else "ASC"
+        val songMappingJoin = "" +
+                (if (songId != null) "${GenreSongMapping.TABLE}.${GenreSongMapping.COLUMN_SONG_ID} = ? AND " else "") +
+                "${GenreSongMapping.TABLE}.${GenreSongMapping.COLUMN_GENRE_ID} = ${Genre.TABLE}.${Genre.COLUMN_ID}"
         val query = "SELECT ${Genre.TABLE}.*, " +
                 "COUNT(${GenreSongMapping.TABLE}.${GenreSongMapping.COLUMN_SONG_ID}) as ${Genre.AlongAttributes.EMBEDDED_TRACKS_COUNT} " +
                 "FROM ${Genre.TABLE} " +
-                "LEFT JOIN ${GenreSongMapping.TABLE} ON ${GenreSongMapping.TABLE}.${GenreSongMapping.COLUMN_GENRE_ID} = ${Genre.TABLE}.${Genre.COLUMN_ID} " +
-                "LEFT JOIN ${GenreSongMapping.TABLE} ON ${GenreSongMapping.TABLE}.${GenreSongMapping.COLUMN_GENRE_ID} = ${Genre.TABLE}.${Genre.COLUMN_ID} " +
+                "LEFT JOIN ${GenreSongMapping.TABLE} ON $songMappingJoin " +
                 "ORDER BY $orderBy $orderDirection"
-        return valuesAsFlow(SimpleSQLiteQuery(query))
+        val args = mutableListOf<Any>()
+        songId?.let { args.add(it) }
+        return valuesAsFlow(SimpleSQLiteQuery(query, args.toTypedArray()))
     }
 
     @RawQuery

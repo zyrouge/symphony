@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class ComposerStore {
     @Insert
-    abstract suspend fun insert(vararg entities: Composer): List<String>
+    abstract suspend fun insert(vararg entities: Composer)
 
     @Update
     abstract suspend fun update(vararg entities: Composer): Int
@@ -28,6 +28,7 @@ abstract class ComposerStore {
     fun valuesAsFlow(
         sortBy: ComposerRepository.SortBy,
         sortReverse: Boolean,
+        songId: String? = null,
     ): Flow<List<Composer.AlongAttributes>> {
         val orderBy = when (sortBy) {
             ComposerRepository.SortBy.CUSTOM -> "${Composer.TABLE}.${Composer.COLUMN_ID}"
@@ -36,14 +37,19 @@ abstract class ComposerStore {
             ComposerRepository.SortBy.ALBUMS_COUNT -> Composer.AlongAttributes.EMBEDDED_ALBUMS_COUNT
         }
         val orderDirection = if (sortReverse) "DESC" else "ASC"
+        val songMappingJoin = "" +
+                (if (songId != null) " ${ComposerSongMapping.TABLE}.${ComposerSongMapping.COLUMN_SONG_ID} = ? AND " else "") +
+                "${ComposerSongMapping.TABLE}.${ComposerSongMapping.COLUMN_COMPOSER_ID} = ${Composer.TABLE}.${Composer.COLUMN_ID}"
         val query = "SELECT ${Composer.TABLE}.*, " +
                 "COUNT(${ComposerSongMapping.TABLE}.${ComposerSongMapping.COLUMN_SONG_ID}) as ${Composer.AlongAttributes.EMBEDDED_TRACKS_COUNT}, " +
                 "COUNT(${AlbumComposerMapping.TABLE}.${AlbumComposerMapping.COLUMN_ALBUM_ID}) as ${Composer.AlongAttributes.EMBEDDED_ALBUMS_COUNT} " +
                 "FROM ${Composer.TABLE} " +
-                "LEFT JOIN ${ComposerSongMapping.TABLE} ON ${ComposerSongMapping.TABLE}.${ComposerSongMapping.COLUMN_COMPOSER_ID} = ${Composer.TABLE}.${Composer.COLUMN_ID} " +
+                "LEFT JOIN ${ComposerSongMapping.TABLE} ON $songMappingJoin " +
                 "LEFT JOIN ${AlbumComposerMapping.TABLE} ON ${AlbumComposerMapping.TABLE}.${AlbumComposerMapping.COLUMN_COMPOSER_ID} = ${Composer.TABLE}.${Composer.COLUMN_ID}" +
                 "ORDER BY $orderBy $orderDirection"
-        return valuesAsFlow(SimpleSQLiteQuery(query))
+        val args = mutableListOf<Any>()
+        songId?.let { args.add(it) }
+        return valuesAsFlow(SimpleSQLiteQuery(query, args.toTypedArray()))
     }
 
     @RawQuery

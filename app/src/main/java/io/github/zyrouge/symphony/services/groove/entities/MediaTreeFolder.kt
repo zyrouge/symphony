@@ -44,7 +44,6 @@ data class MediaTreeFolder(
     data class AlongAttributes(
         @Embedded
         val folder: MediaTreeFolder,
-        @Embedded
         val tracksCount: Int,
     ) {
         companion object {

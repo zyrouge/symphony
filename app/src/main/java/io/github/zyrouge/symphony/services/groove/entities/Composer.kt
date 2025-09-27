@@ -22,9 +22,7 @@ data class Composer(
     data class AlongAttributes(
         @Embedded
         val entity: Composer,
-        @Embedded
         val tracksCount: Int,
-        @Embedded
         val albumsCount: Int,
     ) {
         companion object {

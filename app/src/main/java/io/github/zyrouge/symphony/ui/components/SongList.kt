@@ -64,7 +64,7 @@ fun SongList(
                     Text(context.symphony.t.XSongs(songs.size.toString()))
                 },
                 onShufflePlay = {
-                    context.symphony.radio.shorty.playQueue(songs, shuffle = true)
+                    context.symphony.radio.playQueue(songs, shuffle = true)
                 }
             )
         },

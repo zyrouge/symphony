@@ -26,9 +26,7 @@ data class Album(
     data class AlongAttributes(
         @Embedded
         val entity: Album,
-        @Embedded
         val tracksCount: Int,
-        @Embedded
         val artistsCount: Int,
     ) {
         companion object {

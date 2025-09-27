@@ -38,6 +38,8 @@ import androidx.room.PrimaryKey
     ],
     indices = [
         Index(PlaylistSongMapping.COLUMN_PLAYLIST_ID),
+        Index(PlaylistSongMapping.COLUMN_SONG_ID),
+        Index(PlaylistSongMapping.COLUMN_SONG_PATH),
         Index(PlaylistSongMapping.COLUMN_IS_HEAD),
         Index(PlaylistSongMapping.COLUMN_NEXT_ID),
     ],
@@ -59,7 +61,7 @@ data class PlaylistSongMapping(
 ) {
     companion object {
         const val TABLE = "playlist_songs_mapping"
-        const val COLUMN_ID = "id"
+        const val COLUMN_ID = "mapping_id"
         const val COLUMN_PLAYLIST_ID = "playlist_id"
         const val COLUMN_SONG_ID = "song_id"
         const val COLUMN_SONG_PATH = "song_path"

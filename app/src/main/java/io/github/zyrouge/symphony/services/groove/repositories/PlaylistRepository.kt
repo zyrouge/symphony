@@ -4,7 +4,7 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
@@ -15,16 +15,11 @@ class PlaylistRepository(private val symphony: Symphony) {
         TRACKS_COUNT,
     }
 
-    private val favoriteSongIdsFlow = symphony.database.playlistSongMapping
-        .findSongIdsByPlaylistInternalIdAsFlow(PLAYLIST_INTERNAL_ID_FAVORITES)
+    private lateinit var favoriteSongIdsFlow: Flow<List<String>>
     private var favoriteSongIds = emptyList<String>()
 
     init {
-        symphony.groove.coroutineScope.launch {
-            favoriteSongIdsFlow.collectLatest {
-                favoriteSongIds = it
-            }
-        }
+        observeFavoritesPlaylistChanges()
     }
 
     data class AddOptions(
@@ -84,6 +79,16 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     fun valuesAsFlow(sortBy: SortBy, sortReverse: Boolean) =
         symphony.database.playlists.valuesAsFlow(sortBy, sortReverse)
+
+    private fun observeFavoritesPlaylistChanges() {
+        favoriteSongIdsFlow = symphony.database.playlistSongMapping
+            .findSongIdsByPlaylistInternalIdAsFlow(PLAYLIST_INTERNAL_ID_FAVORITES)
+        symphony.groove.coroutineScope.launch {
+            favoriteSongIdsFlow.collect {
+                favoriteSongIds = it
+            }
+        }
+    }
 
     companion object {
         const val PLAYLIST_INTERNAL_ID_FAVORITES = 1

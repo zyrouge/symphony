@@ -12,7 +12,7 @@ import androidx.room.Index
     primaryKeys = [ArtistSongMapping.COLUMN_ARTIST_ID, ArtistSongMapping.COLUMN_SONG_ID],
     foreignKeys = [
         ForeignKey(
-            entity = AlbumArtistMapping::class,
+            entity = Artist::class,
             parentColumns = arrayOf(Artist.COLUMN_ID),
             childColumns = arrayOf(ArtistSongMapping.COLUMN_ARTIST_ID),
             onDelete = ForeignKey.CASCADE,

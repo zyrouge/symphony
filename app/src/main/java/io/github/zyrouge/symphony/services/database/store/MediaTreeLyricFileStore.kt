@@ -11,7 +11,7 @@ import io.github.zyrouge.symphony.services.groove.entities.MediaTreeLyricFile
 @Dao
 abstract class MediaTreeLyricFileStore {
     @Insert
-    abstract suspend fun insert(vararg entities: MediaTreeLyricFile): List<String>
+    abstract suspend fun insert(vararg entities: MediaTreeLyricFile)
 
     @Update
     abstract suspend fun update(vararg entities: MediaTreeLyricFile): Int

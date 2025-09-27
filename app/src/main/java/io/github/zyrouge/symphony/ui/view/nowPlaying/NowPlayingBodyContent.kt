@@ -36,7 +36,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,10 +61,8 @@ import io.github.zyrouge.symphony.utils.DurationHelper
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NowPlayingBodyContent(context: ViewContext, data: NowPlayingData) {
-    val favoriteSongIds by context.symphony.groove.playlist.favorites.collectAsStateWithLifecycle()
-    val isFavorite by remember(data) {
-        derivedStateOf { favoriteSongIds.contains(data.song.id) }
-    }
+    val isFavorite by context.symphony.groove.playlist.isFavoriteSongAsFlow(data.song.id)
+        .collectAsStateWithLifecycle(false)
 
     data.run {
         Column {

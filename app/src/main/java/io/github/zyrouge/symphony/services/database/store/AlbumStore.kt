@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class AlbumStore {
     @Insert
-    abstract suspend fun insert(vararg entities: Album): List<String>
+    abstract suspend fun insert(vararg entities: Album)
 
     @Update
     abstract suspend fun update(vararg entities: Album): Int
@@ -53,6 +53,7 @@ abstract class AlbumStore {
         sortBy: AlbumRepository.SortBy,
         sortReverse: Boolean,
         artistId: String? = null,
+        songId: String? = null,
     ): Flow<List<Album.AlongAttributes>> {
         val aliasFirstArtist = "firstArtist"
         val embeddedArtistName = "firstArtistName"
@@ -71,17 +72,22 @@ abstract class AlbumStore {
                 "WHERE ${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ${Album.COLUMN_ID} " +
                 "ORDER BY ${AlbumArtistMapping.COLUMN_IS_ALBUM_ARTIST} DESC"
         val albumArtistMappingJoin = "" +
-                (if (artistId != null) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID} = ? " else "") +
+                (if (artistId != null) "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID} = ? AND " else "") +
                 "${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID}"
+        val songMappingJoin = "" +
+                (if (songId != null) "${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_SONG_ID} = ? AND " else "") +
+                "${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID}"
         val query = "SELECT ${Album.TABLE}.*, " +
                 "COUNT(${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_SONG_ID}) as ${Album.AlongAttributes.EMBEDDED_TRACKS_COUNT}, " +
                 "COUNT(${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID}) as ${Album.AlongAttributes.EMBEDDED_ARTISTS_COUNT}, " +
                 "$aliasFirstArtist.${Artist.COLUMN_NAME} as $embeddedArtistName" +
                 "FROM ${Album.TABLE} " +
-                "LEFT JOIN ${AlbumSongMapping.TABLE} ON ${AlbumSongMapping.TABLE}.${AlbumSongMapping.COLUMN_ALBUM_ID} = ${Album.TABLE}.${Album.COLUMN_ID} " +
+                "LEFT JOIN ${AlbumSongMapping.TABLE} ON $songMappingJoin " +
                 "LEFT JOIN ${AlbumArtistMapping.TABLE} ON $albumArtistMappingJoin " +
                 "LEFT JOIN ${Artist.TABLE} $aliasFirstArtist ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($artistQuery) " +
                 "ORDER BY $orderBy $orderDirection"
-        return valuesAsFlow(SimpleSQLiteQuery(query))
+        val args = mutableListOf<Any>()
+        songId?.let { args.add(it) }
+        return valuesAsFlow(SimpleSQLiteQuery(query, args.toTypedArray()))
     }
 }

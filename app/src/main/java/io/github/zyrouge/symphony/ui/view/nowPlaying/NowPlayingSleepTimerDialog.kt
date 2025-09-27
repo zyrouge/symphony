@@ -108,7 +108,7 @@ fun NowPlayingSleepTimerDialog(
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 onClick = {
-                    context.symphony.radio.clearSleepTimer()
+                    context.symphony.radio.cancelSleepTimer()
                     onDismissRequest()
                 }
             ) {
@@ -244,10 +244,9 @@ fun NowPlayingSleepTimerSetDialog(
             TextButton(
                 enabled = isValidDuration,
                 onClick = {
-                    context.symphony.radio.setSleepTimer(
-                        duration = inputDuration,
-                        quitOnEnd = quitOnEnd,
-                    )
+                    val endsAt = System.currentTimeMillis() + inputDuration
+                    val sleepTimer = Radio.SleepTimer(endsAt = endsAt, quitOnEnd = quitOnEnd)
+                    context.symphony.radio.setSleepTimer(sleepTimer)
                     onDismissRequest()
                 }
             ) {

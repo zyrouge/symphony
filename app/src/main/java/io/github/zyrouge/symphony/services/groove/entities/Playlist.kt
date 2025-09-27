@@ -40,7 +40,6 @@ data class Playlist(
     data class AlongAttributes(
         @Embedded
         val entity: Playlist,
-        @Embedded
         val tracksCount: Int,
     ) {
         companion object {
@@ -55,7 +54,7 @@ data class Playlist(
         const val COLUMN_ID = "id"
         const val COLUMN_INTERNAL_ID = "internal_id"
         const val COLUMN_TITLE = "title"
-        const val COLUMN_URI = "title"
+        const val COLUMN_URI = "uri"
         const val COLUMN_PATH = "path"
 
         fun parse(symphony: Symphony, id: String, uri: Uri): Parsed {

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.components.Slider
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -58,8 +59,10 @@ fun NowPlayingSpeedDialog(
                         .padding(top = 16.dp),
                 ) {
                     allowedSpeeds.forEach { speed ->
-                        val onClick = {
-                            context.symphony.radio.setSpeed(speed, persistent)
+                        val onClick: () -> Unit = {
+                            context.symphony.groove.coroutineScope.launch {
+                                context.symphony.radio.setSpeed(speed, persistent)
+                            }
                         }
                         val shape = RoundedCornerShape(4.dp)
 
@@ -81,7 +84,9 @@ fun NowPlayingSpeedDialog(
                     value = currentSpeed,
                     onChange = { value ->
                         val speed = (value * 10).roundToInt().toFloat() / 10
-                        context.symphony.radio.setSpeed(speed, persistent)
+                        context.symphony.groove.coroutineScope.launch {
+                            context.symphony.radio.setSpeed(speed, persistent)
+                        }
                     },
                     range = allowedSpeedRange,
                     label = { value ->
@@ -99,7 +104,9 @@ fun NowPlayingSpeedDialog(
                         checked = persistent,
                         onCheckedChange = {
                             persistent = !persistent
-                            context.symphony.radio.setSpeed(currentSpeed, persistent)
+                            context.symphony.groove.coroutineScope.launch {
+                                context.symphony.radio.setSpeed(currentSpeed, persistent)
+                            }
                         }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -110,7 +117,9 @@ fun NowPlayingSpeedDialog(
         actions = {
             TextButton(
                 onClick = {
-                    context.symphony.radio.setSpeed(1f, persistent)
+                    context.symphony.groove.coroutineScope.launch {
+                        context.symphony.radio.setSpeed(1f, persistent)
+                    }
                     onDismissRequest()
                 }
             ) {

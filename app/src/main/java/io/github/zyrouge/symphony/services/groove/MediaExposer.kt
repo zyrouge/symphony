@@ -21,11 +21,11 @@ import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongArtworkIndex
 import io.github.zyrouge.symphony.services.groove.entities.SongLyric
 import io.github.zyrouge.symphony.utils.ActivityHelper
-import io.github.zyrouge.symphony.utils.ConcurrentSet
 import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
+import io.github.zyrouge.symphony.utils.builtin.ConcurrentSet
 import io.github.zyrouge.symphony.utils.builtin.concurrentSetOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -42,7 +42,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class MediaExposer(private val symphony: Symphony) {
-    private val _isUpdating = MutableStateFlow<Boolean>(false)
+    private val _isUpdating = MutableStateFlow(false)
     val isUpdating get() = _isUpdating.asStateFlow()
 
     suspend fun fetch() {
@@ -105,7 +105,7 @@ class MediaExposer(private val symphony: Symphony) {
                 }
             }
             symphony.database.playlists.update(*playlistsToBeUpdated.toTypedArray())
-            symphony.database.playlistSongMapping.deletePlaylistIds(playlistIdsToBeDeletedInMapping)
+            symphony.database.playlistSongMapping.deletePlaylistIds(*playlistIdsToBeDeletedInMapping.toTypedArray())
             symphony.database.playlistSongMapping.insert(*playlistSongMappingToBeInserted.toTypedArray())
         } catch (err: Exception) {
             Logger.error("MediaExposer", "playlist fetch failed", err)
@@ -432,7 +432,7 @@ class MediaExposer(private val symphony: Symphony) {
 
         suspend fun cleanup() {
             try {
-                symphony.database.mediaTreeSongFiles.delete(songFileStaleIds)
+                symphony.database.mediaTreeSongFiles.delete(*songFileStaleIds.toTypedArray())
             } catch (err: Exception) {
                 Logger.warn("MediaExposer", "trimming song files failed", err)
             }
@@ -517,5 +517,6 @@ class MediaExposer(private val symphony: Symphony) {
 
     companion object {
         const val MEDIA_TREE_ROOT_NAME = "root"
+        const val MIMETYPE_M3U = "audio/x-mpegurl"
     }
 }

@@ -77,7 +77,7 @@ class RadioPlayer(val symphony: Symphony) {
 
     private val interceptingMediaPlayer = InterceptedMediaPlayer(this, mediaPlayerUnsafe)
     private val mediaSessionCallback = MediaSessionCallback(this)
-    private val mediaSession = MediaSession
+    val mediaSession = MediaSession
         .Builder(symphony.applicationContext, interceptingMediaPlayer)
         .setCallback(mediaSessionCallback)
         .build()
@@ -115,12 +115,25 @@ class RadioPlayer(val symphony: Symphony) {
     }
 
     suspend fun setMedia(media: PlayableMedia) = withMediaPlayer {
-        it.setMediaItems(listOf(media.toMediaItem()))
+        val mediaItem = media.toMediaItem()
+        when (it.mediaItemCount) {
+            0 -> it.setMediaItems(listOf(mediaItem))
+            else -> it.replaceMediaItem(0, mediaItem)
+        }
     }
 
-    suspend fun setNextMedia(media: PlayableMedia) = withMediaPlayer {
-        it.replaceMediaItem(1, media.toMediaItem())
-        it.play()
+    suspend fun setNextMedia(media: PlayableMedia?) = withMediaPlayer {
+        if (media == null) {
+            it.removeMediaItem(1)
+            return@withMediaPlayer
+        }
+        val mediaItem = media.toMediaItem()
+        when (it.mediaItemCount) {
+            // this shouldn't happen
+            0 -> it.setMediaItems(listOf(mediaItem, mediaItem))
+            1 -> it.addMediaItem(mediaItem)
+            else -> it.replaceMediaItem(1, mediaItem)
+        }
     }
 
     suspend fun play() = withMediaPlayer {
@@ -202,6 +215,7 @@ class RadioPlayer(val symphony: Symphony) {
         const val MIN_VOLUME = 0f
         const val MAX_VOLUME = 1f
         const val DUCK_VOLUME = 0.2f
+        const val DEFAULT_SEEK = 0L
         const val DEFAULT_SPEED = 1f
         const val DEFAULT_PITCH = 1f
     }

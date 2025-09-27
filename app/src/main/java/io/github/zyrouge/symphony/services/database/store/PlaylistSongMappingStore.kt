@@ -43,7 +43,7 @@ abstract class PlaylistSongMappingStore {
         return findTop4SongArtworksAsFlowRaw(SimpleSQLiteQuery(query, args))
     }
 
-    @RawQuery
+    @RawQuery(observedEntities = [PlaylistSongMapping::class, Playlist::class])
     protected abstract fun findSongIdsByPlaylistInternalIdAsFlowRaw(query: SimpleSQLiteQuery): Flow<List<String>>
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -25,7 +25,11 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.SET_NULL,
         ),
     ],
-    indices = [Index(SongQueue.COLUMN_INTERNAL_ID, unique = true)],
+    indices = [
+        Index(SongQueue.COLUMN_ORIGINAL_ID),
+        Index(SongQueue.COLUMN_INTERNAL_ID, unique = true),
+        Index(SongQueue.COLUMN_PLAYING_ID),
+    ],
 )
 data class SongQueue(
     @PrimaryKey
@@ -71,7 +75,6 @@ data class SongQueue(
     data class AlongAttributes(
         @Embedded
         val entity: SongQueue,
-        @Embedded
         val tracksCount: Int,
     ) {
         companion object {

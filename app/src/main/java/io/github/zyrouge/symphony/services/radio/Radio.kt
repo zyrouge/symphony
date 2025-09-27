@@ -5,6 +5,8 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongQueue
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.Date
@@ -14,12 +16,15 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     data class SleepTimer(
         val endsAt: Long,
         val quitOnEnd: Boolean,
-        val timer: Timer,
-    )
+    ) {
+        data class Internal(val sleepTimer: SleepTimer, val timer: Timer)
+    }
 
     private val queue = RadioQueue(symphony)
     private val player = RadioPlayer(symphony)
-    private var sleepTimer: SleepTimer? = null
+    private var sleepTimerInterval: SleepTimer.Internal? = null
+    val sleepTimer = MutableStateFlow<SleepTimer?>(null)
+    val mediaSessionId get() = player.mediaSessionId
 
     suspend fun play(): Boolean {
         if (player.hasMedia()) {
@@ -49,7 +54,6 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     suspend fun play(songMappingId: String): Boolean {
-        player.stop()
         val songQueue = queue.getCurrentSongQueue() ?: return false
         val songQueueId = songQueue.entity.id
         val song = symphony.database.songQueueSongMapping.findById(songQueueId, songMappingId)
@@ -61,14 +65,21 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     private suspend fun play(
         songMappingId: String,
         songUri: Uri,
-        seek: Long = 0,
-        speed: Float = 1f,
-        pitch: Float = 1f,
+        seek: Long = RadioPlayer.DEFAULT_SEEK,
+        speed: Float = RadioPlayer.DEFAULT_SPEED,
+        pitch: Float = RadioPlayer.DEFAULT_PITCH,
     ) {
-        if (player.getMedia() == songUri) {
+        if (player.getMedia()?.uri == songUri) {
             player.play()
             return
         }
+        player.stop()
+        val nMedia = RadioPlayer.PlayableMedia(songMappingId, songUri)
+        player.setMedia(nMedia)
+        player.seek(seek)
+        player.setSpeed(speed)
+        player.setPitch(pitch)
+        player.play()
         queue.updateCurrentSongQueue {
             it.entity.copy(
                 playingId = songMappingId,
@@ -78,13 +89,6 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 playingPitchInt = (pitch * SongQueue.PITCH_MULTIPLIER).toInt(),
             )
         }
-        val media = RadioPlayer.PlayableMedia(songMappingId, songUri)
-        player.setMedia(media)
-        player.seek(seek)
-        player.setSpeed(speed)
-        player.setPitch(pitch)
-        player.play()
-        return
     }
 
     suspend fun pause(): Boolean {
@@ -129,16 +133,12 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         return true
     }
 
-    suspend fun setSleepTimer(endsAt: Long?): Boolean {
+    suspend fun setSleepTimer(sleepTimer: SleepTimer): Boolean {
         val success = queue.updateCurrentSongQueue {
             it.entity.copy(sleepTimerEndsAt = null)
         }
         if (!success) {
             return false
-        }
-        cancelSleepTimer()
-        if (endsAt == null) {
-            return true
         }
         val quitOnEnd = false
         val timerTask = kotlin.concurrent.timerTask {
@@ -152,15 +152,17 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             }
         }
         val timer = Timer()
-        timer.schedule(timerTask, Date.from(Instant.ofEpochMilli(endsAt)))
+        timer.schedule(timerTask, Date.from(Instant.ofEpochMilli(sleepTimer.endsAt)))
         cancelSleepTimer()
-        sleepTimer = SleepTimer(endsAt = endsAt, quitOnEnd = quitOnEnd, timer = timer)
+        sleepTimerInterval = SleepTimer.Internal(sleepTimer = sleepTimer, timer = timer)
+        this.sleepTimer.update { sleepTimerInterval?.sleepTimer }
         return true
     }
 
-    private fun cancelSleepTimer() {
-        sleepTimer?.timer?.cancel()
-        sleepTimer = null
+    fun cancelSleepTimer() {
+        sleepTimerInterval?.timer?.cancel()
+        sleepTimerInterval = null
+        sleepTimer.update { sleepTimerInterval?.sleepTimer }
     }
 
     suspend fun setPauseOnCurrentSongEnd(value: Boolean) = queue.updateCurrentSongQueue {
@@ -207,12 +209,41 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     suspend fun remove(songMappingId: String) = queue.remove(songMappingId)
 
-    internal fun onCurrentSongEnded() {
-
+    internal fun onQueueCurrentPlayingSongChanged(song: Song.AlongSongQueueMapping?) {
+        symphony.groove.coroutineScope.launch {
+            onQueueCurrentPlayingSongChangedNeedsSuspend(song)
+        }
     }
 
-    internal fun onNextSongChange() {
+    internal suspend fun onQueueCurrentPlayingSongChangedNeedsSuspend(song: Song.AlongSongQueueMapping?) {
+//        if (song == null) {
+//            player.stop()
+//            return
+//        }
+//        val media = player.getMedia()
+//        if (media?.uri == song.entity.uri) {
+//            return
+//        }
+//        play(song.mapping.id, song.entity.uri)
+    }
 
+    internal fun onQueueNextPlayingSongChanged(song: Song.AlongSongQueueMapping?) {
+        symphony.groove.coroutineScope.launch {
+            onQueueNextPlayingSongChangedNeedsSuspend(song)
+        }
+    }
+
+    internal suspend fun onQueueNextPlayingSongChangedNeedsSuspend(song: Song.AlongSongQueueMapping?) {
+        if (song == null) {
+            player.setNextMedia(null)
+            return
+        }
+        val nextMedia = player.getNextMedia()
+        if (nextMedia?.uri == song.entity.uri) {
+            return
+        }
+        val nNextMedia = RadioPlayer.PlayableMedia(song.mapping.id, song.entity.uri)
+        player.setNextMedia(nNextMedia)
     }
 
     internal enum class SongEndedReason {
@@ -227,15 +258,15 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     private suspend fun onPlayerSongEndedNeedsSuspend(source: SongEndedReason) {
-        val songQueue = queue.getCurrentSongQueue() ?: return
-        val queueId = songQueue.entity.id
-        val media = player.getMedia() ?: return
-        val song = symphony.database.songQueueSongMapping.findById(queueId, media.id) ?: return
-        val nextSongMappingId = song.mapping.nextId ?: return
-        val nextSong =
-            symphony.database.songQueueSongMapping.findById(queueId, nextSongMappingId) ?: return
-        val nextMedia = RadioPlayer.PlayableMedia(nextSongMappingId, nextSong.entity.uri)
-        player.setNextMedia(nextMedia)
+//        val songQueue = queue.getCurrentSongQueue() ?: return
+//        val queueId = songQueue.entity.id
+//        val media = player.getMedia() ?: return
+//        val song = symphony.database.songQueueSongMapping.findById(queueId, media.id) ?: return
+//        val nextSongMappingId = song.mapping.nextId ?: return
+//        val nextSong =
+//            symphony.database.songQueueSongMapping.findById(queueId, nextSongMappingId) ?: return
+//        val nextMedia = RadioPlayer.PlayableMedia(nextSongMappingId, nextSong.entity.uri)
+//        player.setNextMedia(nextMedia)
     }
 
     internal fun onPlayerIsPlayingChanged(isPlaying: Boolean) {

@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class MediaTreeFolderStore {
     @Insert
-    abstract suspend fun insert(vararg entities: MediaTreeFolder): List<String>
+    abstract suspend fun insert(vararg entities: MediaTreeFolder)
 
     @Update
     abstract suspend fun update(vararg entities: MediaTreeFolder): Int

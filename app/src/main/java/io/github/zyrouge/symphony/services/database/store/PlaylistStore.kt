@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class PlaylistStore {
     @Insert
-    abstract suspend fun insert(vararg entities: Playlist): List<String>
+    abstract suspend fun insert(vararg entities: Playlist)
 
     @Update
     abstract suspend fun update(vararg entities: Playlist): Int

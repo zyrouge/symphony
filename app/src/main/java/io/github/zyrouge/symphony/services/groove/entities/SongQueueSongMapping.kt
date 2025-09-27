@@ -32,6 +32,7 @@ import androidx.room.PrimaryKey
     ],
     indices = [
         Index(SongQueueSongMapping.COLUMN_QUEUE_ID),
+        Index(SongQueueSongMapping.COLUMN_SONG_ID),
         Index(SongQueueSongMapping.COLUMN_IS_HEAD),
         Index(SongQueueSongMapping.COLUMN_NEXT_ID),
     ],
@@ -51,7 +52,7 @@ data class SongQueueSongMapping(
 ) {
     companion object {
         const val TABLE = "song_queue_songs_mapping"
-        const val COLUMN_ID = "id"
+        const val COLUMN_ID = "mapping_id"
         const val COLUMN_QUEUE_ID = "queue_id"
         const val COLUMN_SONG_ID = "song_id"
         const val COLUMN_IS_HEAD = "is_head"

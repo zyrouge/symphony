@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class SongArtworkIndexStore {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun upsert(vararg entities: SongArtworkIndex): List<String>
+    abstract suspend fun upsert(vararg entities: SongArtworkIndex)
 
-    @RawQuery
+    @RawQuery(observedEntities = [SongArtworkIndex::class])
     protected abstract fun findBySongIdAsFlow(query: SimpleSQLiteQuery): Flow<SongArtworkIndex?>
 
     fun findBySongIdAsFlow(songId: String): Flow<SongArtworkIndex?> {
