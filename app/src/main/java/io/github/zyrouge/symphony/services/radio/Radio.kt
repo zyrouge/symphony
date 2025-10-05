@@ -212,7 +212,6 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
                 forceFade = forceFade,
             ) { _ ->
                 it.pause()
-                focus.abandonFocus()
                 onFinish()
                 onUpdate.dispatch(Events.Player.Paused)
             }
@@ -230,6 +229,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
         stopCurrentSong()
         queue.reset()
         clearSleepTimer()
+        focus.abandonFocus()
         persistedSpeed = RadioPlayer.DEFAULT_SPEED
         persistedPitch = RadioPlayer.DEFAULT_PITCH
         if (ended) onUpdate.dispatch(Events.Player.Ended)
