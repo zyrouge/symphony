@@ -329,8 +329,8 @@ fun ImagePreserver.Quality.label(context: ViewContext) = when (this) {
 }
 
 private fun refreshMediaLibrary(symphony: Symphony, clearCache: Boolean = false) {
-    symphony.radio.stop()
     symphony.groove.coroutineScope.launch {
+        symphony.radio.stop()
         val options = Groove.FetchOptions(
             resetInMemoryCache = true,
             resetPersistentCache = clearCache,

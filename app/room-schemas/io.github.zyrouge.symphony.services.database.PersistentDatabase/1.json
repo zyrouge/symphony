@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5b83f644787184073d02f74ae9db9488",
+    "identityHash": "e4c7854a47ab573f1abed106e30810e5",
     "entities": [
       {
         "tableName": "album_artists_mapping",
@@ -956,7 +956,7 @@
       },
       {
         "tableName": "playlist_songs_mapping",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mapping_id` TEXT NOT NULL, `playlist_id` TEXT NOT NULL, `song_id` TEXT, `song_path` TEXT, `is_head` INTEGER NOT NULL, `next_id` TEXT, PRIMARY KEY(`mapping_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`song_path`) REFERENCES `songs`(`path`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`next_id`) REFERENCES `playlist_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mapping_id` TEXT NOT NULL, `playlist_id` TEXT NOT NULL, `song_id` TEXT, `raw_song_path` TEXT, `is_head` INTEGER NOT NULL, `next_id` TEXT, PRIMARY KEY(`mapping_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`song_id`) REFERENCES `songs`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`next_id`) REFERENCES `playlist_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
             "fieldPath": "id",
@@ -977,8 +977,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "songPath",
-            "columnName": "song_path",
+            "fieldPath": "rawSongPath",
+            "columnName": "raw_song_path",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -1021,13 +1021,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_songs_mapping_song_id` ON `${TABLE_NAME}` (`song_id`)"
           },
           {
-            "name": "index_playlist_songs_mapping_song_path",
+            "name": "index_playlist_songs_mapping_raw_song_path",
             "unique": false,
             "columnNames": [
-              "song_path"
+              "raw_song_path"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_songs_mapping_song_path` ON `${TABLE_NAME}` (`song_path`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_songs_mapping_raw_song_path` ON `${TABLE_NAME}` (`raw_song_path`)"
           },
           {
             "name": "index_playlist_songs_mapping_is_head",
@@ -1069,17 +1069,6 @@
             ],
             "referencedColumns": [
               "id"
-            ]
-          },
-          {
-            "table": "songs",
-            "onDelete": "SET NULL",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "song_path"
-            ],
-            "referencedColumns": [
-              "path"
             ]
           },
           {
@@ -1665,7 +1654,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b83f644787184073d02f74ae9db9488')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e4c7854a47ab573f1abed106e30810e5')"
     ]
   }
 }

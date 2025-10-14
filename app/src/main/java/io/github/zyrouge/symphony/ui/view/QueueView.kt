@@ -188,7 +188,7 @@ fun QueueView(context: ViewContext) {
             initialSongIds = queue.toList(),
             onDone = { playlist ->
                 showSaveDialog = false
-                context.symphony.groove.playlist.add(playlist)
+                context.symphony.groove.playlist.addSongs(playlist)
             },
             onDismissRequest = {
                 showSaveDialog = false

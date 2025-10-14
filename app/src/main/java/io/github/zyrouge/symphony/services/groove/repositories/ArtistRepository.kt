@@ -20,6 +20,14 @@ class ArtistRepository(private val symphony: Symphony) {
         artistId = id,
     )
 
+    fun findSongsById(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
+        symphony.database.artistSongMapping.valuesMapped(
+            symphony.database.songs,
+            id,
+            sortBy,
+            sortReverse
+        )
+
     fun findSongsByIdAsFlow(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
         symphony.database.artistSongMapping.valuesMappedAsFlow(
             symphony.database.songs,

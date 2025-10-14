@@ -54,13 +54,16 @@ fun HomePlaylistsView(context: ViewContext) {
         uris.forEach { x ->
             try {
                 ActivityHelper.makePersistableReadableUri(context.symphony.applicationContext, x)
-                val id = context.symphony.database.playlistsIdGenerator.next()
-                val parsed = Playlist.parse(context.symphony, id, x)
+                lateinit var parsed: Playlist.Parsed
+                val playlist = context.symphony.groove.playlist.create { id ->
+                    parsed = Playlist.parse(context.symphony, id, x)
+                    parsed.playlist
+                }
                 val addOptions = PlaylistRepository.AddOptions(
                     playlist = parsed.playlist,
                     songPaths = parsed.songPaths,
                 )
-                context.symphony.groove.playlist.add(addOptions)
+                context.symphony.groove.playlist.addSongs(addOptions)
             } catch (err: Exception) {
                 Logger.error("PlaylistView", "import failed (activity result)", err)
                 Toast.makeText(
@@ -98,7 +101,7 @@ fun HomePlaylistsView(context: ViewContext) {
             context,
             onDone = { addOptions ->
                 showPlaylistCreator = false
-                context.symphony.groove.playlist.add(addOptions)
+                context.symphony.groove.playlist.addSongs(addOptions)
             },
             onDismissRequest = {
                 showPlaylistCreator = false

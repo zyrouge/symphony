@@ -360,7 +360,7 @@ fun SongDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = listOf(song.id),
+            songs = listOf(song.id),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

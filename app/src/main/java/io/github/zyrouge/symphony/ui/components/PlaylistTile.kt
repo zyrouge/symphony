@@ -43,18 +43,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.MediaExposer
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
-import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.view.PlaylistViewRoute
 import io.github.zyrouge.symphony.utils.Logger
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistTile(context: ViewContext, playlist: Playlist) {
-    val artworks by context.symphony.groove.playlist.getTop4ArtworkUriAsFlow(playlist.id)
+    val artworkUris by context.symphony.groove.playlist.getTop4ArtworkUriAsFlow(playlist.id)
         .collectAsStateWithLifecycle(emptyList())
 
     Card(
@@ -71,7 +72,7 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                 Box {
                     AsyncImage(
                         // TODO: remove this hack after moving to reactive objects
-                        artworks.first(),
+                        artworkUris.first(),
                         null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -113,9 +114,9 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                                 )
                                 .then(Modifier.size(36.dp)),
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(
-                                    playlist.getSortedSongIds(context.symphony)
-                                )
+//                                context.symphony.radio.shorty.playQueue(
+//                                    playlist.getSortedSongIds(context.symphony)
+//                                )
                             }
                         ) {
                             Icon(Icons.Filled.PlayArrow, null)
@@ -136,32 +137,32 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
 @Composable
 fun PlaylistDropdownMenu(
     context: ViewContext,
-    playlist: Playlist.AlongAttributes,
-    songs: List<Song>,
+    playlist: Playlist,
     expanded: Boolean,
-    onDelete: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     val savePlaylistLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument(MediaExposer.MIMETYPE_M3U)
     ) { uri ->
         uri?.let { _ ->
-            try {
-                context.symphony.groove.playlist.savePlaylistToUri(playlist, uri)
-                Toast.makeText(
-                    context.activity,
-                    context.symphony.t.ExportedX(playlist.title),
-                    Toast.LENGTH_SHORT,
-                ).show()
-            } catch (err: Exception) {
-                Logger.error("PlaylistTile", "export failed (activity result)", err)
-                Toast.makeText(
-                    context.activity,
-                    context.symphony.t.ExportFailedX(
-                        err.localizedMessage ?: err.toString()
-                    ),
-                    Toast.LENGTH_SHORT,
-                ).show()
+            context.symphony.groove.coroutineScope.launch {
+                try {
+                    context.symphony.groove.playlist.export(playlist, uri)
+                    Toast.makeText(
+                        context.activity,
+                        context.symphony.t.ExportedX(playlist.title),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                } catch (err: Exception) {
+                    Logger.error("PlaylistTile", "export failed (activity result)", err)
+                    Toast.makeText(
+                        context.activity,
+                        context.symphony.t.ExportFailedX(
+                            err.localizedMessage ?: err.toString()
+                        ),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
             }
         }
     }
@@ -184,8 +185,18 @@ fun PlaylistDropdownMenu(
                 Text(context.symphony.t.ShufflePlay)
             },
             onClick = {
+                context.symphony.groove.coroutineScope.launch {
+                    val songs = context.symphony.groove.playlist.findSongsById(
+                        playlist.id,
+                        context.symphony.settings.lastUsedPlaylistSongsSortBy.value,
+                        context.symphony.settings.lastUsedPlaylistSongsSortReverse.value
+                    )
+                    context.symphony.radio.clear()
+                    context.symphony.radio.add(songs)
+                    context.symphony.radio.setShuffleMode(true)
+                    context.symphony.radio.play()
+                }
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(songs, shuffle = true)
             }
         )
         DropdownMenuItem(
@@ -196,11 +207,8 @@ fun PlaylistDropdownMenu(
                 Text(context.symphony.t.PlayNext)
             },
             onClick = {
+                // TODO
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    songs,
-                    context.symphony.radio.queue.currentSongIndex + 1
-                )
             }
         )
         DropdownMenuItem(
@@ -215,7 +223,7 @@ fun PlaylistDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        if (!playlist.entity.isModifiable) {
+        if (!playlist.isModifiable) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null)
@@ -241,7 +249,7 @@ fun PlaylistDropdownMenu(
                 showInfoDialog = true
             }
         )
-        if (playlist.entity.isModifiable) {
+        if (playlist.isModifiable) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Save, null)
@@ -252,7 +260,7 @@ fun PlaylistDropdownMenu(
                 onClick = {
                     onDismissRequest()
                     try {
-                        savePlaylistLauncher.launch("${playlist.entity.title}.m3u")
+                        savePlaylistLauncher.launch("${playlist.title}.m3u")
                     } catch (err: Exception) {
                         Logger.error("PlaylistTile", "export failed", err)
                         Toast.makeText(
@@ -278,7 +286,7 @@ fun PlaylistDropdownMenu(
                 }
             )
         }
-        if (!playlist.entity.isInternal) {
+        if (!playlist.isInternal) {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(
@@ -309,9 +317,18 @@ fun PlaylistDropdownMenu(
     }
 
     if (showSongsPicker) {
+
+        val songs = remember {
+            context.symphony.groove.playlist.findSongsById(
+                playlist.id,
+                context.symphony.settings.lastUsedPlaylistSongsSortBy.value,
+                context.symphony.settings.lastUsedPlaylistSongsSortReverse.value
+            )
+        }
+
         PlaylistManageSongsDialog(
             context,
-            selectedSongIds = playlist.getSongIds(context.symphony),
+            selectedSongs = songs,
             onDone = {
                 context.symphony.groove.playlist.update(playlist.id, it)
                 showSongsPicker = false
@@ -341,7 +358,7 @@ fun PlaylistDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = playlist.getSongIds(context.symphony),
+            songs = playlist.getSongIds(context.symphony),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

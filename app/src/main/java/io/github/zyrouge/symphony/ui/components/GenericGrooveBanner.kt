@@ -32,7 +32,7 @@ import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.ui.helpers.Assets
 import io.github.zyrouge.symphony.ui.helpers.ScreenOrientation
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequest
+import io.github.zyrouge.symphony.ui.helpers.createHandyImageRequestBuilder
 
 @Composable
 fun GenericGrooveBanner(
@@ -131,7 +131,7 @@ fun GenericGrooveBannerQuadImage(
 }
 
 private fun createGrooveImageRequest(context: ViewContext, uri: Uri?) {
-    createHandyImageRequest(
+    createHandyImageRequestBuilder(
         context.symphony.applicationContext,
         uri ?: Assets.getPlaceholderUri(context.symphony),
         Assets.getPlaceholderId(context.symphony),

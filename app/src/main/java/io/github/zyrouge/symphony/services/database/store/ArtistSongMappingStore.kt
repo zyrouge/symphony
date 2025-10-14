@@ -29,6 +29,18 @@ abstract class ArtistSongMappingStore {
         return findTop4SongArtworksAsFlow(SimpleSQLiteQuery(query, args))
     }
 
+    fun valuesMapped(
+        songStore: SongStore,
+        id: String,
+        sortBy: SongRepository.SortBy,
+        sortReverse: Boolean,
+    ) = songStore.values(
+        sortBy,
+        sortReverse,
+        additionalClauseBeforeJoins = "JOIN ${ArtistSongMapping.TABLE}.${ArtistSongMapping.COLUMN_ARTIST_ID} = ? ",
+        additionalArgsBeforeJoins = arrayOf(id),
+    )
+
     fun valuesMappedAsFlow(
         songStore: SongStore,
         id: String,

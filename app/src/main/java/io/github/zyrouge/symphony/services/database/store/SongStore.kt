@@ -66,6 +66,9 @@ abstract class SongStore {
     )
     protected abstract fun entriesAsFlow(query: SupportSQLiteQuery): Flow<Map<@MapColumn(Song.COLUMN_ID) String, Song>>
 
+    internal abstract fun entriesAsPlaylistSongMapped(query: SupportSQLiteQuery): Map<
+            @MapColumn(Song.COLUMN_ID) String, Song.AlongPlaylistMapping>
+
     @RawQuery(
         observedEntities = [
             AlbumSongMapping::class,
@@ -76,7 +79,7 @@ abstract class SongStore {
             Song::class,
         ]
     )
-    internal abstract fun entriesAsPlaylistSongMappedAsFlowRaw(query: SupportSQLiteQuery): Flow<
+    internal abstract fun entriesAsPlaylistSongMappedAsFlow(query: SupportSQLiteQuery): Flow<
             Map<@MapColumn(Song.COLUMN_ID) String, Song.AlongPlaylistMapping>>
 
     fun valuesQuery(
@@ -86,6 +89,7 @@ abstract class SongStore {
         additionalClauseBeforeJoins: String = "",
         additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
         overrideOrderBy: String? = null,
+        limit: Int? = null,
     ): SupportSQLiteQuery {
         val aliasFirstAlbumArtist = "firstAlbumArtist"
         val embeddedFirstArtistName = "firstArtistName"
@@ -134,7 +138,8 @@ abstract class SongStore {
                 "LEFT JOIN ${Album.TABLE} ON ${Album.TABLE}.${Album.COLUMN_ID} = ($albumQuery)" +
                 "LEFT JOIN ${Artist.TABLE} $aliasFirstAlbumArtist ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ($albumArtistQuery)" +
                 "LEFT JOIN ${Composer.TABLE} ON ${Composer.TABLE}.${Composer.COLUMN_ID} = ($composerQuery)" +
-                "ORDER BY $orderBy $orderDirection"
+                "ORDER BY $orderBy $orderDirection" +
+                (if (limit != null) " LIMIT $limit" else "")
         val args = additionalArgsBeforeJoins
         return SimpleSQLiteQuery(query, args)
     }
@@ -180,6 +185,7 @@ abstract class SongStore {
         additionalClauseBeforeJoins: String = "",
         additionalArgsBeforeJoins: Array<Any?> = emptyArray(),
         overrideOrderBy: String? = null,
+        limit: Int? = null,
     ): Flow<List<Song>> {
         val query = valuesQuery(
             sortBy = sortBy,
@@ -188,6 +194,7 @@ abstract class SongStore {
             additionalClauseBeforeJoins = additionalClauseBeforeJoins,
             additionalArgsBeforeJoins = additionalArgsBeforeJoins,
             overrideOrderBy = overrideOrderBy,
+            limit = limit,
         )
         return valuesAsFlow(query)
     }

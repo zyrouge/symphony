@@ -2,8 +2,11 @@ package io.github.zyrouge.symphony.services.database.store
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.RawQuery
+import androidx.room.Update
 import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.services.groove.entities.PlaylistSongMapping
 import io.github.zyrouge.symphony.services.groove.entities.Song
@@ -19,13 +22,27 @@ abstract class PlaylistSongMappingStore {
     @Insert
     abstract suspend fun insert(vararg entities: PlaylistSongMapping)
 
-    @RawQuery
-    abstract suspend fun deletePlaylistIds(query: SimpleSQLiteQuery): Int
+    @Update
+    abstract suspend fun update(vararg entities: PlaylistSongMapping)
 
-    suspend fun deletePlaylistIds(vararg ids: String): Int {
+    @RawQuery
+    protected abstract suspend fun delete(query: SimpleSQLiteQuery): Int
+
+    suspend fun delete(playlistId: String, ids: Collection<String>): Int {
         val query = "DELETE FROM ${PlaylistSongMapping.TABLE} " +
-                "WHERE ${PlaylistSongMapping.COLUMN_PLAYLIST_ID} IN (${sqlqph(ids.size)})"
-        return deletePlaylistIds(SimpleSQLiteQuery(query, ids))
+                "WHERE ${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ? " +
+                "AND ${PlaylistSongMapping.COLUMN_ID} IN (${sqlqph(ids.size)})"
+        val args = arrayOf(playlistId, *ids.toTypedArray())
+        return delete(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    abstract suspend fun deleteAll(query: SimpleSQLiteQuery): Int
+
+    suspend fun deleteAll(vararg playlistIds: String): Int {
+        val query = "DELETE FROM ${PlaylistSongMapping.TABLE} " +
+                "WHERE ${PlaylistSongMapping.COLUMN_PLAYLIST_ID} IN (${sqlqph(playlistIds.size)})"
+        return deleteAll(SimpleSQLiteQuery(query, playlistIds))
     }
 
     @RawQuery(observedEntities = [SongArtworkIndex::class, PlaylistSongMapping::class])
@@ -56,6 +73,98 @@ abstract class PlaylistSongMappingStore {
         return findSongIdsByPlaylistInternalIdAsFlowRaw(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
+    protected abstract fun findById(query: SupportSQLiteQuery): Song.AlongPlaylistMapping?
+
+    fun findById(playlistId: String, id: String?): Song.AlongPlaylistMapping? {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${PlaylistSongMapping.TABLE}.* " +
+                "FROM ${PlaylistSongMapping.TABLE} " +
+                "WHERE ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ? AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_ID} = ? " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} "
+        val args = arrayOf(playlistId, id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun findByNextId(query: SupportSQLiteQuery): Song.AlongPlaylistMapping?
+
+    fun findByNextId(playlistId: String, nextId: String?): Song.AlongPlaylistMapping? {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${PlaylistSongMapping.TABLE}.* " +
+                "FROM ${PlaylistSongMapping.TABLE} " +
+                "WHERE ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ? AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_NEXT_ID} = ? " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} "
+        val args = arrayOf(playlistId, nextId)
+        return findByNextId(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun findHead(query: SupportSQLiteQuery): Song.AlongPlaylistMapping?
+
+    fun findHead(playlistId: String): Song.AlongPlaylistMapping? {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${PlaylistSongMapping.TABLE}.* " +
+                "FROM ${PlaylistSongMapping.TABLE} " +
+                "WHERE ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ? AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_IS_HEAD} = true " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} "
+        val args = arrayOf(playlistId)
+        return findHead(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun entriesByIds(query: SupportSQLiteQuery): Map<
+            @MapColumn(PlaylistSongMapping.COLUMN_ID) String, Song.AlongPlaylistMapping>
+
+    fun entriesByIds(playlistId: String, songMappingIds: List<String>): Map<
+            String, Song.AlongPlaylistMapping> {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${PlaylistSongMapping.TABLE}.* " +
+                "FROM ${PlaylistSongMapping.TABLE} " +
+                "WHERE ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ? " +
+                "AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_ID} " +
+                "IN (${sqlqph(songMappingIds.size)}) " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} " +
+                "ORDER BY ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_IS_HEAD} DESC"
+        val args = arrayOf(playlistId, *songMappingIds.toTypedArray())
+        return entriesByIds(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun entriesByNextIds(query: SupportSQLiteQuery): Map<
+            @MapColumn(PlaylistSongMapping.COLUMN_NEXT_ID) String, Song.AlongPlaylistMapping>
+
+    fun entriesByNextIds(playlistId: String, songMappingIds: List<String>): Map<
+            String, Song.AlongPlaylistMapping> {
+        val query = "SELECT ${Song.TABLE}.*, " +
+                "${PlaylistSongMapping.TABLE}.* " +
+                "FROM ${PlaylistSongMapping.TABLE} " +
+                "WHERE ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ? " +
+                "AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_NEXT_ID} " +
+                "IN (${sqlqph(songMappingIds.size)}) " +
+                "LEFT JOIN ${Song.TABLE} ON ${Song.TABLE}.${Song.COLUMN_ID} = ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} " +
+                "ORDER BY ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_IS_HEAD} DESC"
+        val args = arrayOf(playlistId, *songMappingIds.toTypedArray())
+        return entriesByNextIds(SimpleSQLiteQuery(query, args))
+    }
+
+    fun valuesMapped(
+        songStore: SongStore,
+        id: String,
+        sortBy: SongRepository.SortBy,
+        sortReverse: Boolean,
+    ): List<Song> {
+        val query = songStore.valuesQuery(
+            sortBy,
+            sortReverse,
+            additionalClauseBeforeJoins = "JOIN ${PlaylistSongMapping.TABLE} ON ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_PLAYLIST_ID} = ?" +
+                    "AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} = ${Song.COLUMN_ID} ",
+            additionalArgsBeforeJoins = arrayOf(id),
+        )
+        val entries = songStore.entriesAsPlaylistSongMapped(query)
+        return transformEntriesAsValues(entries)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun valuesMappedAsFlow(
         songStore: SongStore,
@@ -70,7 +179,7 @@ abstract class PlaylistSongMappingStore {
                     "AND ${PlaylistSongMapping.TABLE}.${PlaylistSongMapping.COLUMN_SONG_ID} = ${Song.COLUMN_ID} ",
             additionalArgsBeforeJoins = arrayOf(id),
         )
-        val entries = songStore.entriesAsPlaylistSongMappedAsFlowRaw(query)
+        val entries = songStore.entriesAsPlaylistSongMappedAsFlow(query)
         return entries.mapLatest { transformEntriesAsValues(it) }
     }
 

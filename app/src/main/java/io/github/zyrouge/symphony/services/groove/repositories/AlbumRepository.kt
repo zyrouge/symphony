@@ -22,6 +22,14 @@ class AlbumRepository(private val symphony: Symphony) {
         albumId = id,
     )
 
+    fun findSongsById(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
+        symphony.database.albumSongMapping.valuesMapped(
+            symphony.database.songs,
+            id,
+            sortBy,
+            sortReverse
+        )
+
     fun findSongsByIdAsFlow(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
         symphony.database.albumSongMapping.valuesMappedAsFlow(
             symphony.database.songs,
@@ -29,6 +37,13 @@ class AlbumRepository(private val symphony: Symphony) {
             sortBy,
             sortReverse
         )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getArtworkUriAsFlow(id: String) =
+        symphony.database.albumSongMapping.findTop4SongArtworksAsFlow(id)
+            .mapLatest { indices ->
+                indices.map { symphony.groove.song.getArtworkUriFromIndex(it) }
+            }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getTop4ArtworkUriAsFlow(id: String) =

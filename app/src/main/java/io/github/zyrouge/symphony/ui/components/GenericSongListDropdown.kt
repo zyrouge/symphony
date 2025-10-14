@@ -83,7 +83,7 @@ fun GenericSongListDropdown(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songIds = songIds,
+            songs = songIds,
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

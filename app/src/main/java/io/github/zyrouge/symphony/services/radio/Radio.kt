@@ -62,6 +62,15 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         return true
     }
 
+    suspend fun playBySongId(songId: String): Boolean {
+        val songQueue = queue.getCurrentSongQueue() ?: return false
+        val songQueueId = songQueue.entity.id
+        val song = symphony.database.songQueueSongMapping.findBySongId(songQueueId, songId)
+            ?: return false
+        play(song.mapping.id, song.entity.uri)
+        return true
+    }
+
     private suspend fun play(
         songMappingId: String,
         songUri: Uri,
@@ -208,6 +217,11 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     suspend fun remove(songMappingIds: List<String>) = queue.remove(songMappingIds)
 
     suspend fun remove(songMappingId: String) = queue.remove(songMappingId)
+
+    suspend fun clear(): Boolean {
+        stop()
+        return queue.clear()
+    }
 
     internal fun onQueueCurrentPlayingSongChanged(song: Song.AlongSongQueueMapping?) {
         symphony.groove.coroutineScope.launch {

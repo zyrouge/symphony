@@ -96,7 +96,7 @@ class MediaExposer(private val symphony: Symphony) {
                         id = symphony.database.playlistSongMappingIdGenerator.next(),
                         playlistId = playlistId,
                         songId = null,
-                        songPath = x,
+                        rawSongPath = x,
                         isHead = i == 0,
                         nextId = nextPlaylistSongMapping?.id,
                     )
@@ -105,7 +105,7 @@ class MediaExposer(private val symphony: Symphony) {
                 }
             }
             symphony.database.playlists.update(*playlistsToBeUpdated.toTypedArray())
-            symphony.database.playlistSongMapping.deletePlaylistIds(*playlistIdsToBeDeletedInMapping.toTypedArray())
+            symphony.database.playlistSongMapping.deleteAll(*playlistIdsToBeDeletedInMapping.toTypedArray())
             symphony.database.playlistSongMapping.insert(*playlistSongMappingToBeInserted.toTypedArray())
         } catch (err: Exception) {
             Logger.error("MediaExposer", "playlist fetch failed", err)

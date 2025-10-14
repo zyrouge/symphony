@@ -61,6 +61,6 @@ class SongRepository(private val symphony: Symphony) {
         symphony.database.songArtworks.get(it).toUri()
     }
 
-    fun valuesAsFlow(sortBy: SortBy, sortReverse: Boolean) =
-        symphony.database.songs.valuesAsFlow(sortBy, sortReverse)
+    fun valuesAsFlow(sortBy: SortBy, sortReverse: Boolean, limit: Int? = null) =
+        symphony.database.songs.valuesAsFlow(sortBy, sortReverse, limit = limit)
 }
