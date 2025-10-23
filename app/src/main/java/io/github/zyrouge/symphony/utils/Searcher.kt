@@ -24,7 +24,7 @@ class Searcher<T>(private var stringGetters: List<(T) -> String>) : ISearchProvi
 
         val results = entities.stream()
             .filter { match(terms, it) }
-            .map { SearchResultEntity(terms.length - it.toString().length, it ) } //smaller names benefit
+            .map { SearchResultEntity(stringGetters[0](it).length, it ) } //smaller names benefit
             .sorted(Comparator.comparing { it.score })
             .collect(Collectors.toList())
 
