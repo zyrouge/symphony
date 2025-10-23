@@ -8,6 +8,8 @@ import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
 import io.github.zyrouge.symphony.utils.KeyGenerator
 import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.utils.SearchProvider
+import io.github.zyrouge.symphony.utils.Searcher
 import io.github.zyrouge.symphony.utils.mutate
 import io.github.zyrouge.symphony.utils.withCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +28,15 @@ class PlaylistRepository(private val symphony: Symphony) {
 
     private val cache = ConcurrentHashMap<String, Playlist>()
     internal val idGenerator = KeyGenerator.TimeIncremental()
-    private val searcher = FuzzySearcher<String>(
-        options = listOf(FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }))
-    )
+    private val searcher = when (symphony.settings.searchProvider.value) {
+        SearchProvider.Fuzzy -> FuzzySearcher<String>(
+            options = listOf(FuzzySearchOption({ v -> get(v)?.title?.let { compareString(it) } }))
+        )
+
+        SearchProvider.Normal -> Searcher<String>(
+            listOf { v -> get(v)?.title ?: "" }
+        )
+    }
 
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating = _isUpdating.asStateFlow()
