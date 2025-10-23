@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Language
@@ -35,6 +36,7 @@ import io.github.zyrouge.symphony.ui.components.settings.ConsiderContributingTil
 import io.github.zyrouge.symphony.ui.components.settings.SettingsFloatInputTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsOptionTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSideHeading
+import io.github.zyrouge.symphony.ui.components.settings.SettingsSliderTile
 import io.github.zyrouge.symphony.ui.components.settings.SettingsSwitchTile
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.theme.PrimaryThemeColor
@@ -42,6 +44,7 @@ import io.github.zyrouge.symphony.ui.theme.SymphonyTypography
 import io.github.zyrouge.symphony.ui.theme.ThemeColors
 import io.github.zyrouge.symphony.ui.theme.ThemeMode
 import kotlinx.serialization.Serializable
+import kotlin.math.roundToInt
 
 private val scalingPresets = listOf(
     0.25f, 0.5f, 0.75f, 0.9f, 1f,
@@ -63,6 +66,7 @@ fun AppearanceSettingsView(context: ViewContext) {
     val primaryColor by context.symphony.settings.primaryColor.flow.collectAsState()
     val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
     val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
+    val albumMinSongCount by context.symphony.settings.albumMinSongCount.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -228,6 +232,32 @@ fun AppearanceSettingsView(context: ViewContext) {
                         onChange = { value ->
                             context.symphony.settings.primaryColor.setValue(value.name)
                         }
+                    )
+                    HorizontalDivider()
+                    SettingsSliderTile(
+                        context,
+                        icon = {
+                            Icon(Icons.Filled.Album, null)
+                        },
+                        title = {
+                            Text("Minimum Album Song Count") //TODO: i18n
+                        },
+                        label = { value ->
+                            Text(value.toInt().toString())
+                        },
+                        range = 0f..5f,
+                        initialValue = albumMinSongCount.toFloat(),
+                        onValue = { value ->
+                            value.roundToInt().toFloat()
+                        },
+                        onChange = { value ->
+                            context.symphony.settings.albumMinSongCount.setValue(value.toInt())
+                        },
+                        onReset = {
+                            context.symphony.settings.albumMinSongCount.setValue(
+                                context.symphony.settings.albumMinSongCount.defaultValue,
+                            )
+                        },
                     )
                 }
             }

@@ -78,13 +78,13 @@ fun AlbumGrid(
 
                 else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
-                        sortedAlbumIds,
+                        sortedAlbumIds
+                            .mapNotNull { context.symphony.groove.album.get(it) }
+                            .filter { it.getSongIds(context.symphony).size > context.symphony.settings.albumMinSongCount.value },
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.ALBUM }
-                    ) { _, albumId ->
-                        context.symphony.groove.album.get(albumId)?.let { album ->
-                            AlbumTile(context, album)
-                        }
+                    ) { _, album ->
+                        AlbumTile(context, album)
                     }
                 }
             }

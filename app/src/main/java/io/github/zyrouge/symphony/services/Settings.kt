@@ -330,6 +330,8 @@ class Settings(private val symphony: Symphony) {
     val caseSensitiveSorting = BooleanEntry("case_sensitive_sorting", false)
     val lyricsKeepScreenAwake = BooleanEntry("lyrics_keep_screen_awake", true)
 
+    val albumMinSongCount = IntEntry("album_min_song_count", 1)
+
     private fun getSharedPreferences() = symphony.applicationContext
         .getSharedPreferences("settings", Context.MODE_PRIVATE)
 }
