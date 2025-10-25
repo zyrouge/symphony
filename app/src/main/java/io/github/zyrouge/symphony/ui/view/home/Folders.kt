@@ -247,6 +247,7 @@ private fun FolderTile(
     onClick: () -> Unit,
 ) {
     SquareGrooveTile(
+        context = context,
         image = folder.createArtworkImageRequest(context).build(),
         options = { expanded, onDismissRequest ->
             var showAddToPlaylistDialog by remember { mutableStateOf(false) }

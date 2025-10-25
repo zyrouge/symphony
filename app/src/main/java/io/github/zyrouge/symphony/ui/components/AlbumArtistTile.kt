@@ -22,6 +22,7 @@ import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
 @Composable
 fun AlbumArtistTile(context: ViewContext, albumArtist: AlbumArtist) {
     SquareGrooveTile(
+        context = context,
         image = albumArtist.createArtworkImageRequest(context.symphony).build(),
         options = { expanded, onDismissRequest ->
             AlbumArtistDropdownMenu(

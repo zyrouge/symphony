@@ -34,10 +34,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SquareGrooveTile(
+    context: ViewContext,
     image: ImageRequest,
     options: @Composable (Boolean, () -> Unit) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
@@ -78,21 +80,23 @@ fun SquareGrooveTile(
                             }
                         }
                     }
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(8.dp)
-                    ) {
-                        IconButton(
+                    if(context.symphony.settings.showPlayGridView.value) {
+                        Box(
                             modifier = Modifier
-                                .background(
-                                    MaterialTheme.colorScheme.surface,
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .then(Modifier.size(36.dp)),
-                            onClick = onPlay
+                                .align(Alignment.BottomStart)
+                                .padding(8.dp)
                         ) {
-                            Icon(Icons.Filled.PlayArrow, null)
+                            IconButton(
+                                modifier = Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.surface,
+                                        RoundedCornerShape(12.dp)
+                                    )
+                                    .then(Modifier.size(36.dp)),
+                                onClick = onPlay
+                            ) {
+                                Icon(Icons.Filled.PlayArrow, null)
+                            }
                         }
                     }
                 }
