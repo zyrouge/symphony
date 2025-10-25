@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -63,6 +64,7 @@ fun AppearanceSettingsView(context: ViewContext) {
     val primaryColor by context.symphony.settings.primaryColor.flow.collectAsState()
     val fontScale by context.symphony.settings.fontScale.flow.collectAsState()
     val contentScale by context.symphony.settings.contentScale.flow.collectAsState()
+    val showPlayGridView by context.symphony.settings.showPlayGridView.flow.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -227,6 +229,19 @@ fun AppearanceSettingsView(context: ViewContext) {
                         enabled = !useMaterialYou,
                         onChange = { value ->
                             context.symphony.settings.primaryColor.setValue(value.name)
+                        }
+                    )
+                    HorizontalDivider()
+                    SettingsSwitchTile(
+                        icon = {
+                            Icon(Icons.Filled.PlayCircle, null)
+                        },
+                        title = {
+                            Text("Show Play-Button in Grid View")
+                        },
+                        value = showPlayGridView,
+                        onChange = { value ->
+                            context.symphony.settings.showPlayGridView.setValue(value)
                         }
                     )
                 }

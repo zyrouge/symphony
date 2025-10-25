@@ -100,25 +100,27 @@ fun PlaylistTile(context: ViewContext, playlist: Playlist) {
                             )
                         }
                     }
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(8.dp)
-                    ) {
-                        IconButton(
+                    if(context.symphony.settings.showPlayGridView.value) {
+                        Box(
                             modifier = Modifier
-                                .background(
-                                    MaterialTheme.colorScheme.surface,
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .then(Modifier.size(36.dp)),
-                            onClick = {
-                                context.symphony.radio.shorty.playQueue(
-                                    playlist.getSortedSongIds(context.symphony)
-                                )
-                            }
+                                .align(Alignment.BottomStart)
+                                .padding(8.dp)
                         ) {
-                            Icon(Icons.Filled.PlayArrow, null)
+                            IconButton(
+                                modifier = Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.surface,
+                                        RoundedCornerShape(12.dp)
+                                    )
+                                    .then(Modifier.size(36.dp)),
+                                onClick = {
+                                    context.symphony.radio.shorty.playQueue(
+                                        playlist.getSortedSongIds(context.symphony)
+                                    )
+                                }
+                            ) {
+                                Icon(Icons.Filled.PlayArrow, null)
+                            }
                         }
                     }
                 }
