@@ -110,23 +110,22 @@ class RadioQueue(private val symphony: Symphony) {
         }
     }
 
-    //UI drag handle is before the song, so we put droppedI before onI
-    fun handleDragAndDrop(droppedI: Int, droppedSongId: String, onI: Int) {
-        if (droppedI == onI || droppedI == onI - 1) {
+    // UI drop area is before the song, so we put fromI before toI
+    fun handleDragAndDrop(fromIndex: Int, fromSongId: String, toIndex: Int) {
+        if (fromIndex == toIndex || fromIndex == toIndex - 1) {
             return
         }
-        val newIndex = if (droppedI < onI) onI - 1 else onI
-        val movedCur = currentSongIndex == droppedI
-        //remove dropped
-        originalQueue.removeAt(droppedI)
-        currentQueue.removeAt(droppedI)
-        //add
-        originalQueue.add(newIndex, droppedSongId)
-        currentQueue.add(newIndex, droppedSongId)
-        if (newIndex < currentSongIndex) {
-            currentSongIndex += 1
+        val newIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+        originalQueue.removeAt(fromIndex)
+        currentQueue.removeAt(fromIndex)
+        originalQueue.add(newIndex, fromSongId)
+        currentQueue.add(newIndex, fromSongId)
+        if (newIndex <= currentSongIndex) { // song moved to before currently playing
+            currentSongIndex++
         }
-        if (movedCur) {
+        if (fromIndex < currentSongIndex) { // song moved was before currently playing
+            currentSongIndex--
+        } else if (fromIndex == currentSongIndex) { // song moved is currently playing
             //TODO: this introduces a small break in playback
             symphony.radio.play(
                 Radio.PlayOptions(
@@ -136,8 +135,6 @@ class RadioQueue(private val symphony: Symphony) {
                 )
             )
             currentSongIndex = newIndex
-        } else if (droppedI < currentSongIndex) {
-            currentSongIndex--
         }
         symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
