@@ -1,14 +1,19 @@
 package io.github.zyrouge.symphony.ui.components
 
+import android.content.ClipData
+import android.content.ClipDescription
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -43,6 +49,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draganddrop.mimeTypes
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,10 +66,13 @@ import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
 import io.github.zyrouge.symphony.utils.Logger
 
+const val SongDragAndDropLabel = "symphony_song_drag_drop"
+
 @Composable
 fun SongCard(
     context: ViewContext,
     song: Song,
+    modifier: Modifier = Modifier,
     highlighted: Boolean = false,
     autoHighlight: Boolean = true,
     disableHeartIcon: Boolean = false,
@@ -66,6 +80,9 @@ fun SongCard(
     thumbnailLabel: (@Composable () -> Unit)? = null,
     thumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
+    dragAndDropEnabled: Boolean = false,
+    dragAndDropPos: Int = -1,
+    dragAndDropAction: (Int, String) -> Unit = { _: Int, _: String -> },
     onClick: () -> Unit,
 ) {
     val queue by context.symphony.radio.observatory.queue.collectAsState()
@@ -77,111 +94,220 @@ fun SongCard(
     val isFavorite by remember(favoriteSongIds, song) {
         derivedStateOf { favoriteSongIds.contains(song.id) }
     }
+    val primary = MaterialTheme.colorScheme.primary
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        onClick = onClick
-    ) {
-        Box(modifier = Modifier.padding(12.dp, 12.dp, 4.dp, 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                leading()
-                Box {
-                    AsyncImage(
-                        song.createArtworkImageRequest(context.symphony).build(),
-                        null,
-                        modifier = Modifier
-                            .size(45.dp)
-                            .clip(RoundedCornerShape(10.dp)),
+
+    val paddingStart = if (dragAndDropEnabled) 0.dp else 12.dp
+    val paddingEnd = 4.dp
+    val paddingTop = if (dragAndDropEnabled) 0.dp else 12.dp
+    val paddingBot = if (dragAndDropEnabled) 7.dp else 12.dp // prevent index number clipping
+    Column {
+        if (dragAndDropEnabled) {
+            var dragBackground by remember { mutableStateOf(Color.Transparent) }
+            Box(
+                Modifier
+                    .padding(paddingStart, 0.dp, paddingEnd, 0.dp)
+                    .height(17.dp) // 2 * 12 padding - 7 from the enumeration
+                    .clip(RoundedCornerShape(5.dp))
+                    .fillMaxWidth()
+                    .background(dragBackground)
+                    .dragAndDropTarget(
+                        //filter out most foreign drag&drops, can be simplified
+                        shouldStartDragAndDrop = { event ->
+                            event.run {
+                                if (!event.mimeTypes()
+                                        .contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                                ) {
+                                    Logger.warn(
+                                        "DropTarget",
+                                        "Wrong Mimetype"
+                                    )
+                                    return@run false
+                                }
+                                if (event.toAndroidDragEvent().clipDescription.label != SongDragAndDropLabel) {
+                                    Logger.warn(
+                                        "DropTarget",
+                                        "Not $SongDragAndDropLabel Label"
+                                    )
+                                    return@run false
+                                }
+                                if (event.toAndroidDragEvent().localState == null) {
+                                    Logger.warn(
+                                        "DropTarget",
+                                        "localState null"
+                                    )
+                                    return@run false
+                                }
+                                if (event.toAndroidDragEvent().localState !is List<*>) {
+                                    Logger.warn(
+                                        "DropTarget",
+                                        "Wrong ClipData localState Type ${event.toAndroidDragEvent().localState}"
+                                    )
+                                    return@run false
+                                }
+                                if ((event.toAndroidDragEvent().localState as List<*>).size != 2) {
+                                    Logger.warn(
+                                        "DropTarget",
+                                        "Wrong List size ${(event.toAndroidDragEvent().localState as List<*>).size}"
+                                    )
+                                    return@run false
+                                }
+                                return@run true
+                            }
+                        },
+                        target = remember {
+                            object : DragAndDropTarget {
+                                override fun onEntered(event: DragAndDropEvent) {
+                                    dragBackground = primary.copy(alpha = 0.45f)
+                                }
+
+                                override fun onExited(event: DragAndDropEvent) {
+                                    dragBackground = Color.Transparent
+                                }
+
+                                override fun onDrop(event: DragAndDropEvent): Boolean {
+                                    val list =
+                                        event.toAndroidDragEvent().localState as List<*>
+                                    val droppedI: Int =
+                                        list[0].toString().toInt()
+                                    val droppedSongId: String =
+                                        list[1].toString()
+                                    dragAndDropAction(droppedI, droppedSongId)
+                                    dragBackground = Color.Transparent
+                                    return true
+                                }
+                            }
+                        }
                     )
-                    thumbnailLabel?.let { it ->
-                        val backgroundColor =
-                            thumbnailLabelStyle.backgroundColor(MaterialTheme.colorScheme)
-                        val contentColor =
-                            thumbnailLabelStyle.contentColor(MaterialTheme.colorScheme)
-
-                        Box(
+            ) { }
+        }
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(modifier),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            onClick = onClick
+        ) {
+            Box(modifier = Modifier.padding(paddingStart, paddingTop, paddingEnd, paddingBot)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (dragAndDropEnabled) {
+                        Icon(
+                            Icons.Filled.DragIndicator,
+                            null,
+                            Modifier
+                                .padding(6.dp, 12.dp)
+                                .dragAndDropSource(transferData = {
+                                    return@dragAndDropSource DragAndDropTransferData(
+                                        ClipData.newPlainText(
+                                            SongDragAndDropLabel,
+                                            ""
+                                        ),
+                                        localState = listOf(
+                                            dragAndDropPos.toString(),
+                                            song.id
+                                        )
+                                    )
+                                })
+                        )
+                    }
+                    leading()
+                    Box {
+                        AsyncImage(
+                            song.createArtworkImageRequest(context.symphony).build(),
+                            null,
                             modifier = Modifier
-                                .offset(y = 8.dp)
-                                .align(Alignment.BottomCenter)
-                        ) {
+                                .size(45.dp)
+                                .clip(RoundedCornerShape(10.dp)),
+                        )
+                        thumbnailLabel?.let { it ->
+                            val backgroundColor =
+                                thumbnailLabelStyle.backgroundColor(MaterialTheme.colorScheme)
+                            val contentColor =
+                                thumbnailLabelStyle.contentColor(MaterialTheme.colorScheme)
+
                             Box(
                                 modifier = Modifier
-                                    .background(
-                                        backgroundColor,
-                                        RoundedCornerShape(4.dp)
-                                    )
-                                    .padding(3.dp, 0.dp)
+                                    .offset(y = 8.dp)
+                                    .align(Alignment.BottomCenter)
                             ) {
-                                ProvideTextStyle(
-                                    MaterialTheme.typography.labelSmall.copy(
-                                        color = contentColor
-                                    )
-                                ) { it() }
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            backgroundColor,
+                                            RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(3.dp, 0.dp)
+                                ) {
+                                    ProvideTextStyle(
+                                        MaterialTheme.typography.labelSmall.copy(
+                                            color = contentColor
+                                        )
+                                    ) { it() }
+                                }
                             }
                         }
                     }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        song.title,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = when {
-                                highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
-                                else -> LocalTextStyle.current.color
-                            }
-                        ),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (song.artists.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            song.artists.joinToString(),
-                            style = MaterialTheme.typography.bodySmall,
+                            song.title,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = when {
+                                    highlighted || isCurrentPlaying -> MaterialTheme.colorScheme.primary
+                                    else -> LocalTextStyle.current.color
+                                }
+                            ),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
-                    }
-                }
-                Spacer(modifier = Modifier.width(15.dp))
-
-                Row {
-                    if (!disableHeartIcon && isFavorite) {
-                        IconButton(
-                            modifier = Modifier.offset(4.dp, 0.dp),
-                            onClick = {
-                                context.symphony.groove.playlist.unfavorite(song.id)
-                            }
-                        ) {
-                            Icon(
-                                Icons.Filled.Favorite,
-                                null,
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary,
+                        if (song.artists.isNotEmpty()) {
+                            Text(
+                                song.artists.joinToString(),
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.width(15.dp))
 
-                    var showOptionsMenu by remember { mutableStateOf(false) }
-                    IconButton(
-                        onClick = { showOptionsMenu = !showOptionsMenu }
-                    ) {
-                        Icon(
-                            Icons.Filled.MoreVert,
-                            null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                        SongDropdownMenu(
-                            context,
-                            song,
-                            isFavorite = isFavorite,
-                            trailingContent = trailingOptionsContent,
-                            expanded = showOptionsMenu,
-                            onDismissRequest = {
-                                showOptionsMenu = false
+                    Row {
+                        if (!disableHeartIcon && isFavorite) {
+                            IconButton(
+                                modifier = Modifier.offset(4.dp, 0.dp),
+                                onClick = {
+                                    context.symphony.groove.playlist.unfavorite(song.id)
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.Favorite,
+                                    null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
                             }
-                        )
+                        }
+
+                        var showOptionsMenu by remember { mutableStateOf(false) }
+                        IconButton(
+                            onClick = { showOptionsMenu = !showOptionsMenu }
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                            SongDropdownMenu(
+                                context,
+                                song,
+                                isFavorite = isFavorite,
+                                trailingContent = trailingOptionsContent,
+                                expanded = showOptionsMenu,
+                                onDismissRequest = {
+                                    showOptionsMenu = false
+                                }
+                            )
+                        }
                     }
                 }
             }

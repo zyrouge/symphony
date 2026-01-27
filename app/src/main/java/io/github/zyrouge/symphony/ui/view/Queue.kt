@@ -2,22 +2,17 @@ package io.github.zyrouge.symphony.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +23,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,7 +49,6 @@ fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
     val queue by context.symphony.radio.observatory.queue.collectAsState()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
-    val selectedSongIndices = remember { mutableStateListOf<Int>() }
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = queueIndex,
     )
@@ -89,29 +82,15 @@ fun QueueView(context: ViewContext) {
                     }
                 },
                 actions = {
-                    when {
-                        selectedSongIndices.isNotEmpty() -> IconButton(
-                            onClick = {
-                                context.symphony.radio.queue.remove(selectedSongIndices.toList())
-                                selectedSongIndices.clear()
-                            }
-                        ) {
-                            Icon(Icons.Filled.Delete, null)
-                        }
-
-                        else -> IconButton(
-                            onClick = {
-                                showSaveDialog = !showSaveDialog
-                            }
-                        ) {
-                            Icon(Icons.Default.Save, null)
-                        }
+                    IconButton(
+                        onClick = { showSaveDialog = !showSaveDialog }
+                    ) {
+                        Icon(Icons.Default.Save, null)
                     }
 
                     IconButton(
                         onClick = {
                             context.symphony.radio.stop()
-                            selectedSongIndices.clear()
                         }
                     ) {
                         Icon(Icons.Filled.ClearAll, null)
@@ -141,39 +120,30 @@ fun QueueView(context: ViewContext) {
                                         song,
                                         autoHighlight = false,
                                         highlighted = i == queueIndex,
-                                        leading = {
-                                            Checkbox(
-                                                checked = selectedSongIndices.contains(i),
-                                                onCheckedChange = {
-                                                    if (selectedSongIndices.contains(i)) {
-                                                        selectedSongIndices.remove(i)
-                                                    } else {
-                                                        selectedSongIndices.add(i)
-                                                    }
-                                                },
-                                                modifier = Modifier.offset((-4).dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                        },
                                         thumbnailLabel = {
                                             Text((i + 1).toString())
                                         },
+                                        modifier = if (i < queueIndex) Modifier.background(
+                                            MaterialTheme.colorScheme.background.copy(
+                                                alpha = 0.3f
+                                            )
+                                        ) else Modifier,
                                         onClick = {
                                             context.symphony.radio.jumpTo(i)
                                             coroutineScope.launch {
                                                 listState.animateScrollToItem(i)
                                             }
                                         },
+                                        dragAndDropEnabled = true,
+                                        dragAndDropPos = i,
+                                        dragAndDropAction = { droppedI: Int, droppedSongId: String ->
+                                            context.symphony.radio.queue.handleDragAndDrop(
+                                                droppedI,
+                                                droppedSongId,
+                                                i
+                                            )
+                                        }
                                     )
-                                    if (i < queueIndex) {
-                                        Box(
-                                            modifier = Modifier
-                                                .matchParentSize()
-                                                .background(
-                                                    MaterialTheme.colorScheme.background.copy(alpha = 0.3f)
-                                                )
-                                        )
-                                    }
                                 }
                             }
                         }
