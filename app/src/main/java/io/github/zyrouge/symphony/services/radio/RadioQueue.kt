@@ -120,12 +120,8 @@ class RadioQueue(private val symphony: Symphony) {
         currentQueue.removeAt(fromIndex)
         originalQueue.add(newIndex, fromSongId)
         currentQueue.add(newIndex, fromSongId)
-        if (newIndex <= currentSongIndex) { // song moved to before currently playing
-            currentSongIndex++
-        }
-        if (fromIndex < currentSongIndex) { // song moved was before currently playing
-            currentSongIndex--
-        } else if (fromIndex == currentSongIndex) { // song moved is currently playing
+        if (fromIndex == currentSongIndex) { // song moved is currently playing
+            currentSongIndex = newIndex
             //TODO: this introduces a small break in playback
             symphony.radio.play(
                 Radio.PlayOptions(
@@ -134,7 +130,15 @@ class RadioQueue(private val symphony: Symphony) {
                     startPosition = symphony.radio.currentPlaybackPosition?.played
                 )
             )
-            currentSongIndex = newIndex
+        } else { // song moved isn't currently playing
+            // moved song was before the current song
+            if (fromIndex < currentSongIndex) {
+                currentSongIndex--
+            }
+            // moved song is inserted before current song
+            if (newIndex <= currentSongIndex) {
+                currentSongIndex++
+            }
         }
         symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
     }
