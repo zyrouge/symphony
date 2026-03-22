@@ -223,6 +223,8 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         return queue.clear()
     }
 
+    fun getQueueAsFlow() = queue.getCurrentSongQueueAsFlow()
+
     internal fun onQueueCurrentPlayingSongChanged(song: Song.AlongSongQueueMapping?) {
         symphony.groove.coroutineScope.launch {
             onQueueCurrentPlayingSongChangedNeedsSuspend(song)

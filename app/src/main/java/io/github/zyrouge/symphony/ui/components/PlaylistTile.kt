@@ -317,7 +317,6 @@ fun PlaylistDropdownMenu(
     }
 
     if (showSongsPicker) {
-
         val songs = remember {
             context.symphony.groove.playlist.findSongsById(
                 playlist.id,

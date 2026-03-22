@@ -20,6 +20,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.radio.RadioPlayer
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -38,13 +39,13 @@ fun LyricsText(
     style: TimedContentTextStyle,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val queue by context.symphony.radio.getQueueAsFlow().collectAsStateWithLifecycle(null)
     var playbackPosition by remember {
         mutableStateOf(
             context.symphony.radio.currentPlaybackPosition ?: RadioPlayer.PlaybackPosition.zero
         )
     }
     var playbackPositionTimer: Timer? = remember { null }
-    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
     val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
     val song by remember(queue, queueIndex) {
         derivedStateOf {
@@ -59,7 +60,8 @@ fun LyricsText(
         awaitAll(
             async {
                 playbackPositionTimer = timer(period = 50L) {
-                    playbackPosition = context.symphony.radio.currentPlaybackPosition
+                    // TODO
+                    playbackPosition = context.symphony.radio.getQueueAsFlow().value
                         ?: RadioPlayer.PlaybackPosition.zero
                 }
             },

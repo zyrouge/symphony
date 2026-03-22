@@ -41,10 +41,9 @@ fun GenericGrooveArtworkGrid(images: List<ImageRequest>) {
                 .clip(RoundedCornerShape(10.dp)),
         ) {
             items(4) { i ->
-                val x = images.getOrNull(i)
-
+                // TODO
                 AsyncImage(
-                    it,
+                    images[i],
                     null,
                     contentScale = ContentScale.Crop,
                 )

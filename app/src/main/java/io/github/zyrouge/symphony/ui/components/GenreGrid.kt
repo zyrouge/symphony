@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.entities.Genre
 import io.github.zyrouge.symphony.services.groove.repositories.GenreRepository

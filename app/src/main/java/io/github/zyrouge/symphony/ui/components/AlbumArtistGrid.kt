@@ -12,8 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.entities.Artist
+import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,7 +23,7 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun AlbumArtistGrid(
     context: ViewContext,
     albumArtists: List<Artist>,
-    sortBy: AlbumArtistRepository.SortBy,
+    sortBy: ArtistRepository.SortBy,
     sortReverse: Boolean,
 ) {
     val horizontalGridColumns by context.symphony.settings.lastUsedAlbumArtistsHorizontalGridColumns.flow.collectAsStateWithLifecycle()
@@ -42,7 +44,7 @@ fun AlbumArtistGrid(
                     context.symphony.settings.lastUsedAlbumArtistsSortReverse.setValue(it)
                 },
                 sort = sortBy,
-                sorts = AlbumArtistRepository.SortBy.entries
+                sorts = ArtistRepository.SortBy.entries
                     .associateWith { x -> ViewContext.parameterizedFn { x.label(context) } },
                 onSortChange = {
                     context.symphony.settings.lastUsedAlbumArtistsSortBy.setValue(it)
@@ -76,7 +78,7 @@ fun AlbumArtistGrid(
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.ARTIST }
                     ) { _, albumArtist ->
-                        AlbumArtistTile(context, albumArtist)
+                        ArtistTile(context, albumArtist)
                     }
                 }
             }
@@ -100,11 +102,4 @@ fun AlbumArtistGrid(
             }
         }
     )
-}
-
-private fun AlbumArtistRepository.SortBy.label(context: ViewContext) = when (this) {
-    AlbumArtistRepository.SortBy.CUSTOM -> context.symphony.t.Custom
-    AlbumArtistRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
-    AlbumArtistRepository.SortBy.ALBUMS_COUNT -> context.symphony.t.AlbumCount
-    AlbumArtistRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

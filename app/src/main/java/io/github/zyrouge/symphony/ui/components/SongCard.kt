@@ -50,7 +50,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
 import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
 import io.github.zyrouge.symphony.utils.Logger
@@ -68,13 +67,14 @@ fun SongCard(
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
+    val queue by context.symphony.radio.getQueueAsFlow().collectAsStateWithLifecycle(null)
     val isCurrentPlaying by remember(autoHighlight, song, queue) {
-        derivedStateOf { autoHighlight && song.id == queue.getOrNull(queueIndex) }
+        derivedStateOf { autoHighlight && song.id == queue?.entity?.playingId }
     }
     val isFavorite by context.symphony.groove.playlist.isFavoriteSongAsFlow(song.id)
         .collectAsStateWithLifecycle(false)
+    val artists by context.symphony.groove.song.findArtistsOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
     val artwork by context.symphony.groove.song.getArtworkUriAsFlow(song.id)
         .collectAsStateWithLifecycle(null)
 
@@ -135,9 +135,9 @@ fun SongCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    if (song.artists.isNotEmpty()) {
+                    if (artists.isNotEmpty()) {
                         Text(
-                            song.artists.joinToString(),
+                            artists.joinToString { it.entity.name },
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,

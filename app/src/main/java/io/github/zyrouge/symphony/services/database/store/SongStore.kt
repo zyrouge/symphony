@@ -64,8 +64,19 @@ abstract class SongStore {
             Song::class,
         ]
     )
-    protected abstract fun entriesAsFlow(query: SupportSQLiteQuery): Flow<Map<@MapColumn(Song.COLUMN_ID) String, Song>>
+    protected abstract fun entriesAsFlow(query: SupportSQLiteQuery): Flow<
+            Map<@MapColumn(Song.COLUMN_ID) String, Song>>
 
+    @RawQuery(
+        observedEntities = [
+            AlbumSongMapping::class,
+            ArtistSongMapping::class,
+            ComposerSongMapping::class,
+            GenreSongMapping::class,
+            PlaylistSongMapping::class,
+            Song::class,
+        ]
+    )
     internal abstract fun entriesAsPlaylistSongMapped(query: SupportSQLiteQuery): Map<
             @MapColumn(Song.COLUMN_ID) String, Song.AlongPlaylistMapping>
 

@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.launch
 
 @Composable
 fun GenericSongListDropdown(
@@ -35,8 +36,13 @@ fun GenericSongListDropdown(
                 Text(context.symphony.t.ShufflePlay)
             },
             onClick = {
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.radio.clear()
+                    context.symphony.radio.add(songIds)
+                    context.symphony.radio.setShuffleMode(true)
+                    context.symphony.radio.play()
+                }
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(songs, shuffle = true)
             }
         )
         DropdownMenuItem(
@@ -47,11 +53,8 @@ fun GenericSongListDropdown(
                 Text(context.symphony.t.PlayNext)
             },
             onClick = {
+                // TODO
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    songs,
-                    context.symphony.radio.queue.currentSongIndex + 1
-                )
             }
         )
         DropdownMenuItem(
@@ -62,8 +65,11 @@ fun GenericSongListDropdown(
                 Text(context.symphony.t.AddToQueue)
             },
             onClick = {
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.radio.add(songIds)
+                    context.symphony.radio.play()
+                }
                 onDismissRequest()
-                context.symphony.radio.queue.add(songIds)
             }
         )
         DropdownMenuItem(
@@ -81,12 +87,13 @@ fun GenericSongListDropdown(
     }
 
     if (showAddToPlaylistDialog) {
-        AddToPlaylistDialog(
-            context,
-            songs = songIds,
-            onDismissRequest = {
-                showAddToPlaylistDialog = false
-            }
-        )
+        // TODO
+//        AddToPlaylistDialog(
+//            context,
+//            songs = songIds,
+//            onDismissRequest = {
+//                showAddToPlaylistDialog = false
+//            }
+//        )
     }
 }

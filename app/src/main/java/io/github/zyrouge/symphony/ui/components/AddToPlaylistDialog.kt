@@ -92,7 +92,7 @@ fun AddToPlaylistDialog(
                             options = { expanded, onDismissRequest ->
                                 PlaylistDropdownMenu(
                                     context,
-                                    playlist,
+                                    playlist.entity,
                                     expanded = expanded,
                                     onDismissRequest = onDismissRequest,
                                 )

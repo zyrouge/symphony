@@ -285,6 +285,9 @@ class RadioQueue(private val symphony: Symphony) {
     internal fun getCurrentSongQueue() =
         symphony.database.songQueue.findByInternalId(SONG_QUEUE_INTERNAL_ID_DEFAULT)
 
+    internal fun getCurrentSongQueueAsFlow() =
+        symphony.database.songQueue.findByInternalIdAsFlow(SONG_QUEUE_INTERNAL_ID_DEFAULT)
+
     private suspend fun createOrGetCurrentSongQueue(): SongQueue {
         getCurrentSongQueue()?.let {
             return it.entity

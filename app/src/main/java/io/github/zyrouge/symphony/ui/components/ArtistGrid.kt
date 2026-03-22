@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
@@ -101,7 +102,7 @@ fun ArtistGrid(
     )
 }
 
-private fun ArtistRepository.SortBy.label(context: ViewContext) = when (this) {
+internal fun ArtistRepository.SortBy.label(context: ViewContext) = when (this) {
     ArtistRepository.SortBy.CUSTOM -> context.symphony.t.Custom
     ArtistRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
     ArtistRepository.SortBy.ALBUMS_COUNT -> context.symphony.t.AlbumCount

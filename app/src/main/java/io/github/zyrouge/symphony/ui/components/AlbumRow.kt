@@ -29,7 +29,7 @@ fun AlbumRow(context: ViewContext, albums: List<Album.AlongAttributes>) {
                 contentType = { _, _ -> Groove.Kind.ALBUM }
             ) { _, album ->
                 Box(modifier = Modifier.width(width)) {
-                    AlbumTile(context, album)
+                    AlbumTile(context, album.entity)
                 }
             }
         }

@@ -1,37 +1,37 @@
 package io.github.zyrouge.symphony.ui.components
 
 import androidx.compose.runtime.Composable
-import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @Composable
 fun PlaylistInformationDialog(
     context: ViewContext,
-    playlist: Playlist,
+    playlist: Playlist.AlongAttributes,
     onDismissRequest: () -> Unit,
 ) {
     InformationDialog(
         context,
         content = {
             InformationKeyValue(context.symphony.t.Id) {
-                LongPressCopyableText(context, playlist.id)
+                LongPressCopyableText(context, playlist.entity.id)
             }
             InformationKeyValue(context.symphony.t.Title) {
-                LongPressCopyableText(context, playlist.title)
+                LongPressCopyableText(context, playlist.entity.title)
             }
             InformationKeyValue(context.symphony.t.TrackCount) {
-                LongPressCopyableText(context, playlist.numberOfTracks.toString())
+                LongPressCopyableText(context, playlist.tracksCount.toString())
             }
             InformationKeyValue(context.symphony.t.PlaylistStoreLocation) {
                 LongPressCopyableText(
                     context,
                     when {
-                        playlist.isLocal -> context.symphony.t.LocalStorage
+                        playlist.entity.isLocal -> context.symphony.t.LocalStorage
                         else -> context.symphony.t.AppBuiltIn
                     }
                 )
             }
-            playlist.path?.let {
+            playlist.entity.path?.let {
                 InformationKeyValue(context.symphony.t.Path) {
                     LongPressCopyableText(context, it)
                 }
