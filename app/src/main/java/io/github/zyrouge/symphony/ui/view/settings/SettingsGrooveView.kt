@@ -43,7 +43,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.AdaptiveSnackbar
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
@@ -329,14 +328,8 @@ fun ImagePreserver.Quality.label(context: ViewContext) = when (this) {
 }
 
 private fun refreshMediaLibrary(symphony: Symphony, clearCache: Boolean = false) {
-    symphony.groove.coroutineScope.launch {
-        symphony.radio.stop()
-        val options = Groove.FetchOptions(
-            resetInMemoryCache = true,
-            resetPersistentCache = clearCache,
-        )
-        symphony.groove.fetch(options)
-    }
+    // TODO
+    symphony.groove.refetch()
 }
 
 @OptIn(ExperimentalFoundationApi::class)

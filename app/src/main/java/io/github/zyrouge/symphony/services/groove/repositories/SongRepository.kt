@@ -21,6 +21,8 @@ class SongRepository(private val symphony: Symphony) {
         TRACK_NUMBER,
     }
 
+    fun findByIdAsFlow(id: String) = symphony.database.songs.findByIdAsFlow(id)
+
     fun findArtistsOfIdAsFlow(id: String) = symphony.database.artists.valuesAsFlow(
         ArtistRepository.SortBy.ARTIST_NAME,
         false,
@@ -51,6 +53,8 @@ class SongRepository(private val symphony: Symphony) {
         false,
         songId = id,
     )
+
+    fun findLyricsOfIdAsFlow(id: String) = symphony.database.songLyrics.findBySongIdAsFlow(id)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getArtworkUriAsFlow(id: String) =

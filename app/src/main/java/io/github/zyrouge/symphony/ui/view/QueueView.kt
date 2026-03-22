@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholderSize
 import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
@@ -52,8 +53,7 @@ object QueueViewRoute
 @Composable
 fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
-    val queue by context.symphony.radio.observatory.queue.collectAsStateWithLifecycle()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsStateWithLifecycle()
+    val queue by context.symphony.radio.getQueueAsFlow().collectAsStateWithLifecycle(null)
     val selectedSongIndices = remember { mutableStateListOf<Int>() }
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = queueIndex,

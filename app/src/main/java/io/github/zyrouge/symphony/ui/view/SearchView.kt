@@ -54,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Groove
-import io.github.zyrouge.symphony.ui.components.AlbumArtistDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu

@@ -5,13 +5,25 @@ import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.entities.SongQueue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.Date
 import java.util.Timer
+import kotlin.math.min
 
+// TODO: check is hooks is needed
 class Radio(private val symphony: Symphony) : SymphonyHooks {
     data class SleepTimer(
         val endsAt: Long,
@@ -23,6 +35,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     private val queue = RadioQueue(symphony)
     private val player = RadioPlayer(symphony)
     private var sleepTimerInterval: SleepTimer.Internal? = null
+    private var playingTimestampUpdateJob: Job? = null
     val sleepTimer = MutableStateFlow<SleepTimer?>(null)
     val mediaSessionId get() = player.mediaSessionId
 
@@ -94,6 +107,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
                 playingId = songMappingId,
                 isPlaying = false,
                 playingTimestamp = seek,
+                playingTimestampUpdatedAt = System.currentTimeMillis(),
                 playingSpeedInt = (speed * SongQueue.SPEED_MULTIPLIER).toInt(),
                 playingPitchInt = (pitch * SongQueue.PITCH_MULTIPLIER).toInt(),
             )
@@ -111,8 +125,9 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         return true
     }
 
-    suspend fun seek(duration: Long): Boolean {
-        player.seek(duration)
+    suspend fun seek(to: Long): Boolean {
+        player.seek(to)
+        onPlayingTimestampRequiresUpdate(to)
         return true
     }
 
@@ -192,6 +207,40 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
 
     suspend fun setShuffleMode(to: Boolean) {
         queue.setShuffleMode(to)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getPlaybackPositionAsFlow(): Flow<RadioPlayer.PlaybackPosition> {
+        val songQueueFlow = getQueueAsFlow()
+        val playingSongFlow = songQueueFlow
+            .distinctUntilChangedBy { it?.entity?.playingId }
+            .transformLatest {
+                it?.entity?.playingId?.let {
+                    emitAll(symphony.groove.song.findByIdAsFlow(it))
+                }
+            }
+        val timeFlow = flow {
+            while (true) {
+                emit(System.currentTimeMillis())
+                delay(1000L)
+            }
+        }
+        val combinedFlow =
+            combine(songQueueFlow, playingSongFlow, timeFlow) { songQueue, playingSongFlow, now ->
+                Triple(songQueue, playingSongFlow, now)
+            }
+        return combinedFlow.transformLatest {
+            val (songQueue, playingSong, now) = it
+            if (songQueue == null) {
+                emit(RadioPlayer.PlaybackPosition.zero)
+                return@transformLatest
+            }
+            val playingTimestamp = songQueue.entity.playingTimestamp
+            val playingTimestampUpdatedAt = songQueue.entity.playingTimestampUpdatedAt
+            val played = playingTimestamp + min(0L, now - playingTimestampUpdatedAt)
+            val total = playingSong?.duration ?: 0L
+            RadioPlayer.PlaybackPosition(played = played, total = total)
+        }
     }
 
     suspend fun add(
@@ -292,6 +341,7 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
     }
 
     private suspend fun onPlayerIsPlayingChangedNeedsSuspend(isPlaying: Boolean) {
+        togglePlayingTimestampUpdates(isPlaying)
         queue.updateCurrentSongQueue {
             if (it.entity.isPlaying == isPlaying) {
                 return@updateCurrentSongQueue null
@@ -315,5 +365,46 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
             }
             it.entity.copy(speedInt = speedInt, pitchInt = pitchInt)
         }
+    }
+
+    private fun togglePlayingTimestampUpdates(to: Boolean) {
+        when {
+            to -> startPlayingTimestampUpdates()
+            else -> stopPlayingTimestampUpdates()
+        }
+    }
+
+    private fun startPlayingTimestampUpdates() {
+        if (playingTimestampUpdateJob?.isActive == true) {
+            return
+        }
+        playingTimestampUpdateJob = symphony.groove.coroutineScope.launch {
+            while (isActive) {
+                delay(PLAYING_TIMESTAMP_UPDATE_INTERVAL_MS)
+                onPlayingTimestampRequiresUpdate()
+            }
+        }
+    }
+
+    private fun stopPlayingTimestampUpdates() {
+        playingTimestampUpdateJob?.cancel()
+        playingTimestampUpdateJob = null
+    }
+
+    private suspend fun onPlayingTimestampRequiresUpdate(timestamp: Long? = null) {
+        val nPlayingTimestamp = (timestamp ?: player.getCurrentPosition().played).coerceAtLeast(0L)
+        queue.updateCurrentSongQueue {
+            if (it.entity.playingTimestamp == nPlayingTimestamp) {
+                return@updateCurrentSongQueue null
+            }
+            it.entity.copy(
+                playingTimestamp = nPlayingTimestamp,
+                playingTimestampUpdatedAt = System.currentTimeMillis(),
+            )
+        }
+    }
+
+    companion object {
+        private const val PLAYING_TIMESTAMP_UPDATE_INTERVAL_MS = 30_000L
     }
 }

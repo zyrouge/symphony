@@ -48,11 +48,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import io.github.zyrouge.symphony.services.groove.entities.Album
+import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.entities.Song
+import io.github.zyrouge.symphony.services.groove.entities.SongQueue
+import io.github.zyrouge.symphony.services.radio.RadioQueue
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createGrooveArtworkImageRequest
 import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
 import io.github.zyrouge.symphony.utils.Logger
+import kotlinx.coroutines.launch
 
 @Composable
 fun SongCard(
@@ -67,15 +73,17 @@ fun SongCard(
     trailingOptionsContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    val queue by context.symphony.radio.getQueueAsFlow().collectAsStateWithLifecycle(null)
-    val isCurrentPlaying by remember(autoHighlight, song, queue) {
-        derivedStateOf { autoHighlight && song.id == queue?.entity?.playingId }
+    val songQueue by context.symphony.radio.getQueueAsFlow().collectAsStateWithLifecycle(null)
+    val isCurrentPlaying by remember(autoHighlight, song, songQueue) {
+        derivedStateOf { autoHighlight && song.id == songQueue?.entity?.playingId }
     }
     val isFavorite by context.symphony.groove.playlist.isFavoriteSongAsFlow(song.id)
         .collectAsStateWithLifecycle(false)
     val artists by context.symphony.groove.song.findArtistsOfIdAsFlow(song.id)
         .collectAsStateWithLifecycle(emptyList())
-    val artwork by context.symphony.groove.song.getArtworkUriAsFlow(song.id)
+    val albums by context.symphony.groove.song.findAlbumsOfIdAsFlow(song.id)
+        .collectAsStateWithLifecycle(emptyList())
+    val artworkUri by context.symphony.groove.song.getArtworkUriAsFlow(song.id)
         .collectAsStateWithLifecycle(null)
 
     Card(
@@ -88,7 +96,7 @@ fun SongCard(
                 leading()
                 Box {
                     AsyncImage(
-                        song.createArtworkImageRequest(context.symphony).build(),
+                        createGrooveArtworkImageRequest(context.symphony, artworkUri),
                         null,
                         modifier = Modifier
                             .size(45.dp)
@@ -151,7 +159,9 @@ fun SongCard(
                         IconButton(
                             modifier = Modifier.offset(4.dp, 0.dp),
                             onClick = {
-                                context.symphony.groove.playlist.unfavorite(song.id)
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.groove.playlist.removeFromFavorites(song.id)
+                                }
                             }
                         ) {
                             Icon(
@@ -174,7 +184,10 @@ fun SongCard(
                         )
                         SongDropdownMenu(
                             context,
-                            song,
+                            songQueue = songQueue?.entity,
+                            song = song,
+                            artists = artists.map { it.entity },
+                            albums = albums.map { it.entity },
                             isFavorite = isFavorite,
                             trailingContent = trailingOptionsContent,
                             expanded = showOptionsMenu,
@@ -192,7 +205,10 @@ fun SongCard(
 @Composable
 fun SongDropdownMenu(
     context: ViewContext,
+    songQueue: SongQueue?,
     song: Song,
+    artists: List<Artist>,
+    albums: List<Album>,
     isFavorite: Boolean,
     trailingContent: (@Composable ColumnScope.(() -> Unit) -> Unit)? = null,
     expanded: Boolean,
@@ -217,10 +233,10 @@ fun SongDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.groove.playlist.run {
+                context.symphony.groove.coroutineScope.launch {
                     when {
-                        isFavorite -> unfavorite(song.id)
-                        else -> favorite(song.id)
+                        isFavorite -> context.symphony.groove.playlist.removeFromFavorites(song.id)
+                        else -> context.symphony.groove.playlist.addToFavorites(song.id)
                     }
                 }
             }
@@ -234,10 +250,15 @@ fun SongDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    song.id,
-                    context.symphony.radio.queue.currentSongIndex + 1
-                )
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.radio.add(
+                        song.id,
+                        when {
+                            songQueue?.playingId != null -> RadioQueue.AddPosition.After(songQueue.playingId)
+                            else -> RadioQueue.AddPosition.AfterTail
+                        },
+                    )
+                }
             }
         )
         DropdownMenuItem(
@@ -249,7 +270,9 @@ fun SongDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                context.symphony.radio.queue.add(song.id)
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.radio.add(song.id)
+                }
             }
         )
         DropdownMenuItem(
@@ -264,45 +287,31 @@ fun SongDropdownMenu(
                 showAddToPlaylistDialog = true
             }
         )
-        song.artists.forEach { artistName ->
+        artists.forEach {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Person, null)
                 },
                 text = {
-                    Text("${context.symphony.t.ViewArtist}: $artistName")
+                    Text("${context.symphony.t.ViewArtist}: ${it.name}")
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(ArtistViewRoute(artistName))
+                    context.navController.navigate(ArtistViewRoute(it.id))
                 }
             )
         }
-        song.albumArtists.forEach { albumArtist ->
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Filled.Person, null)
-                },
-                text = {
-                    Text("${context.symphony.t.ViewAlbumArtist}: $albumArtist")
-                },
-                onClick = {
-                    onDismissRequest()
-                    context.navController.navigate(AlbumArtistViewRoute(albumArtist))
-                }
-            )
-        }
-        context.symphony.groove.album.getIdFromSong(song)?.let { albumId ->
+        albums.forEach {
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Filled.Album, null)
                 },
                 text = {
-                    Text(context.symphony.t.ViewAlbum)
+                    Text("${context.symphony.t.ViewAlbum}: ${it.name}")
                 },
                 onClick = {
                     onDismissRequest()
-                    context.navController.navigate(AlbumViewRoute(albumId))
+                    context.navController.navigate(AlbumViewRoute(it.id))
                 }
             )
         }
@@ -360,7 +369,7 @@ fun SongDropdownMenu(
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
             context,
-            songs = listOf(song.id),
+            songs = listOf(song),
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

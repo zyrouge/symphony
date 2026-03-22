@@ -37,6 +37,15 @@ abstract class SongStore {
         return delete(SimpleSQLiteQuery(query, ids))
     }
 
+    @RawQuery(observedEntities = [Song::class])
+    protected abstract fun findByIdAsFlow(query: SimpleSQLiteQuery): Flow<Song?>
+
+    fun findByIdAsFlow(path: String): Flow<Song?> {
+        val query = "SELECT * FROM ${Song.TABLE} WHERE ${Song.COLUMN_ID} = ? LIMIT 1"
+        val args = arrayOf(path)
+        return findByIdAsFlow(SimpleSQLiteQuery(query, args))
+    }
+
     @RawQuery
     protected abstract fun findByPath(query: SimpleSQLiteQuery): Song?
 

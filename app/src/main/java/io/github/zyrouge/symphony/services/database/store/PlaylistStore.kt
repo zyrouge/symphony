@@ -38,6 +38,17 @@ abstract class PlaylistStore {
     }
 
     @RawQuery
+    protected abstract fun findByInternalId(query: SimpleSQLiteQuery): Playlist?
+
+    fun findByInternalId(internalId: Int): Playlist? {
+        val query = "SELECT * FROM ${Playlist.TABLE} " +
+                "WHERE ${Playlist.COLUMN_INTERNAL_ID} = ? " +
+                "LIMIT 1"
+        val args = arrayOf(internalId)
+        return findByInternalId(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
     protected abstract fun valuesLocalOnly(query: SimpleSQLiteQuery): List<Playlist>
 
     fun valuesLocalOnly(): List<Playlist> {

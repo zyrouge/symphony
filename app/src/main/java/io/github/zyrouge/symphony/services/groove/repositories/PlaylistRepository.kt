@@ -75,6 +75,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     private interface PlaylistSongMappingOperatorDataChangeFunctions :
         LazyLinkedListOperator.DataChangeFunctions<String, PlaylistSongMapping>
 
+    private lateinit var favoritesPlaylistId: String
     private lateinit var favoriteSongIdsFlow: Flow<List<String>>
     private var favoriteSongIds = emptyList<String>()
 
@@ -157,6 +158,11 @@ class PlaylistRepository(private val symphony: Symphony) {
         it.contains(songId)
     }
 
+    suspend fun addToFavorites(songId: String) = addSongs(favoritesPlaylistId, listOf(songId))
+
+    suspend fun removeFromFavorites(songId: String) =
+        removeSongs(favoritesPlaylistId, listOf(songId))
+
     fun findByIdAsFlow(id: String) = symphony.database.playlists.findByIdAsFlow(id)
 
     fun findSongsById(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
@@ -202,10 +208,31 @@ class PlaylistRepository(private val symphony: Symphony) {
         }
     }
 
+    private suspend fun ensureInternalPlaylist(internalId: Int, title: String): Playlist {
+        symphony.database.playlists.findByInternalId(internalId)?.let {
+            return it
+        }
+        return create { id ->
+            Playlist(
+                id = id,
+                internalId = internalId,
+                title = title,
+                uri = null,
+                path = null,
+            )
+        }
+    }
+
+    private suspend fun ensureFavoritesPlaylist() {
+        val playlist = ensureInternalPlaylist(PLAYLIST_INTERNAL_ID_FAVORITES, symphony.t.Favorite)
+        favoritesPlaylistId = playlist.id
+    }
+
     private fun observeFavoritesPlaylistChanges() {
-        favoriteSongIdsFlow = symphony.database.playlistSongMapping
-            .findSongIdsByPlaylistInternalIdAsFlow(PLAYLIST_INTERNAL_ID_FAVORITES)
         symphony.groove.coroutineScope.launch {
+            ensureFavoritesPlaylist()
+            favoriteSongIdsFlow = symphony.database.playlistSongMapping
+                .findSongIdsByPlaylistInternalIdAsFlow(PLAYLIST_INTERNAL_ID_FAVORITES)
             favoriteSongIdsFlow.collect {
                 favoriteSongIds = it
             }

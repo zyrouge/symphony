@@ -298,6 +298,7 @@ class RadioQueue(private val symphony: Symphony) {
             playingId = null,
             isPlaying = false,
             playingTimestamp = 0,
+            playingTimestampUpdatedAt = 0,
             playingSpeedInt = SongQueue.SPEED_MULTIPLIER,
             playingPitchInt = SongQueue.PITCH_MULTIPLIER,
             shuffled = false,

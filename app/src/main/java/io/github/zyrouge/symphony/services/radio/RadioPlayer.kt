@@ -165,6 +165,13 @@ class RadioPlayer(val symphony: Symphony) {
         it.playbackParameters = it.playbackParameters.withPitch(to)
     }
 
+    suspend fun getCurrentPosition() = withMediaPlayer {
+        PlaybackPosition(
+            played = it.currentPosition.coerceAtLeast(0L),
+            total = it.duration.takeIf { it > 0L } ?: 0L,
+        )
+    }
+
     private suspend fun <T> withMediaPlayer(fn: (ExoPlayer) -> T): T {
         return withContext(Dispatchers.Main) {
             fn(mediaPlayerUnsafe)

@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
     foreignKeys = [
         ForeignKey(
             entity = Song::class,
-            parentColumns = arrayOf(Song.COLUMN_ID),
+            parentColumns = arrayOf(MediaTreeSongFile.COLUMN_ID),
             childColumns = arrayOf(SongLyric.COLUMN_SONG_FILE_ID),
             onDelete = ForeignKey.CASCADE,
         ),

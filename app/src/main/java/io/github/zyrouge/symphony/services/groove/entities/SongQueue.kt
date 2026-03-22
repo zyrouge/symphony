@@ -45,6 +45,8 @@ data class SongQueue(
     val isPlaying: Boolean,
     @ColumnInfo(COLUMN_PLAYING_TIMESTAMP)
     val playingTimestamp: Long,
+    @ColumnInfo(COLUMN_PLAYING_TIMESTAMP_UPDATED_AT)
+    val playingTimestampUpdatedAt: Long,
     @ColumnInfo(COLUMN_PLAYING_SPEED_INT)
     val playingSpeedInt: Int,
     @ColumnInfo(COLUMN_PLAYING_PITCH_INT)
@@ -95,6 +97,7 @@ data class SongQueue(
         const val COLUMN_PLAYING_SPEED_INT = "playing_speed_int"
         const val COLUMN_PLAYING_PITCH_INT = "playing_pitch_int"
         const val COLUMN_PLAYING_TIMESTAMP = "playing_timestamp"
+        const val COLUMN_PLAYING_TIMESTAMP_UPDATED_AT = "playing_timestamp_updated_at"
         const val COLUMN_SHUFFLED = "shuffled"
         const val COLUMN_LOOP_MODE = "loop_mode"
         const val COLUMN_SPEED_INT = "speed_int"
