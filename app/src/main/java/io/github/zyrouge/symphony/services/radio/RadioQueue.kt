@@ -150,6 +150,7 @@ class RadioQueue(private val symphony: Symphony) {
         val originalQueue: List<String>,
         val currentQueue: List<String>,
         val shuffled: Boolean,
+        val loopModeIndex: Int,
     ) {
         fun serialize() =
             listOf(
@@ -158,6 +159,7 @@ class RadioQueue(private val symphony: Symphony) {
                 originalQueue.joinToString(","),
                 currentQueue.joinToString(","),
                 shuffled.toString(),
+                loopModeIndex.toString(),
             ).joinToString(";")
 
         companion object {
@@ -168,6 +170,7 @@ class RadioQueue(private val symphony: Symphony) {
                     originalQueue = queue.originalQueue.toList(),
                     currentQueue = queue.currentQueue.toList(),
                     shuffled = queue.currentShuffleMode,
+                    loopModeIndex = queue.currentLoopMode.ordinal,
                 )
 
             fun parse(data: String): Serialized? {
@@ -179,6 +182,7 @@ class RadioQueue(private val symphony: Symphony) {
                         originalQueue = semi[2].split(","),
                         currentQueue = semi[3].split(","),
                         shuffled = semi[4].toBoolean(),
+                        loopModeIndex = semi[5].toInt(),
                     )
                 } catch (_: Exception) {
                 }
@@ -196,6 +200,7 @@ class RadioQueue(private val symphony: Symphony) {
             currentQueue.addAll(serialized.currentQueue)
             symphony.radio.onUpdate.dispatch(Radio.Events.Queue.Modified)
             currentShuffleMode = serialized.shuffled
+            currentLoopMode = LoopMode.values[serialized.loopModeIndex]
             afterAdd(
                 Radio.PlayOptions(
                     index = serialized.currentSongIndex,
