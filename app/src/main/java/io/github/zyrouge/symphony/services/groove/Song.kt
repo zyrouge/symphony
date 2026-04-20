@@ -167,7 +167,7 @@ data class Song(
                 discNumber = metadata.discNumber,
                 discTotal = metadata.discTotal,
                 date = metadata.date,
-                year = metadata.date?.year,
+                year = metadata.year,
                 duration = metadata.lengthInSeconds?.let { it * 1000L } ?: 0,
                 bitrate = metadata.bitrate?.let { it * 1000L },
                 samplingRate = metadata.sampleRate?.toLong(),

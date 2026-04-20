@@ -14,6 +14,7 @@ data class AudioMetadata(
     val trackNumber: Int?,
     val trackTotal: Int?,
     val date: LocalDate?,
+    val year: Int?,
     val lyrics: String?,
     val encoding: String?,
     val bitrate: Int?,
