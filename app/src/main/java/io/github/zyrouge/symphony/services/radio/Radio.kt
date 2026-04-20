@@ -423,6 +423,7 @@ class Radio(private val symphony: Symphony) : Symphony.Hooks {
                     originalQueue = originalQueue,
                     currentQueue = currentQueue,
                     shuffled = previous.shuffled,
+                    loopModeIndex = previous.loopModeIndex,
                 )
             )
         }
