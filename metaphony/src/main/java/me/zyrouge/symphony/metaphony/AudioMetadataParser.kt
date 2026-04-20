@@ -48,8 +48,9 @@ class AudioMetadataParser private constructor() {
             discTotal = discTotal,
             trackNumber = trackNumber,
             trackTotal = trackTotal ?: tags["TRACKTOTAL"]?.firstOrNull()?.toIntOrNull(),
-            date = tags["DATE"]?.firstOrNull()?.let { parseDate(it) } ?: tags["YEAR"]?.firstOrNull()
-                ?.let { parseDate(it) },
+            date = tags["DATE"]?.firstOrNull()?.let { parseDate(it) },
+            year = tags["YEAR"]?.firstOrNull()?.let { parseYear(it) } ?: tags["DATE"]?.firstOrNull()
+                ?.let { parseYear(it) },
             lyrics = tags["LYRICS"]?.firstOrNull(),
             encoding = tags["ENCODING"]?.firstOrNull(),
             bitrate = audioProperties["BITRATE"],
@@ -82,18 +83,24 @@ class AudioMetadataParser private constructor() {
             return split[0].toIntOrNull() to split[1].toIntOrNull()
         }
 
-        val DATE_NOW: LocalDate = LocalDate.now()
         val DATE_YEAR_MONTH_DATE: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
         private fun parseDate(text: String): LocalDate? {
             runCatching {
-                return Year.parse(text).atMonth(DATE_NOW.month).atDay(DATE_NOW.dayOfMonth)
-            }
-            runCatching {
-                return YearMonth.parse(text).atDay(DATE_NOW.dayOfMonth)
-            }
-            runCatching {
                 return LocalDate.parse(text, DATE_YEAR_MONTH_DATE)
+            }
+            return null
+        }
+
+        private fun parseYear(text: String): Int? {
+            runCatching {
+                return Year.parse(text).value
+            }
+            runCatching {
+                return YearMonth.parse(text).year
+            }
+            runCatching {
+                return LocalDate.parse(text, DATE_YEAR_MONTH_DATE).year
             }
             return null
         }

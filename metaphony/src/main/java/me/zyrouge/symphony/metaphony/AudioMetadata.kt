@@ -1,6 +1,7 @@
 package me.zyrouge.symphony.metaphony
 
 import java.time.LocalDate
+import java.time.Year
 
 data class AudioMetadata(
     val title: String?,
@@ -14,6 +15,7 @@ data class AudioMetadata(
     val trackNumber: Int?,
     val trackTotal: Int?,
     val date: LocalDate?,
+    val year: Int?,
     val lyrics: String?,
     val encoding: String?,
     val bitrate: Int?,
