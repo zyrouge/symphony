@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
-import io.github.zyrouge.symphony.utils.toSafeFinite
+import io.github.zyrouge.symphony.utils.builtin.toSafeFinite
 import kotlin.math.floor
 
 fun Modifier.drawScrollBar(state: LazyGridState, columns: Int): Modifier = composed {

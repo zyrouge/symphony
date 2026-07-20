@@ -1,466 +1,414 @@
 package io.github.zyrouge.symphony.services.radio
 
+import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.Eventer
-import io.github.zyrouge.symphony.utils.Logger
+import io.github.zyrouge.symphony.SymphonyHooks
+import io.github.zyrouge.symphony.services.groove.entities.Song
+import io.github.zyrouge.symphony.services.groove.entities.SongQueue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.Date
 import java.util.Timer
+import kotlin.math.min
 
-class Radio(private val symphony: Symphony) : Symphony.Hooks {
-    sealed class Events {
-        sealed class Player : Events() {
-            object Staged : Player()
-            object Started : Player()
-            object Stopped : Player()
-            object Paused : Player()
-            object Resumed : Player()
-            object Seeked : Player()
-            object Ended : Player()
-        }
-
-        sealed class Queue : Events() {
-            object Modified : Queue()
-            object IndexChanged : Queue()
-            object Cleared : Queue()
-        }
-
-        sealed class QueueOption : Events() {
-            object LoopModeChanged : QueueOption()
-            object ShuffleModeChanged : QueueOption()
-            object SleepTimerChanged : QueueOption()
-            object SpeedChanged : QueueOption()
-            object PitchChanged : QueueOption()
-            object PauseOnCurrentSongEndChanged : QueueOption()
-        }
-    }
-
+// TODO: check is hooks is needed
+class Radio(private val symphony: Symphony) : SymphonyHooks {
     data class SleepTimer(
-        val duration: Long,
         val endsAt: Long,
-        val timer: Timer,
-        var quitOnEnd: Boolean,
-    )
-
-    val onUpdate = Eventer<Events>()
-    val queue = RadioQueue(symphony)
-    val shorty = RadioShorty(symphony)
-    val session = RadioSession(symphony)
-    var observatory = RadioObservatory(symphony)
-
-    private val focus = RadioFocus(symphony)
-    private val nativeReceiver = RadioNativeReceiver(symphony)
-    private var player: RadioPlayer? = null
-    private var nextPlayer: RadioPlayer? = null
-
-    val hasPlayer get() = player?.usable == true
-    val isPlaying get() = player?.isPlaying == true
-    val currentPlaybackPosition get() = player?.playbackPosition
-    val currentSpeed get() = player?.speed ?: RadioPlayer.DEFAULT_SPEED
-    val currentPitch get() = player?.pitch ?: RadioPlayer.DEFAULT_PITCH
-    val audioSessionId get() = player?.audioSessionId
-    val onPlaybackPositionUpdate = Eventer<RadioPlayer.PlaybackPosition>()
-
-    var persistedSpeed = RadioPlayer.DEFAULT_SPEED
-    var persistedPitch = RadioPlayer.DEFAULT_PITCH
-    var sleepTimer: SleepTimer? = null
-    var pauseOnCurrentSongEnd = false
-
-    init {
-        nativeReceiver.start()
-        onUpdate.subscribe(this::watchQueueUpdates)
-    }
-
-    fun ready() {
-        attachGrooveListener()
-        session.start()
-        observatory.start()
-    }
-
-    fun destroy() {
-        stop()
-        observatory.destroy()
-        session.destroy()
-        nativeReceiver.destroy()
-    }
-
-    data class PlayOptions(
-        val index: Int = 0,
-        val autostart: Boolean = true,
-        val startPosition: Long? = null,
-    )
-
-    fun play(options: PlayOptions) {
-        stopCurrentSong()
-        val song = queue.getSongIdAt(options.index)?.let { symphony.groove.song.get(it) }
-        if (song == null) {
-            onSongFinish(SongFinishSource.Exception)
-            return
-        }
-        try {
-            queue.currentSongIndex = options.index
-            player = nextPlayer?.takeIf {
-                when {
-                    it.id == song.id -> true
-                    else -> {
-                        it.destroy()
-                        false
-                    }
-                }
-            } ?: RadioPlayer(symphony, song.id, song.uri)
-            nextPlayer = null
-            player!!.setOnPreparedListener {
-                options.startPosition?.let {
-                    if (it > 0L) {
-                        seek(it)
-                    }
-                }
-                setSpeed(persistedSpeed, true)
-                setPitch(persistedPitch, true)
-                if (options.autostart) {
-                    start()
-                }
-            }
-            player!!.setOnPlaybackPositionListener {
-                onPlaybackPositionUpdate.dispatch(it)
-            }
-            player!!.setOnFinishListener {
-                onSongFinish(SongFinishSource.Finish)
-            }
-            player!!.setOnErrorListener { what, extra ->
-                Logger.warn(
-                    "Radio",
-                    "skipping song ${queue.currentSongId} (${queue.currentSongIndex}) due to $what + $extra"
-                )
-                when {
-                    // happens when change playback params fail, we skip it since its non-critical
-                    what == 1 && extra == -22 -> onSongFinish(SongFinishSource.Finish)
-                    else -> {
-                        queue.remove(queue.currentSongIndex)
-                        onSongFinish(SongFinishSource.Exception)
-                    }
-                }
-            }
-            player!!.prepare()
-            prepareNextPlayer()
-            onUpdate.dispatch(Events.Player.Staged)
-        } catch (err: Exception) {
-            Logger.warn(
-                "Radio",
-                "skipping song ${queue.currentSongId} (${queue.currentSongIndex})",
-                err,
-            )
-            queue.remove(queue.currentSongIndex)
-        }
-    }
-
-    private fun prepareNextPlayer() {
-        if (!symphony.settings.gaplessPlayback.value) {
-            return
-        }
-        val (nextSongIndex) = getNextSong(SongFinishSource.Finish)
-        val song = queue.getSongIdAt(nextSongIndex)?.let { symphony.groove.song.get(it) } ?: return
-        if (song.id == nextPlayer?.id) {
-            return
-        }
-        try {
-            nextPlayer?.destroy()
-            nextPlayer = RadioPlayer(symphony, song.id, song.uri).also {
-                it.prepare()
-            }
-        } catch (err: Exception) {
-            Logger.warn(
-                "Radio",
-                "unable to prepare next player ${song.id} (${nextSongIndex})",
-                err,
-            )
-        }
-    }
-
-    fun resume() = start()
-
-    private fun start() {
-        player?.let {
-            val hasFocus = focus.requestFocus()
-            if (symphony.settings.requireAudioFocus.value && !hasFocus) {
-                return
-            }
-            if (it.fadePlayback) {
-                it.changeVolumeInstant(RadioPlayer.MIN_VOLUME)
-            }
-            it.changeVolume(RadioPlayer.MAX_VOLUME) {}
-            it.start()
-            onUpdate.dispatch(
-                when {
-                    !it.hasPlayedOnce -> Events.Player.Started
-                    else -> Events.Player.Resumed
-                }
-            )
-        }
-    }
-
-    fun pause() = pause {}
-
-    private fun pause(forceFade: Boolean = false, onFinish: () -> Unit) {
-        player?.let {
-            if (!it.isPlaying) {
-                return@let
-            }
-            it.changeVolume(
-                to = RadioPlayer.MIN_VOLUME,
-                forceFade = forceFade,
-            ) { _ ->
-                it.pause()
-                focus.abandonFocus()
-                onFinish()
-                onUpdate.dispatch(Events.Player.Paused)
-            }
-        }
-    }
-
-    fun pauseInstant() {
-        player?.let {
-            it.pause()
-            onUpdate.dispatch(Events.Player.Paused)
-        }
-    }
-
-    fun stop(ended: Boolean = true) {
-        stopCurrentSong()
-        queue.reset()
-        clearSleepTimer()
-        persistedSpeed = RadioPlayer.DEFAULT_SPEED
-        persistedPitch = RadioPlayer.DEFAULT_PITCH
-        if (ended) onUpdate.dispatch(Events.Player.Ended)
-    }
-
-    fun jumpTo(index: Int) = play(PlayOptions(index = index))
-    fun jumpToPrevious() = jumpTo(queue.currentSongIndex - 1)
-    fun jumpToNext() = jumpTo(queue.currentSongIndex + 1)
-    fun canJumpToPrevious() = queue.hasSongAt(queue.currentSongIndex - 1)
-    fun canJumpToNext() = queue.hasSongAt(queue.currentSongIndex + 1)
-
-    fun seek(position: Long) {
-        player?.let {
-            it.seek(position.toInt())
-            onUpdate.dispatch(Events.Player.Seeked)
-        }
-    }
-
-    fun duck() {
-        player?.let {
-            it.changeVolume(RadioPlayer.DUCK_VOLUME) {}
-        }
-    }
-
-    fun restoreVolume() {
-        player?.let {
-            it.changeVolume(RadioPlayer.MAX_VOLUME) {}
-        }
-    }
-
-    fun setSpeed(speed: Float, persist: Boolean) {
-        player?.let {
-            it.changeSpeed(speed)
-            if (persist) {
-                persistedSpeed = speed
-            }
-            onUpdate.dispatch(Events.QueueOption.SpeedChanged)
-        }
-    }
-
-    fun setPitch(pitch: Float, persist: Boolean) {
-        player?.let {
-            it.changePitch(pitch)
-            if (persist) {
-                persistedPitch = pitch
-            }
-            onUpdate.dispatch(Events.QueueOption.PitchChanged)
-        }
-    }
-
-    fun setSleepTimer(
-        duration: Long,
-        quitOnEnd: Boolean,
+        val quitOnEnd: Boolean,
     ) {
-        val endsAt = System.currentTimeMillis() + duration
-        val timer = Timer()
-        timer.schedule(
-            kotlin.concurrent.timerTask {
-                val shouldQuit = sleepTimer?.quitOnEnd ?: quitOnEnd
-                clearSleepTimer()
-                pause(forceFade = true) {
-                    if (shouldQuit) {
-                        symphony.closeApp?.invoke()
-                    }
-                }
-            },
-            Date.from(Instant.ofEpochMilli(endsAt)),
-        )
-        clearSleepTimer()
-        sleepTimer = SleepTimer(
-            duration = duration,
-            endsAt = endsAt,
-            timer = timer,
-            quitOnEnd = quitOnEnd,
-        )
-        onUpdate.dispatch(Events.QueueOption.SleepTimerChanged)
+        data class Internal(val sleepTimer: SleepTimer, val timer: Timer)
     }
 
-    fun clearSleepTimer() {
-        sleepTimer?.timer?.cancel()
-        sleepTimer = null
-        onUpdate.dispatch(Events.QueueOption.SleepTimerChanged)
+    private val queue = RadioQueue(symphony)
+    private val player = RadioPlayer(symphony)
+    private var sleepTimerInterval: SleepTimer.Internal? = null
+    private var playingTimestampUpdateJob: Job? = null
+    val sleepTimer = MutableStateFlow<SleepTimer?>(null)
+    val mediaSessionId get() = player.mediaSessionId
+
+    suspend fun play(): Boolean {
+        if (player.hasMedia()) {
+            player.play()
+            return true
+        }
+        val songQueue = queue.getCurrentSongQueue() ?: return false
+        val songQueueId = songQueue.entity.id
+        var song: Song.AlongSongQueueMapping? = null
+        var playingTimestamp: Long? = null
+        if (songQueue.entity.playingId != null) {
+            song = symphony.database.songQueueSongMapping.findById(
+                songQueueId,
+                songQueue.entity.playingId
+            )
+            playingTimestamp = songQueue.entity.playingTimestamp
+        }
+        if (song == null) {
+            song = symphony.database.songQueueSongMapping.findHead(songQueue.entity.id)
+            playingTimestamp = null
+        }
+        if (song == null) {
+            return false
+        }
+        play(song.mapping.id, song.entity.uri, playingTimestamp ?: 0L)
+        return true
     }
 
-    @JvmName("setPauseOnCurrentSongEndTo")
-    fun setPauseOnCurrentSongEnd(value: Boolean) {
-        pauseOnCurrentSongEnd = value
-        onUpdate.dispatch(Events.QueueOption.PauseOnCurrentSongEndChanged)
+    suspend fun play(songMappingId: String): Boolean {
+        val songQueue = queue.getCurrentSongQueue() ?: return false
+        val songQueueId = songQueue.entity.id
+        val song = symphony.database.songQueueSongMapping.findById(songQueueId, songMappingId)
+            ?: return false
+        play(songMappingId, song.entity.uri)
+        return true
     }
 
-    private fun stopCurrentSong() {
-        player?.let {
-            player = null
-            it.setOnPlaybackPositionListener {}
-            it.changeVolume(RadioPlayer.MIN_VOLUME) { _ ->
-                it.stop()
-                onUpdate.dispatch(Events.Player.Stopped)
-            }
+    suspend fun playBySongId(songId: String): Boolean {
+        val songQueue = queue.getCurrentSongQueue() ?: return false
+        val songQueueId = songQueue.entity.id
+        val song = symphony.database.songQueueSongMapping.findBySongId(songQueueId, songId)
+            ?: return false
+        play(song.mapping.id, song.entity.uri)
+        return true
+    }
+
+    private suspend fun play(
+        songMappingId: String,
+        songUri: Uri,
+        seek: Long = RadioPlayer.DEFAULT_SEEK,
+        speed: Float = RadioPlayer.DEFAULT_SPEED,
+        pitch: Float = RadioPlayer.DEFAULT_PITCH,
+    ) {
+        if (player.getMedia()?.uri == songUri) {
+            player.play()
+            return
+        }
+        player.stop()
+        val nMedia = RadioPlayer.PlayableMedia(songMappingId, songUri)
+        player.setMedia(nMedia)
+        player.seek(seek)
+        player.setSpeed(speed)
+        player.setPitch(pitch)
+        player.play()
+        queue.updateCurrentSongQueue {
+            it.entity.copy(
+                playingId = songMappingId,
+                isPlaying = false,
+                playingTimestamp = seek,
+                playingTimestampUpdatedAt = System.currentTimeMillis(),
+                playingSpeedInt = (speed * SongQueue.SPEED_MULTIPLIER).toInt(),
+                playingPitchInt = (pitch * SongQueue.PITCH_MULTIPLIER).toInt(),
+            )
         }
     }
 
-    private enum class SongFinishSource {
+    suspend fun pause(): Boolean {
+        player.pause()
+        return true
+    }
+
+    suspend fun stop(): Boolean {
+        player.stop()
+        queue.clear()
+        return true
+    }
+
+    suspend fun seek(to: Long): Boolean {
+        player.seek(to)
+        onPlayingTimestampRequiresUpdate(to)
+        return true
+    }
+
+    suspend fun setSpeed(speed: Float, persist: Boolean): Boolean {
+        val success = queue.updateCurrentSongQueue {
+            val speedInt = (speed * SongQueue.SPEED_MULTIPLIER).toInt()
+            val persistedSpeedInt = if (persist) speedInt else it.entity.speedInt
+            it.entity.copy(playingSpeedInt = speedInt, speedInt = persistedSpeedInt)
+        }
+        if (!success) {
+            return false
+        }
+        player.setSpeed(speed)
+        return true
+    }
+
+    suspend fun setPitch(pitch: Float, persist: Boolean): Boolean {
+        val success = queue.updateCurrentSongQueue {
+            val pitchInt = (pitch * SongQueue.PITCH_MULTIPLIER).toInt()
+            val persistedPitchInt = if (persist) pitchInt else it.entity.pitchInt
+            it.entity.copy(playingPitchInt = pitchInt, pitchInt = persistedPitchInt)
+        }
+        if (!success) {
+            return false
+        }
+        player.setPitch(pitch)
+        return true
+    }
+
+    suspend fun setSleepTimer(sleepTimer: SleepTimer): Boolean {
+        val success = queue.updateCurrentSongQueue {
+            it.entity.copy(sleepTimerEndsAt = null)
+        }
+        if (!success) {
+            return false
+        }
+        val quitOnEnd = false
+        val timerTask = kotlin.concurrent.timerTask {
+            val shouldQuit = quitOnEnd
+            cancelSleepTimer()
+            symphony.groove.coroutineScope.launch {
+                pause()
+            }
+            if (shouldQuit) {
+                symphony.closeApp?.invoke()
+            }
+        }
+        val timer = Timer()
+        timer.schedule(timerTask, Date.from(Instant.ofEpochMilli(sleepTimer.endsAt)))
+        cancelSleepTimer()
+        sleepTimerInterval = SleepTimer.Internal(sleepTimer = sleepTimer, timer = timer)
+        this.sleepTimer.update { sleepTimerInterval?.sleepTimer }
+        return true
+    }
+
+    fun cancelSleepTimer() {
+        sleepTimerInterval?.timer?.cancel()
+        sleepTimerInterval = null
+        sleepTimer.update { sleepTimerInterval?.sleepTimer }
+    }
+
+    suspend fun setPauseOnCurrentSongEnd(value: Boolean) = queue.updateCurrentSongQueue {
+        it.entity.copy(pauseOnSongEnd = value)
+    }
+
+    suspend fun toggleLoopMode() {
+        queue.toggleLoopMode()
+    }
+
+    suspend fun setLoopMode(loopMode: SongQueue.LoopMode) {
+        queue.setLoopMode(loopMode)
+    }
+
+    suspend fun toggleShuffleMode() {
+        queue.toggleShuffleMode()
+    }
+
+    suspend fun setShuffleMode(to: Boolean) {
+        queue.setShuffleMode(to)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getPlaybackPositionAsFlow(): Flow<RadioPlayer.PlaybackPosition> {
+        val songQueueFlow = getQueueAsFlow()
+        val playingSongFlow = songQueueFlow
+            .distinctUntilChangedBy { it?.entity?.playingId }
+            .transformLatest {
+                it?.entity?.playingId?.let {
+                    emitAll(symphony.groove.song.findByIdAsFlow(it))
+                }
+            }
+        val timeFlow = flow {
+            while (true) {
+                emit(System.currentTimeMillis())
+                delay(1000L)
+            }
+        }
+        val combinedFlow =
+            combine(songQueueFlow, playingSongFlow, timeFlow) { songQueue, playingSongFlow, now ->
+                Triple(songQueue, playingSongFlow, now)
+            }
+        return combinedFlow.transformLatest {
+            val (songQueue, playingSong, now) = it
+            if (songQueue == null) {
+                emit(RadioPlayer.PlaybackPosition.zero)
+                return@transformLatest
+            }
+            val playingTimestamp = songQueue.entity.playingTimestamp
+            val playingTimestampUpdatedAt = songQueue.entity.playingTimestampUpdatedAt
+            val played = playingTimestamp + min(0L, now - playingTimestampUpdatedAt)
+            val total = playingSong?.duration ?: 0L
+            RadioPlayer.PlaybackPosition(played = played, total = total)
+        }
+    }
+
+    suspend fun add(
+        songIds: List<String>,
+        position: RadioQueue.AddPosition = RadioQueue.AddPosition.AfterTail,
+    ) = queue.add(songIds, position)
+
+    suspend fun add(
+        songId: String,
+        position: RadioQueue.AddPosition = RadioQueue.AddPosition.AfterTail,
+    ) = queue.add(songId, position)
+
+    suspend fun add(
+        songs: List<Song>,
+        position: RadioQueue.AddPosition = RadioQueue.AddPosition.AfterTail,
+    ) = queue.add(songs, position)
+
+    suspend fun add(
+        song: Song,
+        position: RadioQueue.AddPosition = RadioQueue.AddPosition.AfterTail,
+    ) = queue.add(song, position)
+
+    suspend fun remove(songMappingIds: List<String>) = queue.remove(songMappingIds)
+
+    suspend fun remove(songMappingId: String) = queue.remove(songMappingId)
+
+    suspend fun clear(): Boolean {
+        stop()
+        return queue.clear()
+    }
+
+    suspend fun previous() = queue.previous()
+
+    suspend fun skip() = queue.skip()
+
+    fun getQueueAsFlow() = queue.getCurrentSongQueueAsFlow()
+
+    internal fun onQueueCurrentPlayingSongChanged(song: Song.AlongSongQueueMapping?) {
+        symphony.groove.coroutineScope.launch {
+            onQueueCurrentPlayingSongChangedNeedsSuspend(song)
+        }
+    }
+
+    internal suspend fun onQueueCurrentPlayingSongChangedNeedsSuspend(song: Song.AlongSongQueueMapping?) {
+//        if (song == null) {
+//            player.stop()
+//            return
+//        }
+//        val media = player.getMedia()
+//        if (media?.uri == song.entity.uri) {
+//            return
+//        }
+//        play(song.mapping.id, song.entity.uri)
+    }
+
+    internal fun onQueueNextPlayingSongChanged(song: Song.AlongSongQueueMapping?) {
+        symphony.groove.coroutineScope.launch {
+            onQueueNextPlayingSongChangedNeedsSuspend(song)
+        }
+    }
+
+    internal suspend fun onQueueNextPlayingSongChangedNeedsSuspend(song: Song.AlongSongQueueMapping?) {
+        if (song == null) {
+            player.setNextMedia(null)
+            return
+        }
+        val nextMedia = player.getNextMedia()
+        if (nextMedia?.uri == song.entity.uri) {
+            return
+        }
+        val nNextMedia = RadioPlayer.PlayableMedia(song.mapping.id, song.entity.uri)
+        player.setNextMedia(nNextMedia)
+    }
+
+    internal enum class SongEndedReason {
         Finish,
         Exception,
     }
 
-    private fun onSongFinish(source: SongFinishSource) {
-        stopCurrentSong()
-        if (queue.isEmpty()) {
-            queue.currentSongIndex = -1
-            return
-        }
-        var (nextSongIndex, autostart) = getNextSong(source)
-        if (pauseOnCurrentSongEnd) {
-            autostart = false
-            setPauseOnCurrentSongEnd(false)
-        }
-        play(PlayOptions(nextSongIndex, autostart = autostart))
-    }
-
-    private fun getNextSong(source: SongFinishSource): Pair<Int, Boolean> {
-        if (queue.isEmpty()) {
-            return -1 to false
-        }
-        var autostart: Boolean
-        var nextSongIndex: Int
-        when (queue.currentLoopMode) {
-            RadioQueue.LoopMode.Song -> {
-                nextSongIndex = queue.currentSongIndex
-                autostart = source == SongFinishSource.Finish
-                if (!queue.hasSongAt(nextSongIndex)) {
-                    nextSongIndex = 0
-                    autostart = false
-                }
-            }
-
-            else -> {
-                nextSongIndex = when (source) {
-                    SongFinishSource.Finish -> queue.currentSongIndex + 1
-                    SongFinishSource.Exception -> queue.currentSongIndex
-                }
-                autostart = true
-                if (!queue.hasSongAt(nextSongIndex)) {
-                    nextSongIndex = 0
-                    autostart = queue.currentLoopMode == RadioQueue.LoopMode.Queue
-                }
-            }
-        }
-        return nextSongIndex to autostart
-    }
-
-    private fun attachGrooveListener() {
+    internal fun onPlayerSongEnded(source: SongEndedReason) {
         symphony.groove.coroutineScope.launch {
-            symphony.groove.readyDeferred.await()
-            restorePreviousQueue()
+            onPlayerSongEndedNeedsSuspend(source)
         }
     }
 
-    private fun restorePreviousQueue() {
-        if (!queue.isEmpty()) {
+    private suspend fun onPlayerSongEndedNeedsSuspend(source: SongEndedReason) {
+//        val songQueue = queue.getCurrentSongQueue() ?: return
+//        val queueId = songQueue.entity.id
+//        val media = player.getMedia() ?: return
+//        val song = symphony.database.songQueueSongMapping.findById(queueId, media.id) ?: return
+//        val nextSongMappingId = song.mapping.nextId ?: return
+//        val nextSong =
+//            symphony.database.songQueueSongMapping.findById(queueId, nextSongMappingId) ?: return
+//        val nextMedia = RadioPlayer.PlayableMedia(nextSongMappingId, nextSong.entity.uri)
+//        player.setNextMedia(nextMedia)
+    }
+
+    internal fun onPlayerIsPlayingChanged(isPlaying: Boolean) {
+        symphony.groove.coroutineScope.launch {
+            onPlayerIsPlayingChangedNeedsSuspend(isPlaying)
+        }
+    }
+
+    private suspend fun onPlayerIsPlayingChangedNeedsSuspend(isPlaying: Boolean) {
+        togglePlayingTimestampUpdates(isPlaying)
+        queue.updateCurrentSongQueue {
+            if (it.entity.isPlaying == isPlaying) {
+                return@updateCurrentSongQueue null
+            }
+            it.entity.copy(isPlaying = isPlaying)
+        }
+    }
+
+    internal fun onPlayerPlaybackParametersChanged(speed: Float, pitch: Float) {
+        symphony.groove.coroutineScope.launch {
+            onPlayerPlaybackParametersChangedNeedsSuspend(speed, pitch)
+        }
+    }
+
+    private suspend fun onPlayerPlaybackParametersChangedNeedsSuspend(speed: Float, pitch: Float) {
+        queue.updateCurrentSongQueue {
+            val speedInt = (speed * SongQueue.SPEED_MULTIPLIER).toInt()
+            val pitchInt = (pitch * SongQueue.PITCH_MULTIPLIER).toInt()
+            if (it.entity.speedInt == speedInt || it.entity.pitchInt == pitchInt) {
+                return@updateCurrentSongQueue null
+            }
+            it.entity.copy(speedInt = speedInt, pitchInt = pitchInt)
+        }
+    }
+
+    private fun togglePlayingTimestampUpdates(to: Boolean) {
+        when {
+            to -> startPlayingTimestampUpdates()
+            else -> stopPlayingTimestampUpdates()
+        }
+    }
+
+    private fun startPlayingTimestampUpdates() {
+        if (playingTimestampUpdateJob?.isActive == true) {
             return
         }
-        symphony.settings.previousSongQueue.value?.let { previous ->
-            var currentSongIndex = previous.currentSongIndex
-            var playedDuration = previous.playedDuration
-            val originalQueue = mutableListOf<String>()
-            val currentQueue = mutableListOf<String>()
-            previous.originalQueue.forEach { songId ->
-                if (symphony.groove.song.get(songId) != null) {
-                    originalQueue.add(songId)
-                }
+        playingTimestampUpdateJob = symphony.groove.coroutineScope.launch {
+            while (isActive) {
+                delay(PLAYING_TIMESTAMP_UPDATE_INTERVAL_MS)
+                onPlayingTimestampRequiresUpdate()
             }
-            previous.currentQueue.forEachIndexed { i, songId ->
-                if (symphony.groove.song.get(songId) != null) {
-                    currentQueue.add(songId)
-                } else {
-                    if (i < currentSongIndex) currentSongIndex--
-                }
+        }
+    }
+
+    private fun stopPlayingTimestampUpdates() {
+        playingTimestampUpdateJob?.cancel()
+        playingTimestampUpdateJob = null
+    }
+
+    private suspend fun onPlayingTimestampRequiresUpdate(timestamp: Long? = null) {
+        val nPlayingTimestamp = (timestamp ?: player.getCurrentPosition().played).coerceAtLeast(0L)
+        queue.updateCurrentSongQueue {
+            if (it.entity.playingTimestamp == nPlayingTimestamp) {
+                return@updateCurrentSongQueue null
             }
-            if (originalQueue.isEmpty() || hasPlayer) {
-                return@let
-            }
-            if (currentSongIndex >= originalQueue.size) {
-                currentSongIndex = 0
-                playedDuration = 0
-            }
-            queue.restore(
-                RadioQueue.Serialized(
-                    currentSongIndex = currentSongIndex,
-                    playedDuration = playedDuration,
-                    originalQueue = originalQueue,
-                    currentQueue = currentQueue,
-                    shuffled = previous.shuffled,
-                )
+            it.entity.copy(
+                playingTimestamp = nPlayingTimestamp,
+                playingTimestampUpdatedAt = System.currentTimeMillis(),
             )
         }
     }
 
-    internal fun watchQueueUpdates(event: Events) {
-        if (event !is Events.Queue) {
-            return
-        }
-        prepareNextPlayer()
-    }
-
-    override fun onSymphonyReady() {
-        ready()
-    }
-
-    override fun onSymphonyDestroy() {
-        saveCurrentQueue()
-        destroy()
-    }
-
-    override fun onSymphonyActivityPause() {
-        saveCurrentQueue()
-    }
-
-    override fun onSymphonyActivityDestroy() {
-        saveCurrentQueue()
-    }
-
-    private fun saveCurrentQueue() {
-        if (queue.isEmpty()) {
-            return
-        }
-        symphony.settings.previousSongQueue.setValue(
-            RadioQueue.Serialized.create(
-                queue = queue,
-                playbackPosition = currentPlaybackPosition ?: RadioPlayer.PlaybackPosition.zero
-            )
-        )
+    companion object {
+        private const val PLAYING_TIMESTAMP_UPDATE_INTERVAL_MS = 30_000L
     }
 }

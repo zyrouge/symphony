@@ -36,7 +36,9 @@ import coil.request.ImageRequest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenericGrooveCard(
-    image: ImageRequest?,
+    image: ImageRequest? = null,
+    // TODO
+    images: List<ImageRequest>? = null,
     imageLabel: (@Composable () -> Unit)? = null,
     title: @Composable () -> Unit,
     subtitle: (@Composable () -> Unit)? = null,

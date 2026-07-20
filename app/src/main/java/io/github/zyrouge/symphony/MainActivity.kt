@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
         val symphony: Symphony by viewModels()
         symphony.permission.handle(this)
         gSymphony = symphony
+        Symphony.globalInstance = symphony
         symphony.emitActivityReady()
         attachHandlers()
 

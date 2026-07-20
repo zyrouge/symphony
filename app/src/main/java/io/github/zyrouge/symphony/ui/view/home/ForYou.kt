@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view.home
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -24,8 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,10 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,17 +43,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
-import io.github.zyrouge.symphony.services.radio.Radio
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.AlbumArtistViewRoute
-import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
-import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
-import io.github.zyrouge.symphony.utils.randomSubList
-import io.github.zyrouge.symphony.utils.runIfOrDefault
-import io.github.zyrouge.symphony.utils.subListNonStrict
+import io.github.zyrouge.symphony.ui.helpers.createGrooveArtworkImageRequest
+import io.github.zyrouge.symphony.utils.builtin.subListNonStrict
+import kotlinx.coroutines.launch
 
 enum class ForYou(val label: (context: ViewContext) -> String) {
     Albums(label = { it.symphony.t.SuggestedAlbums }),
@@ -68,58 +61,36 @@ enum class ForYou(val label: (context: ViewContext) -> String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouView(context: ViewContext) {
-    val albumArtistsIsUpdating by context.symphony.groove.albumArtist.isUpdating.collectAsState()
-    val albumsIsUpdating by context.symphony.groove.album.isUpdating.collectAsState()
-    val artistsIsUpdating by context.symphony.groove.artist.isUpdating.collectAsState()
-    val songsIsUpdating by context.symphony.groove.song.isUpdating.collectAsState()
-    val albumArtistNames by context.symphony.groove.albumArtist.all.collectAsState()
-    val albumIds by context.symphony.groove.album.all.collectAsState()
-    val artistNames by context.symphony.groove.artist.all.collectAsState()
-    val songIds by context.symphony.groove.song.all.collectAsState()
-    val sortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsState()
+    val libraryIsUpdating by context.symphony.groove.exposer.isUpdating.collectAsStateWithLifecycle()
+    val recentlyAddedSongs by context.symphony.groove.song.valuesAsFlow(
+        SongRepository.SortBy.DATE_MODIFIED,
+        true,
+        6
+    ).collectAsStateWithLifecycle(emptyList())
 
     when {
-        songIds.isNotEmpty() -> {
-            val sortedSongIds by remember(songsIsUpdating, songIds, sortBy, sortReverse) {
-                derivedStateOf {
-                    runIfOrDefault(!songsIsUpdating, listOf()) {
-                        context.symphony.groove.song.sort(songIds.toList(), sortBy, sortReverse)
-                    }
-                }
-            }
-            val recentlyAddedSongs by remember(songsIsUpdating, songIds) {
-                derivedStateOf {
-                    runIfOrDefault(!songsIsUpdating, listOf()) {
-                        context.symphony.groove.song.sort(
-                            songIds.toList(),
-                            SongRepository.SortBy.DATE_MODIFIED,
-                            true
-                        )
-                    }
-                }
-            }
-            val randomAlbums by remember(albumsIsUpdating, albumIds) {
-                derivedStateOf {
-                    runIfOrDefault(!albumsIsUpdating, listOf()) {
-                        albumIds.randomSubList(6)
-                    }
-                }
-            }
-            val randomArtists by remember(artistsIsUpdating, artistNames) {
-                derivedStateOf {
-                    runIfOrDefault(!artistsIsUpdating, listOf()) {
-                        artistNames.randomSubList(6)
-                    }
-                }
-            }
-            val randomAlbumArtists by remember(albumArtistsIsUpdating, albumArtistNames) {
-                derivedStateOf {
-                    runIfOrDefault(!albumArtistsIsUpdating, listOf()) {
-                        albumArtistNames.randomSubList(6)
-                    }
-                }
-            }
+        recentlyAddedSongs.isNotEmpty() -> {
+//            val randomAlbums by remember(albumsIsUpdating, albumIds) {
+//                derivedStateOf {
+//                    runIfOrDefault(!albumsIsUpdating, listOf()) {
+//                        albumIds.randomSubList(6)
+//                    }
+//                }
+//            }
+//            val randomArtists by remember(artistsIsUpdating, artistNames) {
+//                derivedStateOf {
+//                    runIfOrDefault(!artistsIsUpdating, listOf()) {
+//                        artistNames.randomSubList(6)
+//                    }
+//                }
+//            }
+//            val randomAlbumArtists by remember(albumArtistsIsUpdating, albumArtistNames) {
+//                derivedStateOf {
+//                    runIfOrDefault(!albumArtistsIsUpdating, listOf()) {
+//                        albumArtistNames.randomSubList(6)
+//                    }
+//                }
+//            }
 
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Row(modifier = Modifier.padding(20.dp, 0.dp)) {
@@ -129,9 +100,13 @@ fun ForYouView(context: ViewContext) {
                             text = {
                                 Text(context.symphony.t.PlayAll)
                             },
-                            enabled = !songsIsUpdating,
+                            enabled = !libraryIsUpdating,
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(sortedSongIds)
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.clear()
+                                    context.symphony.radio.add(recentlyAddedSongs)
+                                    context.symphony.radio.play()
+                                }
                             },
                         )
                     }
@@ -142,12 +117,14 @@ fun ForYouView(context: ViewContext) {
                             text = {
                                 Text(context.symphony.t.ShufflePlay)
                             },
-                            enabled = !songsIsUpdating,
+                            enabled = !libraryIsUpdating,
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(
-                                    songIds.toList(),
-                                    shuffle = true,
-                                )
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.clear()
+                                    context.symphony.radio.add(recentlyAddedSongs)
+                                    context.symphony.radio.setShuffleMode(true)
+                                    context.symphony.radio.play()
+                                }
                             }
                         )
                     }
@@ -158,7 +135,6 @@ fun ForYouView(context: ViewContext) {
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 when {
-                    songsIsUpdating -> SixGridLoading()
                     recentlyAddedSongs.isEmpty() -> SixGridEmpty(context)
                     else -> BoxWithConstraints {
                         val tileWidth = this@BoxWithConstraints.maxWidth.times(0.7f)
@@ -167,27 +143,31 @@ fun ForYouView(context: ViewContext) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Spacer(modifier = Modifier.width(12.dp))
-                            recentlyAddedSongs.subListNonStrict(5).forEachIndexed { i, songId ->
+                            recentlyAddedSongs.subListNonStrict(5).forEach { song ->
                                 val tileHeight = 96.dp
                                 val backgroundColor = MaterialTheme.colorScheme.surface
-                                val song = context.symphony.groove.song.get(songId)
-                                    ?: return@forEachIndexed
+                                val artworkUri by context.symphony.groove.song.getArtworkUriAsFlow(
+                                    song.id
+                                ).collectAsStateWithLifecycle(null as Uri?)
 
                                 ElevatedCard(
                                     modifier = Modifier
                                         .width(tileWidth)
                                         .height(tileHeight),
                                     onClick = {
-                                        context.symphony.radio.shorty.playQueue(
-                                            recentlyAddedSongs,
-                                            options = Radio.PlayOptions(index = i),
-                                        )
+                                        context.symphony.groove.coroutineScope.launch {
+                                            context.symphony.radio.clear()
+                                            context.symphony.radio.add(recentlyAddedSongs)
+                                            context.symphony.radio.playBySongId(song.id)
+                                        }
                                     }
                                 ) {
                                     Box {
                                         AsyncImage(
-                                            song.createArtworkImageRequest(context.symphony)
-                                                .build(),
+                                            createGrooveArtworkImageRequest(
+                                                context.symphony,
+                                                artworkUri
+                                            ),
                                             null,
                                             contentScale = ContentScale.FillWidth,
                                             modifier = Modifier.matchParentSize(),
@@ -208,8 +188,10 @@ fun ForYouView(context: ViewContext) {
                                         Row(modifier = Modifier.padding(8.dp)) {
                                             Box {
                                                 AsyncImage(
-                                                    song.createArtworkImageRequest(context.symphony)
-                                                        .build(),
+                                                    createGrooveArtworkImageRequest(
+                                                        context.symphony,
+                                                        artworkUri
+                                                    ),
                                                     null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
@@ -265,7 +247,8 @@ fun ForYouView(context: ViewContext) {
                         }
                     }
                 }
-                val contents by context.symphony.settings.forYouContents.flow.collectAsState()
+                /* // suggested content skipped — data derivation was removed in refactoring
+                val contents by context.symphony.settings.forYouContents.flow.collectAsStateWithLifecycle()
                 contents.forEach {
                     when (it) {
                         ForYou.Albums -> SuggestedAlbums(
@@ -290,6 +273,7 @@ fun ForYouView(context: ViewContext) {
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+                */
             }
         }
 
@@ -339,6 +323,7 @@ private fun ForYouButton(
     }
 }
 
+/* // SixGridLoading — unused after suggested content removal
 @Composable
 private fun SixGridLoading() {
     Box(
@@ -351,6 +336,8 @@ private fun SixGridLoading() {
         CircularProgressIndicator()
     }
 }
+
+*/
 
 @Composable
 private fun SixGridEmpty(context: ViewContext) {
@@ -371,6 +358,7 @@ private fun SixGridEmpty(context: ViewContext) {
     }
 }
 
+/* // StatedSixGrid, SixGrid, Suggested* — unused after suggested content removal
 @Composable
 private fun <T> StatedSixGrid(
     context: ViewContext,
@@ -425,14 +413,8 @@ private fun <T> SixGrid(
 private fun SuggestedAlbums(
     context: ViewContext,
     isLoading: Boolean,
-    albumIds: List<String>,
+    albums: List<Album.AlongAttributes>,
 ) {
-    val albums by remember(albumIds) {
-        derivedStateOf {
-            context.symphony.groove.album.get(albumIds)
-        }
-    }
-
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
         Text(context.symphony.t.SuggestedAlbums)
@@ -445,7 +427,8 @@ private fun SuggestedAlbums(
             }
         ) {
             AsyncImage(
-                album.createArtworkImageRequest(context.symphony).build(),
+                album.createArtworkImageRequest(context.symphony.groove.album.getTop4ArtworkUriAsFlow())
+                    .build(),
                 null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -463,14 +446,8 @@ private fun SuggestedArtists(
     context: ViewContext,
     label: String,
     isLoading: Boolean,
-    artistNames: List<String>,
+    artists: List<Artist.AlongAttributes>,
 ) {
-    val artists by remember(artistNames) {
-        derivedStateOf {
-            context.symphony.groove.artist.get(artistNames)
-        }
-    }
-
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
         Text(label)
@@ -501,27 +478,21 @@ private fun SuggestedAlbumArtists(
     context: ViewContext,
     label: String,
     isLoading: Boolean,
-    albumArtistNames: List<String>,
+    artists: List<Artist.AlongAttributes>,
 ) {
-    val albumArtists by remember(albumArtistNames) {
-        derivedStateOf {
-            context.symphony.groove.albumArtist.get(albumArtistNames)
-        }
-    }
-
     Spacer(modifier = Modifier.height(24.dp))
     SideHeading {
         Text(label)
     }
     Spacer(modifier = Modifier.height(12.dp))
-    StatedSixGrid(context, isLoading, albumArtists) { albumArtist ->
+    StatedSixGrid(context, isLoading, artists) { artist ->
         Card(
             onClick = {
-                context.navController.navigate(AlbumArtistViewRoute(albumArtist.name))
+                context.navController.navigate(ArtistViewRoute(artist.name))
             }
         ) {
             AsyncImage(
-                albumArtist.createArtworkImageRequest(context.symphony).build(),
+                artist.createArtworkImageRequest(context.symphony).build(),
                 null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -532,3 +503,4 @@ private fun SuggestedAlbumArtists(
         }
     }
 }
+*/

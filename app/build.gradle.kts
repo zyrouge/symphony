@@ -14,7 +14,6 @@ android {
     defaultConfig {
         applicationId = "io.github.zyrouge.symphony"
         minSdk = libs.versions.min.sdk.get().toInt()
-        targetSdk = libs.versions.target.sdk.get().toInt()
 
         versionCode = 115
         versionName = "2024.12.115"
@@ -119,7 +118,8 @@ dependencies {
     implementation(libs.fuzzywuzzy)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.lifecycle.runtime)
-    implementation(libs.media)
+    implementation(libs.media3)
+    implementation(libs.media3.session)
     implementation(libs.okhttp3)
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)

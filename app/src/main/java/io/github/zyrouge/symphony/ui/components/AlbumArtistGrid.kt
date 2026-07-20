@@ -7,32 +7,27 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.groove.Groove
-import io.github.zyrouge.symphony.services.groove.repositories.AlbumArtistRepository
+import io.github.zyrouge.symphony.services.groove.entities.Artist
+import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumArtistGrid(
     context: ViewContext,
-    albumArtistNames: List<String>,
-    albumArtistsCount: Int? = null,
+    albumArtists: List<Artist>,
+    sortBy: ArtistRepository.SortBy,
+    sortReverse: Boolean,
 ) {
-    val sortBy by context.symphony.settings.lastUsedAlbumArtistsSortBy.flow.collectAsState()
-    val sortReverse by context.symphony.settings.lastUsedAlbumArtistsSortReverse.flow.collectAsState()
-    val sortedAlbumArtistNames by remember(albumArtistNames, sortBy, sortReverse) {
-        derivedStateOf {
-            context.symphony.groove.albumArtist.sort(albumArtistNames, sortBy, sortReverse)
-        }
-    }
-    val horizontalGridColumns by context.symphony.settings.lastUsedAlbumArtistsHorizontalGridColumns.flow.collectAsState()
-    val verticalGridColumns by context.symphony.settings.lastUsedAlbumArtistsVerticalGridColumns.flow.collectAsState()
+    val horizontalGridColumns by context.symphony.settings.lastUsedAlbumArtistsHorizontalGridColumns.flow.collectAsStateWithLifecycle()
+    val verticalGridColumns by context.symphony.settings.lastUsedAlbumArtistsVerticalGridColumns.flow.collectAsStateWithLifecycle()
     val gridColumns by remember(horizontalGridColumns, verticalGridColumns) {
         derivedStateOf {
             ResponsiveGridColumns(horizontalGridColumns, verticalGridColumns)
@@ -49,16 +44,14 @@ fun AlbumArtistGrid(
                     context.symphony.settings.lastUsedAlbumArtistsSortReverse.setValue(it)
                 },
                 sort = sortBy,
-                sorts = AlbumArtistRepository.SortBy.entries
+                sorts = ArtistRepository.SortBy.entries
                     .associateWith { x -> ViewContext.parameterizedFn { x.label(context) } },
                 onSortChange = {
                     context.symphony.settings.lastUsedAlbumArtistsSortBy.setValue(it)
                 },
                 label = {
                     Text(
-                        context.symphony.t.XArtists(
-                            (albumArtistsCount ?: albumArtistNames.size).toString()
-                        )
+                        context.symphony.t.XArtists(albumArtists.size.toString())
                     )
                 },
                 onShowModifyLayout = {
@@ -68,7 +61,7 @@ fun AlbumArtistGrid(
         },
         content = {
             when {
-                albumArtistNames.isEmpty() -> IconTextBody(
+                albumArtists.isEmpty() -> IconTextBody(
                     icon = { modifier ->
                         Icon(
                             Icons.Filled.Person,
@@ -81,14 +74,11 @@ fun AlbumArtistGrid(
 
                 else -> ResponsiveGrid(gridColumns) {
                     itemsIndexed(
-                        sortedAlbumArtistNames,
+                        albumArtists,
                         key = { i, x -> "$i-$x" },
                         contentType = { _, _ -> Groove.Kind.ARTIST }
-                    ) { _, albumArtistName ->
-                        context.symphony.groove.albumArtist.get(albumArtistName)
-                            ?.let { albumArtist ->
-                                AlbumArtistTile(context, albumArtist)
-                            }
+                    ) { _, albumArtist ->
+                        ArtistTile(context, albumArtist)
                     }
                 }
             }
@@ -112,11 +102,4 @@ fun AlbumArtistGrid(
             }
         }
     )
-}
-
-private fun AlbumArtistRepository.SortBy.label(context: ViewContext) = when (this) {
-    AlbumArtistRepository.SortBy.CUSTOM -> context.symphony.t.Custom
-    AlbumArtistRepository.SortBy.ARTIST_NAME -> context.symphony.t.Artist
-    AlbumArtistRepository.SortBy.ALBUMS_COUNT -> context.symphony.t.AlbumCount
-    AlbumArtistRepository.SortBy.TRACKS_COUNT -> context.symphony.t.TrackCount
 }

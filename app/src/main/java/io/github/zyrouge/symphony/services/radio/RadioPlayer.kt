@@ -1,19 +1,36 @@
 package io.github.zyrouge.symphony.services.radio
 
-import android.media.MediaPlayer
-import android.media.PlaybackParams
 import android.net.Uri
+import android.os.Looper
+import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.ForwardingPlayer
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
 import io.github.zyrouge.symphony.Symphony
-import io.github.zyrouge.symphony.utils.Logger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Timer
+import kotlinx.coroutines.withContext
 
-typealias RadioPlayerOnPreparedListener = () -> Unit
-typealias RadioPlayerOnPlaybackPositionListener = (RadioPlayer.PlaybackPosition) -> Unit
-typealias RadioPlayerOnFinishListener = () -> Unit
-typealias RadioPlayerOnErrorListener = (Int, Int) -> Unit
+@OptIn(UnstableApi::class)
+class RadioPlayer(val symphony: Symphony) {
+    data class PlayableMedia(val id: String, val uri: Uri) {
+        fun toMediaItem() = MediaItem.Builder().setMediaId(id).setUri(uri).build()
 
-class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
+        companion object {
+            fun fromMediaItem(mediaItem: MediaItem): PlayableMedia {
+                val uri = mediaItem.localConfiguration?.uri
+                    ?: throw Exception("Missing media item uri")
+                return PlayableMedia(mediaItem.mediaId, uri)
+            }
+        }
+    }
+
     data class PlaybackPosition(val played: Long, val total: Long) {
         val ratio: Float
             get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
@@ -23,225 +40,189 @@ class RadioPlayer(val symphony: Symphony, val id: String, val uri: Uri) {
         }
     }
 
-    enum class State {
-        Unprepared,
-        Preparing,
-        Prepared,
-        Finished,
-        Destroyed,
+    private class ExoPlayerListener(val player: RadioPlayer) : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            player.onMediaPlayerIsPlayingChanged(isPlaying)
+        }
+
+        override fun onVolumeChanged(volume: Float) {
+            player.onMediaPlayerVolumeChanged(volume)
+        }
+
+        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+            player.onMediaPlayerPlaybackParametersChanged(playbackParameters)
+        }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            player.onMediaPlayerPlaybackStateChanged(playbackState)
+        }
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            player.onMediaPlayerMediaItemTransition(mediaItem, reason)
+        }
     }
 
-    private val unsafeMediaPlayer: MediaPlayer
-    private val mediaPlayer: MediaPlayer? get() = if (usable) unsafeMediaPlayer else null
-    private var onPrepared: RadioPlayerOnPreparedListener? = null
-    private var onPlaybackPosition: RadioPlayerOnPlaybackPositionListener? = null
-    private var onFinish: RadioPlayerOnFinishListener? = null
-    private var onError: RadioPlayerOnErrorListener? = null
-    private var fader: RadioEffects.Fader? = null
-    private var playbackPositionUpdater: Timer? = null
+    private class InterceptedMediaPlayer(val player: RadioPlayer, mediaPlayer: ExoPlayer) :
+        ForwardingPlayer(mediaPlayer)
 
-    var state = State.Unprepared
-        private set
-    var hasPlayedOnce = false
-        private set
-    var volume = MAX_VOLUME
-        private set
-    var speed = DEFAULT_SPEED
-        private set
-    var pitch = DEFAULT_PITCH
-        private set
+    private class MediaSessionCallback(val player: RadioPlayer) : MediaSession.Callback
 
-    val usable get() = state == State.Prepared
-    val fadePlayback get() = symphony.settings.fadePlayback.value
-    val audioSessionId get() = mediaPlayer?.audioSessionId
-    val isPlaying get() = mediaPlayer?.isPlaying == true
+    private val mediaPlayerListener = ExoPlayerListener(this)
+    private val mediaPlayerUnsafe = ExoPlayer.Builder(symphony.applicationContext)
+        .setLooper(Looper.getMainLooper())
+        .setAudioAttributes(AudioAttributes.DEFAULT, true)
+        .setHandleAudioBecomingNoisy(true)
+        .setWakeMode(C.WAKE_MODE_LOCAL)
+        .build()
 
-    val playbackPosition
-        get() = mediaPlayer?.let {
-            try {
-                PlaybackPosition(
-                    played = it.currentPosition.toLong(),
-                    total = it.duration.toLong(),
-                )
-            } catch (_: IllegalStateException) {
-                null
-            }
-        }
+    private val interceptingMediaPlayer = InterceptedMediaPlayer(this, mediaPlayerUnsafe)
+    private val mediaSessionCallback = MediaSessionCallback(this)
+    val mediaSession = MediaSession
+        .Builder(symphony.applicationContext, interceptingMediaPlayer)
+        .setCallback(mediaSessionCallback)
+        .build()
+    val mediaSessionId get() = mediaSession.id
+
+//    val fadePlayback get() = symphony.settings.fadePlayback.value
 
     init {
-        unsafeMediaPlayer = MediaPlayer().also { ump ->
-            ump.setOnPreparedListener {
-                state = State.Prepared
-                ump.playbackParams.setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
-                createDurationTimer()
-                onPrepared?.invoke()
-            }
-            ump.setOnCompletionListener {
-                state = State.Finished
-                onFinish?.invoke()
-            }
-            ump.setOnErrorListener { _, what, extra ->
-                state = State.Destroyed
-                onError?.invoke(what, extra)
-                true
-            }
-            ump.setDataSource(symphony.applicationContext, uri)
-        }
-    }
-
-    fun prepare() {
-        when (state) {
-            State.Unprepared -> {
-                unsafeMediaPlayer.prepareAsync()
-                state = State.Preparing
-            }
-
-            State.Prepared -> onPrepared?.invoke()
-            else -> {}
-        }
-    }
-
-    fun stop() = destroy()
-
-    fun destroy() {
-        state = State.Destroyed
-        destroyDurationTimer()
         symphony.groove.coroutineScope.launch {
-            unsafeMediaPlayer.stop()
-            unsafeMediaPlayer.release()
+            prepare()
         }
     }
 
-    fun start() = mediaPlayer?.let {
-        it.start()
-        createDurationTimer()
-        if (!hasPlayedOnce) {
-            hasPlayedOnce = true
-            changeSpeed(speed)
-            changePitch(pitch)
-        }
+    private suspend fun prepare() = withMediaPlayer {
+        it.addListener(mediaPlayerListener)
+        it.prepare()
     }
 
-    fun pause() = mediaPlayer?.let {
-        it.pause()
-        destroyDurationTimer()
+    suspend fun hasMedia() = withMediaPlayer { it.currentMediaItem != null }
+
+    suspend fun hasNextMedia() = withMediaPlayer {
+        it.currentMediaItemIndex + 1 < it.mediaItemCount
     }
 
-    fun seek(to: Int) = mediaPlayer?.let {
-        it.seekTo(to)
-        emitPlaybackPosition()
+    suspend fun getMedia() = withMediaPlayer {
+        it.currentMediaItem?.let { mediaItem -> PlayableMedia.fromMediaItem(mediaItem) }
     }
 
-    fun changeVolume(
-        to: Float,
-        forceFade: Boolean = false,
-        onFinish: (Boolean) -> Unit,
-    ) {
-        fader?.stop()
+    suspend fun getNextMedia() = withMediaPlayer {
+        val nextIndex = it.currentMediaItemIndex + 1
         when {
-            to == volume -> onFinish(true)
-            forceFade || fadePlayback -> {
-                val duration = (symphony.settings.fadePlaybackDuration.value * 1000).toInt()
-                fader = RadioEffects.Fader(
-                    RadioEffects.Fader.Options(volume, to, duration),
-                    onUpdate = {
-                        changeVolumeInstant(it)
-                    },
-                    onFinish = {
-                        onFinish(it)
-                        fader = null
-                    }
-                )
-                fader?.start()
+            nextIndex < it.mediaItemCount -> PlayableMedia.fromMediaItem(it.getMediaItemAt(nextIndex))
+            else -> null
+        }
+    }
+
+    suspend fun setMedia(media: PlayableMedia) = withMediaPlayer {
+        val mediaItem = media.toMediaItem()
+        when (it.mediaItemCount) {
+            0 -> it.setMediaItems(listOf(mediaItem))
+            else -> it.replaceMediaItem(0, mediaItem)
+        }
+    }
+
+    suspend fun setNextMedia(media: PlayableMedia?) = withMediaPlayer {
+        if (media == null) {
+            it.removeMediaItem(1)
+            return@withMediaPlayer
+        }
+        val mediaItem = media.toMediaItem()
+        when (it.mediaItemCount) {
+            // this shouldn't happen
+            0 -> it.setMediaItems(listOf(mediaItem, mediaItem))
+            1 -> it.addMediaItem(mediaItem)
+            else -> it.replaceMediaItem(1, mediaItem)
+        }
+    }
+
+    suspend fun play() = withMediaPlayer {
+        it.play()
+    }
+
+    suspend fun pause() = withMediaPlayer {
+        it.pause()
+    }
+
+    suspend fun stop() = withMediaPlayer {
+        it.stop()
+        it.clearMediaItems()
+    }
+
+    suspend fun seek(to: Long) = withMediaPlayer {
+        it.seekTo(to)
+    }
+
+    suspend fun setVolume(to: Float) = withMediaPlayer {
+        it.volume = to
+    }
+
+    suspend fun setSpeed(to: Float) = withMediaPlayer {
+        it.playbackParameters = it.playbackParameters.withSpeed(to)
+    }
+
+    suspend fun setPitch(to: Float) = withMediaPlayer {
+        it.playbackParameters = it.playbackParameters.withPitch(to)
+    }
+
+    suspend fun getCurrentPosition() = withMediaPlayer {
+        PlaybackPosition(
+            played = it.currentPosition.coerceAtLeast(0L),
+            total = it.duration.takeIf { it > 0L } ?: 0L,
+        )
+    }
+
+    private suspend fun <T> withMediaPlayer(fn: (ExoPlayer) -> T): T {
+        return withContext(Dispatchers.Main) {
+            fn(mediaPlayerUnsafe)
+        }
+    }
+
+    private fun withMediaPlayerNoSuspend(fn: (ExoPlayer) -> Unit) {
+        symphony.groove.coroutineScope.launch(Dispatchers.Main) {
+            fn(mediaPlayerUnsafe)
+        }
+    }
+
+    fun onMediaPlayerIsPlayingChanged(isPlaying: Boolean) {
+        symphony.radio.onPlayerIsPlayingChanged(isPlaying)
+    }
+
+    fun onMediaPlayerVolumeChanged(volume: Float) {
+    }
+
+    fun onMediaPlayerPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+        symphony.radio.onPlayerPlaybackParametersChanged(
+            speed = playbackParameters.speed,
+            pitch = playbackParameters.pitch,
+        )
+    }
+
+    fun onMediaPlayerPlaybackStateChanged(playbackState: Int) {
+        if (playbackState == Player.STATE_ENDED) {
+            onMediaPlayerMediaEnded()
+        }
+    }
+
+    fun onMediaPlayerMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        onMediaPlayerMediaEnded()
+    }
+
+    private fun onMediaPlayerMediaEnded() {
+        withMediaPlayerNoSuspend {
+            if (it.mediaItemCount == 0) {
+                return@withMediaPlayerNoSuspend
             }
-
-            else -> {
-                changeVolumeInstant(to)
-                onFinish(true)
-            }
+            it.removeMediaItem(0)
         }
-    }
-
-    fun changeVolumeInstant(to: Float) {
-        volume = to
-        mediaPlayer?.setVolume(to, to)
-    }
-
-    fun changeSpeed(to: Float) {
-        if (!hasPlayedOnce) {
-            speed = to
-            return
-        }
-        mediaPlayer?.let {
-            val isPlaying = it.isPlaying
-            try {
-                it.playbackParams = it.playbackParams.setSpeed(to)
-                speed = to
-            } catch (err: Exception) {
-                Logger.error("RadioPlayer", "changing speed failed", err)
-            }
-            if (!isPlaying) {
-                it.pause()
-            }
-        }
-    }
-
-    fun changePitch(to: Float) {
-        if (!hasPlayedOnce) {
-            pitch = to
-            return
-        }
-        mediaPlayer?.let {
-            val isPlaying = it.isPlaying
-            try {
-                it.playbackParams = it.playbackParams.setPitch(to)
-                pitch = to
-            } catch (err: Exception) {
-                Logger.error("RadioPlayer", "changing pitch failed", err)
-            }
-            if (!isPlaying) {
-                it.pause()
-            }
-        }
-    }
-
-    fun setOnPreparedListener(listener: RadioPlayerOnPreparedListener?) {
-        onPrepared = listener
-    }
-
-    fun setOnPlaybackPositionListener(listener: RadioPlayerOnPlaybackPositionListener?) {
-        onPlaybackPosition = listener
-    }
-
-    fun setOnFinishListener(listener: RadioPlayerOnFinishListener?) {
-        onFinish = listener
-    }
-
-    fun setOnErrorListener(listener: RadioPlayerOnErrorListener?) {
-        onError = listener
-    }
-
-    private fun createDurationTimer() {
-        playbackPositionUpdater = kotlin.concurrent.timer(period = 100L) {
-            emitPlaybackPosition()
-        }
-    }
-
-    private fun emitPlaybackPosition() {
-        playbackPosition?.let {
-            onPlaybackPosition?.invoke(it)
-        }
-    }
-
-    private fun destroyDurationTimer() {
-        playbackPositionUpdater?.cancel()
-        playbackPositionUpdater = null
+        symphony.radio.onPlayerSongEnded(Radio.SongEndedReason.Finish)
     }
 
     companion object {
         const val MIN_VOLUME = 0f
         const val MAX_VOLUME = 1f
         const val DUCK_VOLUME = 0.2f
+        const val DEFAULT_SEEK = 0L
         const val DEFAULT_SPEED = 1f
         const val DEFAULT_PITCH = 1f
     }

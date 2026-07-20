@@ -12,32 +12,34 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.zyrouge.symphony.services.groove.entities.Song
+import io.github.zyrouge.symphony.services.groove.repositories.PlaylistRepository
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.utils.mutate
+import io.github.zyrouge.symphony.ui.helpers.createGrooveArtworkImageRequests
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddToPlaylistDialog(
     context: ViewContext,
-    songIds: List<String>,
+    songs: List<Song>,
     onDismissRequest: () -> Unit,
 ) {
     var showNewPlaylistDialog by remember { mutableStateOf(false) }
-    val allPlaylistsIds by context.symphony.groove.playlist.all.collectAsState()
-    val playlists by remember(allPlaylistsIds) {
+    val sortBy by context.symphony.settings.lastUsedPlaylistsSortBy.flow.collectAsStateWithLifecycle()
+    val sortReverse by context.symphony.settings.lastUsedPlaylistsSortReverse.flow.collectAsStateWithLifecycle()
+    val allPlaylists by context.symphony.groove.playlist.valuesAsFlow(sortBy, sortReverse)
+        .collectAsStateWithLifecycle(listOf())
+    val playlists by remember(allPlaylists) {
         derivedStateOf {
-            allPlaylistsIds
-                .mapNotNull { context.symphony.groove.playlist.get(it) }
-                .filter { it.isNotLocal }
-                .toMutableStateList()
+            allPlaylists.filter { !it.entity.isLocal }
         }
     }
 
@@ -51,14 +53,30 @@ fun AddToPlaylistDialog(
                 playlists.isEmpty() -> SubtleCaptionText(context.symphony.t.NoInAppPlaylistsFound)
                 else -> LazyColumn(modifier = Modifier.padding(bottom = 4.dp)) {
                     items(playlists) { playlist ->
-                        val playlistSongIds = playlist.getSongIds(context.symphony)
+                        val containsSong by remember(songs) {
+                            derivedStateOf {
+                                val found = when {
+                                    songs.size == 1 -> context.symphony.groove.playlist.findSongById(
+                                        playlist.entity.id,
+                                        songs[0].id
+                                    )
+
+                                    else -> null
+                                }
+                                found != null
+                            }
+                        }
+                        val artworkUris by context.symphony.groove.playlist
+                            .getTop4ArtworkUriAsFlow(playlist.entity.id)
+                            .collectAsStateWithLifecycle(listOf())
 
                         GenericGrooveCard(
-                            image = playlist
-                                .createArtworkImageRequest(context.symphony)
-                                .build(),
+                            images = createGrooveArtworkImageRequests(
+                                context.symphony,
+                                artworkUris
+                            ),
                             imageLabel = when {
-                                songIds.size == 1 && playlistSongIds.contains(songIds[0]) -> ({
+                                containsSong -> ({
                                     Icon(
                                         Icons.Filled.Check,
                                         null,
@@ -69,21 +87,24 @@ fun AddToPlaylistDialog(
                                 else -> null
                             },
                             title = {
-                                Text(playlist.title)
+                                Text(playlist.entity.title)
                             },
                             options = { expanded, onDismissRequest ->
                                 PlaylistDropdownMenu(
                                     context,
-                                    playlist,
+                                    playlist.entity,
                                     expanded = expanded,
                                     onDismissRequest = onDismissRequest,
                                 )
                             },
                             onClick = {
-                                context.symphony.groove.playlist.update(
-                                    playlist.id,
-                                    playlistSongIds.mutate { addAll(songIds) },
-                                )
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.groove.playlist.addSongs(
+                                        playlist.entity.id,
+                                        songs,
+                                        PlaylistRepository.AddPosition.AfterTail,
+                                    )
+                                }
                                 onDismissRequest()
                             }
                         )
@@ -109,8 +130,10 @@ fun AddToPlaylistDialog(
         NewPlaylistDialog(
             context = context,
             onDone = { playlist ->
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.groove.playlist.addSongs(playlist.id, songs)
+                }
                 showNewPlaylistDialog = false
-                context.symphony.groove.playlist.add(playlist)
             },
             onDismissRequest = {
                 showNewPlaylistDialog = false

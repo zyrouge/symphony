@@ -22,20 +22,23 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun NewPlaylistDialog(
     context: ViewContext,
-    initialSongIds: List<String> = listOf(),
+    initialSongs: List<Song> = listOf(),
     onDone: (Playlist) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
     var showSongsPicker by remember { mutableStateOf(false) }
-    val songIds = remember { mutableStateListOf(*initialSongIds.toTypedArray()) }
-    val songIdsImmutable = songIds.toList()
+    val songs = remember { mutableStateListOf(*initialSongs.toTypedArray()) }
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(LocalContext.current) {
@@ -75,17 +78,28 @@ fun NewPlaylistDialog(
                     showSongsPicker = true
                 }
             ) {
-                Text(context.symphony.t.AddSongs + " (${songIds.size})")
+                Text(context.symphony.t.AddSongs + " (${songs.size})")
             }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 enabled = input.isNotBlank(),
                 onClick = {
-                    val playlist = context.symphony.groove.playlist.create(
-                        title = input,
-                        songIds = songIds.toList(),
-                    )
-                    onDone(playlist)
+                    context.symphony.groove.coroutineScope.launch {
+                        val playlist = context.symphony.groove.playlist.create { id ->
+                            Playlist(
+                                id = id,
+                                title = input,
+                                uri = null,
+                                path = null,
+                            )
+                        }
+                        if (songs.isNotEmpty()) {
+                            context.symphony.groove.playlist.addSongs(playlist.id, songs)
+                        }
+                        withContext(Dispatchers.Main) {
+                            onDone(playlist)
+                        }
+                    }
                 }
             ) {
                 Text(context.symphony.t.Done)
@@ -94,14 +108,15 @@ fun NewPlaylistDialog(
     )
 
     if (showSongsPicker) {
-        PlaylistManageSongsDialog(
-            context,
-            selectedSongIds = songIdsImmutable,
-            onDone = {
-                showSongsPicker = false
-                songIds.clear()
-                songIds.addAll(it)
-            }
-        )
+//        TODO
+//        PlaylistManageSongsDialog(
+//            context,
+//            selectedSongIds = songIdsImmutable,
+//            onDone = {
+//                showSongsPicker = false
+//                songIds.clear()
+//                songIds.addAll(it)
+//            }
+//        )
     }
 }

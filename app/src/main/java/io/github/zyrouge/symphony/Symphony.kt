@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony
 
 import android.app.Application
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,15 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Symphony(application: Application) : AndroidViewModel(application), Symphony.Hooks {
-    interface Hooks {
-        fun onSymphonyReady() {}
-        fun onSymphonyDestroy() {}
-        fun onSymphonyActivityReady() {}
-        fun onSymphonyActivityPause() {}
-        fun onSymphonyActivityDestroy() {}
-    }
-
+class Symphony(application: Application) : AndroidViewModel(application), SymphonyHooks {
     val permission = Permissions(this)
     val settings = Settings(this)
     val database = Database(this)
@@ -36,7 +29,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
 
     var t by mutableStateOf(translator.getCurrentTranslation())
 
-    val applicationContext get() = getApplication<Application>().applicationContext
+    val applicationContext: Context get() = getApplication<Application>().applicationContext
     var closeApp: (() -> Unit)? = null
     private var isReady = false
     private var hooks = listOf(this, radio, groove)
@@ -80,7 +73,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
         emitDestroy()
     }
 
-    private fun notifyHooks(fn: Hooks.() -> Unit) {
+    private fun notifyHooks(fn: SymphonyHooks.() -> Unit) {
         hooks.forEach { fn.invoke(it) }
     }
 
@@ -105,5 +98,9 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
                 }
             }
         }
+    }
+
+    companion object {
+        var globalInstance: Symphony? = null
     }
 }

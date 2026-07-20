@@ -40,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -61,13 +60,21 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.Song
+import io.github.zyrouge.symphony.services.groove.entities.Artist
+import io.github.zyrouge.symphony.services.groove.entities.Song
+import io.github.zyrouge.symphony.services.radio.RadioPlayer
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createGrooveArtworkImageRequest
 import io.github.zyrouge.symphony.ui.view.NowPlayingViewRoute
-import io.github.zyrouge.symphony.utils.runIfOrThis
+import io.github.zyrouge.symphony.utils.builtin.runIfOrThis
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @Composable
@@ -95,21 +102,32 @@ private fun <T> nowPlayingBottomBarEnterAnimationSpec() = TransitionDurations.No
     delayMillis = TransitionDurations.Fast.milliseconds,
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
-    val queue by context.symphony.radio.observatory.queue.collectAsState()
-    val queueIndex by context.symphony.radio.observatory.queueIndex.collectAsState()
-    val currentPlayingSong by remember(queue, queueIndex) {
-        derivedStateOf {
-            queue.getOrNull(queueIndex)?.let { context.symphony.groove.song.get(it) }
+    val songQueueFlow = remember { context.symphony.radio.getQueueAsFlow() }
+    val songQueue by songQueueFlow.collectAsStateWithLifecycle(null)
+    val isPlaying by remember {
+        derivedStateOf { songQueue?.entity?.isPlaying ?: false }
+    }
+    val currentPlayingSongFlow = remember {
+        songQueueFlow.flatMapLatest { songQueue ->
+            songQueue?.entity?.playingId?.let { context.symphony.groove.song.findByIdAsFlow(it) }
+                ?: emptyFlow()
         }
     }
-    val isPlaying by context.symphony.radio.observatory.isPlaying.collectAsState()
-    val playbackPosition by context.symphony.radio.observatory.playbackPosition.collectAsState()
-    val showTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsState()
-    val showSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsState()
-    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsState()
-    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsState()
+    val currentPlayingSong by currentPlayingSongFlow.collectAsStateWithLifecycle(null)
+    val artists by currentPlayingSongFlow
+        .flatMapLatest { song ->
+            song?.let { context.symphony.groove.song.findArtistsOfIdAsFlow(it.id) } ?: emptyFlow()
+        }
+        .collectAsStateWithLifecycle(emptyList())
+    val playbackPosition by context.symphony.radio.getPlaybackPositionAsFlow()
+        .collectAsStateWithLifecycle(RadioPlayer.PlaybackPosition.zero)
+    val showTrackControls by context.symphony.settings.miniPlayerTrackControls.flow.collectAsStateWithLifecycle()
+    val showSeekControls by context.symphony.settings.miniPlayerSeekControls.flow.collectAsStateWithLifecycle()
+    val seekBackDuration by context.symphony.settings.seekBackDuration.flow.collectAsStateWithLifecycle()
+    val seekForwardDuration by context.symphony.settings.seekForwardDuration.flow.collectAsStateWithLifecycle()
 
     AnimatedContent(
         modifier = Modifier.fillMaxWidth(),
@@ -147,7 +165,9 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                                 context.navController.navigate(NowPlayingViewRoute)
                             },
                             onSwipeDown = {
-                                context.symphony.radio.stop()
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.stop()
+                                }
                             },
                         ),
                     shape = RectangleShape,
@@ -174,8 +194,11 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                                 from togetherWith to
                             },
                         ) { song ->
+                            val artworkUri by context.symphony.groove.song.getArtworkUriAsFlow(song.id)
+                                .collectAsStateWithLifecycle(null)
+
                             AsyncImage(
-                                song.createArtworkImageRequest(context.symphony).build(),
+                                createGrooveArtworkImageRequest(context.symphony, artworkUri),
                                 null,
                                 modifier = Modifier
                                     .size(45.dp)
@@ -198,12 +221,16 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                                 from togetherWith to
                             },
                         ) { song ->
-                            NowPlayingBottomBarContent(context, song = song)
+                            NowPlayingBottomBarContent(context, song = song, artists = artists)
                         }
                         Spacer(modifier = Modifier.width(15.dp))
                         if (showTrackControls) {
                             IconButton(
-                                onClick = { context.symphony.radio.shorty.previous() }
+                                onClick = {
+                                    context.symphony.groove.coroutineScope.launch {
+                                        context.symphony.radio.previous()
+                                    }
+                                }
                             ) {
                                 Icon(Icons.Filled.SkipPrevious, null)
                             }
@@ -211,14 +238,24 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         if (showSeekControls) {
                             IconButton(
                                 onClick = {
-                                    context.symphony.radio.shorty.seekFromCurrent(-seekBackDuration)
+                                    val seekTo = playbackPosition.played - seekBackDuration
+                                    context.symphony.groove.coroutineScope.launch {
+                                        context.symphony.radio.seek(seekTo)
+                                    }
                                 }
                             ) {
                                 Icon(Icons.Filled.FastRewind, null)
                             }
                         }
                         IconButton(
-                            onClick = { context.symphony.radio.shorty.playPause() }
+                            onClick = {
+                                context.symphony.groove.coroutineScope.launch {
+                                    when {
+                                        isPlaying -> context.symphony.radio.pause()
+                                        else -> context.symphony.radio.play()
+                                    }
+                                }
+                            }
                         ) {
                             Icon(
                                 when {
@@ -231,9 +268,10 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         if (showSeekControls) {
                             IconButton(
                                 onClick = {
-                                    context.symphony.radio.shorty.seekFromCurrent(
-                                        seekForwardDuration
-                                    )
+                                    val seekTo = playbackPosition.played + seekForwardDuration
+                                    context.symphony.groove.coroutineScope.launch {
+                                        context.symphony.radio.seek(seekTo)
+                                    }
                                 }
                             ) {
                                 Icon(Icons.Filled.FastForward, null)
@@ -241,7 +279,11 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
                         }
                         if (showTrackControls) {
                             IconButton(
-                                onClick = { context.symphony.radio.shorty.skip() }
+                                onClick = {
+                                    context.symphony.groove.coroutineScope.launch {
+                                        context.symphony.radio.skip()
+                                    }
+                                }
                             ) {
                                 Icon(Icons.Filled.SkipNext, null)
                             }
@@ -258,7 +300,11 @@ fun NowPlayingBottomBar(context: ViewContext, insetPadding: Boolean = true) {
 }
 
 @Composable
-private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
+private fun NowPlayingBottomBarContent(
+    context: ViewContext,
+    song: Song,
+    artists: List<Artist.AlongAttributes>,
+) {
     BoxWithConstraints(modifier = Modifier.clipToBounds()) {
         val cardWidthPx = this@BoxWithConstraints.constraints.maxWidth
         var offsetX by remember { mutableFloatStateOf(0f) }
@@ -277,14 +323,17 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures(
                         onDragEnd = {
-                            val thresh = cardWidthPx / 4
-                            val affected = when {
-                                -offsetX > thresh -> context.symphony.radio.shorty.skip()
-                                offsetX > thresh -> context.symphony.radio.shorty.previous()
-                                else -> false
-                            }
-                            if (!affected) {
-                                offsetX = 0f
+                            // TODO; check this
+                            context.symphony.groove.coroutineScope.launch {
+                                val thresh = cardWidthPx / 4
+                                val affected = when {
+                                    -offsetX > thresh -> context.symphony.radio.skip()
+                                    offsetX > thresh -> context.symphony.radio.previous()
+                                    else -> false
+                                }
+                                if (!affected) {
+                                    offsetX = 0f
+                                }
                             }
                         },
                         onDragCancel = {
@@ -302,10 +351,10 @@ private fun NowPlayingBottomBarContent(context: ViewContext, song: Song) {
                     song.title,
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                if (song.artists.isNotEmpty()) {
+                if (artists.isNotEmpty()) {
                     NowPlayingBottomBarContentText(
                         context,
-                        song.artists.joinToString(),
+                        artists.joinToString { it.entity.name },
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -320,7 +369,7 @@ private fun NowPlayingBottomBarContentText(
     text: String,
     style: TextStyle,
 ) {
-    val textMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsState()
+    val textMarquee by context.symphony.settings.miniPlayerTextMarquee.flow.collectAsStateWithLifecycle()
     var showOverlay by remember { mutableStateOf(false) }
 
     Box {

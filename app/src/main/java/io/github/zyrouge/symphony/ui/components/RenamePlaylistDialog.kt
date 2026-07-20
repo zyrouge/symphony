@@ -18,14 +18,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.entities.Playlist
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.launch
 
 @Composable
 fun RenamePlaylistDialog(
     context: ViewContext,
     playlist: Playlist,
-    onRename: () -> Unit = {},
     onDismissRequest: () -> Unit,
 ) {
     var input by remember { mutableStateOf(playlist.title) }
@@ -65,9 +65,10 @@ fun RenamePlaylistDialog(
             TextButton(
                 enabled = input.isNotBlank() && input != playlist.title,
                 onClick = {
-                    onRename()
+                    context.symphony.groove.coroutineScope.launch {
+                        context.symphony.groove.playlist.save(playlist.copy(title = input))
+                    }
                     onDismissRequest()
-                    context.symphony.groove.playlist.renamePlaylist(playlist, input)
                 }
             ) {
                 Text(context.symphony.t.Done)

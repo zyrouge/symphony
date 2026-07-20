@@ -2,9 +2,11 @@ package io.github.zyrouge.symphony.ui.helpers
 
 import android.content.Context
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.ui.unit.Dp
 import coil.request.ImageRequest
+import io.github.zyrouge.symphony.Symphony
 
 enum class ScreenOrientation {
     PORTRAIT,
@@ -29,10 +31,19 @@ enum class ScreenOrientation {
     }
 }
 
-fun createHandyImageRequest(context: Context, image: Any, fallback: Int) =
-    createHandyImageRequest(context, image, fallbackResId = fallback)
+fun createGrooveArtworkImageRequest(symphony: Symphony, uri: Uri?) = createHandyImageRequestBuilder(
+    symphony.applicationContext,
+    image = uri ?: Assets.getPlaceholderUri(symphony),
+    fallback = Assets.placeholderDarkId,
+).build()
 
-private fun createHandyImageRequest(
+fun createGrooveArtworkImageRequests(symphony: Symphony, uris: List<Uri?>) =
+    uris.map { createGrooveArtworkImageRequest(symphony, it) }
+
+fun createHandyImageRequestBuilder(context: Context, image: Any, fallback: Int) =
+    createHandyImageRequestBuilder(context, image, fallbackResId = fallback)
+
+private fun createHandyImageRequestBuilder(
     context: Context,
     image: Any,
     fallbackResId: Int? = null,

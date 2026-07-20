@@ -38,7 +38,7 @@ import coil.request.ImageRequest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SquareGrooveTile(
-    image: ImageRequest,
+    images: List<ImageRequest>,
     options: @Composable (Boolean, () -> Unit) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
     onPlay: () -> Unit,
@@ -55,7 +55,8 @@ fun SquareGrooveTile(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box {
                     AsyncImage(
-                        image,
+                        // TODO
+                        images.first(),
                         null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

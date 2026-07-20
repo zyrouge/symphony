@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
-import io.github.zyrouge.symphony.utils.toSafeFinite
+import io.github.zyrouge.symphony.utils.builtin.toSafeFinite
 
 fun Modifier.drawScrollBar(state: LazyListState): Modifier = composed {
     val scrollPointerColor = MaterialTheme.colorScheme.surfaceTint

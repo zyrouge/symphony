@@ -15,14 +15,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import io.github.zyrouge.symphony.services.groove.Artist
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import io.github.zyrouge.symphony.ui.helpers.createGrooveArtworkImageRequests
 import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
+import kotlinx.coroutines.launch
 
 @Composable
 fun ArtistTile(context: ViewContext, artist: Artist) {
+    val artworkUris by context.symphony.groove.artist.getTop4ArtworkUriAsFlow(artist.id)
+        .collectAsStateWithLifecycle(listOf())
+
     SquareGrooveTile(
-        image = artist.createArtworkImageRequest(context.symphony).build(),
+        images = createGrooveArtworkImageRequests(context.symphony, artworkUris),
         options = { expanded, onDismissRequest ->
             ArtistDropdownMenu(
                 context,
@@ -41,7 +47,16 @@ fun ArtistTile(context: ViewContext, artist: Artist) {
             )
         },
         onPlay = {
-            context.symphony.radio.shorty.playQueue(artist.getSortedSongIds(context.symphony))
+            context.symphony.groove.coroutineScope.launch {
+                val songs = context.symphony.groove.artist.findSongsById(
+                    artist.id,
+                    context.symphony.settings.lastUsedArtistSongsSortBy.value,
+                    context.symphony.settings.lastUsedArtistSongsSortReverse.value
+                )
+                context.symphony.radio.clear()
+                context.symphony.radio.add(songs)
+                context.symphony.radio.play()
+            }
         },
         onClick = {
             context.navController.navigate(ArtistViewRoute(artist.name))
@@ -70,11 +85,18 @@ fun ArtistDropdownMenu(
                 Text(context.symphony.t.ShufflePlay)
             },
             onClick = {
+                context.symphony.groove.coroutineScope.launch {
+                    val songs = context.symphony.groove.artist.findSongsById(
+                        artist.id,
+                        context.symphony.settings.lastUsedArtistSongsSortBy.value,
+                        context.symphony.settings.lastUsedArtistSongsSortReverse.value
+                    )
+                    context.symphony.radio.clear()
+                    context.symphony.radio.add(songs)
+                    context.symphony.radio.setShuffleMode(true)
+                    context.symphony.radio.play()
+                }
                 onDismissRequest()
-                context.symphony.radio.shorty.playQueue(
-                    artist.getSortedSongIds(context.symphony),
-                    shuffle = true
-                )
             }
         )
         DropdownMenuItem(
@@ -85,11 +107,8 @@ fun ArtistDropdownMenu(
                 Text(context.symphony.t.PlayNext)
             },
             onClick = {
+                // TODO
                 onDismissRequest()
-                context.symphony.radio.queue.add(
-                    artist.getSortedSongIds(context.symphony),
-                    context.symphony.radio.queue.currentSongIndex + 1
-                )
             }
         )
         DropdownMenuItem(
@@ -100,8 +119,16 @@ fun ArtistDropdownMenu(
                 Text(context.symphony.t.AddToQueue)
             },
             onClick = {
+                context.symphony.groove.coroutineScope.launch {
+                    val songs = context.symphony.groove.artist.findSongsById(
+                        artist.id,
+                        context.symphony.settings.lastUsedArtistSongsSortBy.value,
+                        context.symphony.settings.lastUsedArtistSongsSortReverse.value
+                    )
+                    context.symphony.radio.add(songs)
+                    context.symphony.radio.play()
+                }
                 onDismissRequest()
-                context.symphony.radio.queue.add(artist.getSortedSongIds(context.symphony))
             }
         )
         DropdownMenuItem(
@@ -119,9 +146,17 @@ fun ArtistDropdownMenu(
     }
 
     if (showAddToPlaylistDialog) {
+        val songs = remember {
+            context.symphony.groove.artist.findSongsById(
+                artist.id,
+                context.symphony.settings.lastUsedArtistSongsSortBy.value,
+                context.symphony.settings.lastUsedArtistSongsSortReverse.value
+            )
+        }
+
         AddToPlaylistDialog(
             context,
-            songIds = artist.getSongIds(context.symphony),
+            songs = songs,
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }

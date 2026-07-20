@@ -8,7 +8,7 @@ object ImagePreserver {
         Low(256),
         Medium(512),
         High(1024),
-        Loseless(null),
+        Lossless(null),
     }
 
     fun resize(bitmap: Bitmap, quality: Quality): Bitmap {
