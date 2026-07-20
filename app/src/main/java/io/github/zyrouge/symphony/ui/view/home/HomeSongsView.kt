@@ -24,6 +24,8 @@ fun HomeSongsView(context: ViewContext) {
             sortBy = sortBy,
             sortReverse = sortReverse,
             enableAddMediaFoldersHint = true,
+            onSortByChange = { context.symphony.settings.lastUsedSongsSortBy.setValue(it) },
+            onSortReverseChange = { context.symphony.settings.lastUsedSongsSortReverse.setValue(it) },
         )
     }
 }

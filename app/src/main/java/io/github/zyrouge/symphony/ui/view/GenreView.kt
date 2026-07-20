@@ -109,6 +109,8 @@ fun GenreView(context: ViewContext, route: GenreViewRoute) {
                         songs = songs,
                         sortBy = songsSortBy,
                         sortReverse = songsSortReverse,
+                        onSortByChange = { context.symphony.settings.lastUsedSongsSortBy.setValue(it) },
+                        onSortReverseChange = { context.symphony.settings.lastUsedSongsSortReverse.setValue(it) },
                     )
 
                     else -> UnknownGenre(context, route.genreId)

@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,12 +38,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.zyrouge.symphony.services.groove.Groove
+import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholderSize
 import io.github.zyrouge.symphony.ui.components.NewPlaylistDialog
 import io.github.zyrouge.symphony.ui.components.SongCard
 import io.github.zyrouge.symphony.ui.components.TopAppBarMinimalTitle
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.nowPlaying.NowPlayingNothingPlayingBody
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -54,9 +57,23 @@ object QueueViewRoute
 fun QueueView(context: ViewContext) {
     val coroutineScope = rememberCoroutineScope()
     val queue by context.symphony.radio.getQueueAsFlow().collectAsStateWithLifecycle(null)
+    val songMappings by remember(queue?.entity?.id) {
+        queue?.entity?.id?.let { queueId ->
+            context.symphony.database.songQueueSongMapping.valuesAsFlow(queueId)
+        } ?: flowOf(emptyList())
+    }.collectAsStateWithLifecycle(emptyList())
+    val songIds by remember(songMappings) {
+        derivedStateOf { songMappings.map { it.entity.id } }
+    }
+    val currentSongIndex by remember(queue?.entity?.playingId, songMappings) {
+        derivedStateOf {
+            songMappings.indexOfFirst { it.mapping.id == queue?.entity?.playingId }
+                .coerceAtLeast(0)
+        }
+    }
     val selectedSongIndices = remember { mutableStateListOf<Int>() }
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = queueIndex,
+        initialFirstVisibleItemIndex = currentSongIndex,
     )
     var showSaveDialog by remember { mutableStateOf(false) }
 
@@ -91,7 +108,11 @@ fun QueueView(context: ViewContext) {
                     when {
                         selectedSongIndices.isNotEmpty() -> IconButton(
                             onClick = {
-                                context.symphony.radio.queue.remove(selectedSongIndices.toList())
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.remove(
+                                        selectedSongIndices.map { songMappings[it].mapping.id }
+                                    )
+                                }
                                 selectedSongIndices.clear()
                             }
                         ) {
@@ -109,7 +130,9 @@ fun QueueView(context: ViewContext) {
 
                     IconButton(
                         onClick = {
-                            context.symphony.radio.stop()
+                            context.symphony.groove.coroutineScope.launch {
+                                context.symphony.radio.stop()
+                            }
                             selectedSongIndices.clear()
                         }
                     ) {
@@ -124,12 +147,12 @@ fun QueueView(context: ViewContext) {
                     .padding(contentPadding)
                     .fillMaxSize()
             ) {
-                if (queue.isEmpty()) {
+                if (songIds.isEmpty()) {
                     NowPlayingNothingPlayingBody(context)
                 } else {
                     LazyColumn(state = listState) {
                         itemsIndexed(
-                            queue,
+                            songIds,
                             key = { i, id -> "$i-$id" },
                             contentType = { _, _ -> Groove.Kind.SONG },
                         ) { i, songId ->
@@ -139,7 +162,7 @@ fun QueueView(context: ViewContext) {
                                         context,
                                         song,
                                         autoHighlight = false,
-                                        highlighted = i == queueIndex,
+                                        highlighted = i == currentSongIndex,
                                         leading = {
                                             Checkbox(
                                                 checked = selectedSongIndices.contains(i),
@@ -158,13 +181,13 @@ fun QueueView(context: ViewContext) {
                                             Text((i + 1).toString())
                                         },
                                         onClick = {
-                                            context.symphony.radio.jumpTo(i)
                                             coroutineScope.launch {
+                                                context.symphony.radio.play(songMappings[i].mapping.id)
                                                 listState.animateScrollToItem(i)
                                             }
                                         },
                                     )
-                                    if (i < queueIndex) {
+                                    if (i < currentSongIndex) {
                                         Box(
                                             modifier = Modifier
                                                 .matchParentSize()
@@ -185,7 +208,7 @@ fun QueueView(context: ViewContext) {
     if (showSaveDialog) {
         NewPlaylistDialog(
             context,
-            initialSongIds = queue.toList(),
+            initialSongIds = songIds,
             onDone = { playlist ->
                 showSaveDialog = false
                 context.symphony.groove.playlist.addSongs(playlist)

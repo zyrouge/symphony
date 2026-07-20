@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -39,26 +40,36 @@ import io.github.zyrouge.symphony.ui.helpers.ViewContext
 fun PlaylistManageSongsDialog(
     context: ViewContext,
     selectedSongs: List<Song>,
-    onDone: (List<Song>) -> Unit,
+    onDone: (added: List<Song>, removed: List<Song>) -> Unit,
 ) {
     val songsSortBy by context.symphony.settings.lastUsedSongsSortBy.flow.collectAsStateWithLifecycle()
     val songsSortReverse by context.symphony.settings.lastUsedSongsSortReverse.flow.collectAsStateWithLifecycle()
     val allSongs by context.symphony.groove.song.valuesAsFlow(songsSortBy, songsSortReverse)
         .collectAsStateWithLifecycle(emptyList())
-    val nSelectedSongs = remember { selectedSongs.toMutableStateList() }
+    val allSongsMap by remember(allSongs) { derivedStateOf { allSongs.associateBy { it.id } } }
+    val originalSongIds = remember { selectedSongs.map { it.id }.toSet() }
+    val nSelectedSongIds = remember { selectedSongs.map { it.id }.toMutableStateList() }
     var terms by remember { mutableStateOf("") }
-    val songIds by remember(allSongs, terms, selectedSongs) {
+    val songIds by remember(allSongs, terms) {
         derivedStateOf {
-            context.symphony.groove.song.search(allSongIds, terms, limit = -1)
-                .map { it.entity }
-                .sortedBy { !selectedSongIds.contains(it) }
+            val songs = when {
+                terms.isEmpty() -> allSongs
+                else -> context.symphony.groove.song.search(terms)
+            }
+            songs.map { it.id }.sortedBy { !nSelectedSongIds.contains(it) }
         }
     }
 
+    val done = {
+        val added = nSelectedSongIds
+            .filter { !originalSongIds.contains(it) }
+            .mapNotNull { allSongsMap[it] }
+        val removed = selectedSongs.filter { !nSelectedSongIds.contains(it.id) }
+        onDone(added, removed)
+    }
+
     ScaffoldDialog(
-        onDismissRequest = {
-            onDone(nSelectedSongs.toList())
-        },
+        onDismissRequest = { done() },
         title = {
             Text(context.symphony.t.ManageSongs)
         },
@@ -67,14 +78,12 @@ fun PlaylistManageSongsDialog(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clip(CircleShape)
-                    .clickable {
-                        onDone(nSelectedSongs.toList())
-                    },
+                    .clickable { done() },
             ) {
                 Icon(
                     Icons.Filled.Close,
                     null,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
                 )
             }
         },
@@ -83,14 +92,12 @@ fun PlaylistManageSongsDialog(
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .clip(CircleShape)
-                    .clickable {
-                        onDone(nSelectedSongs.toList())
-                    },
+                    .clickable { done() },
             ) {
                 Icon(
                     Icons.Filled.Done,
                     null,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
                 )
             }
         },
@@ -110,9 +117,7 @@ fun PlaylistManageSongsDialog(
                         Text(context.symphony.t.SearchYourMusic)
                     },
                     value = terms,
-                    onValueChange = {
-                        terms = it
-                    },
+                    onValueChange = { terms = it },
                 )
                 when {
                     allSongs.isEmpty() -> Box(modifier = Modifier.padding(0.dp, 12.dp)) {
@@ -123,33 +128,32 @@ fun PlaylistManageSongsDialog(
                         LazyColumn(
                             modifier = Modifier
                                 .height(this@BoxWithConstraints.maxHeight)
-                                .padding(bottom = 4.dp)
+                                .padding(bottom = 4.dp),
                         ) {
                             items(songIds) { songId ->
-                                context.symphony.groove.song.get(songId)?.let { song ->
-                                    SongCard(
-                                        context,
-                                        song = song,
-                                        thumbnailLabel = when {
-                                            nSelectedSongIds.contains(song.id) -> ({
-                                                Icon(
-                                                    Icons.Filled.Check,
-                                                    null,
-                                                    modifier = Modifier.size(12.dp),
-                                                )
-                                            })
+                                val song = allSongsMap[songId] ?: return@items
+                                SongCard(
+                                    context,
+                                    song = song,
+                                    thumbnailLabel = when {
+                                        nSelectedSongIds.contains(song.id) -> ({
+                                            Icon(
+                                                Icons.Filled.Check,
+                                                null,
+                                                modifier = Modifier.size(12.dp),
+                                            )
+                                        })
 
-                                            else -> null
-                                        },
-                                        disableHeartIcon = true,
-                                    ) {
-                                        when {
-                                            nSelectedSongIds.contains(song.id) -> {
-                                                nSelectedSongIds.remove(song.id)
-                                            }
-
-                                            else -> nSelectedSongIds.add(song.id)
+                                        else -> null
+                                    },
+                                    disableHeartIcon = true,
+                                ) {
+                                    when {
+                                        nSelectedSongIds.contains(song.id) -> {
+                                            nSelectedSongIds.remove(song.id)
                                         }
+
+                                        else -> nSelectedSongIds.add(song.id)
                                     }
                                 }
                             }
@@ -157,6 +161,6 @@ fun PlaylistManageSongsDialog(
                     }
                 }
             }
-        }
+        },
     )
 }

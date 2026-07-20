@@ -36,6 +36,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -79,7 +80,7 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                     }
                 },
                 actions = {
-                    if (playlist != null) {
+                    playlist?.let {
                         IconButton(
                             onClick = {
                                 showOptionsMenu = true
@@ -88,12 +89,8 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                             Icon(Icons.Filled.MoreVert, null)
                             PlaylistDropdownMenu(
                                 context,
-                                playlist = playlist!!,
-                                songs = songs,
+                                playlist = it.entity,
                                 expanded = showOptionsMenu,
-                                onDelete = {
-                                    context.navController.popBackStack()
-                                },
                                 onDismissRequest = {
                                     showOptionsMenu = false
                                 }
@@ -136,13 +133,25 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                                         },
                                         onClick = {
                                             onDismissRequest()
-                                            context.symphony.groove.playlist.removeSongs(
-                                                it.entity.id,
-                                                listOf(song.id),
-                                            )
+                                            context.symphony.groove.coroutineScope.launch {
+                                                context.symphony.groove.playlist.removeSongs(
+                                                    it.entity.id,
+                                                    listOf(song.id),
+                                                )
+                                            }
                                         }
                                     )
                                 }
+                        },
+                        onSortByChange = {
+                            context.symphony.settings.lastUsedPlaylistSongsSortBy.setValue(
+                                it
+                            )
+                        },
+                        onSortReverseChange = {
+                            context.symphony.settings.lastUsedPlaylistSongsSortReverse.setValue(
+                                it
+                            )
                         },
                     )
 

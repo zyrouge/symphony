@@ -10,6 +10,8 @@ class GenreRepository(private val symphony: Symphony) {
     }
 
     fun findByIdAsFlow(id: String) = symphony.database.genres.findByIdAsFlow(id)
+    fun get(id: String) = symphony.database.genres.findById(id)
+    fun search(terms: String) = symphony.database.genres.search(terms)
 
     fun findSongsByIdAsFlow(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
         symphony.database.genreSongMapping.valuesMappedAsFlow(

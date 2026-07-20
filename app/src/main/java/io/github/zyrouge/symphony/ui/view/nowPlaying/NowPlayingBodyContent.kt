@@ -50,6 +50,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
@@ -286,7 +288,7 @@ fun NowPlayingTraditionalControls(context: ViewContext, data: NowPlayingData) {
 
 @Composable
 fun NowPlayingSeekBar(context: ViewContext) {
-    val playbackPosition by context.symphony.radio.player.playbackPosition.collectAsStateWithLifecycle()
+    val playbackPosition by context.symphony.radio.getPlaybackPositionAsFlow().collectAsStateWithLifecycle()
 
     Row(
         modifier = Modifier.padding(defaultHorizontalPadding, 0.dp),
@@ -460,7 +462,10 @@ private fun NowPlayingPlayPauseButton(
                 else -> Icons.Filled.Pause
             },
             onClick = {
-                context.symphony.radio.shorty.playPause()
+                context.symphony.groove.coroutineScope.launch {
+                    if (isPlaying) context.symphony.radio.pause()
+                    else context.symphony.radio.play()
+                }
             }
         )
     }
@@ -477,7 +482,9 @@ private fun NowPlayingSkipPreviousButton(
             style = style,
             icon = Icons.Filled.SkipPrevious,
             onClick = {
-                context.symphony.radio.shorty.previous()
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.radio.previous()
+                }
             }
         )
     }
@@ -494,7 +501,9 @@ private fun NowPlayingSkipNextButton(
             style = style,
             icon = Icons.Filled.SkipNext,
             onClick = {
-                context.symphony.radio.shorty.skip()
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.radio.skip()
+                }
             }
         )
     }
@@ -511,8 +520,10 @@ private fun NowPlayingFastRewindButton(
             style = style,
             icon = Icons.Filled.FastRewind,
             onClick = {
-                context.symphony.radio.shorty
-                    .seekFromCurrent(-seekBackDuration)
+                context.symphony.groove.coroutineScope.launch {
+                    val pos = context.symphony.radio.getPlaybackPositionAsFlow().first()
+                    context.symphony.radio.seek((pos.played - seekBackDuration).coerceAtLeast(0L))
+                }
             }
         )
     }
@@ -529,8 +540,10 @@ private fun NowPlayingFastForwardButton(
             style = style,
             icon = Icons.Filled.FastForward,
             onClick = {
-                context.symphony.radio.shorty
-                    .seekFromCurrent(seekForwardDuration)
+                context.symphony.groove.coroutineScope.launch {
+                    val pos = context.symphony.radio.getPlaybackPositionAsFlow().first()
+                    context.symphony.radio.seek((pos.played + seekForwardDuration).coerceAtMost(pos.total))
+                }
             }
         )
     }

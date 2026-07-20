@@ -57,6 +57,7 @@ import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.ui.components.AlbumDropdownMenu
 import io.github.zyrouge.symphony.ui.components.AnimatedNowPlayingBottomBar
 import io.github.zyrouge.symphony.ui.components.ArtistDropdownMenu
+import io.github.zyrouge.symphony.ui.components.ArtistTile
 import io.github.zyrouge.symphony.ui.components.GenericGrooveCard
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.components.PlaylistDropdownMenu
@@ -117,43 +118,43 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
                     if (isChipSelected(Groove.Kind.SONG)) {
                         songIds.addAll(
                             context.symphony.groove.song
-                                .search(context.symphony.groove.song.ids(), terms)
-                                .map { it.entity }
+                                .search(terms)
+                                .map { it.id }
                         )
                     }
                     if (isChipSelected(Groove.Kind.ARTIST)) {
                         artistNames.addAll(
                             context.symphony.groove.artist
-                                .search(context.symphony.groove.artist.ids(), terms)
-                                .map { it.entity }
+                                .search(terms)
+                                .map { it.name }
                         )
                     }
                     if (isChipSelected(Groove.Kind.ALBUM)) {
                         albumIds.addAll(
                             context.symphony.groove.album
-                                .search(context.symphony.groove.album.ids(), terms)
-                                .map { it.entity }
+                                .search(terms)
+                                .map { it.id }
                         )
                     }
                     if (isChipSelected(Groove.Kind.ALBUM_ARTIST)) {
                         albumArtistNames.addAll(
-                            context.symphony.groove.albumArtist
-                                .search(context.symphony.groove.albumArtist.ids(), terms)
-                                .map { it.entity }
+                            context.symphony.groove.artist
+                                .search(terms, onlyAlbumArtists = true)
+                                .map { it.name }
                         )
                     }
                     if (isChipSelected(Groove.Kind.GENRE)) {
                         genreNames.addAll(
                             context.symphony.groove.genre
-                                .search(context.symphony.groove.genre.ids(), terms)
-                                .map { it.entity }
+                                .search(terms)
+                                .map { it.name }
                         )
                     }
                     if (isChipSelected(Groove.Kind.PLAYLIST)) {
                         playlistIds.addAll(
                             context.symphony.groove.playlist
-                                .search(context.symphony.groove.playlist.ids(), terms)
-                                .map { it.entity }
+                                .search(terms)
+                                .map { it.id }
                         )
                     }
 
@@ -343,7 +344,11 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
                                         songIds.forEach { songId ->
                                             context.symphony.groove.song.get(songId)?.let { song ->
                                                 SongCard(context, song) {
-                                                    context.symphony.radio.shorty.playQueue(song.id)
+                                                    context.symphony.groove.coroutineScope.launch {
+                                                        context.symphony.radio.clear()
+                                                        context.symphony.radio.add(listOf(song.id))
+                                                        context.symphony.radio.play()
+                                                    }
                                                 }
                                             }
                                         }
@@ -389,7 +394,7 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
                                                         title = {
                                                             Text(album.name)
                                                         },
-                                                        subtitle = album.artists
+                                                        subtitle = context.symphony.groove.album.findArtistNamesByAlbumId(album.id)
                                                             .joinToStringIfNotEmpty()
                                                             ?.let { { Text(it) } },
                                                         options = { expanded, onDismissRequest ->
@@ -412,29 +417,9 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
                                     if (hasAlbumArtists) {
                                         SideHeading(context, Groove.Kind.ALBUM_ARTIST)
                                         albumArtistNames.forEach { albumArtistName ->
-                                            context.symphony.groove.albumArtist.get(albumArtistName)
+                                            context.symphony.groove.artist.get(albumArtistName)
                                                 ?.let { albumArtist ->
-                                                    GenericGrooveCard(
-                                                        image = albumArtist
-                                                            .createArtworkImageRequest(context.symphony)
-                                                            .build(),
-                                                        title = {
-                                                            Text(albumArtist.name)
-                                                        },
-                                                        options = { expanded, onDismissRequest ->
-                                                            AlbumArtistDropdownMenu(
-                                                                context,
-                                                                albumArtist,
-                                                                expanded = expanded,
-                                                                onDismissRequest = onDismissRequest,
-                                                            )
-                                                        },
-                                                        onClick = {
-                                                            context.navController.navigate(
-                                                                AlbumArtistViewRoute(albumArtist.name)
-                                                            )
-                                                        }
-                                                    )
+                                                    ArtistTile(context, albumArtist)
                                                 }
                                         }
                                     }
@@ -475,13 +460,7 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
                                                     GenericGrooveCard(
                                                         image = null,
                                                         title = { Text(genre.name) },
-                                                        subtitle = {
-                                                            Text(
-                                                                context.symphony.t.XSongs(
-                                                                    genre.numberOfTracks.toString()
-                                                                )
-                                                            )
-                                                        },
+
                                                         options = null,
                                                         onClick = {
                                                             context.navController.navigate(

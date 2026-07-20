@@ -272,6 +272,10 @@ class Radio(private val symphony: Symphony) : SymphonyHooks {
         return queue.clear()
     }
 
+    suspend fun previous() = queue.previous()
+
+    suspend fun skip() = queue.skip()
+
     fun getQueueAsFlow() = queue.getCurrentSongQueueAsFlow()
 
     internal fun onQueueCurrentPlayingSongChanged(song: Song.AlongSongQueueMapping?) {

@@ -56,6 +56,15 @@ abstract class SongStore {
     }
 
     @RawQuery
+    protected abstract fun findById(query: SimpleSQLiteQuery): Song?
+
+    fun findById(id: String): Song? {
+        val query = "SELECT * FROM ${Song.TABLE} WHERE ${Song.COLUMN_ID} = ? LIMIT 1"
+        val args = arrayOf(id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
     protected abstract fun ids(query: SimpleSQLiteQuery): List<String>
 
     fun ids(): List<String> {
@@ -217,5 +226,25 @@ abstract class SongStore {
             limit = limit,
         )
         return valuesAsFlow(query)
+    }
+
+    fun search(terms: String): List<Song> {
+        val likeTerm = "%$terms%"
+        return values(
+            sortBy = SongRepository.SortBy.CUSTOM,
+            sortReverse = false,
+            additionalClauseBeforeJoins = "WHERE (${Song.TABLE}.${Song.COLUMN_TITLE} LIKE ? OR ${Song.TABLE}.${Song.COLUMN_FILENAME} LIKE ?) ",
+            additionalArgsBeforeJoins = arrayOf(likeTerm, likeTerm),
+        )
+    }
+
+    fun searchAsFlow(terms: String): Flow<List<Song>> {
+        val likeTerm = "%$terms%"
+        return valuesAsFlow(
+            sortBy = SongRepository.SortBy.CUSTOM,
+            sortReverse = false,
+            additionalClauseBeforeJoins = "WHERE (${Song.TABLE}.${Song.COLUMN_TITLE} LIKE ? OR ${Song.TABLE}.${Song.COLUMN_FILENAME} LIKE ?) ",
+            additionalArgsBeforeJoins = arrayOf(likeTerm, likeTerm),
+        )
     }
 }

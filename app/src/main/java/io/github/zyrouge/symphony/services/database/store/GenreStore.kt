@@ -32,6 +32,24 @@ abstract class GenreStore {
         return findByIdAsFlow(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
+    protected abstract fun findById(query: SimpleSQLiteQuery): Genre?
+
+    fun findById(id: String): Genre? {
+        val query = "SELECT * FROM ${Genre.TABLE} WHERE ${Genre.COLUMN_ID} = ? LIMIT 1"
+        val args = arrayOf(id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun search(query: SimpleSQLiteQuery): List<Genre>
+
+    fun search(terms: String): List<Genre> {
+        val likeTerm = "%$terms%"
+        val query = "SELECT * FROM ${Genre.TABLE} WHERE ${Genre.COLUMN_NAME} LIKE ?"
+        return search(SimpleSQLiteQuery(query, arrayOf(likeTerm)))
+    }
+
     @RawQuery(observedEntities = [Genre::class, GenreSongMapping::class])
     protected abstract fun valuesAsFlow(query: SupportSQLiteQuery): Flow<List<Genre.AlongAttributes>>
 

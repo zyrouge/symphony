@@ -14,7 +14,6 @@ android {
     defaultConfig {
         applicationId = "io.github.zyrouge.symphony"
         minSdk = libs.versions.min.sdk.get().toInt()
-        targetSdk = libs.versions.target.sdk.get().toInt()
 
         versionCode = 115
         versionName = "2024.12.115"

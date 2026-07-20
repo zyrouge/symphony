@@ -21,16 +21,10 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.services.groove.Groove
 import io.github.zyrouge.symphony.services.groove.entities.Song
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
-import io.github.zyrouge.symphony.services.radio.Radio
+import kotlinx.coroutines.launch
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
 import io.github.zyrouge.symphony.ui.view.settings.GrooveSettingsViewRoute
-
-enum class SongListType {
-    Default,
-    Playlist,
-    Album,
-}
 
 @Composable
 fun SongList(
@@ -45,6 +39,8 @@ fun SongList(
     cardThumbnailLabelStyle: SongCardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Default,
     disableHeartIcon: Boolean = false,
     enableAddMediaFoldersHint: Boolean = false,
+    onSortByChange: ((SongRepository.SortBy) -> Unit)? = null,
+    onSortReverseChange: ((Boolean) -> Unit)? = null,
 ) {
     MediaSortBarScaffold(
         mediaSortBar = {
@@ -52,19 +48,24 @@ fun SongList(
                 context,
                 reverse = sortReverse,
                 onReverseChange = {
-                    type.setLastUsedSortReverse(context, it)
+                    onSortReverseChange?.invoke(it)
                 },
                 sort = sortBy,
                 sorts = SongRepository.SortBy.entries
                     .associateWith { x -> ViewContext.parameterizedFn { x.label(it) } },
                 onSortChange = {
-                    type.setLastUsedSortBy(context, it)
+                    onSortByChange?.invoke(it)
                 },
                 label = {
                     Text(context.symphony.t.XSongs(songs.size.toString()))
                 },
                 onShufflePlay = {
-                    context.symphony.radio.playQueue(songs, shuffle = true)
+                    context.symphony.groove.coroutineScope.launch {
+                        context.symphony.radio.clear()
+                        context.symphony.radio.add(songs)
+                        context.symphony.radio.setShuffleMode(true)
+                        context.symphony.radio.play()
+                    }
                 }
             )
         },
@@ -119,10 +120,11 @@ fun SongList(
                                     { onDismissRequest -> it(i, song, onDismissRequest) }
                                 },
                             ) {
-                                context.symphony.radio.shorty.playQueue(
-                                    sortedSongIds,
-                                    Radio.PlayOptions(index = i)
-                                )
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.clear()
+                                    context.symphony.radio.add(songs)
+                                    context.symphony.radio.playBySongId(song.id)
+                                }
                             }
                         }
                         trailingContent?.invoke(this)
@@ -133,7 +135,7 @@ fun SongList(
     )
 }
 
-fun SongRepository.SortBy.label(context: ViewContext) = when (this) {
+private fun SongRepository.SortBy.label(context: ViewContext) = when (this) {
     SongRepository.SortBy.CUSTOM -> context.symphony.t.Custom
     SongRepository.SortBy.TITLE -> context.symphony.t.Title
     SongRepository.SortBy.ARTIST -> context.symphony.t.Artist
@@ -147,30 +149,3 @@ fun SongRepository.SortBy.label(context: ViewContext) = when (this) {
     SongRepository.SortBy.TRACK_NUMBER -> context.symphony.t.TrackNumber
 }
 
-fun SongListType.getLastUsedSortBy(context: ViewContext) = when (this) {
-    SongListType.Default -> context.symphony.settings.lastUsedSongsSortBy
-    SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortBy
-    SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortBy
-}
-
-fun SongListType.setLastUsedSortBy(context: ViewContext, sort: SongRepository.SortBy) =
-    when (this) {
-        SongListType.Default -> context.symphony.settings.lastUsedSongsSortBy.setValue(sort)
-        SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortBy.setValue(sort)
-        SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortBy.setValue(sort)
-    }
-
-fun SongListType.getLastUsedSortReverse(context: ViewContext) = when (this) {
-    SongListType.Default -> context.symphony.settings.lastUsedSongsSortReverse
-    SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortReverse
-    SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortReverse
-}
-
-fun SongListType.setLastUsedSortReverse(context: ViewContext, reverse: Boolean) = when (this) {
-    SongListType.Default -> context.symphony.settings.lastUsedSongsSortReverse.setValue(reverse)
-    SongListType.Playlist -> context.symphony.settings.lastUsedPlaylistSongsSortReverse.setValue(
-        reverse
-    )
-
-    SongListType.Album -> context.symphony.settings.lastUsedAlbumSongsSortReverse.setValue(reverse)
-}

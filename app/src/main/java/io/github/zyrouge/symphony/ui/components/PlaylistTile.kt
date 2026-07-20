@@ -172,6 +172,8 @@ fun PlaylistDropdownMenu(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
+    val playlistAlongAttributes by context.symphony.groove.playlist.findByIdAsFlow(playlist.id)
+        .collectAsStateWithLifecycle(null)
 
     DropdownMenu(
         expanded = expanded,
@@ -307,13 +309,15 @@ fun PlaylistDropdownMenu(
     }
 
     if (showInfoDialog) {
-        PlaylistInformationDialog(
-            context,
-            playlist = playlist,
-            onDismissRequest = {
-                showInfoDialog = false
-            }
-        )
+        playlistAlongAttributes?.let {
+            PlaylistInformationDialog(
+                context,
+                playlist = it,
+                onDismissRequest = {
+                    showInfoDialog = false
+                }
+            )
+        }
     }
 
     if (showSongsPicker) {
@@ -328,9 +332,12 @@ fun PlaylistDropdownMenu(
         PlaylistManageSongsDialog(
             context,
             selectedSongs = songs,
-            onDone = {
-                context.symphony.groove.playlist.update(playlist.id, it)
+            onDone = { addedSongs, removedSongs ->
                 showSongsPicker = false
+                context.symphony.groove.coroutineScope.launch {
+                    context.symphony.groove.playlist.addSongs(playlist.id, addedSongs)
+                    context.symphony.groove.playlist.removeSongs(playlist.id, removedSongs)
+                }
             }
         )
     }
@@ -347,17 +354,25 @@ fun PlaylistDropdownMenu(
             onResult = { result ->
                 showDeleteDialog = false
                 if (result) {
-                    onDelete()
-                    context.symphony.groove.playlist.delete(playlist.id)
+                    context.symphony.groove.coroutineScope.launch {
+                        context.symphony.groove.playlist.delete(playlist.id)
+                    }
                 }
             }
         )
     }
 
     if (showAddToPlaylistDialog) {
+        val songs = remember {
+            context.symphony.groove.playlist.findSongsById(
+                playlist.id,
+                context.symphony.settings.lastUsedPlaylistSongsSortBy.value,
+                context.symphony.settings.lastUsedPlaylistSongsSortReverse.value,
+            )
+        }
         AddToPlaylistDialog(
             context,
-            songs = playlist.getSongIds(context.symphony),
+            songs = songs,
             onDismissRequest = {
                 showAddToPlaylistDialog = false
             }
@@ -368,7 +383,6 @@ fun PlaylistDropdownMenu(
         RenamePlaylistDialog(
             context,
             playlist = playlist,
-            onRename = onRename,
             onDismissRequest = {
                 showRenameDialog = false
             }

@@ -67,4 +67,10 @@ class SongRepository(private val symphony: Symphony) {
 
     fun valuesAsFlow(sortBy: SortBy, sortReverse: Boolean, limit: Int? = null) =
         symphony.database.songs.valuesAsFlow(sortBy, sortReverse, limit = limit)
+
+    fun search(terms: String) = symphony.database.songs.search(terms)
+
+    fun searchAsFlow(terms: String) = symphony.database.songs.searchAsFlow(terms)
+
+    fun get(id: String) = symphony.database.songs.findById(id)
 }

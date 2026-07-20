@@ -181,6 +181,22 @@ class RadioQueue(private val symphony: Symphony) {
         return true
     }
 
+    suspend fun skip() = updateCurrentSongQueue {
+        val playingId = it.entity.playingId ?: return@updateCurrentSongQueue null
+        val song = symphony.database.songQueueSongMapping
+            .findById(it.entity.id, playingId) ?: return@updateCurrentSongQueue null
+        val nextSongId = song.mapping.nextId
+        it.entity.copy(playingId = nextSongId)
+    }
+
+    suspend fun previous() = updateCurrentSongQueue {
+        val playingId = it.entity.playingId ?: return@updateCurrentSongQueue null
+        val previousSong = symphony.database.songQueueSongMapping
+            .findByNextId(it.entity.id, playingId) ?: return@updateCurrentSongQueue null
+        val previousSongId = previousSong.mapping.id
+        it.entity.copy(playingId = previousSongId)
+    }
+
     suspend fun toggleLoopMode() = updateCurrentSongQueue {
         val currentLoopMode = it.entity.loopMode
         val nextLoopModeOrdinal = (currentLoopMode.ordinal + 1) % SongQueue.LoopMode.values.size

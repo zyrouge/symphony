@@ -38,6 +38,24 @@ abstract class PlaylistStore {
     }
 
     @RawQuery
+    protected abstract fun findById(query: SimpleSQLiteQuery): Playlist?
+
+    fun findById(id: String): Playlist? {
+        val query = "SELECT * FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_ID} = ? LIMIT 1"
+        val args = arrayOf(id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun search(query: SimpleSQLiteQuery): List<Playlist>
+
+    fun search(terms: String): List<Playlist> {
+        val likeTerm = "%$terms%"
+        val query = "SELECT * FROM ${Playlist.TABLE} WHERE ${Playlist.COLUMN_TITLE} LIKE ?"
+        return search(SimpleSQLiteQuery(query, arrayOf(likeTerm)))
+    }
+
+    @RawQuery
     protected abstract fun findByInternalId(query: SimpleSQLiteQuery): Playlist?
 
     fun findByInternalId(internalId: Int): Playlist? {

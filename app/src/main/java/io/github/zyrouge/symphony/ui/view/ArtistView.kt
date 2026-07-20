@@ -117,7 +117,17 @@ fun ArtistView(context: ViewContext, route: ArtistViewRoute) {
                                     HorizontalDivider()
                                 }
                             }
-                        }
+                        },
+                        onSortByChange = {
+                            context.symphony.settings.lastUsedArtistSongsSortBy.setValue(
+                                it
+                            )
+                        },
+                        onSortReverseChange = {
+                            context.symphony.settings.lastUsedArtistSongsSortReverse.setValue(
+                                it
+                            )
+                        },
                     )
 
                     else -> UnknownArtist(context, route.artistId)
@@ -142,7 +152,7 @@ private fun ArtistHero(context: ViewContext, artist: Artist.AlongAttributes) {
         options = { expanded, onDismissRequest ->
             ArtistDropdownMenu(
                 context,
-                artist,
+                artist.entity,
                 expanded = expanded,
                 onDismissRequest = onDismissRequest
             )

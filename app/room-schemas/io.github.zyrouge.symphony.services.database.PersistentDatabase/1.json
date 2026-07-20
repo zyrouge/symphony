@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e4c7854a47ab573f1abed106e30810e5",
+    "identityHash": "cf6a3f8f47b2e5717cfd05a653972432",
     "entities": [
       {
         "tableName": "album_artists_mapping",
@@ -1350,7 +1350,7 @@
       },
       {
         "tableName": "song_queue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `original_id` TEXT, `internal_id` INTEGER, `playing_id` TEXT, `is_playing` INTEGER NOT NULL, `playing_timestamp` INTEGER NOT NULL, `playing_speed_int` INTEGER NOT NULL, `playing_pitch_int` INTEGER NOT NULL, `shuffled` INTEGER NOT NULL, `loop_mode` TEXT NOT NULL, `speed_int` INTEGER NOT NULL, `pitch_int` INTEGER NOT NULL, `pause_on_song_end` INTEGER NOT NULL, `sleep_timer_ends_at` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`original_id`) REFERENCES `song_queue`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`playing_id`) REFERENCES `song_queue_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `original_id` TEXT, `internal_id` INTEGER, `playing_id` TEXT, `is_playing` INTEGER NOT NULL, `playing_timestamp` INTEGER NOT NULL, `playing_timestamp_updated_at` INTEGER NOT NULL, `playing_speed_int` INTEGER NOT NULL, `playing_pitch_int` INTEGER NOT NULL, `shuffled` INTEGER NOT NULL, `loop_mode` TEXT NOT NULL, `speed_int` INTEGER NOT NULL, `pitch_int` INTEGER NOT NULL, `pause_on_song_end` INTEGER NOT NULL, `sleep_timer_ends_at` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`original_id`) REFERENCES `song_queue`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`playing_id`) REFERENCES `song_queue_songs_mapping`(`mapping_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1385,6 +1385,12 @@
           {
             "fieldPath": "playingTimestamp",
             "columnName": "playing_timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playingTimestampUpdatedAt",
+            "columnName": "playing_timestamp_updated_at",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1654,7 +1660,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e4c7854a47ab573f1abed106e30810e5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf6a3f8f47b2e5717cfd05a653972432')"
     ]
   }
 }

@@ -15,6 +15,9 @@ class AlbumRepository(private val symphony: Symphony) {
     }
 
     fun findByIdAsFlow(id: String) = symphony.database.albums.findByIdAsFlow(id)
+    fun get(id: String) = symphony.database.albums.findById(id)
+    fun search(terms: String) = symphony.database.albums.search(terms)
+    fun findArtistNamesByAlbumId(id: String) = symphony.database.albumArtistMapping.findArtistNamesByAlbumId(id)
 
     fun findArtistsOfIdAsFlow(id: String) = symphony.database.artists.valuesAsFlow(
         ArtistRepository.SortBy.ARTIST_NAME,

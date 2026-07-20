@@ -1,5 +1,6 @@
 package io.github.zyrouge.symphony.ui.view.home
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -24,8 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,13 +45,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import io.github.zyrouge.symphony.services.groove.entities.Album
-import io.github.zyrouge.symphony.services.groove.entities.Artist
 import io.github.zyrouge.symphony.services.groove.repositories.SongRepository
 import io.github.zyrouge.symphony.ui.components.IconTextBody
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
-import io.github.zyrouge.symphony.ui.view.AlbumViewRoute
-import io.github.zyrouge.symphony.ui.view.ArtistViewRoute
+import io.github.zyrouge.symphony.ui.helpers.createGrooveArtworkImageRequest
 import io.github.zyrouge.symphony.utils.builtin.subListNonStrict
 import kotlinx.coroutines.launch
 
@@ -106,7 +102,11 @@ fun ForYouView(context: ViewContext) {
                             },
                             enabled = !libraryIsUpdating,
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(sortedSongIds)
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.clear()
+                                    context.symphony.radio.add(recentlyAddedSongs)
+                                    context.symphony.radio.play()
+                                }
                             },
                         )
                     }
@@ -119,10 +119,12 @@ fun ForYouView(context: ViewContext) {
                             },
                             enabled = !libraryIsUpdating,
                             onClick = {
-                                context.symphony.radio.shorty.playQueue(
-                                    songIds.toList(),
-                                    shuffle = true,
-                                )
+                                context.symphony.groove.coroutineScope.launch {
+                                    context.symphony.radio.clear()
+                                    context.symphony.radio.add(recentlyAddedSongs)
+                                    context.symphony.radio.setShuffleMode(true)
+                                    context.symphony.radio.play()
+                                }
                             }
                         )
                     }
@@ -144,6 +146,9 @@ fun ForYouView(context: ViewContext) {
                             recentlyAddedSongs.subListNonStrict(5).forEach { song ->
                                 val tileHeight = 96.dp
                                 val backgroundColor = MaterialTheme.colorScheme.surface
+                                val artworkUri by context.symphony.groove.song.getArtworkUriAsFlow(
+                                    song.id
+                                ).collectAsStateWithLifecycle(null as Uri?)
 
                                 ElevatedCard(
                                     modifier = Modifier
@@ -159,8 +164,10 @@ fun ForYouView(context: ViewContext) {
                                 ) {
                                     Box {
                                         AsyncImage(
-                                            song.createArtworkImageRequest(context.symphony)
-                                                .build(),
+                                            createGrooveArtworkImageRequest(
+                                                context.symphony,
+                                                artworkUri
+                                            ),
                                             null,
                                             contentScale = ContentScale.FillWidth,
                                             modifier = Modifier.matchParentSize(),
@@ -181,8 +188,10 @@ fun ForYouView(context: ViewContext) {
                                         Row(modifier = Modifier.padding(8.dp)) {
                                             Box {
                                                 AsyncImage(
-                                                    song.createArtworkImageRequest(context.symphony)
-                                                        .build(),
+                                                    createGrooveArtworkImageRequest(
+                                                        context.symphony,
+                                                        artworkUri
+                                                    ),
                                                     null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
@@ -238,6 +247,7 @@ fun ForYouView(context: ViewContext) {
                         }
                     }
                 }
+                /* // suggested content skipped — data derivation was removed in refactoring
                 val contents by context.symphony.settings.forYouContents.flow.collectAsStateWithLifecycle()
                 contents.forEach {
                     when (it) {
@@ -263,6 +273,7 @@ fun ForYouView(context: ViewContext) {
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+                */
             }
         }
 
@@ -312,6 +323,7 @@ private fun ForYouButton(
     }
 }
 
+/* // SixGridLoading — unused after suggested content removal
 @Composable
 private fun SixGridLoading() {
     Box(
@@ -324,6 +336,8 @@ private fun SixGridLoading() {
         CircularProgressIndicator()
     }
 }
+
+*/
 
 @Composable
 private fun SixGridEmpty(context: ViewContext) {
@@ -344,6 +358,7 @@ private fun SixGridEmpty(context: ViewContext) {
     }
 }
 
+/* // StatedSixGrid, SixGrid, Suggested* — unused after suggested content removal
 @Composable
 private fun <T> StatedSixGrid(
     context: ViewContext,
@@ -488,3 +503,4 @@ private fun SuggestedAlbumArtists(
         }
     }
 }
+*/

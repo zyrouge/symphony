@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.components.Slider
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -59,7 +60,9 @@ fun NowPlayingPitchDialog(
                 ) {
                     allowedPitches.forEach { pitch ->
                         val onClick = {
-                            context.symphony.radio.setPitch(pitch, persistent)
+                            context.symphony.groove.coroutineScope.launch {
+                                context.symphony.radio.setPitch(pitch, persistent)
+                            }
                         }
                         val shape = RoundedCornerShape(4.dp)
 
@@ -81,7 +84,9 @@ fun NowPlayingPitchDialog(
                     value = currentPitch,
                     onChange = { value ->
                         val pitch = (value * 10).roundToInt().toFloat() / 10
-                        context.symphony.radio.setPitch(pitch, persistent)
+                        context.symphony.groove.coroutineScope.launch {
+                            context.symphony.radio.setPitch(pitch, persistent)
+                        }
                     },
                     range = allowedPitchRange,
                     label = { value ->
@@ -99,7 +104,9 @@ fun NowPlayingPitchDialog(
                         checked = persistent,
                         onCheckedChange = {
                             persistent = !persistent
-                            context.symphony.radio.setPitch(currentPitch, persistent)
+                            context.symphony.groove.coroutineScope.launch {
+                                context.symphony.radio.setPitch(currentPitch, persistent)
+                            }
                         }
                     )
                     Spacer(modifier = Modifier.width(8.dp))

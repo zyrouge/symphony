@@ -20,19 +20,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,8 +40,7 @@ import io.github.zyrouge.symphony.ui.components.ScaffoldDialog
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.DurationHelper
 import java.time.Duration
-import java.util.Timer
-import kotlin.concurrent.timer
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -51,20 +49,13 @@ fun NowPlayingSleepTimerDialog(
     sleepTimer: Radio.SleepTimer,
     onDismissRequest: () -> Unit,
 ) {
-    var updateTimer by remember { mutableStateOf<Timer?>(null) }
     val endsAtMs by remember { mutableLongStateOf(sleepTimer.endsAt) }
     var endsIn by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(LocalContext.current) {
-        updateTimer = timer(period = 500L) {
-            endsIn = endsAtMs - System.currentTimeMillis()
-        }
-    }
-
-    DisposableEffect(LocalContext.current) {
-        onDispose {
-            updateTimer?.cancel()
-            updateTimer = null
+    LaunchedEffect(endsAtMs) {
+        while (true) {
+            endsIn = (endsAtMs - System.currentTimeMillis()).coerceAtLeast(0L)
+            delay(500L)
         }
     }
 
@@ -146,6 +137,7 @@ fun NowPlayingSleepTimerSetDialog(
     val isValidDuration by remember(inputDuration, minDurationMs) {
         derivedStateOf { inputDuration >= minDurationMs }
     }
+    val coroutineScope = rememberCoroutineScope()
 
     ScaffoldDialog(
         onDismissRequest = onDismissRequest,
@@ -246,7 +238,9 @@ fun NowPlayingSleepTimerSetDialog(
                 onClick = {
                     val endsAt = System.currentTimeMillis() + inputDuration
                     val sleepTimer = Radio.SleepTimer(endsAt = endsAt, quitOnEnd = quitOnEnd)
-                    context.symphony.radio.setSleepTimer(sleepTimer)
+                    coroutineScope.launch {
+                        context.symphony.radio.setSleepTimer(sleepTimer)
+                    }
                     onDismissRequest()
                 }
             ) {

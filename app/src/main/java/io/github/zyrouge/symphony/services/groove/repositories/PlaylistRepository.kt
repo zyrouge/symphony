@@ -93,6 +93,10 @@ class PlaylistRepository(private val symphony: Symphony) {
         return symphony.database.playlists.update(playlist) > 0
     }
 
+    suspend fun delete(id: String) {
+        symphony.database.playlists.delete(id)
+    }
+
     sealed class AddPosition {
         object BeforeHead : AddPosition()
         class After(val id: String) : AddPosition()
@@ -164,6 +168,8 @@ class PlaylistRepository(private val symphony: Symphony) {
         removeSongs(favoritesPlaylistId, listOf(songId))
 
     fun findByIdAsFlow(id: String) = symphony.database.playlists.findByIdAsFlow(id)
+    fun get(id: String) = symphony.database.playlists.findById(id)
+    fun search(terms: String) = symphony.database.playlists.search(terms)
 
     fun findSongsById(id: String, sortBy: SongRepository.SortBy, sortReverse: Boolean) =
         symphony.database.playlistSongMapping.valuesMapped(

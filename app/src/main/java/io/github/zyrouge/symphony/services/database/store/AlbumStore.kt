@@ -46,6 +46,24 @@ abstract class AlbumStore {
         return findByIdAsFlow(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
+    protected abstract fun findById(query: SimpleSQLiteQuery): Album?
+
+    fun findById(id: String): Album? {
+        val query = "SELECT * FROM ${Album.TABLE} WHERE ${Album.COLUMN_ID} = ? LIMIT 1"
+        val args = arrayOf(id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun search(query: SimpleSQLiteQuery): List<Album>
+
+    fun search(terms: String): List<Album> {
+        val likeTerm = "%$terms%"
+        val query = "SELECT * FROM ${Album.TABLE} WHERE ${Album.COLUMN_NAME} LIKE ?"
+        return search(SimpleSQLiteQuery(query, arrayOf(likeTerm)))
+    }
+
     @RawQuery(observedEntities = [Album::class, AlbumArtistMapping::class, AlbumSongMapping::class])
     protected abstract fun valuesAsFlow(query: SupportSQLiteQuery): Flow<List<Album.AlongAttributes>>
 

@@ -39,6 +39,31 @@ abstract class ArtistStore {
         return findByIdAsFlow(SimpleSQLiteQuery(query, args))
     }
 
+    @RawQuery
+    protected abstract fun findById(query: SimpleSQLiteQuery): Artist?
+
+    fun findById(id: String): Artist? {
+        val query = "SELECT * FROM ${Artist.TABLE} WHERE ${Artist.COLUMN_ID} = ? LIMIT 1"
+        val args = arrayOf(id)
+        return findById(SimpleSQLiteQuery(query, args))
+    }
+
+    @RawQuery
+    protected abstract fun search(query: SimpleSQLiteQuery): List<Artist>
+
+    fun search(terms: String, onlyAlbumArtists: Boolean = false): List<Artist> {
+        val likeTerm = "%$terms%"
+        val query = if (onlyAlbumArtists) {
+            "SELECT ${Artist.TABLE}.* FROM ${Artist.TABLE} " +
+                    "INNER JOIN ${AlbumArtistMapping.TABLE} ON ${Artist.TABLE}.${Artist.COLUMN_ID} = ${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_ARTIST_ID} " +
+                    "WHERE ${Artist.TABLE}.${Artist.COLUMN_NAME} LIKE ? AND ${AlbumArtistMapping.TABLE}.${AlbumArtistMapping.COLUMN_IS_ALBUM_ARTIST} = 1 " +
+                    "GROUP BY ${Artist.TABLE}.${Artist.COLUMN_ID}"
+        } else {
+            "SELECT * FROM ${Artist.TABLE} WHERE ${Artist.COLUMN_NAME} LIKE ?"
+        }
+        return search(SimpleSQLiteQuery(query, arrayOf(likeTerm)))
+    }
+
     @RawQuery(observedEntities = [Artist::class, ArtistSongMapping::class, AlbumArtistMapping::class])
     protected abstract fun valuesAsFlow(query: SupportSQLiteQuery): Flow<List<Artist.AlongAttributes>>
 

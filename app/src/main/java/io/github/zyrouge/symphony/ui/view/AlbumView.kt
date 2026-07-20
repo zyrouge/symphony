@@ -26,7 +26,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,7 +53,6 @@ import io.github.zyrouge.symphony.utils.DurationHelper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 
@@ -79,11 +80,9 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
         emitAll(value)
     }
     val songs by songsFlow.collectAsStateWithLifecycle(emptyList())
-    val duration by songsFlow
-        .mapLatest {
-            it.fold(0L) { target, x -> target + x.duration }
-        }
-        .collectAsStateWithLifecycle(0L)
+    val duration by remember(songs) {
+        derivedStateOf { songs.fold(0L) { t, x -> t + x.duration } }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -138,6 +137,16 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
                             Text(song.trackNumber?.toString() ?: context.symphony.t.UnknownSymbol)
                         },
                         cardThumbnailLabelStyle = SongCardThumbnailLabelStyle.Subtle,
+                        onSortByChange = {
+                            context.symphony.settings.lastUsedAlbumSongsSortBy.setValue(
+                                it
+                            )
+                        },
+                        onSortReverseChange = {
+                            context.symphony.settings.lastUsedAlbumSongsSortReverse.setValue(
+                                it
+                            )
+                        },
                     )
 
                     else -> UnknownAlbum(context, route.albumId)
@@ -168,7 +177,7 @@ private fun AlbumHero(
         options = { expanded, onDismissRequest ->
             AlbumDropdownMenu(
                 context,
-                album,
+                album.entity,
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
             )
