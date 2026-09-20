@@ -1,0 +1,9 @@
+[package]
+name = "symphony-taglib-sys"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[build-dependencies]
+cmake = "0.1"

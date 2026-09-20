@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "libs/symphony-shared", "libs/symphony-taglib-sys",
+]
+resolver = "2"
