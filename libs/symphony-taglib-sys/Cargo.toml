@@ -7,3 +7,4 @@ edition = "2024"
 
 [build-dependencies]
 cmake = "0.1"
+bindgen = "0.73.2"

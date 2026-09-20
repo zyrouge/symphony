@@ -1,7 +1,7 @@
 {
     "[toml]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
     },
     "[json]": {
         "editor.formatOnSave": true,
@@ -14,5 +14,7 @@
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer",
         "editor.formatOnSave": true
-    }
+    },
+    "cmake.configureOnOpen": false,
+    "cmake.configureOnEdit": false
 }
