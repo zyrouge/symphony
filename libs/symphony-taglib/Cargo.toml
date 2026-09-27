@@ -1,0 +1,8 @@
+[package]
+name = "symphony-taglib"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+symphony-taglib-sys = { version = "0.1.0", path = "../symphony-taglib-sys" }
+thiserror = "2.0.21"
