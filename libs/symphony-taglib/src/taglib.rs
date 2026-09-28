@@ -6,7 +6,7 @@ use std::{
 use symphony_taglib_sys::taglib_file_is_valid;
 
 use crate::{
-    taglib_error::TagLibError, taglib_picture::TagLibPicture,
+    taglib_audio::TagLibAudio, taglib_error::TagLibError, taglib_picture::TagLibPicture,
     taglib_property_iterator::TagLibPropertyIterator,
 };
 
@@ -150,7 +150,15 @@ impl TagLibFile {
         Some(TagLibPicture::from_taglib_complex_properties(c_properties))
     }
 
-    pub fn save(&self) -> bool {
+    pub fn audio(&self) -> Option<TagLibAudio> {
+        let c_properties = unsafe { symphony_taglib_sys::taglib_file_audioproperties(self.file) };
+        if c_properties.is_null() {
+            return None;
+        }
+        Some(TagLibAudio::from_taglib_audio_properties(c_properties))
+    }
+
+    pub fn save(&mut self) -> bool {
         unsafe { symphony_taglib_sys::taglib_file_save(self.file) == 1 }
     }
 }

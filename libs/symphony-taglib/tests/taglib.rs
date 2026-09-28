@@ -406,7 +406,7 @@ fn save_returns_true_on_unmodified_writable_file() {
     let path = dir
         .copy_file("xing.mp3", &taglib_test_data_file("xing.mp3"))
         .expect("failed to copy fixture");
-    let file = TagLibFile::from_path(&path).expect("failed to open fixture copy");
+    let mut file = TagLibFile::from_path(&path).expect("failed to open fixture copy");
     assert!(file.save(), "expected save to succeed");
 }
 
@@ -521,6 +521,72 @@ fn picture_outlives_file() {
         Some(150),
         "picture data must stay valid after the file is dropped"
     );
+}
+
+#[test]
+fn audio_returns_properties_for_mp3() {
+    let dir = TempTestDataDir::new();
+    let source = taglib_test_data_file("xing.mp3");
+    let path = dir
+        .copy_file("xing.mp3", &source)
+        .expect("failed to copy fixture");
+    let file = TagLibFile::from_path(&path)
+        .unwrap_or_else(|error| panic!("failed to open fixture {path:?}: {error}"));
+    let audio = file.audio().expect("expected audio properties");
+    assert_eq!(audio.bitrate, 32);
+    assert_eq!(audio.channels, 2);
+    assert_eq!(audio.length, 2);
+    assert_eq!(audio.samplerate, 44100);
+}
+
+#[test]
+fn audio_returns_properties_for_flac() {
+    let dir = TempTestDataDir::new();
+    let source = taglib_test_data_file("sinewave.flac");
+    let path = dir
+        .copy_file("sinewave.flac", &source)
+        .expect("failed to copy fixture");
+    let file = TagLibFile::from_path(&path)
+        .unwrap_or_else(|error| panic!("failed to open fixture {path:?}: {error}"));
+    let audio = file.audio().expect("expected audio properties");
+    assert_eq!(audio.bitrate, 145);
+    assert_eq!(audio.channels, 2);
+    assert_eq!(audio.length, 3);
+    assert_eq!(audio.samplerate, 44100);
+}
+
+#[test]
+fn audio_returns_mono_properties() {
+    let dir = TempTestDataDir::new();
+    let source = taglib_test_data_file("lame_cbr.mp3");
+    let path = dir
+        .copy_file("lame_cbr.mp3", &source)
+        .expect("failed to copy fixture");
+    let file = TagLibFile::from_path(&path)
+        .unwrap_or_else(|error| panic!("failed to open fixture {path:?}: {error}"));
+    let audio = file.audio().expect("expected audio properties");
+    assert_eq!(audio.bitrate, 64);
+    assert_eq!(audio.channels, 1);
+    assert_eq!(audio.length, 1887);
+    assert_eq!(audio.samplerate, 44100);
+}
+
+#[test]
+fn audio_outlives_file() {
+    let audio = {
+        let dir = TempTestDataDir::new();
+        let source = taglib_test_data_file("xing.mp3");
+        let path = dir
+            .copy_file("xing.mp3", &source)
+            .expect("failed to copy fixture");
+        let file = TagLibFile::from_path(&path)
+            .unwrap_or_else(|error| panic!("failed to open fixture {path:?}: {error}"));
+        file.audio().expect("expected audio properties")
+    };
+    assert_eq!(audio.bitrate, 32);
+    assert_eq!(audio.channels, 2);
+    assert_eq!(audio.length, 2);
+    assert_eq!(audio.samplerate, 44100);
 }
 
 #[test]
