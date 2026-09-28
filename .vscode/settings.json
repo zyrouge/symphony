@@ -25,5 +25,5 @@
     },
     "cmake.configureOnOpen": false,
     "cmake.configureOnEdit": false,
-    "cmake.sourceDirectory": "C:/Users/z/Vault/ZDev/symphony-v2/libs/symphony-taglib-sys"
+    "cmake.sourceDirectory": ["${workspaceFolder}/libs/symphony-taglib-sys"]
 }
