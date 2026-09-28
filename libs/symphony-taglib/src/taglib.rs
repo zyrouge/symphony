@@ -73,7 +73,11 @@ impl TagLibFile {
         Ok(TagLibFile { stream, file })
     }
 
-    /// The file descriptor `fd` will be duplicated. The original file descriptor `fd` needs to be managed separately.
+    /// The file descriptor `fd` will be duplicated. The original file descriptor `fd` needs to be
+    /// managed separately and is never closed by this type.
+    /// The duplicate file descriptor shares the file position with original descriptor `fd`,
+    /// so reading or parsing moves the caller's offset as well.
+    /// Seek `fd` back if a known position is needed afterwards.
     #[cfg(unix)]
     pub fn from_file_descriptor(fd: i32, readonly: bool) -> Result<TagLibFile, TagLibError> {
         let stream =
@@ -84,7 +88,11 @@ impl TagLibFile {
         TagLibFile::from_taglib_iostream(stream)
     }
 
-    /// The file descriptor `fd` will be duplicated. The original file descriptor `fd` needs to be managed separately.
+    /// The file descriptor `fd` will be duplicated. The original file descriptor `fd` needs to be
+    /// managed separately and is never closed by this type.
+    ///
+    /// The duplicate shares the file position with `fd`, so reading or parsing moves the
+    /// caller's offset as well. Seek `fd` back if a known position is needed afterwards.
     #[cfg(unix)]
     pub fn from_named_file_descriptor(
         fd: i32,

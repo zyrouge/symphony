@@ -177,6 +177,8 @@ fn drop_keeps_the_original_descriptor_usable() {
     let opened = TagLibFile::from_file_descriptor(file.as_raw_fd(), true)
         .expect("failed to open fixture from descriptor");
     drop(opened);
+    file.seek(SeekFrom::Start(0))
+        .expect("original descriptor must still be open after drop");
     let mut reopened = [0u8; 3];
     file.read_exact(&mut reopened)
         .expect("failed to read from original descriptor");
