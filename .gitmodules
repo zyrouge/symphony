@@ -1,11 +1,12 @@
 [submodule "libs/symphony-taglib-sys/vendor/taglib"]
 	path = libs/symphony-taglib-sys/vendor/taglib
 	url = https://github.com/taglib/taglib.git
-
 [submodule "libs/symphony-taglib-sys/vendor/utfcpp"]
 	path = libs/symphony-taglib-sys/vendor/utfcpp
 	url = https://github.com/nemtrif/utfcpp.git
-
 [submodule "libs/symphony-taglib-sys/vendor/zlib"]
 	path = libs/symphony-taglib-sys/vendor/zlib
 	url = https://github.com/madler/zlib.git
+[submodule "libs/symphony-gstreamer-sys/vendor/gstreamer"]
+	path = libs/symphony-gstreamer-sys/vendor/gstreamer
+	url = https://gitlab.freedesktop.org/gstreamer/gstreamer.git
