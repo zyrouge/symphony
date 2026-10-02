@@ -34,8 +34,8 @@ fn main() {
         .allowlist_function("taglib_.*")
         .allowlist_var("TAGLIB_.*")
         .generate()
-        .expect("Unable to generate bindings");
+        .expect("unable to generate bindings");
     bindings
         .write_to_file(out_dir.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
+        .expect("couldn't write bindings!");
 }
