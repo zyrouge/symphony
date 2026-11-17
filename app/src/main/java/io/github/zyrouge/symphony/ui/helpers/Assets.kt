@@ -3,7 +3,7 @@ package io.github.zyrouge.symphony.ui.helpers
 import android.content.ContentResolver
 import android.content.res.Resources
 import android.net.Uri
-import coil.request.ImageRequest
+import coil3.request.ImageRequest
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.ui.theme.isLight

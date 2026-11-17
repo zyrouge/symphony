@@ -1,6 +1,6 @@
 [versions]
 activity-compose = "1.13.0"
-coil = "2.7.0"
+coil = "3.6.3"
 compose = "1.12.1"
 compose-material = "1.7.8"
 compose-material3 = "1.4.0"
@@ -12,7 +12,7 @@ junit-jupiter = "5.14.4"
 kotlinx-serialization-json = "1.13.0"
 lifecycle-runtime = "2.11.0"
 media = "1.7.0"
-okhttp3 = "4.12.0"
+okhttp3 = "5.5.1"
 room = "2.8.5"
 
 android-gradle-plugin = "9.5.1"
@@ -33,7 +33,7 @@ material = "1.14.0"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
-coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose-material" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose-material3" }
 compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }

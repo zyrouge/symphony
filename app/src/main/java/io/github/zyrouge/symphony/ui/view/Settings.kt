@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.services.AppMeta
 import io.github.zyrouge.symphony.ui.components.IconButtonPlaceholder
