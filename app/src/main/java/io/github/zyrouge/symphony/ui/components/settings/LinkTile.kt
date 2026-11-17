@@ -1,11 +1,11 @@
 package io.github.zyrouge.symphony.ui.components.settings
 
-import android.net.Uri
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.core.net.toUri
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.utils.ActivityUtils
 
@@ -20,7 +20,7 @@ fun SettingsLinkTile(
     Card(
         colors = SettingsTileDefaults.cardColors(),
         onClick = {
-            ActivityUtils.startBrowserActivity(context.activity, Uri.parse(url))
+            ActivityUtils.startBrowserActivity(context.activity, url.toUri())
         }
     ) {
         ListItem(

@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.zyrouge.symphony.ui.components.SongDropdownMenu
 import io.github.zyrouge.symphony.ui.helpers.FadeTransition
@@ -417,12 +418,15 @@ private fun NowPlayingSeekBar(
             Box(
                 modifier = Modifier
                     .size(thumbSize)
-                    .offset(
-                        sliderWidth
-                            .minus(thumbSizeHalf.times(2))
-                            .times(if (dragging) dragRatio else ratio),
-                        0.dp
-                    )
+                    .offset {
+                        IntOffset(
+                            x = sliderWidth
+                                .minus(thumbSizeHalf.times(2))
+                                .times(if (dragging) dragRatio else ratio)
+                                .roundToPx(),
+                            y = 0,
+                        )
+                    }
                     .background(MaterialTheme.colorScheme.primary, CircleShape)
             )
         }
