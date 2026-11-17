@@ -79,7 +79,7 @@ fun ArtistView(context: ViewContext, route: ArtistViewRoute) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
                 actions = {

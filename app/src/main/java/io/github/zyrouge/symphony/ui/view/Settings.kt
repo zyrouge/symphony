@@ -84,7 +84,7 @@ fun SettingsView(context: ViewContext, route: SettingsViewRoute) {
                         Text(context.symphony.t.Settings)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
                 navigationIcon = {

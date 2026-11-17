@@ -72,7 +72,7 @@ fun QueueView(context: ViewContext) {
                         Text(context.symphony.t.Queue)
                     }
                 },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
                 navigationIcon = {

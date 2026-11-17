@@ -29,7 +29,7 @@ fun NowPlayingAppBar(context: ViewContext) {
                 Text(context.symphony.t.NowPlaying)
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent
         ),
         navigationIcon = {

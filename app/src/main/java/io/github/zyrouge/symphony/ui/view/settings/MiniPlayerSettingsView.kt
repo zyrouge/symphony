@@ -52,7 +52,7 @@ fun MiniPlayerSettingsView(context: ViewContext) {
                         Text("${context.symphony.t.Settings} - ${context.symphony.t.MiniPlayer}")
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
                 navigationIcon = {

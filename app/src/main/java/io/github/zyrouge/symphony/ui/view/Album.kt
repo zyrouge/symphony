@@ -86,7 +86,7 @@ fun AlbumView(context: ViewContext, route: AlbumViewRoute) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
                 actions = {
