@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.groove
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumArtistRepository
 import io.github.zyrouge.symphony.services.groove.repositories.AlbumRepository
 import io.github.zyrouge.symphony.services.groove.repositories.ArtistRepository
@@ -14,7 +15,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
-class Groove(private val symphony: Symphony) : Symphony.Hooks {
+class Groove(private val symphony: Symphony) : SymphonyHooks {
     enum class Kind {
         SONG,
         ALBUM,
