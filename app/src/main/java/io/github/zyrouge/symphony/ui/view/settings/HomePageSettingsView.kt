@@ -56,7 +56,7 @@ fun HomePageSettingsView(context: ViewContext) {
                         Text("${context.symphony.t.Settings} - ${context.symphony.t.Home}")
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
                 navigationIcon = {

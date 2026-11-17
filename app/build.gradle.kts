@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.app)
-    alias(libs.plugins.android.kotlin)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -10,6 +9,8 @@ plugins {
 android {
     namespace = "io.github.zyrouge.symphony"
     compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdkMinor = libs.versions.sdk.minor.get().toInt()
+    ndkVersion = libs.versions.ndk.get()
 
     defaultConfig {
         applicationId = "io.github.zyrouge.symphony"
@@ -73,11 +74,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -105,6 +101,12 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+    }
+}
+
 dependencies {
     implementation(project(":metaphony"))
     implementation(libs.activity.compose)
@@ -122,7 +124,6 @@ dependencies {
     implementation(libs.media)
     implementation(libs.okhttp3)
     ksp(libs.room.compiler)
-    implementation(libs.room.ktx)
     implementation(libs.room.runtime)
 
     debugImplementation(libs.compose.ui.tooling)

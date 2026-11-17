@@ -4,7 +4,11 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.ui.unit.Dp
-import coil.request.ImageRequest
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.request.error
+import coil3.request.fallback
+import coil3.request.placeholder
 
 enum class ScreenOrientation {
     PORTRAIT,

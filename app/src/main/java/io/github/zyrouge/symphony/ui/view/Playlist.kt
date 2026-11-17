@@ -113,7 +113,7 @@ fun PlaylistView(context: ViewContext, route: PlaylistViewRoute) {
                         }
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
             )

@@ -47,7 +47,7 @@ object AppMeta {
                 .cacheControl(CacheControl.FORCE_NETWORK)
                 .build()
             val res = HttpClient.newCall(req).execute()
-            val content = res.body?.string() ?: ""
+            val content = res.body.string()
             val json = JSONObject(content)
             val tagName = json.getString("tag_name")
             val draft = json.getBoolean("draft")
@@ -69,7 +69,7 @@ object AppMeta {
                 .cacheControl(CacheControl.FORCE_NETWORK)
                 .build()
             val res = HttpClient.newCall(req).execute()
-            val content = res.body?.string() ?: ""
+            val content = res.body.string()
             val json = JSONArray(content)
             for (i in 0 until json.length()) {
                 val x = json.getJSONObject(i)

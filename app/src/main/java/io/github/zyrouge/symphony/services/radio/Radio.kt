@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.services.radio
 
 import io.github.zyrouge.symphony.Symphony
+import io.github.zyrouge.symphony.SymphonyHooks
 import io.github.zyrouge.symphony.utils.Eventer
 import io.github.zyrouge.symphony.utils.Logger
 import kotlinx.coroutines.launch
@@ -8,7 +9,7 @@ import java.time.Instant
 import java.util.Date
 import java.util.Timer
 
-class Radio(private val symphony: Symphony) : Symphony.Hooks {
+class Radio(private val symphony: Symphony) : SymphonyHooks {
     sealed class Events {
         sealed class Player : Events() {
             object Staged : Player()

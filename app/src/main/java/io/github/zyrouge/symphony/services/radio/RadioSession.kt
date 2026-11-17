@@ -248,7 +248,7 @@ class RadioSession(val symphony: Symphony) {
                     }
                     putLong(
                         MediaMetadataCompat.METADATA_KEY_DURATION,
-                        req.playbackPosition.total.toLong()
+                        req.playbackPosition.total
                     )
                     build()
                 }
@@ -260,7 +260,7 @@ class RadioSession(val symphony: Symphony) {
                             req.isPlaying -> PlaybackStateCompat.STATE_PLAYING
                             else -> PlaybackStateCompat.STATE_PAUSED
                         },
-                        req.playbackPosition.played.toLong(),
+                        req.playbackPosition.played,
                         1f
                     )
                     setActions(

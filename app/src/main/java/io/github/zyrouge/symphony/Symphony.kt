@@ -18,15 +18,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Symphony(application: Application) : AndroidViewModel(application), Symphony.Hooks {
-    interface Hooks {
-        fun onSymphonyReady() {}
-        fun onSymphonyDestroy() {}
-        fun onSymphonyActivityReady() {}
-        fun onSymphonyActivityPause() {}
-        fun onSymphonyActivityDestroy() {}
-    }
+interface SymphonyHooks {
+    fun onSymphonyReady() {}
+    fun onSymphonyDestroy() {}
+    fun onSymphonyActivityReady() {}
+    fun onSymphonyActivityPause() {}
+    fun onSymphonyActivityDestroy() {}
+}
 
+class Symphony(application: Application) : AndroidViewModel(application), SymphonyHooks {
     val permission = Permissions(this)
     val settings = Settings(this)
     val database = Database(this)
@@ -80,7 +80,7 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
         emitDestroy()
     }
 
-    private fun notifyHooks(fn: Hooks.() -> Unit) {
+    private fun notifyHooks(fn: SymphonyHooks.() -> Unit) {
         hooks.forEach { fn.invoke(it) }
     }
 

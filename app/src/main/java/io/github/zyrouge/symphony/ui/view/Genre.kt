@@ -85,7 +85,7 @@ fun GenreView(context: ViewContext, route: GenreViewRoute) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 ),
             )
