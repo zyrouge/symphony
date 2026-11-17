@@ -27,8 +27,16 @@ jobs:
             - uses: actions/setup-java@v4
               with:
                   distribution: zulu
-                  java-version: 17
+                  java-version: 25
                   cache: gradle
+
+            - name: ☕ Cache provisioned JDKs
+              uses: actions/cache@v4
+              with:
+                  path: ~/.gradle/jdks
+                  key: gradle-jdks-${{ runner.os }}-${{ hashFiles('gradle/gradle-daemon-jvm.properties') }}
+                  restore-keys: |
+                      gradle-jdks-${{ runner.os }}-
 
             - name: 🚧 Do prerequisites
               run: npm ci
