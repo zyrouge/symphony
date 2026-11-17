@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.android.kotlin)
 }
 
 android {
     namespace = "me.zyrouge.symphony.metaphony"
     compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdkMinor = libs.versions.sdk.minor.get().toInt()
+    ndkVersion = libs.versions.ndk.get()
 
     defaultConfig {
         minSdk = libs.versions.min.sdk.get().toInt()
@@ -38,7 +39,7 @@ android {
     externalNativeBuild {
         cmake {
             path("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
+            version = "4.1.2"
         }
     }
 
@@ -47,15 +48,16 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
-
     testOptions {
         androidResources {
             noCompress.addAll(listOf("flac", "ogg", "mp3"))
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
     }
 }
 

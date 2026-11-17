@@ -13,16 +13,18 @@ kotlinx-serialization-json = "1.7.3"
 lifecycle-runtime = "2.8.7"
 media = "1.7.0"
 okhttp3 = "4.12.0"
-room = "2.6.1"
+room = "2.8.5"
 
-android-gradle-plugin = "8.7.3"
-kotlin-gradle-plugin = "2.1.0"
-kotlin-serialization-plugin = "2.1.0"
-ksp-plugin = "2.1.0-1.0.29"
+android-gradle-plugin = "9.5.1"
+kotlin-gradle-plugin = "2.4.21"
+kotlin-serialization-plugin = "2.4.21"
+ksp-plugin = "2.3.14"
 
-compile-sdk = "35"
+compile-sdk = "37"
+sdk-minor = "1"
 min-sdk = "28"
 target-sdk = "34"
+ndk = "30.0.16248370"
 junit = "4.13.2"
 junit-version = "1.2.1"
 espresso-core = "3.6.1"
@@ -48,7 +50,6 @@ lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-kt
 media = { group = "androidx.media", name = "media", version.ref = "media" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit-version" }
@@ -58,7 +59,6 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 [plugins]
 android-app = { id = "com.android.application", version.ref = "android-gradle-plugin" }
-android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-gradle-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-gradle-plugin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization-plugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
