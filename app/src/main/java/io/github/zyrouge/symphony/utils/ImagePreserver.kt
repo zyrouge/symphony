@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.utils
 
 import android.graphics.Bitmap
+import androidx.core.graphics.scale
 import kotlin.math.max
 
 object ImagePreserver {
@@ -16,7 +17,7 @@ object ImagePreserver {
             return bitmap
         }
         val (width, height) = calculateDimensions(bitmap.width, bitmap.height, quality.maxSide)
-        return Bitmap.createScaledBitmap(bitmap, width, height, true)
+        return bitmap.scale(width, height)
     }
 
     private fun calculateDimensions(width: Int, height: Int, maxSide: Int) = when {

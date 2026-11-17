@@ -1,6 +1,5 @@
 package io.github.zyrouge.symphony.ui.view
 
-import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import io.github.zyrouge.symphony.R
 import io.github.zyrouge.symphony.services.AppMeta
@@ -275,7 +275,7 @@ private fun LinkChip(context: ViewContext, icon: ImageVector? = null, label: Str
             )
             .clip(RoundedCornerShape(4.dp))
             .clickable {
-                ActivityUtils.startBrowserActivity(context.activity, Uri.parse(url))
+                ActivityUtils.startBrowserActivity(context.activity, url.toUri())
             }
             .padding(6.dp, 4.dp),
     ) {

@@ -1,6 +1,7 @@
 package io.github.zyrouge.symphony.utils
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.room.TypeConverter
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,7 +12,7 @@ class RoomConvertors {
     fun serializeUri(value: Uri) = value.toString()
 
     @TypeConverter
-    fun deserializeUri(value: String) = Uri.parse(value)
+    fun deserializeUri(value: String) = value.toUri()
 
     @TypeConverter
     fun serializeStringSet(value: Set<String>) = Json.encodeToString(value)

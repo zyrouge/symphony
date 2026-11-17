@@ -76,7 +76,6 @@ class Symphony(application: Application) : AndroidViewModel(application), Sympho
     }
 
     override fun onCleared() {
-        super.onCleared()
         emitDestroy()
     }
 
