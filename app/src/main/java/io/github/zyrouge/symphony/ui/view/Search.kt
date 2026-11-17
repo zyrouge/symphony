@@ -174,7 +174,7 @@ fun SearchView(context: ViewContext, route: SearchViewRoute) {
 
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
-    val textFieldFocusRequester = FocusRequester()
+    val textFieldFocusRequester = remember { FocusRequester() }
     val chipsScrollState = rememberScrollState()
     var initialScroll = remember { false }
 
