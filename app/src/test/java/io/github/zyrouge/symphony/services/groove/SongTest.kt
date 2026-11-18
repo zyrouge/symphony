@@ -14,7 +14,7 @@ class SongTest {
         regex: Regex,
         expected: Set<String>,
     ) {
-        assertEquals(expected, Song.parseMultiValue(value, regex))
+        assertEquals(expected, parseMultiValue(value, regex))
     }
 
     @ParameterizedTest(name = "[{index}] values={0} expected={2}")
@@ -24,7 +24,7 @@ class SongTest {
         regex: Regex,
         expected: Set<String>,
     ) {
-        assertEquals(expected, Song.parseMultiValue(values, regex))
+        assertEquals(expected, parseMultiValue(values, regex))
     }
 
     companion object {

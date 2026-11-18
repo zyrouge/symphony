@@ -1,7 +1,5 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.content.Context
-import io.github.zyrouge.symphony.utils.DocumentFileX
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -76,7 +74,7 @@ class AudioMetadataResolutionTest {
         override val bitrateIsKilobits: Boolean = true,
         override val failuresFallBack: Boolean = true,
     ) : AudioMetadataSource {
-        override fun read(context: Context, file: DocumentFileX): RawAudioMetadata? =
+        override fun read(file: AudioFile): RawAudioMetadata? =
             throw UnsupportedOperationException("the reader lambda is used instead")
     }
 

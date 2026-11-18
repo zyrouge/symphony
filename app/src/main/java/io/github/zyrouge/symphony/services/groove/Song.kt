@@ -14,7 +14,6 @@ import io.github.zyrouge.symphony.utils.SimplePath
 import java.io.FileOutputStream
 import java.math.RoundingMode
 import java.time.LocalDate
-import java.util.regex.Pattern
 
 @Immutable
 @Entity("songs")
@@ -106,13 +105,18 @@ data class Song(
             } else {
                 listOf(MediaMetadataRetrieverSource)
             }
+            val audioFile = SafAudioFile(
+                context = symphony.applicationContext,
+                file = file,
+                pathName = path.pathString,
+            )
             return readFirstAvailable(
                 sources = sources,
                 onSourceError = { _, err ->
                     Logger.error("Song", "could not parse using metaphony", err)
                 },
             ) { source ->
-                val metadata = source.read(symphony.applicationContext, file)
+                val metadata = source.read(audioFile)
                     ?: return@readFirstAvailable null
                 assembleSong(path, file, options, source, metadata)
             } ?: error("no audio metadata source could read ${file.name}")
@@ -203,27 +207,5 @@ data class Song(
             return name
         }
 
-        private fun makeSeparatorsRegex(separators: Set<String>): Regex {
-            val partial = separators.joinToString("|") { Pattern.quote(it) }
-            return Regex("""(?<!\\)($partial)""")
-        }
-
-        fun parseMultiValue(value: String?, regex: Regex) = value?.let {
-            parseMultiValue(setOf(it), regex)
-        } ?: emptySet()
-
-        fun parseMultiValue(values: Set<String>, regex: Regex): Set<String> {
-            val result = mutableSetOf<String>()
-            for (x in values) {
-                for (y in x.trim().split(regex)) {
-                    val trimmed = y.trim()
-                    if (trimmed.isEmpty()) {
-                        continue
-                    }
-                    result.add(trimmed)
-                }
-            }
-            return result
-        }
     }
 }

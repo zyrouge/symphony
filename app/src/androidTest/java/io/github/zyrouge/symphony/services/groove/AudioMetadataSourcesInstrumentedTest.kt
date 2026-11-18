@@ -17,19 +17,23 @@ import org.junit.runner.RunWith
 class AudioMetadataSourcesInstrumentedTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private fun stage(assetName: String): DocumentFileX {
+    private fun stage(assetName: String): SafAudioFile {
         val target = File(context.cacheDir, assetName)
         context.assets.open(assetName).use { input ->
             target.outputStream().use { output -> input.copyTo(output) }
         }
-        return DocumentFileX(
+        return SafAudioFile(
             context = context,
-            id = assetName,
-            name = assetName,
-            mimeType = "audio/*",
-            lastModified = target.lastModified(),
-            size = target.length(),
-            uri = Uri.fromFile(target),
+            file = DocumentFileX(
+                context = context,
+                id = assetName,
+                name = assetName,
+                mimeType = "audio/*",
+                lastModified = target.lastModified(),
+                size = target.length(),
+                uri = Uri.fromFile(target),
+            ),
+            pathName = assetName,
         )
     }
 
@@ -54,7 +58,7 @@ class AudioMetadataSourcesInstrumentedTest {
     @Test
     fun metaphonySourceReadsEveryFixture() {
         for (fixture in fixtures()) {
-            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))
+            val metadata = MetaphonyMetadataSource.read(stage(fixture.name))
 
             assertNotNull("metaphony returned nothing for ${fixture.name}", metadata)
             assertNotNull("metaphony produced no duration for ${fixture.name}", metadata!!.durationRaw)
@@ -65,7 +69,7 @@ class AudioMetadataSourcesInstrumentedTest {
     @Test
     fun metaphonySourceReadsTaggedFields() {
         for (fixture in fixtures()) {
-            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))!!
+            val metadata = MetaphonyMetadataSource.read(stage(fixture.name))!!
 
             assertEquals("title of ${fixture.name}", "Demo Audio", metadata.title)
             assertEquals("album of ${fixture.name}", "Demo Album", metadata.album)
@@ -84,7 +88,7 @@ class AudioMetadataSourcesInstrumentedTest {
     @Test
     fun metaphonySourceReadsGenresOnlyWhereTheyExist() {
         for (fixture in fixtures().filter { it.hasGenres }) {
-            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))!!
+            val metadata = MetaphonyMetadataSource.read(stage(fixture.name))!!
 
             assertEquals("genres of ${fixture.name}", setOf("Rap", "Rock"), metadata.genres)
         }
@@ -93,7 +97,7 @@ class AudioMetadataSourcesInstrumentedTest {
     @Test
     fun metaphonyBitratesArePositiveKilobits() {
         for (fixture in fixtures()) {
-            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))!!
+            val metadata = MetaphonyMetadataSource.read(stage(fixture.name))!!
             val kilobits = metadata.bitrateRaw
 
             assertNotNull("metaphony reported no bitrate for ${fixture.name}", kilobits)
@@ -104,7 +108,7 @@ class AudioMetadataSourcesInstrumentedTest {
     @Test
     fun retrieverBitratesArePositiveBitsWhenReported() {
         for (fixture in fixtures()) {
-            val metadata = MediaMetadataRetrieverSource.read(context, stage(fixture.name))!!
+            val metadata = MediaMetadataRetrieverSource.read(stage(fixture.name))!!
             val bits = metadata.bitrateRaw
 
             if (bits != null) {
@@ -116,7 +120,7 @@ class AudioMetadataSourcesInstrumentedTest {
     @Test
     fun retrieverSourceReadsEveryFixture() {
         for (fixture in fixtures()) {
-            val metadata = MediaMetadataRetrieverSource.read(context, stage(fixture.name))
+            val metadata = MediaMetadataRetrieverSource.read(stage(fixture.name))
 
             assertNotNull("retriever returned nothing for ${fixture.name}", metadata)
             assertNotNull("retriever produced no duration for ${fixture.name}", metadata!!.durationRaw)
@@ -139,8 +143,8 @@ class AudioMetadataSourcesInstrumentedTest {
     fun theTwoSourcesReportDurationInDifferentUnits() {
         for (fixture in fixtures()) {
             val file = stage(fixture.name)
-            val seconds = MetaphonyMetadataSource.read(context, file)!!.durationRaw!!
-            val milliseconds = MediaMetadataRetrieverSource.read(context, file)!!.durationRaw!!
+            val seconds = MetaphonyMetadataSource.read(file)!!.durationRaw!!
+            val milliseconds = MediaMetadataRetrieverSource.read(file)!!.durationRaw!!
 
             assertTrue(
                 "expected ${fixture.name} to differ by roughly 1000x, got $seconds s vs $milliseconds ms",
