@@ -12,6 +12,14 @@ kotlin {
 
     jvm()
 
+    jvm {
+        testRuns.named("test") {
+            executionTask.configure {
+                useJUnitPlatform()
+            }
+        }
+    }
+
     jvmToolchain(17)
 
     compilerOptions {
@@ -28,5 +36,11 @@ kotlin {
         }
         androidMain.get().dependsOn(jvmSharedMain)
         jvmMain.get().dependsOn(jvmSharedMain)
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.junit.jupiter)
+                runtimeOnly(libs.junit.platform.launcher)
+            }
+        }
     }
 }
