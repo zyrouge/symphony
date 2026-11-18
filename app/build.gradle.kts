@@ -21,6 +21,8 @@ android {
         versionName = "2024.12.115"
         versionName = System.getenv("APP_VERSION_NAME") ?: versionName
 
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -96,6 +98,10 @@ android {
         }
     }
 
+    sourceSets {
+        getByName("androidTest").assets.srcDir("src/test/resources")
+    }
+
     room {
         schemaDirectory("$projectDir/room-schemas")
     }
@@ -132,4 +138,7 @@ dependencies {
 
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
+
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }
