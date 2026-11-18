@@ -36,11 +36,17 @@ kotlin {
         }
         androidMain.get().dependsOn(jvmSharedMain)
         jvmMain.get().dependsOn(jvmSharedMain)
+        val jvmMain by getting {
+            dependencies {
+                implementation(libs.jaudiotagger)
+            }
+        }
         val jvmTest by getting {
             dependencies {
                 implementation(libs.junit.jupiter)
                 runtimeOnly(libs.junit.platform.launcher)
             }
+            resources.srcDir(file("../app/src/test/resources"))
         }
     }
 }

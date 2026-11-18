@@ -10,6 +10,7 @@ core-splashscreen = "1.2.0"
 fuzzywuzzy = "1.4.0"
 junit-jupiter = "5.14.4"
 junit-platform-launcher = "1.14.4"
+jaudiotagger = "3.0.1"
 kotlinx-serialization-json = "1.13.0"
 lifecycle-runtime = "2.11.0"
 media = "1.7.0"
@@ -47,6 +48,7 @@ core-splashscreen = { group = "androidx.core", name = "core-splashscreen", versi
 fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-platform-launcher" }
+jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
 media = { group = "androidx.media", name = "media", version.ref = "media" }
