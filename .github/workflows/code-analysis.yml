@@ -55,8 +55,118 @@ jobs:
             - name: 🚧 Do prerequisites
               run: npm ci
 
+            - name: 🚧 Prebuild
+              run: npm run prebuild
+
+            - name: 🧪 Run app unit tests
+              run: |
+                  chmod +x ./gradlew
+                  ./gradlew :app:testDebugUnitTest
+
+            - name: ✅ Verify app unit test results
+              run: |
+                  python3 - <<'PY'
+                  import os
+                  import sys
+                  import xml.etree.ElementTree as ET
+                  from pathlib import Path
+
+                  results_dir = Path(
+                      os.environ.get(
+                          "UNIT_TEST_RESULTS_DIR",
+                          "app/build/test-results/testDebugUnitTest",
+                      )
+                  )
+                  required_suites = (
+                      (
+                          "SongTest",
+                          "TEST-io.github.zyrouge.symphony.services.groove.SongTest.xml",
+                      ),
+                      (
+                          "SimplePathTest",
+                          "TEST-io.github.zyrouge.symphony.utils.SimplePathTest.xml",
+                      ),
+                      (
+                          "DurationUtilsTest",
+                          "TEST-io.github.zyrouge.symphony.utils.DurationUtilsTest.xml",
+                      ),
+                  )
+                  counter_names = ("tests", "failures", "errors", "skipped")
+                  aggregate = {name: 0 for name in counter_names}
+                  diagnostics = []
+
+                  for suite, filename in required_suites:
+                      path = results_dir / filename
+                      if not path.is_file():
+                          diagnostics.append(f"{suite}: missing file: {path}")
+                          continue
+                      try:
+                          root = ET.parse(path).getroot()
+                      except ET.ParseError as error:
+                          diagnostics.append(
+                              f"{suite}: malformed XML: {filename}: {error}"
+                          )
+                          continue
+                      except OSError as error:
+                          diagnostics.append(
+                              f"{suite}: unreadable XML: {filename}: {error}"
+                          )
+                          continue
+                      if root.tag != "testsuite":
+                          diagnostics.append(
+                              f"{suite}: malformed XML: {filename}: "
+                              f"expected <testsuite>, got <{root.tag}>"
+                          )
+                          continue
+                      counts = {}
+                      for counter_name in counter_names:
+                          raw_value = root.get(counter_name)
+                          if raw_value is None:
+                              diagnostics.append(
+                                  f"{suite}: missing attribute "
+                                  f"'{counter_name}' in {filename}"
+                              )
+                              continue
+                          try:
+                              counts[counter_name] = int(raw_value)
+                          except ValueError:
+                              diagnostics.append(
+                                  f"{suite}: invalid {counter_name}="
+                                  f"{raw_value!r} in {filename}"
+                              )
+                      if len(counts) != len(counter_names):
+                          continue
+                      print(
+                          f"{suite}: "
+                          + ", ".join(
+                              f"{name}={counts[name]}" for name in counter_names
+                          )
+                      )
+                      for name in counter_names:
+                          aggregate[name] += counts[name]
+                      if counts["tests"] <= 0:
+                          diagnostics.append(
+                              f"{suite}: tests={counts['tests']} (expected > 0)"
+                          )
+                      for name in ("failures", "errors", "skipped"):
+                          if counts[name] != 0:
+                              diagnostics.append(
+                                  f"{suite}: {name}={counts[name]} (expected 0)"
+                              )
+
+                  print(
+                      "Aggregate: "
+                      + ", ".join(
+                          f"{name}={aggregate[name]}" for name in counter_names
+                      )
+                  )
+                  if diagnostics:
+                      for diagnostic in diagnostics:
+                          print(f"ERROR: {diagnostic}", file=sys.stderr)
+                      sys.exit(1)
+                  PY
+
             - name: 🚨 Analyze code
               run: |
-                  npm run prebuild
                   chmod +x ./gradlew
                   ./gradlew lintRelease
