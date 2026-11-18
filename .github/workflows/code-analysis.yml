@@ -9,6 +9,7 @@ on:
             - dependabot/**
         paths:
             - app/**
+            - core/**
             - i18n/**
             - gradle/**
     pull_request_target:
@@ -17,6 +18,7 @@ on:
             - edited
         paths:
             - app/**
+            - core/**
             - i18n/**
             - gradle/**
     workflow_dispatch:
@@ -58,45 +60,46 @@ jobs:
             - name: 🚧 Prebuild
               run: npm run prebuild
 
-            - name: 🧪 Run app unit tests
+            - name: 🧪 Run unit tests
               run: |
                   chmod +x ./gradlew
-                  ./gradlew :app:testDebugUnitTest
+                  ./gradlew :app:testDebugUnitTest :core:jvmTest
 
-            - name: ✅ Verify app unit test results
+            - name: ✅ Verify unit test results
               run: |
                   python3 - <<'PY'
-                  import os
                   import sys
                   import xml.etree.ElementTree as ET
                   from pathlib import Path
 
-                  results_dir = Path(
-                      os.environ.get(
-                          "UNIT_TEST_RESULTS_DIR",
-                          "app/build/test-results/testDebugUnitTest",
-                      )
-                  )
                   required_suites = (
                       (
                           "SongTest",
-                          "TEST-io.github.zyrouge.symphony.services.groove.SongTest.xml",
+                          Path(
+                              "core/build/test-results/jvmTest/"
+                              "TEST-io.github.zyrouge.symphony.services.groove.SongTest.xml"
+                          ),
                       ),
                       (
                           "SimplePathTest",
-                          "TEST-io.github.zyrouge.symphony.utils.SimplePathTest.xml",
+                          Path(
+                              "app/build/test-results/testDebugUnitTest/"
+                              "TEST-io.github.zyrouge.symphony.utils.SimplePathTest.xml"
+                          ),
                       ),
                       (
                           "DurationUtilsTest",
-                          "TEST-io.github.zyrouge.symphony.utils.DurationUtilsTest.xml",
+                          Path(
+                              "app/build/test-results/testDebugUnitTest/"
+                              "TEST-io.github.zyrouge.symphony.utils.DurationUtilsTest.xml"
+                          ),
                       ),
                   )
                   counter_names = ("tests", "failures", "errors", "skipped")
                   aggregate = {name: 0 for name in counter_names}
                   diagnostics = []
 
-                  for suite, filename in required_suites:
-                      path = results_dir / filename
+                  for suite, path in required_suites:
                       if not path.is_file():
                           diagnostics.append(f"{suite}: missing file: {path}")
                           continue
@@ -104,17 +107,17 @@ jobs:
                           root = ET.parse(path).getroot()
                       except ET.ParseError as error:
                           diagnostics.append(
-                              f"{suite}: malformed XML: {filename}: {error}"
+                              f"{suite}: malformed XML: {path.name}: {error}"
                           )
                           continue
                       except OSError as error:
                           diagnostics.append(
-                              f"{suite}: unreadable XML: {filename}: {error}"
+                              f"{suite}: unreadable XML: {path.name}: {error}"
                           )
                           continue
                       if root.tag != "testsuite":
                           diagnostics.append(
-                              f"{suite}: malformed XML: {filename}: "
+                              f"{suite}: malformed XML: {path.name}: "
                               f"expected <testsuite>, got <{root.tag}>"
                           )
                           continue
@@ -124,7 +127,7 @@ jobs:
                           if raw_value is None:
                               diagnostics.append(
                                   f"{suite}: missing attribute "
-                                  f"'{counter_name}' in {filename}"
+                                  f"'{counter_name}' in {path.name}"
                               )
                               continue
                           try:
@@ -132,7 +135,7 @@ jobs:
                           except ValueError:
                               diagnostics.append(
                                   f"{suite}: invalid {counter_name}="
-                                  f"{raw_value!r} in {filename}"
+                                  f"{raw_value!r} in {path.name}"
                               )
                       if len(counts) != len(counter_names):
                           continue
