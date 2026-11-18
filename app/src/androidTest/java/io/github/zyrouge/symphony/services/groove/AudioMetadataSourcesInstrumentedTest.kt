@@ -34,18 +34,18 @@ class AudioMetadataSourcesInstrumentedTest {
     }
 
     /**
-     * Expectations read directly from the fixture bytes, not guessed: the flac/ogg Vorbis comments and
-     * the three ID3 files carry `TITLE=Demo Audio`, `ALBUM=Demo Album`, the multi-value artist
-     * `Demo Artist 1; Demo Artist 2`, and an embedded png (ogg and m4a carry no picture); `audio.m4a`
-     * has no text tags at all.
+     * Expectations decoded from the fixture bytes with a structural parser (Vorbis comments, ID3 frames,
+     * MP4 atoms), not guessed: all six files carry `Demo Audio`, `Demo Album`, the artist
+     * `Demo Artist 1; Demo Artist 2` (ID3v2.4 separates with NUL) and an embedded PNG; only the flac and
+     * the ogg carry `GENRE=Rap` + `GENRE=Rock`.
      */
     private fun fixtures() = listOf(
-        Fixture("audio.flac", hasTags = true, hasPicture = true),
-        Fixture("audio.mp3", hasTags = true, hasPicture = true),
-        Fixture("audio-id3v2.3.mp3", hasTags = true, hasPicture = true),
-        Fixture("audio-id3v2.4.mp3", hasTags = true, hasPicture = true),
-        Fixture("audio.ogg", hasTags = true, hasPicture = false),
-        Fixture("audio.m4a", hasTags = false, hasPicture = false),
+        Fixture("audio.flac", hasGenres = true),
+        Fixture("audio.mp3", hasGenres = false),
+        Fixture("audio-id3v2.3.mp3", hasGenres = false),
+        Fixture("audio-id3v2.4.mp3", hasGenres = false),
+        Fixture("audio.ogg", hasGenres = true),
+        Fixture("audio.m4a", hasGenres = false),
     )
 
     @Test
@@ -61,32 +61,53 @@ class AudioMetadataSourcesInstrumentedTest {
 
     @Test
     fun metaphonySourceReadsTaggedFields() {
-        for (fixture in fixtures().filter { it.hasPicture || it.hasTags }) {
+        for (fixture in fixtures()) {
             val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))!!
 
             assertEquals("title of ${fixture.name}", "Demo Audio", metadata.title)
             assertEquals("album of ${fixture.name}", "Demo Album", metadata.album)
             assertTrue(
-                "artists of ${fixture.name} must keep both values",
+                "artists of ${fixture.name} must keep the first value",
                 metadata.artists.any { it.contains("Demo Artist 1") },
             )
             assertTrue(
                 "artists of ${fixture.name} must keep the second value",
                 metadata.artists.any { it.contains("Demo Artist 2") },
             )
-            assertEquals(
-                "picture presence of ${fixture.name}",
-                fixture.hasPicture,
-                metadata.picture != null,
-            )
+            assertNotNull("picture of ${fixture.name} must be read", metadata.picture)
         }
     }
 
     @Test
-    fun metaphonySourceReportsEnglishGenres() {
-        val flac = MetaphonyMetadataSource.read(context, stage("audio.flac"))!!
+    fun metaphonySourceReadsGenresOnlyWhereTheyExist() {
+        for (fixture in fixtures().filter { it.hasGenres }) {
+            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))!!
 
-        assertEquals(setOf("Rap", "Rock"), flac.genres)
+            assertEquals("genres of ${fixture.name}", setOf("Rap", "Rock"), metadata.genres)
+        }
+    }
+
+    @Test
+    fun metaphonyBitrateIsInKilobitsAndScalesToTheRetrieverBits() {
+        var sawMetaphonyBitrate = false
+        for (fixture in fixtures()) {
+            val file = stage(fixture.name)
+            val metaphony = MetaphonyMetadataSource.read(context, file)!!
+            val retriever = MediaMetadataRetrieverSource.read(context, file)!!
+            val kilobits = metaphony.bitrateRaw
+            if (kilobits != null) {
+                sawMetaphonyBitrate = true
+                val bits = retriever.bitrateRaw
+                if (bits != null) {
+                    val scaled = kilobits * 1000
+                    assertTrue(
+                        "bitrate of ${fixture.name}: $kilobits kbps should be ~$bits bps",
+                        scaled in (bits * 3 / 4)..(bits * 5 / 4),
+                    )
+                }
+            }
+        }
+        assertTrue("no fixture reported a metaphony bitrate at all", sawMetaphonyBitrate)
     }
 
     @Test
@@ -133,7 +154,6 @@ class AudioMetadataSourcesInstrumentedTest {
 
     private data class Fixture(
         val name: String,
-        val hasTags: Boolean,
-        val hasPicture: Boolean,
+        val hasGenres: Boolean,
     )
 }
