@@ -125,6 +125,15 @@ class AudioMetadataContractTest {
     }
 
     @Test
+    fun `coverPlanFor resizes png artwork into a jpg when a max side is configured`() {
+        val picture = EmbeddedPicture(byteArrayOf(1, 2, 3), "image/png")
+
+        val plan = coverPlanFor(metaphonyPolicy, picture, 512, "id")
+
+        assertEquals(CoverPlan("id.jpg", CoverMode.JPEG_RESIZE), plan)
+    }
+
+    @Test
     fun `coverPlanFor never copies retriever artwork verbatim`() {
         val picture = EmbeddedPicture(byteArrayOf(1, 2, 3), "image/png")
 

@@ -107,6 +107,9 @@ interface AudioMetadataSource {
 
     val bitrateIsKilobits: Boolean
 
+    /** True when a failure here falls through to the next source instead of propagating. */
+    val failuresFallBack: Boolean
+
     fun read(context: Context, file: DocumentFileX): RawAudioMetadata?
 }
 
@@ -142,20 +145,20 @@ fun coverPlanFor(
         return CoverPlan(null, CoverMode.NONE)
     }
 
-    val extension = if (policy.nameWithMimeExtension) {
-        coverExtensionFor(picture.mimeType) ?: if (policy.dropWhenMimeUnknown) {
-            return CoverPlan(null, CoverMode.NONE)
-        } else {
-            JPEG_EXTENSION
-        }
-    } else {
-        JPEG_EXTENSION
+    if (policy.dropWhenMimeUnknown && coverExtensionFor(picture.mimeType) == null) {
+        return CoverPlan(null, CoverMode.NONE)
     }
 
     val mode = if (policy.copyBytesWhenNoResize && artworkQualityMaxSide == null) {
         CoverMode.RAW_COPY
     } else {
         CoverMode.JPEG_RESIZE
+    }
+
+    val extension = if (mode == CoverMode.RAW_COPY && policy.nameWithMimeExtension) {
+        coverExtensionFor(picture.mimeType) ?: JPEG_EXTENSION
+    } else {
+        JPEG_EXTENSION
     }
 
     return CoverPlan("$id.$extension", mode)
@@ -171,6 +174,7 @@ object MetaphonyMetadataSource : AudioMetadataSource {
     override val storesLyrics: Boolean = true
     override val durationIsSeconds: Boolean = true
     override val bitrateIsKilobits: Boolean = true
+    override val failuresFallBack: Boolean = true
 
     override fun read(context: Context, file: DocumentFileX): RawAudioMetadata? {
         val metadata = context.contentResolver
@@ -212,6 +216,7 @@ object MediaMetadataRetrieverSource : AudioMetadataSource {
     override val storesLyrics: Boolean = false
     override val durationIsSeconds: Boolean = false
     override val bitrateIsKilobits: Boolean = false
+    override val failuresFallBack: Boolean = false
 
     override fun read(context: Context, file: DocumentFileX): RawAudioMetadata? {
         val retriever = MediaMetadataRetriever()
@@ -269,4 +274,111 @@ object MediaMetadataRetrieverSource : AudioMetadataSource {
             picture = retriever.embeddedPicture?.let { EmbeddedPicture(it, null) },
         )
     }
+}
+
+data class FileInfo(
+    val name: String,
+    val lastModified: Long,
+    val size: Long,
+    val pathName: String,
+)
+
+data class ResolutionOptions(
+    val artistSeparatorRegex: Regex,
+    val genreSeparatorRegex: Regex,
+)
+
+data class SongResolution(
+    val fields: SongFields,
+    val coverPlan: CoverPlan,
+    val lyricsToStore: String?,
+    val usedSource: AudioMetadataSource,
+)
+
+/**
+ * Reads the first source that produces metadata. A failing source falls through only when it
+ * declares [AudioMetadataSource.failuresFallBack]; otherwise its exception propagates, which is
+ * the behaviour of the media-retriever path (INV-2, INV-3).
+ */
+fun readFirstAvailable(
+    sources: List<AudioMetadataSource>,
+    onSourceError: (AudioMetadataSource, Exception) -> Unit = { _, _ -> },
+    reader: (AudioMetadataSource) -> RawAudioMetadata?,
+): Pair<AudioMetadataSource, RawAudioMetadata>? {
+    for (source in sources) {
+        val metadata = if (source.failuresFallBack) {
+            try {
+                reader(source)
+            } catch (err: Exception) {
+                onSourceError(source, err)
+                null
+            }
+        } else {
+            reader(source)
+        }
+        if (metadata != null) {
+            return source to metadata
+        }
+    }
+    return null
+}
+
+fun buildSongFields(
+    fileInfo: FileInfo,
+    options: ResolutionOptions,
+    id: String,
+    source: AudioMetadataSource,
+    raw: RawAudioMetadata,
+    artworkQualityMaxSide: Int?,
+): SongResolution {
+    val songId = id + source.idSuffix
+    val duration = if (source.durationIsSeconds) {
+        secondsToMillisOrZero(raw.durationRaw)
+    } else {
+        raw.durationRaw ?: 0L
+    }
+    val bitrate = if (source.bitrateIsKilobits) {
+        kbpsToBps(raw.bitrateRaw)
+    } else {
+        raw.bitrateRaw
+    }
+    val coverPlan = coverPlanFor(
+        source.artworkPolicy,
+        raw.picture,
+        artworkQualityMaxSide,
+        songId,
+    )
+    return SongResolution(
+        fields = SongFields(
+            id = songId,
+            title = titleOrFileName(raw.title, SimplePath(fileInfo.pathName)),
+            album = raw.album,
+            artists = Song.parseMultiValue(raw.artists, options.artistSeparatorRegex),
+            composers = Song.parseMultiValue(raw.composers, options.artistSeparatorRegex),
+            albumArtists = Song.parseMultiValue(raw.albumArtists, options.artistSeparatorRegex),
+            genres = Song.parseMultiValue(raw.genres, options.genreSeparatorRegex),
+            trackNumber = raw.trackNumber,
+            trackTotal = raw.trackTotal,
+            discNumber = raw.discNumber,
+            discTotal = raw.discTotal,
+            date = raw.date,
+            year = raw.year,
+            duration = duration,
+            bitrate = bitrate,
+            samplingRate = raw.samplingRate,
+            channels = raw.channels,
+            encoder = raw.encoder,
+            dateModified = fileInfo.lastModified,
+            size = fileInfo.size,
+            coverFile = coverPlan.fileName,
+            path = fileInfo.pathName,
+        ),
+        coverPlan = coverPlan,
+        lyricsToStore = if (shouldStoreLyrics(source.storesLyrics, raw.lyrics)) {
+            raw.lyrics
+        } else {
+            null
+        },
+        usedSource = source,
+    )
 }
