@@ -66,3 +66,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
 room = { id = "androidx.room", version.ref = "room" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "android-gradle-plugin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin-gradle-plugin" }
