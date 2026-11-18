@@ -18,7 +18,7 @@ import io.github.zyrouge.symphony.ui.view.HomePageBottomBarLabelVisibility
 import io.github.zyrouge.symphony.ui.view.NowPlayingControlsLayout
 import io.github.zyrouge.symphony.ui.view.NowPlayingLyricsLayout
 import io.github.zyrouge.symphony.ui.view.home.ForYou
-import io.github.zyrouge.symphony.utils.ImagePreserver
+import io.github.zyrouge.symphony.utils.ImageQuality
 import io.github.zyrouge.symphony.utils.StringListUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -322,8 +322,8 @@ class Settings(private val symphony: Symphony) {
     }
     val artworkQuality = EnumEntry(
         "artwork_quality",
-        enumEntries<ImagePreserver.Quality>(),
-        ImagePreserver.Quality.Medium,
+        enumEntries<ImageQuality>(),
+        ImageQuality.Medium,
     )
     val useMetaphony = BooleanEntry("use_metaphony", true)
     val gaplessPlayback = BooleanEntry("gapless_playback", true)

@@ -1,17 +1,13 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
-import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
-import java.io.FileOutputStream
 import java.math.RoundingMode
 import java.time.LocalDate
 
@@ -47,12 +43,14 @@ data class Song(
         val symphony: Symphony,
         val artistSeparatorRegex: Regex,
         val genreSeparatorRegex: Regex,
+        val artworkSink: ArtworkSink,
     ) {
         companion object {
             fun create(symphony: Symphony) = ParseOptions(
                 symphony = symphony,
                 artistSeparatorRegex = makeSeparatorsRegex(symphony.settings.artistTagSeparators.value),
                 genreSeparatorRegex = makeSeparatorsRegex(symphony.settings.genreTagSeparators.value),
+                artworkSink = AndroidArtworkSink(symphony),
             )
         }
     }
@@ -171,40 +169,13 @@ data class Song(
                 encoder = fields.encoder,
                 dateModified = fields.dateModified,
                 size = fields.size,
-                coverFile = applyCoverPlan(
-                    symphony,
+                coverFile = options.artworkSink.store(
                     resolution.coverPlan,
                     metadata.picture,
                 ),
                 uri = file.uri,
                 path = fields.path,
             )
-        }
-
-        private fun applyCoverPlan(
-            symphony: Symphony,
-            plan: CoverPlan,
-            picture: EmbeddedPicture?,
-        ): String? {
-            val name = plan.fileName
-            if (picture == null || name == null || plan.mode == CoverMode.NONE) {
-                return null
-            }
-            when (plan.mode) {
-                CoverMode.RAW_COPY -> {
-                    symphony.database.artworkCache.get(name).writeBytes(picture.data)
-                }
-                CoverMode.JPEG_RESIZE -> {
-                    val bitmap = BitmapFactory.decodeByteArray(picture.data, 0, picture.data.size)
-                    val quality = symphony.settings.artworkQuality.value
-                    FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                        ImagePreserver.resize(bitmap, quality)
-                            .compress(Bitmap.CompressFormat.JPEG, 100, writer)
-                    }
-                }
-                CoverMode.NONE -> return null
-            }
-            return name
         }
 
     }

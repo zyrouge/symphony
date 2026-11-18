@@ -60,7 +60,7 @@ import io.github.zyrouge.symphony.ui.components.settings.SettingsTextInputTile
 import io.github.zyrouge.symphony.ui.helpers.TransitionDurations
 import io.github.zyrouge.symphony.ui.helpers.ViewContext
 import io.github.zyrouge.symphony.ui.view.SettingsViewRoute
-import io.github.zyrouge.symphony.utils.ImagePreserver
+import io.github.zyrouge.symphony.utils.ImageQuality
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -265,7 +265,7 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
                             Text(context.symphony.t.ArtworkQuality)
                         },
                         value = artworkQuality,
-                        values = ImagePreserver.Quality.entries
+                        values = ImageQuality.entries
                             .associateWith { it.label(context) },
                         onChange = { value ->
                             context.symphony.settings.artworkQuality.setValue(value)
@@ -321,11 +321,11 @@ fun GrooveSettingsView(context: ViewContext, route: GrooveSettingsViewRoute) {
     )
 }
 
-fun ImagePreserver.Quality.label(context: ViewContext) = when (this) {
-    ImagePreserver.Quality.Low -> context.symphony.t.Low
-    ImagePreserver.Quality.Medium -> context.symphony.t.Medium
-    ImagePreserver.Quality.High -> context.symphony.t.High
-    ImagePreserver.Quality.Loseless -> context.symphony.t.Loseless
+fun ImageQuality.label(context: ViewContext) = when (this) {
+    ImageQuality.Low -> context.symphony.t.Low
+    ImageQuality.Medium -> context.symphony.t.Medium
+    ImageQuality.High -> context.symphony.t.High
+    ImageQuality.Loseless -> context.symphony.t.Loseless
 }
 
 private fun refreshMediaLibrary(symphony: Symphony, clearCache: Boolean = false) {
