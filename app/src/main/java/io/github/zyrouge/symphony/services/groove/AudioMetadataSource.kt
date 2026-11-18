@@ -296,28 +296,32 @@ data class SongResolution(
 )
 
 /**
- * Reads the first source that produces metadata. A failing source falls through only when it
- * declares [AudioMetadataSource.failuresFallBack]; otherwise its exception propagates, which is
- * the behaviour of the media-retriever path (INV-2, INV-3).
+ * Runs [attempt] against sources in order and returns the first non-null result.
+ *
+ * A failure falls through to the next source only when that source declares
+ * [AudioMetadataSource.failuresFallBack]; otherwise it propagates, which is the retriever's
+ * behaviour (INV-2, INV-3). [attempt] is deliberately whole-attempt: the original code wrapped
+ * reading, artwork writing and lyrics caching for the metaphony path, so a failure in any of them
+ * still fell back.
  */
-fun readFirstAvailable(
+fun <T : Any> readFirstAvailable(
     sources: List<AudioMetadataSource>,
     onSourceError: (AudioMetadataSource, Exception) -> Unit = { _, _ -> },
-    reader: (AudioMetadataSource) -> RawAudioMetadata?,
-): Pair<AudioMetadataSource, RawAudioMetadata>? {
+    attempt: (AudioMetadataSource) -> T?,
+): T? {
     for (source in sources) {
-        val metadata = if (source.failuresFallBack) {
+        val result = if (source.failuresFallBack) {
             try {
-                reader(source)
+                attempt(source)
             } catch (err: Exception) {
                 onSourceError(source, err)
                 null
             }
         } else {
-            reader(source)
+            attempt(source)
         }
-        if (metadata != null) {
-            return source to metadata
+        if (result != null) {
+            return result
         }
     }
     return null

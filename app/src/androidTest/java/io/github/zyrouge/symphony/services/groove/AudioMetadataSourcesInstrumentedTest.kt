@@ -33,40 +33,87 @@ class AudioMetadataSourcesInstrumentedTest {
         )
     }
 
-    @Test
-    fun metaphonySourceReadsRealFiles() {
-        for (asset in AUDIO_FIXTURES) {
-            val metadata = MetaphonyMetadataSource.read(context, stage(asset))
+    /**
+     * Expectations read directly from the fixture bytes, not guessed: the flac/ogg Vorbis comments and
+     * the three ID3 files carry `TITLE=Demo Audio`, `ALBUM=Demo Album`, the multi-value artist
+     * `Demo Artist 1; Demo Artist 2`, and an embedded png (ogg and m4a carry no picture); `audio.m4a`
+     * has no text tags at all.
+     */
+    private fun fixtures() = listOf(
+        Fixture("audio.flac", hasTags = true, hasPicture = true),
+        Fixture("audio.mp3", hasTags = true, hasPicture = true),
+        Fixture("audio-id3v2.3.mp3", hasTags = true, hasPicture = true),
+        Fixture("audio-id3v2.4.mp3", hasTags = true, hasPicture = true),
+        Fixture("audio.ogg", hasTags = true, hasPicture = false),
+        Fixture("audio.m4a", hasTags = false, hasPicture = false),
+    )
 
-            assertNotNull("metaphony returned nothing for $asset", metadata)
-            assertNotNull("metaphony produced no duration for $asset", metadata!!.durationRaw)
-            assertTrue("metaphony duration must be positive for $asset", metadata.durationRaw!! > 0)
-            assertTrue("metaphony must report a title for $asset", metadata.title != null)
+    @Test
+    fun metaphonySourceReadsEveryFixture() {
+        for (fixture in fixtures()) {
+            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))
+
+            assertNotNull("metaphony returned nothing for ${fixture.name}", metadata)
+            assertNotNull("metaphony produced no duration for ${fixture.name}", metadata!!.durationRaw)
+            assertTrue("metaphony duration must be positive for ${fixture.name}", metadata.durationRaw!! > 0)
         }
     }
 
     @Test
-    fun retrieverSourceReadsRealFiles() {
-        for (asset in AUDIO_FIXTURES) {
-            val metadata = MediaMetadataRetrieverSource.read(context, stage(asset))
+    fun metaphonySourceReadsTaggedFields() {
+        for (fixture in fixtures().filter { it.hasPicture || it.hasTags }) {
+            val metadata = MetaphonyMetadataSource.read(context, stage(fixture.name))!!
 
-            assertNotNull("retriever returned nothing for $asset", metadata)
-            assertNotNull("retriever produced no duration for $asset", metadata!!.durationRaw)
-            assertTrue("retriever duration must be positive for $asset", metadata.durationRaw!! > 0)
-            assertNull("retriever must not invent channels for $asset", metadata.channels)
-            assertNull("retriever must not invent an encoder for $asset", metadata.encoder)
+            assertEquals("title of ${fixture.name}", "Demo Audio", metadata.title)
+            assertEquals("album of ${fixture.name}", "Demo Album", metadata.album)
+            assertTrue(
+                "artists of ${fixture.name} must keep both values",
+                metadata.artists.any { it.contains("Demo Artist 1") },
+            )
+            assertTrue(
+                "artists of ${fixture.name} must keep the second value",
+                metadata.artists.any { it.contains("Demo Artist 2") },
+            )
+            assertEquals(
+                "picture presence of ${fixture.name}",
+                fixture.hasPicture,
+                metadata.picture != null,
+            )
+        }
+    }
+
+    @Test
+    fun metaphonySourceReportsEnglishGenres() {
+        val flac = MetaphonyMetadataSource.read(context, stage("audio.flac"))!!
+
+        assertEquals(setOf("Rap", "Rock"), flac.genres)
+    }
+
+    @Test
+    fun retrieverSourceReadsEveryFixture() {
+        for (fixture in fixtures()) {
+            val metadata = MediaMetadataRetrieverSource.read(context, stage(fixture.name))
+
+            assertNotNull("retriever returned nothing for ${fixture.name}", metadata)
+            assertNotNull("retriever produced no duration for ${fixture.name}", metadata!!.durationRaw)
+            assertTrue(
+                "retriever duration must be positive for ${fixture.name}",
+                metadata.durationRaw!! > 0,
+            )
+            assertNull("retriever must not invent channels for ${fixture.name}", metadata.channels)
+            assertNull("retriever must not invent an encoder for ${fixture.name}", metadata.encoder)
         }
     }
 
     @Test
     fun theTwoSourcesReportDurationInDifferentUnits() {
-        for (asset in AUDIO_FIXTURES) {
-            val file = stage(asset)
+        for (fixture in fixtures()) {
+            val file = stage(fixture.name)
             val seconds = MetaphonyMetadataSource.read(context, file)!!.durationRaw!!
             val milliseconds = MediaMetadataRetrieverSource.read(context, file)!!.durationRaw!!
 
             assertTrue(
-                "expected $asset to differ by roughly 1000x, got $seconds s vs $milliseconds ms",
+                "expected ${fixture.name} to differ by roughly 1000x, got $seconds s vs $milliseconds ms",
                 milliseconds in (seconds * 1000 - 2000)..(seconds * 1000 + 2000),
             )
         }
@@ -84,7 +131,9 @@ class AudioMetadataSourcesInstrumentedTest {
         assertEquals(false, MediaMetadataRetrieverSource.failuresFallBack)
     }
 
-    private companion object {
-        val AUDIO_FIXTURES = listOf("audio.flac", "audio.mp3", "audio.ogg")
-    }
+    private data class Fixture(
+        val name: String,
+        val hasTags: Boolean,
+        val hasPicture: Boolean,
+    )
 }

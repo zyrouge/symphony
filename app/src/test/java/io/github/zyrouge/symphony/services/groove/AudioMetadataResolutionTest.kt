@@ -107,8 +107,7 @@ class AudioMetadataResolutionTest {
         }
 
         assertNotNull(result)
-        assertEquals(first, result!!.second)
-        assertEquals(metaphonyLike, result.first)
+        assertEquals("First", result!!.title)
     }
 
     @Test
@@ -119,8 +118,7 @@ class AudioMetadataResolutionTest {
             if (source === metaphonyLike) null else second
         }
 
-        assertEquals(retrieverLike, result!!.first)
-        assertEquals("Second", result.second.title)
+        assertEquals("Second", result!!.title)
     }
 
     @Test
@@ -128,19 +126,19 @@ class AudioMetadataResolutionTest {
         val errors = mutableListOf<Pair<AudioMetadataSource, Exception>>()
         val second = rawMetadata(title = "Second")
 
-        val result = readFirstAvailable(
+        val result = readFirstAvailable<RawAudioMetadata>(
             sources = listOf(metaphonyLike, retrieverLike),
-            reader = { source ->
+            onSourceError = { source, err -> errors.add(source to err) },
+            attempt = { source ->
                 if (source === metaphonyLike) {
                     throw IllegalStateException("metaphony blew up")
                 } else {
                     second
                 }
             },
-            onSourceError = { source, err -> errors.add(source to err) },
         )
 
-        assertEquals(retrieverLike, result!!.first)
+        assertEquals("Second", result!!.title)
         assertEquals(1, errors.size)
         assertEquals(metaphonyLike, errors.single().first)
         assertEquals("metaphony blew up", errors.single().second.message)

@@ -106,14 +106,26 @@ data class Song(
             } else {
                 listOf(MediaMetadataRetrieverSource)
             }
-            val id = symphony.groove.song.idGenerator.next()
-            val resolved = readFirstAvailable(
+            return readFirstAvailable(
                 sources = sources,
                 onSourceError = { _, err ->
                     Logger.error("Song", "could not parse using metaphony", err)
                 },
-            ) { source -> source.read(symphony.applicationContext, file) }
-                ?: error("no audio metadata source could read ${file.name}")
+            ) { source ->
+                val metadata = source.read(symphony.applicationContext, file)
+                    ?: return@readFirstAvailable null
+                assembleSong(path, file, options, source, metadata)
+            } ?: error("no audio metadata source could read ${file.name}")
+        }
+
+        private fun assembleSong(
+            path: SimplePath,
+            file: DocumentFileX,
+            options: ParseOptions,
+            source: AudioMetadataSource,
+            metadata: RawAudioMetadata,
+        ): Song {
+            val symphony = options.symphony
             val resolution = buildSongFields(
                 fileInfo = FileInfo(
                     name = file.name,
@@ -125,9 +137,9 @@ data class Song(
                     artistSeparatorRegex = options.artistSeparatorRegex,
                     genreSeparatorRegex = options.genreSeparatorRegex,
                 ),
-                id = id,
-                source = resolved.first,
-                raw = resolved.second,
+                id = symphony.groove.song.idGenerator.next(),
+                source = source,
+                raw = metadata,
                 artworkQualityMaxSide = symphony.settings.artworkQuality.value.maxSide,
             )
             val fields = resolution.fields
@@ -158,7 +170,7 @@ data class Song(
                 coverFile = applyCoverPlan(
                     symphony,
                     resolution.coverPlan,
-                    resolved.second.picture,
+                    metadata.picture,
                 ),
                 uri = file.uri,
                 path = fields.path,
