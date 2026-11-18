@@ -14,9 +14,17 @@ kotlin {
 
     jvmToolchain(17)
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         val jvmSharedMain by creating {
             dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.fuzzywuzzy)
+                implementation(libs.okhttp3)
+            }
         }
         androidMain.get().dependsOn(jvmSharedMain)
         jvmMain.get().dependsOn(jvmSharedMain)
