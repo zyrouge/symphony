@@ -2,9 +2,7 @@ package io.github.zyrouge.symphony.services.groove
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -13,7 +11,6 @@ import io.github.zyrouge.symphony.utils.DocumentFileX
 import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
-import me.zyrouge.symphony.metaphony.AudioMetadataParser
 import java.io.FileOutputStream
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -103,158 +100,95 @@ data class Song(
             file: DocumentFileX,
             options: ParseOptions,
         ): Song {
-            if (options.symphony.settings.useMetaphony.value) {
-                try {
-                    val song = parseUsingMetaphony(path, file, options)
-                    if (song != null) {
-                        return song
-                    }
-                } catch (err: Exception) {
-                    Logger.error("Song", "could not parse using metaphony", err)
-                }
-            }
-            return parseUsingMediaMetadataRetriever(path, file, options)
-        }
-
-        private fun parseUsingMetaphony(
-            path: SimplePath,
-            file: DocumentFileX,
-            options: ParseOptions,
-        ): Song? {
             val symphony = options.symphony
-            val metadata = symphony.applicationContext.contentResolver
-                .openFileDescriptor(file.uri, "r")
-                ?.use { AudioMetadataParser.parse(file.name, it.detachFd()) }
-                ?: return null
+            val sources = if (symphony.settings.useMetaphony.value) {
+                listOf(MetaphonyMetadataSource, MediaMetadataRetrieverSource)
+            } else {
+                listOf(MediaMetadataRetrieverSource)
+            }
             val id = symphony.groove.song.idGenerator.next()
-            val coverFile = metadata.pictures.firstOrNull()?.let {
-                val extension = when (it.mimeType) {
-                    "image/jpg", "image/jpeg" -> "jpg"
-                    "image/png" -> "png"
-                    else -> null
-                }
-                if (extension == null) {
-                    return@let null
-                }
-                val quality = symphony.settings.artworkQuality.value
-                if (quality.maxSide == null) {
-                    val name = "$id.$extension"
-                    symphony.database.artworkCache.get(name).writeBytes(it.data)
-                    return@let name
-                }
-                val bitmap = BitmapFactory.decodeByteArray(it.data, 0, it.data.size)
-                val name = "$id.jpg"
-                FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                    ImagePreserver
-                        .resize(bitmap, quality)
-                        .compress(Bitmap.CompressFormat.JPEG, 100, writer)
-                }
-                name
-            }
-            metadata.lyrics?.let {
-                symphony.database.lyricsCache.put(id, it)
+            val resolved = readFirstAvailable(
+                sources = sources,
+                onSourceError = { _, err ->
+                    Logger.error("Song", "could not parse using metaphony", err)
+                },
+            ) { source -> source.read(symphony.applicationContext, file) }
+                ?: error("no audio metadata source could read ${file.name}")
+            val resolution = buildSongFields(
+                fileInfo = FileInfo(
+                    name = file.name,
+                    lastModified = file.lastModified,
+                    size = file.size,
+                    pathName = path.pathString,
+                ),
+                options = ResolutionOptions(
+                    artistSeparatorRegex = options.artistSeparatorRegex,
+                    genreSeparatorRegex = options.genreSeparatorRegex,
+                ),
+                id = id,
+                source = resolved.first,
+                raw = resolved.second,
+                artworkQualityMaxSide = symphony.settings.artworkQuality.value.maxSide,
+            )
+            val fields = resolution.fields
+            resolution.lyricsToStore?.let {
+                symphony.database.lyricsCache.put(fields.id, it)
             }
             return Song(
-                id = id,
-                title = metadata.title ?: path.nameWithoutExtension,
-                album = metadata.album,
-                artists = parseMultiValue(metadata.artists, options.artistSeparatorRegex),
-                composers = parseMultiValue(metadata.composers, options.artistSeparatorRegex),
-                albumArtists = parseMultiValue(metadata.albumArtists, options.artistSeparatorRegex),
-                genres = parseMultiValue(metadata.genres, options.genreSeparatorRegex),
-                trackNumber = metadata.trackNumber,
-                trackTotal = metadata.trackTotal,
-                discNumber = metadata.discNumber,
-                discTotal = metadata.discTotal,
-                date = metadata.date,
-                year = metadata.date?.year,
-                duration = metadata.lengthInSeconds?.let { it * 1000L } ?: 0,
-                bitrate = metadata.bitrate?.let { it * 1000L },
-                samplingRate = metadata.sampleRate?.toLong(),
-                channels = metadata.channels,
-                encoder = metadata.encoding,
-                dateModified = file.lastModified,
-                size = file.size,
-                coverFile = coverFile,
+                id = fields.id,
+                title = fields.title,
+                album = fields.album,
+                artists = fields.artists,
+                composers = fields.composers,
+                albumArtists = fields.albumArtists,
+                genres = fields.genres,
+                trackNumber = fields.trackNumber,
+                trackTotal = fields.trackTotal,
+                discNumber = fields.discNumber,
+                discTotal = fields.discTotal,
+                date = fields.date,
+                year = fields.year,
+                duration = fields.duration,
+                bitrate = fields.bitrate,
+                samplingRate = fields.samplingRate,
+                channels = fields.channels,
+                encoder = fields.encoder,
+                dateModified = fields.dateModified,
+                size = fields.size,
+                coverFile = applyCoverPlan(
+                    symphony,
+                    resolution.coverPlan,
+                    resolved.second.picture,
+                ),
                 uri = file.uri,
-                path = path.pathString,
+                path = fields.path,
             )
         }
 
-        fun parseUsingMediaMetadataRetriever(
-            path: SimplePath,
-            file: DocumentFileX,
-            options: ParseOptions,
-        ): Song {
-            val symphony = options.symphony
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(symphony.applicationContext, file.uri)
-            val id = symphony.groove.song.idGenerator.next() + ".mr"
-            val coverFile = retriever.embeddedPicture?.let {
-                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                val quality = symphony.settings.artworkQuality.value
-                val name = "$id.jpg"
-                FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                    ImagePreserver
-                        .resize(bitmap, quality)
-                        .compress(Bitmap.CompressFormat.JPEG, 100, writer)
+        private fun applyCoverPlan(
+            symphony: Symphony,
+            plan: CoverPlan,
+            picture: EmbeddedPicture?,
+        ): String? {
+            val name = plan.fileName
+            if (picture == null || name == null || plan.mode == CoverMode.NONE) {
+                return null
+            }
+            when (plan.mode) {
+                CoverMode.RAW_COPY -> {
+                    symphony.database.artworkCache.get(name).writeBytes(picture.data)
                 }
-                name
+                CoverMode.JPEG_RESIZE -> {
+                    val bitmap = BitmapFactory.decodeByteArray(picture.data, 0, picture.data.size)
+                    val quality = symphony.settings.artworkQuality.value
+                    FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
+                        ImagePreserver.resize(bitmap, quality)
+                            .compress(Bitmap.CompressFormat.JPEG, 100, writer)
+                    }
+                }
+                CoverMode.NONE -> return null
             }
-            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-            val artists = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            val composers = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
-            val albumArtists =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-            val genres = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
-            val trackNumber = retriever
-                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)
-                ?.toIntOrNull()
-            val trackTotal = retriever
-                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS)
-                ?.toIntOrNull()
-            val discNumber = retriever
-                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)
-                ?.toIntOrNull()
-            val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
-            val year = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
-                ?.toIntOrNull()
-            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                ?.toLongOrNull()
-            val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
-                ?.toLongOrNull()
-            var samplingRate: Long? = null
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                samplingRate = retriever
-                    .extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
-                    ?.toLongOrNull()
-            }
-            return Song(
-                id = id,
-                title = title ?: path.nameWithoutExtension,
-                album = album,
-                artists = parseMultiValue(artists, options.artistSeparatorRegex),
-                composers = parseMultiValue(composers, options.artistSeparatorRegex),
-                albumArtists = parseMultiValue(albumArtists, options.artistSeparatorRegex),
-                genres = parseMultiValue(genres, options.genreSeparatorRegex),
-                trackNumber = trackNumber,
-                trackTotal = trackTotal,
-                discNumber = discNumber,
-                discTotal = null,
-                date = runCatching { LocalDate.parse(date) }.getOrNull(),
-                year = year,
-                duration = duration ?: 0,
-                bitrate = bitrate,
-                samplingRate = samplingRate,
-                channels = null,
-                encoder = null,
-                dateModified = file.lastModified,
-                size = file.size,
-                coverFile = coverFile,
-                uri = file.uri,
-                path = path.pathString,
-            )
+            return name
         }
 
         private fun makeSeparatorsRegex(separators: Set<String>): Regex {
