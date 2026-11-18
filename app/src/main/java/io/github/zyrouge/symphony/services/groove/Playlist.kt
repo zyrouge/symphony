@@ -64,10 +64,7 @@ data class Playlist(
             val file = DocumentFileX.fromSingleUri(symphony.applicationContext, uri)!!
             val content = symphony.applicationContext.contentResolver.openInputStream(uri)
                 ?.use { String(it.readBytes()) } ?: ""
-            val songPaths = content.lineSequence()
-                .map { it.trim() }
-                .filter { it.isNotEmpty() && it[0] != '#' }
-                .toList()
+            val songPaths = parseM3u(content)
             val id = playlistId ?: symphony.groove.playlist.idGenerator.next()
             val path = DocumentFileX.getParentPathOfSingleUri(file.uri) ?: file.name
             return Playlist(

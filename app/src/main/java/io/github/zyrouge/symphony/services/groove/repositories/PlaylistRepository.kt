@@ -3,6 +3,7 @@ package io.github.zyrouge.symphony.services.groove.repositories
 import android.net.Uri
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.services.groove.Playlist
+import io.github.zyrouge.symphony.services.groove.buildM3u
 import io.github.zyrouge.symphony.utils.ActivityUtils
 import io.github.zyrouge.symphony.utils.FuzzySearchOption
 import io.github.zyrouge.symphony.utils.FuzzySearcher
@@ -219,7 +220,7 @@ class PlaylistRepository(private val symphony: Symphony) {
     fun savePlaylistToUri(playlist: Playlist, uri: Uri) {
         val outputStream = symphony.applicationContext.contentResolver.openOutputStream(uri, "w")
         outputStream?.use {
-            val content = playlist.songPaths.joinToString("\n")
+            val content = buildM3u(playlist.songPaths)
             it.write(content.toByteArray())
         }
     }

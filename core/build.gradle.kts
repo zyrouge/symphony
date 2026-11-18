@@ -12,13 +12,35 @@ kotlin {
 
     jvm()
 
+    jvm {
+        testRuns.named("test") {
+            executionTask.configure {
+                useJUnitPlatform()
+            }
+        }
+    }
+
     jvmToolchain(17)
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
 
     sourceSets {
         val jvmSharedMain by creating {
             dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.fuzzywuzzy)
+                implementation(libs.okhttp3)
+            }
         }
         androidMain.get().dependsOn(jvmSharedMain)
         jvmMain.get().dependsOn(jvmSharedMain)
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.junit.jupiter)
+                runtimeOnly(libs.junit.platform.launcher)
+            }
+        }
     }
 }

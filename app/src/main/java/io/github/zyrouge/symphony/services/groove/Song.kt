@@ -1,20 +1,15 @@
 package io.github.zyrouge.symphony.services.groove
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.github.zyrouge.symphony.Symphony
 import io.github.zyrouge.symphony.utils.DocumentFileX
-import io.github.zyrouge.symphony.utils.ImagePreserver
 import io.github.zyrouge.symphony.utils.Logger
 import io.github.zyrouge.symphony.utils.SimplePath
-import java.io.FileOutputStream
 import java.math.RoundingMode
 import java.time.LocalDate
-import java.util.regex.Pattern
 
 @Immutable
 @Entity("songs")
@@ -48,12 +43,14 @@ data class Song(
         val symphony: Symphony,
         val artistSeparatorRegex: Regex,
         val genreSeparatorRegex: Regex,
+        val artworkSink: ArtworkSink,
     ) {
         companion object {
             fun create(symphony: Symphony) = ParseOptions(
                 symphony = symphony,
                 artistSeparatorRegex = makeSeparatorsRegex(symphony.settings.artistTagSeparators.value),
                 genreSeparatorRegex = makeSeparatorsRegex(symphony.settings.genreTagSeparators.value),
+                artworkSink = AndroidArtworkSink(symphony),
             )
         }
     }
@@ -106,13 +103,18 @@ data class Song(
             } else {
                 listOf(MediaMetadataRetrieverSource)
             }
+            val audioFile = SafAudioFile(
+                context = symphony.applicationContext,
+                file = file,
+                pathName = path.pathString,
+            )
             return readFirstAvailable(
                 sources = sources,
                 onSourceError = { _, err ->
                     Logger.error("Song", "could not parse using metaphony", err)
                 },
             ) { source ->
-                val metadata = source.read(symphony.applicationContext, file)
+                val metadata = source.read(audioFile)
                     ?: return@readFirstAvailable null
                 assembleSong(path, file, options, source, metadata)
             } ?: error("no audio metadata source could read ${file.name}")
@@ -167,8 +169,7 @@ data class Song(
                 encoder = fields.encoder,
                 dateModified = fields.dateModified,
                 size = fields.size,
-                coverFile = applyCoverPlan(
-                    symphony,
+                coverFile = options.artworkSink.store(
                     resolution.coverPlan,
                     metadata.picture,
                 ),
@@ -177,53 +178,5 @@ data class Song(
             )
         }
 
-        private fun applyCoverPlan(
-            symphony: Symphony,
-            plan: CoverPlan,
-            picture: EmbeddedPicture?,
-        ): String? {
-            val name = plan.fileName
-            if (picture == null || name == null || plan.mode == CoverMode.NONE) {
-                return null
-            }
-            when (plan.mode) {
-                CoverMode.RAW_COPY -> {
-                    symphony.database.artworkCache.get(name).writeBytes(picture.data)
-                }
-                CoverMode.JPEG_RESIZE -> {
-                    val bitmap = BitmapFactory.decodeByteArray(picture.data, 0, picture.data.size)
-                    val quality = symphony.settings.artworkQuality.value
-                    FileOutputStream(symphony.database.artworkCache.get(name)).use { writer ->
-                        ImagePreserver.resize(bitmap, quality)
-                            .compress(Bitmap.CompressFormat.JPEG, 100, writer)
-                    }
-                }
-                CoverMode.NONE -> return null
-            }
-            return name
-        }
-
-        private fun makeSeparatorsRegex(separators: Set<String>): Regex {
-            val partial = separators.joinToString("|") { Pattern.quote(it) }
-            return Regex("""(?<!\\)($partial)""")
-        }
-
-        fun parseMultiValue(value: String?, regex: Regex) = value?.let {
-            parseMultiValue(setOf(it), regex)
-        } ?: emptySet()
-
-        fun parseMultiValue(values: Set<String>, regex: Regex): Set<String> {
-            val result = mutableSetOf<String>()
-            for (x in values) {
-                for (y in x.trim().split(regex)) {
-                    val trimmed = y.trim()
-                    if (trimmed.isEmpty()) {
-                        continue
-                    }
-                    result.add(trimmed)
-                }
-            }
-            return result
-        }
     }
 }
