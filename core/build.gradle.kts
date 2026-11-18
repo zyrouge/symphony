@@ -13,4 +13,12 @@ kotlin {
     jvm()
 
     jvmToolchain(17)
+
+    sourceSets {
+        val jvmSharedMain by creating {
+            dependsOn(commonMain.get())
+        }
+        androidMain.get().dependsOn(jvmSharedMain)
+        jvmMain.get().dependsOn(jvmSharedMain)
+    }
 }
